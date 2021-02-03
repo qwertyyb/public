@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      outline: none;
+    }
+    .candidate-item {
+      display: grid;
+      grid-template-areas: "icon title"
+                           "icon subtitle";
+      grid-template-columns: 60px 1fr;
+      grid-template-rows: 30px 20px;
+      padding: 6px 12px;
+    }
+    .candidate-icon {
+      grid-area: icon;
+      vertical-align: middle;
+    }
+    .candidate-title {
+      grid-area: title;
+    }
+    .candidate-subtitle {
+      grid-area: subtitle
+    }
+    .input-bar {
+
+    }
+    .input {
+      width: 720px;
+      height: 54px;
+      font-size: 26px;
+      border: none;
+      box-sizing: border-box;
+      padding: 0 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="input-bar">
+    <input type="text" class="input">
+  </div>
+  <ul class="candidate-list">
+    <li class="candidate-item">
+      <img src="https://via.placeholder.com/50" alt="candidate icon" class="candidate-icon">
+      <!-- <div class="candidate-info"> -->
+        <div class="candidate-title">title</div>
+        <div class="candidate-subtitle">subTitle</div>
+      <!-- </div> -->
+    </li>
+    <li class="candidate-item">
+      <img src="https://via.placeholder.com/50" alt="candidate icon" class="candidate-icon">
+      <div class="candidate-info">
+        <h4 class="candidate-title">title</h4>
+        <h6 class="canidate-subtitle">subTitle</h6>
+      </div>
+    </li>
+    <li class="candidate-item">
+      <img src="https://via.placeholder.com/50" alt="candidate icon" class="candidate-icon">
+      <div class="candidate-info">
+        <h4 class="candidate-title">title</h4>
+        <h6 class="canidate-subtitle">subTitle</h6>
+      </div>
+    </li>
+    <li class="candidate-item">
+      <img src="https://via.placeholder.com/50" alt="candidate icon" class="candidate-icon">
+      <div class="candidate-info">
+        <h4 class="candidate-title">title</h4>
+        <h6 class="canidate-subtitle">subTitle</h6>
+      </div>
+    </li>
+  </ul>
+</body>
+</html>
