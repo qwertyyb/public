@@ -1,0 +1,22 @@
+.input-bar {
+  height: 60px;
+  position: relative;
+  z-index: 100;
+  .prefix {
+    background: #bbb;
+    padding: 6px 10px;
+    font-size: 24px;
+    font-weight: bold;
+    height: 100%;
+    box-sizing: border-box;
+  }
+  input {
+    height: 42px;
+    font-size: 26px;
+    padding: 0 10px;
+    width: 100%;
+    box-sizing: border-box;
+    outline: none;
+    border: none;
+  }
+}

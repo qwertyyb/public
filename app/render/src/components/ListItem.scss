@@ -1,0 +1,15 @@
+.item-image-wrapper {
+  width: 60px;
+  height: 60px;
+  margin-right: 8px;
+  img {
+    width: 42px;
+    height: 42px;
+  }
+}
+.list-item {
+  scroll-snap-align: start;
+}
+.list-item.selected {
+  background: #eee;
+}

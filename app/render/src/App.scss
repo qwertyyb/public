@@ -1,0 +1,7 @@
+@import "./style/common.scss";
+
+.item-list {
+  max-height: 600px;
+  overflow: auto;
+  scroll-snap-type: y mandatory;
+}
