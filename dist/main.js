@@ -26,21 +26,28 @@ const electron_1 = require("electron");
 const path = __importStar(require("path"));
 const plugin_1 = __importDefault(require("./plugin"));
 function createWindow() {
+    electron_1.ipcMain.handle('ResizeWindow', (event, arg) => {
+        win.setSize(arg.width, arg.height);
+    });
+    electron_1.ipcMain.on('getApplicationIcon', async (event, args) => {
+        console.log('getApplicationIcon', args);
+        const icon = await electron_1.app.getFileIcon(args.path);
+        event.reply(`getApplicationIcon-${args.path}`, icon.toDataURL());
+    });
     const win = new electron_1.BrowserWindow({
         // width: 720,
-        height: 660,
+        height: 60,
         useContentSize: true,
         frame: false,
         minWidth: 720,
-        // transparent: true,
         webPreferences: {
+            // webSecurity: false,
             nodeIntegration: true,
             devTools: true,
-            preload: path.join(__dirname, './main/preload.js')
-            // contextIsolation: true
+            preload: path.join(__dirname, './main/preload.js'),
+            contextIsolation: false
         }
     });
-    const htmlPath = path.join(__dirname, '../app/views/index.html');
     win.loadURL('http://localhost:8020');
     win.webContents.openDevTools();
 }
@@ -56,6 +63,10 @@ electron_1.app.whenReady().then(() => {
     registerShortcut();
     plugin_1.default();
     electron_1.app.setAccessibilitySupportEnabled(true);
+    electron_1.protocol.registerFileProtocol('localfile', (request, callback) => {
+        const pathname = decodeURIComponent(request.url.replace('localfile:///', ''));
+        callback(pathname);
+    });
 });
 electron_1.app.on('will-quit', () => {
     // 注销所有快捷键
