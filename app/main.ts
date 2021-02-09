@@ -1,23 +1,31 @@
-import { app, BrowserWindow, globalShortcut } from "electron";
+import { app, BrowserWindow, globalShortcut, ipcMain, protocol } from "electron";
 import * as path from 'path';
 import registerAllPlugin from './plugin';
+import { IPCEventName } from './shared/constant';
 
 function createWindow () {
+  ipcMain.handle('ResizeWindow', (event, arg: Size) => {
+    win.setSize(arg.width, arg.height)
+  })
+  ipcMain.on('getApplicationIcon', async (event, args) => {
+    console.log('getApplicationIcon', args)
+    const icon = await app.getFileIcon(args.path);
+    event.reply(`getApplicationIcon-${args.path}`, icon.toDataURL())
+  })
   const win = new BrowserWindow({
     // width: 720,
-    height: 660,
+    height: 60,
     useContentSize: true,
     frame: false,
     minWidth: 720,
-    // transparent: true,
     webPreferences: {
+      // webSecurity: false,
       nodeIntegration: true,
       devTools: true,
-      preload: path.join(__dirname, './main/preload.js')
-      // contextIsolation: true
+      preload: path.join(__dirname, './main/preload.js'),
+      contextIsolation: false
     }
   })
-  const htmlPath = path.join(__dirname, '../app/views/index.html')
   win.loadURL('http://localhost:8020')
   win.webContents.openDevTools()
 }
@@ -36,6 +44,10 @@ app.whenReady().then(() => {
   registerShortcut()
   registerAllPlugin()
   app.setAccessibilitySupportEnabled(true)
+  protocol.registerFileProtocol('localfile', (request, callback) => {
+    const pathname = decodeURIComponent(request.url.replace('localfile:///', ''));
+    callback(pathname);
+  });
 })
 
 app.on('will-quit', () => {
