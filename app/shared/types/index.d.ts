@@ -3,7 +3,15 @@ declare var service: {
 }
 declare var PluginManager: {
   getPlugins: () => PublicPlugin[],
-  handleInput: (keyword: string, setResult: (plugin: PublicPlugin, list: CommonListItem[]) => void) => void
+  handleInput: (keyword: string, setResult: (plugin: PublicPlugin, list: CommonListItem[]) => void) => void,
+  handleEnter: (
+    plugin: PublicPlugin,
+    args: {
+      item: CommonListItem,
+      index: number,
+      list: CommonListItem[]
+    }
+  ) => void
 }
 declare var ipcRenderer: EventEmitter
 declare var ResizeObserver: any
@@ -18,8 +26,12 @@ interface CommonListItem {
   [propName: string]: any;
 }
 
+interface SetResult {
+  (list: CommonListItem[]): void
+}
+
 interface PublicPlugin {
-  onInput: (keyword: string, setResult: (list: CommonListItem[]) => void) => void
+  onInput: (keyword: string, setResult: SetResult) => void
 }
 
 interface AppPlugin {

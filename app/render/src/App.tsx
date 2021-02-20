@@ -46,37 +46,37 @@ class App extends React.Component {
   }
 
   keydownHandler = (e: KeyboardEvent) => {
-    const { selectedIndex, plugins } = this.state
+    const { selectedIndex, plugins, result } = this.state
+    const listLength = Array.from(result.values())
+      .reduce((total, list) => total + list.length, 0)
     if (e.key === 'ArrowUp') {
       this.setState({
-        selectedIndex: (selectedIndex - 1 + plugins.length) % plugins.length
+        selectedIndex: (selectedIndex - 1 + listLength) % listLength
       })
       e.stopPropagation()
     } else if(e.key === 'ArrowDown') {
       this.setState({
-        selectedIndex: (selectedIndex + 1) % plugins.length
+        selectedIndex: (selectedIndex + 1) % listLength
       })
       e.stopPropagation()
     } else if(e.key === 'Enter') {
-      // this.onItemClick(plugins[selectedIndex])
       e.stopPropagation()
     } else if(e.key === 'Backspace' && !this.state.keyword && this.state.prefix) {
     }
   }
 
-  onItemClick = (item: CommonListItem, index: number, pluginResult: CommonListItem[]) => {
+  onItemClick = (
+    item: CommonListItem,
+    index: number,
+    pluginResult: CommonListItem[],
+    plugin: PublicPlugin
+  ) => {
     if (!item) return;
-    if (item.onEnter) {
-      item.onEnter?.(item, index, pluginResult);
-    } else {
-      this.setState({
-        keyword: '',
-        prefix: item.code,
-        prefixPlugin: item,
-        selectedIndex: 0,
-        plugins: item.children || []
-      })
-    }
+    window.PluginManager.handleEnter(plugin, {
+      item,
+      index,
+      list: pluginResult
+    })
   }
   onInputChange = (value: string) => {
     this.setState({
@@ -90,6 +90,25 @@ class App extends React.Component {
     }
     window.PluginManager.handleInput(value, setResult)
   }
+
+  renderResult() {
+    let totalIndex = -1
+    return Array.from(this.state.result.keys()).map((plugin, index) => {
+      const pluginResults = this.state.result.get(plugin)
+      return pluginResults?.map(item => {
+        totalIndex += 1;
+        return (
+          <ListItem image={item.icon}
+            selected={this.state.selectedIndex === totalIndex}
+            key={item.code}
+            title={item.title}
+            subtitle={item.subtitle}
+            onClick={() => this.onItemClick(item, index, pluginResults, plugin)}></ListItem>
+        )
+      })
+    })
+  }
+
   render () {
     return (
       <div className="App">
@@ -97,18 +116,7 @@ class App extends React.Component {
           value={this.state.keyword}
           onValueChange={this.onInputChange}></InputBar>
         <div className="item-list">
-          {Array.from(this.state.result.keys()).map((plugin, index) => {
-            const pluginResults = this.state.result.get(plugin)
-            return pluginResults?.map(item => (
-              <ListItem image={item.icon}
-                selected={this.state.selectedIndex === index}
-                key={item.code}
-                title={item.title}
-                subtitle={item.subtitle}
-                onClick={() => this.onItemClick(item, index, pluginResults)}></ListItem>
-            ))
-          })
-          }
+          {this.renderResult()}
         </div>
       </div>
     );
