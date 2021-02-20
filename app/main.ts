@@ -1,6 +1,6 @@
 import { app, BrowserWindow, globalShortcut, ipcMain, protocol } from "electron";
 import * as path from 'path';
-import registerAllPlugin from './plugin';
+// import registerAllPlugin from './plugin';
 import { IPCEventName } from './shared/constant';
 
 function createWindow () {
@@ -42,7 +42,7 @@ const registerShortcut = () => {
 app.whenReady().then(() => {
   createWindow()
   registerShortcut()
-  registerAllPlugin()
+  // registerAllPlugin()
   app.setAccessibilitySupportEnabled(true)
   protocol.registerFileProtocol('localfile', (request, callback) => {
     const pathname = decodeURIComponent(request.url.replace('localfile:///', ''));

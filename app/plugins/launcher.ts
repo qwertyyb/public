@@ -57,7 +57,10 @@ class LauncherPlugin implements PublicPlugin {
     };
     let list: App[] = await getMacosApps(macosAppPaths)
     const dir = path.join(__dirname, 'launcher-icons')
-    // fs.mkdirSync(dir)
+    if(!fs.existsSync(dir)) {
+      fs.mkdirSync(dir)
+    }
+
     list = await Promise.all(list.map(async app => {
       const iconPath = path.join(dir, app.name + '.png')
       await fileIcon.file(app.path, {
@@ -86,7 +89,6 @@ class LauncherPlugin implements PublicPlugin {
     keyword: string,
     setResult: (list: CommonListItem[]) => void
   ) {
-    console.log(keyword)
     if (!keyword) return setResult([])
     setResult(this.apps.filter(item => item.code?.includes(keyword)))
   }

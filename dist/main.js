@@ -18,13 +18,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const path = __importStar(require("path"));
-const plugin_1 = __importDefault(require("./plugin"));
 function createWindow() {
     electron_1.ipcMain.handle('ResizeWindow', (event, arg) => {
         win.setSize(arg.width, arg.height);
@@ -61,7 +57,7 @@ const registerShortcut = () => {
 electron_1.app.whenReady().then(() => {
     createWindow();
     registerShortcut();
-    plugin_1.default();
+    // registerAllPlugin()
     electron_1.app.setAccessibilitySupportEnabled(true);
     electron_1.protocol.registerFileProtocol('localfile', (request, callback) => {
         const pathname = decodeURIComponent(request.url.replace('localfile:///', ''));
