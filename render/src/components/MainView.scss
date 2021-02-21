@@ -1,0 +1,10 @@
+@import "../style/common.scss";
+
+* {
+  font-family: BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji
+}
+.item-list {
+  max-height: 432px;
+  overflow: auto;
+  scroll-snap-type: y mandatory;
+}
