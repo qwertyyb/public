@@ -18,7 +18,7 @@ function ListItem(props: {
       </div>
       <div className="item-info flex-1 flex-col-center">
         <h3 className="item-title">{props.title}</h3>
-        <h5 className="item-subtitle color-666">{props.subtitle}</h5>
+        <h5 className="item-subtitle color-666 text-sm">{props.subtitle}</h5>
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
 .item-image-wrapper {
-  width: 48px;
-  height: 48px;
+  width: 60px;
+  height: 60px;
   margin-right: 3px;
   img {
     width: 42px;
@@ -11,5 +11,5 @@
   scroll-snap-align: start;
 }
 .list-item.selected {
-  background: #eee;
+  background: #bbb;
 }

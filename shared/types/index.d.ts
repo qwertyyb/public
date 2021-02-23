@@ -35,19 +35,11 @@ interface PublicPlugin {
   title: string,
   icon: string,
   subtitle: string,
+  settings: {
+    disabled: boolean,
+    [propName: string]: any,
+  },
   onInput: (keyword: string, setResult: SetResult) => void
-}
-
-interface AppPlugin {
-  key: string,
-  title: string,
-  subtitle: string,
-  image: string,
-  code: string,
-  action?: (plugin: AppPlugin) => void,
-  children?: AppPlugin[],
-  onCreated?: () => any,
-  onInput?: () => any,
 }
 
 interface Size {
