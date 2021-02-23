@@ -1,6 +1,7 @@
 import React from 'react';
 import InputBar from './InputBar';
 import ListItem from './ListItem';
+// import { IPCEventName } from '../../shared/constant';
 import './ResultList.scss';
 
 interface MainViewState {
@@ -11,8 +12,6 @@ interface MainViewState {
   selectedIndex: number,
   result: Map<PublicPlugin, CommonListItem[]>
 }
-
-let interval: any;
 
 class MainView extends React.Component {
   state: MainViewState
@@ -75,12 +74,11 @@ class MainView extends React.Component {
     plugin: PublicPlugin
   ) => {
     if (!item) return;
-    clearTimeout(interval)
-    interval = setTimeout(() => window.PluginManager.handleEnter(plugin, {
+    window.PluginManager.handleEnter(plugin, {
       item,
       index,
       list: pluginResult
-    }), 48)
+    })
     window.ipcRenderer.invoke('HideWindow')
   }
   onInputChange = (value: string) => {
@@ -96,7 +94,7 @@ class MainView extends React.Component {
     window.PluginManager.handleInput(value, setResult)
   }
 
-  renderMainView() {
+  renderResult() {
     let totalIndex = -1
     return Array.from(this.state.result.keys()).map((plugin, index) => {
       const pluginResults = this.state.result.get(plugin)
@@ -121,7 +119,7 @@ class MainView extends React.Component {
           value={this.state.keyword}
           onValueChange={this.onInputChange}></InputBar>
         <div className="item-list">
-          {this.renderMainView()}
+          {this.renderResult()}
         </div>
       </div>
     );

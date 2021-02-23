@@ -2,10 +2,12 @@ import { app, BrowserWindow, globalShortcut, ipcMain, protocol, Tray } from "ele
 import { PublicApp } from "global";
 import * as path from 'path';
 
-const publicApp: PublicApp = {
+var publicApp: PublicApp = {
   electronApp: app,
   window: {}
 }
+// @ts-ignore
+global.publicApp = publicApp
 
 const shortcutsController = require('./app/controller/shortcutsController')(publicApp)
 const trayController = require('./app/controller/trayController')(publicApp)
@@ -25,34 +27,46 @@ const installExtensions = async () => {
 
 async function createWindow () {
   ipcMain.handle('ResizeWindow', (event, arg: Size) => {
+    console.log('resize window', arg)
     win.setSize(arg.width, arg.height)
   })
   ipcMain.handle('HideWindow', () => {
     win.hide()
   })
-  await installExtensions();
   const win = new BrowserWindow({
-    height: 660,
+    height: 60,
     useContentSize: true,
     frame: false,
     minWidth: 720,
     y: 180,
     center: true,
-    resizable: false,
+    // resizable: false,
+    visualEffectState: 'active',
+    transparent: true,
+    backgroundColor: '#00dddddd',
+    vibrancy: 'appearance-based',
     webPreferences: {
+      enableRemoteModule: true,
       nodeIntegration: true,
       devTools: true,
-      preload: path.join(__dirname, './app/plugin.preload.js'),
+      preload: path.join(__dirname, 'app/plugin.preload.js'),
       contextIsolation: false
     }
   })
   protocol.registerFileProtocol('localfile', (request, callback) => {
     const pathname = decodeURIComponent(request.url.replace('localfile:///', ''));
-    callback(pathname);
+    callback({
+      path: pathname,
+      headers: {
+        'Cache-Control': 'max-age=31536000'
+      }
+    });
   });
-  // setTimeout(() => {
-    win.loadURL('http://localhost:8020/#/settings')
-  // }, 3000)
+  if (process.env.NODE_ENV === 'development') {
+    win.loadURL('http://localhost:8020')
+  } else {
+    win.loadFile(path.join(__dirname, 'render/build/index.html'))
+  }
   win.webContents.openDevTools()
   publicApp.window.main = win
   return win

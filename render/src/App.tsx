@@ -4,7 +4,7 @@ import {
   Route
 } from 'react-router-dom';
 import './App.scss';
-import MainView from './components/MainView';
+import MainView from './components/ResultList';
 import SettingsView from './components/SettingsView';
 
 class App extends React.Component {
