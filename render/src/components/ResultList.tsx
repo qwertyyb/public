@@ -7,8 +7,6 @@ import './ResultList.scss';
 interface MainViewState {
   keyword: string,
   prefix: string,
-  prefixPlugin?: AppPlugin,
-  plugins: AppPlugin[],
   selectedIndex: number,
   result: Map<PublicPlugin, CommonListItem[]>
 }
@@ -22,7 +20,6 @@ class MainView extends React.Component {
       selectedIndex: 0,
       prefix: '',
       keyword: '',
-      plugins: [],
       result: new Map(),
     }
   }
@@ -46,7 +43,7 @@ class MainView extends React.Component {
   }
 
   keydownHandler = (e: KeyboardEvent) => {
-    const { selectedIndex, plugins, result } = this.state
+    const { selectedIndex, result } = this.state
     const listLength = Array.from(result.values())
       .reduce((total, list) => total + list.length, 0)
     if (e.key === 'ArrowUp') {
@@ -80,6 +77,9 @@ class MainView extends React.Component {
       list: pluginResult
     })
     window.ipcRenderer.invoke('HideWindow')
+    this.setState({
+      keyword: ''
+    })
   }
   onInputChange = (value: string) => {
     this.setState({
@@ -118,9 +118,13 @@ class MainView extends React.Component {
         <InputBar prefix={this.state.prefix}
           value={this.state.keyword}
           onValueChange={this.onInputChange}></InputBar>
-        <div className="item-list">
-          {this.renderResult()}
-        </div>
+          {
+            this.state.keyword ? 
+            <div className="item-list">
+              {this.renderResult()}
+            </div>
+            : null
+          }
       </div>
     );
   }

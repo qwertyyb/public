@@ -1,4 +1,5 @@
-import { ipcRenderer } from 'electron'
+import { BrowserWindow, ipcRenderer, remote } from 'electron'
+import { PublicApp } from 'global';
 
 const defaultPlugins = [
   '../../plugins/packages/settings',
@@ -10,7 +11,8 @@ const defaultPlugins = [
 const customPlugins: string[] = [];
 
 interface InitPluginParams {
-  getElectron: () => typeof Electron,
+  getApp: () => PublicApp,
+  getMainWindow: () => BrowserWindow,
   getPlugins: () => PublicPlugin[],
 }
 
@@ -18,8 +20,10 @@ const initPlugin = (pluginPath: string): PublicPlugin | undefined => {
   try {
     const createPlugin = require(pluginPath).default
     return createPlugin({
-      getElectron: () => require('electron'),
+      getApp: () => remote.getGlobal('publicApp'),
+      getMainWindow: () => remote.getGlobal('publicApp').window.main,
       getPlugins: () => plugins,
+      getUtils: () => require('./utils/index')
     })
   } catch (err) {
     console.log(`引入插件 ${pluginPath} 失败`)
@@ -28,9 +32,14 @@ const initPlugin = (pluginPath: string): PublicPlugin | undefined => {
 }
 
 const pluginPaths: string[] = [...defaultPlugins, ...customPlugins]
-const plugins: PublicPlugin[] = pluginPaths.map(path => initPlugin(path)).filter(p => p) as PublicPlugin[];
+let plugins: PublicPlugin[]
 
-console.log(plugins)
+const initPlugins = (pluginPaths: string[]) => {
+  plugins = pluginPaths.map(path => initPlugin(path)).filter(p => p) as PublicPlugin[];
+  return plugins
+}
+
+initPlugins(pluginPaths)
 
 window.service = {
   getPlugins () {
@@ -56,6 +65,7 @@ window.PluginManager = {
       list: CommonListItem[]
     }
   ) {
+    console.log('aaaa')
     args.item.onEnter?.(args.item, args.index, args.list)
   }
 }
@@ -64,5 +74,6 @@ ipcRenderer.on('getPlugins', (e, ...args) => {
   console.log(e, args)
   e.sender.sendTo(e.senderId, 'getPlugins:response', JSON.parse(JSON.stringify(plugins)))
 })
+
 
 window.ipcRenderer = ipcRenderer
