@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, ipcMain, protocol, Tray } from "electron";
+import { app, BrowserWindow, ipcMain, protocol, Tray } from "electron";
 import { PublicApp } from "global";
 import * as path from 'path';
 
@@ -6,10 +6,10 @@ var publicApp: PublicApp = {
   electronApp: app,
   window: {}
 }
+let mainWindow: BrowserWindow | undefined
 // @ts-ignore
 global.publicApp = publicApp
 
-const shortcutsController = require('./app/controller/shortcutsController')(publicApp)
 const trayController = require('./app/controller/trayController')(publicApp)
 
 const installExtensions = async () => {
@@ -35,16 +35,20 @@ async function createWindow () {
   })
   const win = new BrowserWindow({
     height: 60,
-    useContentSize: true,
+    useContentSize: false,
     frame: false,
     minWidth: 720,
     y: 180,
     center: true,
-    // resizable: false,
-    visualEffectState: 'active',
+    show: false,
+    resizable: false,
+    minimizable: false,
+    maximizable: false,
     transparent: true,
-    backgroundColor: '#00dddddd',
-    vibrancy: 'appearance-based',
+    titleBarStyle: 'customButtonsOnHover',
+    backgroundColor: '#00ffffff',
+    vibrancy: 'sidebar',
+    closable: false,
     webPreferences: {
       enableRemoteModule: true,
       nodeIntegration: true,
@@ -63,25 +67,20 @@ async function createWindow () {
     });
   });
   if (process.env.NODE_ENV === 'development') {
+    await installExtensions()
     win.loadURL('http://localhost:8020')
+    win.webContents.openDevTools()
   } else {
     win.loadFile(path.join(__dirname, 'render/build/index.html'))
   }
-  win.webContents.openDevTools()
   publicApp.window.main = win
+  mainWindow = win
   return win
 }
 
 
 app.whenReady().then(() => {
   createWindow()
-  shortcutsController.register()
   trayController.createTray()
   app.setAccessibilitySupportEnabled(true)
 })
-
-app.on('will-quit', () => {
-  // 注销所有快捷键
-  shortcutsController.unregisterAll()
-})
-

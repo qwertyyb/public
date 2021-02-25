@@ -4,8 +4,7 @@
 			"path": "."
 		},
 		{
-			"name": "public-plugins",
-			"path": "../public-plugins"
+			"path": "../plugins"
 		}
 	],
 	"settings": {

@@ -4,7 +4,6 @@ import './InputBar.scss';
 interface InputBarProps {
   prefix: string,
   value: string,
-  onPrefixChange?: (prefix: string) => void,
   onValueChange: (value: string) => void
 }
 
