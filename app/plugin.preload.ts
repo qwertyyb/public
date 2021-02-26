@@ -1,24 +1,22 @@
 import { BrowserWindow, ipcRenderer, remote } from 'electron'
 import { PublicApp } from 'global';
+import * as path from 'path';
 
-const defaultPlugins = [
-  '../../plugins/packages/settings',
-  '../../plugins/packages/launcher',
-  '../../plugins/packages/lockscreen',
-  '../../plugins/packages/calculator',
-]
-
-const customPlugins: string[] = [];
-
-interface InitPluginParams {
-  getApp: () => PublicApp,
-  getMainWindow: () => BrowserWindow,
-  getPlugins: () => PublicPlugin[],
+const getPluginsPath = (): string[] => {
+  const defaultPlugins = [
+    path.resolve(__dirname, '../plugins/settings/main.js'),
+    path.resolve(__dirname, '../plugins/launcher/index.js'),
+    path.resolve(__dirname, '../plugins/lockscreen'),
+    path.resolve(__dirname, '../plugins/calculator'),
+  ]
+  
+  const customPlugins: string[] = [];
+  return [...defaultPlugins, ...customPlugins]
 }
 
-const initPlugin = (pluginPath: string): PublicPlugin | undefined => {
+const registerPlugin = (pluginPath: string): PublicPlugin | undefined => {
   try {
-    const createPlugin = require(pluginPath).default
+    const createPlugin = require(pluginPath).default || require(pluginPath)
     return createPlugin({
       getApp: () => remote.getGlobal('publicApp'),
       getMainWindow: () => remote.getGlobal('publicApp').window.main,
@@ -30,16 +28,14 @@ const initPlugin = (pluginPath: string): PublicPlugin | undefined => {
     console.error(err)
   }
 }
-
-const pluginPaths: string[] = [...defaultPlugins, ...customPlugins]
 let plugins: PublicPlugin[]
 
-const initPlugins = (pluginPaths: string[]) => {
-  plugins = pluginPaths.map(path => initPlugin(path)).filter(p => p) as PublicPlugin[];
+const initPlugins = () => {
+  plugins = getPluginsPath().map(path => registerPlugin(path)).filter(p => p) as PublicPlugin[];
   return plugins
 }
 
-initPlugins(pluginPaths)
+initPlugins()
 
 window.service = {
   getPlugins () {
@@ -65,14 +61,27 @@ window.PluginManager = {
       list: CommonListItem[]
     }
   ) {
-    console.log('aaaa')
     args.item.onEnter?.(args.item, args.index, args.list)
   }
 }
 
 ipcRenderer.on('getPlugins', (e, ...args) => {
-  console.log(e, args)
   e.sender.sendTo(e.senderId, 'getPlugins:response', JSON.parse(JSON.stringify(plugins)))
+})
+
+ipcRenderer.on('removePlugin', (e, { index }) => {
+  plugins.splice(index, 1);
+  e.sender.sendTo(e.senderId, 'removePlugin:response', { index })
+})
+
+ipcRenderer.on('registerPlugin', (e, { path }) => {
+  const paths = getPluginsPath()
+  if (paths.some(s => s.includes(path))) {
+    return e.sender.sendTo(e.senderId, 'registerPlugin:error', '该插件已注册')
+  }
+  const plugin = registerPlugin(path)
+  plugins.push(plugin as PublicPlugin)
+  e.sender.sendTo(e.senderId, 'registerPlugin:response', JSON.parse(JSON.stringify(plugin)))
 })
 
 

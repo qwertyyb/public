@@ -11,7 +11,7 @@
     "start": "concurrently \"npm run start:render\" \"wait-on http://localhost:8020  && npm run start:main\"",
     "build:render": "cd ./render && npm run build",
     "build:main": "electron-builder",
-    "build": "NODE_ENV=production && npm run buld:render && npm run build:main",
+    "build": "NODE_ENV=production && npm run build:render && npm run build:main",
     "pack": "electron-builder --dir"
   },
   "nodemonConfig": {
@@ -27,6 +27,7 @@
     "appId": "cn.qwertyyb.public-tools",
     "files": [
       "app/",
+      "plugins/",
       "render/build/",
       "./index.js",
       "!**/*.ts",
@@ -48,6 +49,7 @@
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.54",
+    "@types/mathjs": "^6.0.11",
     "@types/node": "^12.20.4",
     "concurrently": "^6.0.0",
     "cross-env": "^7.0.3",
@@ -60,6 +62,8 @@
     "wait-on": "^5.2.1"
   },
   "dependencies": {
+    "file-icon": "^4.0.0",
+    "mathjs": "^9.2.0",
     "tiny-pinyin": "^1.3.2"
   }
 }

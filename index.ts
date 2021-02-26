@@ -40,7 +40,7 @@ async function createWindow () {
     minWidth: 720,
     y: 180,
     center: true,
-    show: false,
+    // show: false,
     resizable: false,
     minimizable: false,
     maximizable: false,

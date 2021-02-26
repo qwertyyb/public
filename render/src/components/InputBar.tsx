@@ -33,6 +33,7 @@ class InputBar extends React.Component<InputBarProps> {
             : null
         }
         <input type="text"
+          id="main-input"
           onChange={this.onValueChange}
           onKeyDown={this.onKeyDown}
           value={this.props.value} />
