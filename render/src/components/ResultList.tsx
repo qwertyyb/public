@@ -80,6 +80,8 @@ class MainView extends React.Component {
     this.setState({
       keyword: ''
     })
+    // @ts-ignore
+    document.querySelector('#main-input').focus()
   }
   onInputChange = (value: string) => {
     this.setState({
