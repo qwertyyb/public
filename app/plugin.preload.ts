@@ -1,6 +1,7 @@
-import { BrowserWindow, ipcRenderer, remote } from 'electron'
-import { PublicApp } from 'global';
+import { ipcRenderer, remote } from 'electron'
+import { CoreApp } from 'index';
 import * as path from 'path';
+import { PublicPlugin, CommonListItem } from 'shared/types/plugin';
 
 const getPluginsPath = (): string[] => {
   const defaultPlugins = [
@@ -8,6 +9,9 @@ const getPluginsPath = (): string[] => {
     path.resolve(__dirname, '../plugins/launcher/index.js'),
     path.resolve(__dirname, '../plugins/lockscreen'),
     path.resolve(__dirname, '../plugins/calculator'),
+    path.resolve(__dirname, '../plugins/qrcode'),
+    path.resolve(__dirname, '../plugins/search/index'),
+    path.resolve(__dirname, '../plugins/translate/index')
   ]
   
   const customPlugins: string[] = [];
@@ -17,12 +21,23 @@ const getPluginsPath = (): string[] => {
 const registerPlugin = (pluginPath: string): PublicPlugin | undefined => {
   try {
     const createPlugin = require(pluginPath).default || require(pluginPath)
-    return createPlugin({
+    const plugin = createPlugin({
       getApp: () => remote.getGlobal('publicApp'),
       getMainWindow: () => remote.getGlobal('publicApp').window.main,
       getPlugins: () => plugins,
-      getUtils: () => require('./utils/index')
+      getUtils: () => require('./utils/index'),
+      setList: (list: CommonListItem[]) => {
+        console.log('setList', plugin, list)
+        const event = new CustomEvent('plugin:setList', {
+          detail: {
+            plugin,
+            list,
+          }
+        })
+        document.dispatchEvent(event)
+      },
     })
+    return plugin
   } catch (err) {
     console.log(`引入插件 ${pluginPath} 失败`)
     console.error(err)
@@ -37,11 +52,13 @@ const initPlugins = () => {
 
 initPlugins()
 
-window.service = {
-  getPlugins () {
-    return plugins
-  }
-}
+// @ts-ignore
+window.requestIdleCallback(() => {
+  (remote.getGlobal('publicApp') as CoreApp).window.main?.on('show', () => {
+    document.dispatchEvent(new CustomEvent('mainwindowshow'))
+  })
+})
+
 window.PluginManager = {
   getPlugins() {
     return plugins
@@ -51,7 +68,7 @@ window.PluginManager = {
     setResult: (plugin: PublicPlugin, list: CommonListItem[]) => void
   ) {
     const setPluginResult = (plugin: PublicPlugin) => (list: CommonListItem[]) => setResult(plugin, list)
-    plugins.forEach(plugin => plugin.onInput(keyword, setPluginResult(plugin)))
+    plugins.forEach(plugin => plugin.onInput?.(keyword, setPluginResult(plugin)))
   },
   handleEnter(
     plugin: PublicPlugin,
@@ -62,7 +79,7 @@ window.PluginManager = {
     }
   ) {
     args.item.onEnter?.(args.item, args.index, args.list)
-  }
+  },
 }
 
 ipcRenderer.on('getPlugins', (e, ...args) => {

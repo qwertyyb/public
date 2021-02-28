@@ -1,12 +1,18 @@
 import { app, BrowserWindow, ipcMain, protocol, Tray } from "electron";
-import { PublicApp } from "global";
 import * as path from 'path';
 
-var publicApp: PublicApp = {
+export interface CoreApp {
+  electronApp: typeof app,
+  window: {
+    main?: BrowserWindow
+  }
+}
+
+var publicApp: CoreApp = {
   electronApp: app,
   window: {}
 }
-let mainWindow: BrowserWindow | undefined
+
 // @ts-ignore
 global.publicApp = publicApp
 
@@ -25,8 +31,21 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'localfile',
+    privileges: {
+      standard: true,
+      supportFetchAPI: true,
+      secure: true
+    }
+  }
+])
 async function createWindow () {
-  ipcMain.handle('ResizeWindow', (event, arg: Size) => {
+  ipcMain.handle('ResizeWindow', (
+    event,
+    arg: { width: number, height: number }
+  ) => {
     console.log('resize window', arg)
     win.setSize(arg.width, arg.height)
   })
@@ -34,15 +53,16 @@ async function createWindow () {
     win.hide()
   })
   const win = new BrowserWindow({
-    height: 60,
+    height: 48,
     useContentSize: false,
     frame: false,
     minWidth: 720,
-    y: 180,
+    width: 720,
+    y: 120,
     center: true,
-    // show: false,
+    show: false,
     resizable: false,
-    minimizable: false,
+    minimizable: false, 
     maximizable: false,
     transparent: true,
     titleBarStyle: 'customButtonsOnHover',
@@ -50,15 +70,21 @@ async function createWindow () {
     vibrancy: 'sidebar',
     closable: false,
     webPreferences: {
+      webSecurity: false,
+      allowRunningInsecureContent: true,
+      spellcheck: false,
       enableRemoteModule: true,
       nodeIntegration: true,
       devTools: true,
       preload: path.join(__dirname, 'app/plugin.preload.js'),
-      contextIsolation: false
+      contextIsolation: false,
     }
   })
+  win.on('ready-to-show', () => {
+    publicApp.window.main?.show()
+  })
   protocol.registerFileProtocol('localfile', (request, callback) => {
-    const pathname = decodeURIComponent(request.url.replace('localfile:///', ''));
+    const pathname = decodeURIComponent(request.url.replace('localfile://', ''));
     callback({
       path: pathname,
       headers: {
@@ -74,7 +100,6 @@ async function createWindow () {
     win.loadFile(path.join(__dirname, 'render/build/index.html'))
   }
   publicApp.window.main = win
-  mainWindow = win
   return win
 }
 
