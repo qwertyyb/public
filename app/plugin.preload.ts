@@ -4,7 +4,7 @@ import * as path from 'path';
 import { PublicPlugin, CommonListItem } from 'shared/types/plugin';
 
 const getPluginsPath = (): string[] => {
-  const defaultPlugins = [
+  const defaultPlugins: string[] = [
     path.resolve(__dirname, '../plugins/settings/main.js'),
     path.resolve(__dirname, '../plugins/launcher/index.js'),
     path.resolve(__dirname, '../plugins/lockscreen'),

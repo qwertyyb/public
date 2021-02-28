@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, protocol, Tray } from "electron";
+import { app, BrowserWindow, ipcMain, protocol } from "electron";
 import * as path from 'path';
 
 export interface CoreApp {
@@ -92,12 +92,13 @@ async function createWindow () {
       }
     });
   });
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === 'development' && false) {
     await installExtensions()
     win.loadURL('http://localhost:8020')
     win.webContents.openDevTools()
   } else {
     win.loadFile(path.join(__dirname, 'render/build/index.html'))
+    win.webContents.openDevTools()
   }
   publicApp.window.main = win
   return win

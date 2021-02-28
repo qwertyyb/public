@@ -23,6 +23,7 @@ jobs:
     - name: install depencies
       run: |
         npm install
+        cd render && npm i
     - name: build
       env:
         APPLE_ID: ${{ secrets.APPLEID }}
