@@ -26,17 +26,19 @@ class InputBar extends React.Component<InputBarProps> {
   }
   render() {
     return (
-      <div className="input-bar flex items-center">
-        {
-          this.props.prefix
-            ? <div className="prefix flex-h-v">{this.props.prefix}</div>
-            : null
-        }
-        <input type="text"
-          id="main-input"
-          onChange={this.onValueChange}
-          onKeyDown={this.onKeyDown}
-          value={this.props.value} />
+      <div className="input-bar">
+        <div className="input-bar-wrapper flex items-center">
+          {
+            this.props.prefix
+              ? <div className="prefix flex-h-v">{this.props.prefix}</div>
+              : null
+          }
+          <input type="text"
+            id="main-input"
+            onChange={this.onValueChange}
+            onKeyDown={this.onKeyDown}
+            value={this.props.value} />
+        </div>
       </div>
     )
   }

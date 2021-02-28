@@ -1,3 +1,5 @@
+import { PublicPlugin, SetResult } from "shared/types/plugin";
+
 const { exec } = window.require('child_process');
 const os = window.require('os')
 

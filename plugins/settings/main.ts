@@ -1,3 +1,5 @@
+import { CommonListItem, PublicPlugin } from "shared/types/plugin";
+
 const KEYWORDS = [
   'public settings',
   '设置'
@@ -56,6 +58,7 @@ export default (app: any): PublicPlugin => {
               win = new BrowserWindow({
                 width: 800,
                 height: 600,
+                show: false,
                 webPreferences: {
                   devTools: true,
                   nodeIntegration: true,
@@ -66,6 +69,9 @@ export default (app: any): PublicPlugin => {
               // win.webContents.openDevTools()
               win.on('close', () => {
                 win = null
+              })
+              win.on('ready-to-show', () => {
+                win.show()
               })
             }
           }

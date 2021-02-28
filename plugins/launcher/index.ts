@@ -3,6 +3,7 @@ import * as path from 'path'
 // @ts-ignore
 import fileIcon from 'file-icon'
 import mdfind from './mdfind'
+import { CommonListItem, PublicPlugin } from 'shared/types/plugin'
 
 interface App {
   name: string,

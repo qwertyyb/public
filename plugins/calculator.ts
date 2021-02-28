@@ -1,6 +1,7 @@
 
 import { clipboard } from 'electron';
 import { create, all } from "mathjs";
+import { CommonListItem, PublicPlugin, SetResult } from 'shared/types/plugin';
 
 const config = {
   epsilon: 1e-12,
@@ -84,7 +85,7 @@ class CalculatorPlugin implements PublicPlugin {
           icon: 'https://img.icons8.com/plasticine/100/000000/apple-calculator.png',
           text: `${result}`,
           key: 'plugin:calculator',
-          onEnter: (item, index, list) => {
+          onEnter: (item: CommonListItem) => {
             clipboard.writeText(String(item.text))
           }
         }

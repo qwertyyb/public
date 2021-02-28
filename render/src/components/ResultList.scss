@@ -25,3 +25,18 @@
 .item-list::-webkit-scrollbar-button{
   display: none;
 }
+
+.result-container {
+  max-height: 432px;
+}
+.item-list {
+  overflow: hidden auto;
+  flex: 3;
+  scroll-snap-type: y mandatory;
+}
+.item-preview {
+  padding: 20px;
+  flex: 2;
+  height: 432px;
+  overflow: hidden;
+}

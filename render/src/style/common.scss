@@ -28,7 +28,12 @@
 .flex-col-center {
   @extend .flex, .flex-col, .justify-center;
 }
-
 .color-666 {
   color: #666;
+}
+
+.text-single-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

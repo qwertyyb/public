@@ -1,19 +1,21 @@
 import React from 'react';
 import InputBar from './InputBar';
 import ListItem from './ListItem';
+import ResultView from './ResultView';
 // import { IPCEventName } from '../../shared/constant';
 import './ResultList.scss';
+import { PublicPlugin, CommonListItem } from '../../../shared/types/plugin';
 
 interface MainViewState {
   keyword: string,
   prefix: string,
   selectedIndex: number,
-  result: Map<PublicPlugin, CommonListItem[]>
+  result: Map<PublicPlugin, CommonListItem[]>,
+  preview: string,
 }
 
 class MainView extends React.Component {
   state: MainViewState
-  resizeObserver: any
   constructor(props: any) {
     super(props)
     this.state = {
@@ -21,25 +23,39 @@ class MainView extends React.Component {
       prefix: '',
       keyword: '',
       result: new Map(),
+      preview: '',
     }
   }
 
   componentDidMount () {
     document.addEventListener('keydown', this.keydownHandler, true)
-    this.resizeObserver = new window.ResizeObserver((entries: any) => {
-      const { width, height } = entries.pop().contentRect;
-      window.ipcRenderer.invoke('ResizeWindow', { width, height })
-    })
-    this.resizeObserver.observe(document.documentElement)
+    // @ts-ignore
+    document.addEventListener('mainwindowshow', this.focusInput)
+    document.addEventListener('plugin:setList', this.setPluginListHandler)
   }
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.keydownHandler, true)
-    this.resizeObserver.disconnect()
+    document.removeEventListener('plugin:setList', this.setPluginListHandler)
+    // @ts-ignore
+    document.removeEventListener('mainwindowshow', this.focusInput)
   }
 
   componentDidUpdate() {
-    document.querySelector('.list-item.selected')?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    document.querySelector('.list-item.selected')?.scrollIntoView({ block: 'center' })
+  }
+
+  focusInput = () => {
+    // @ts-ignore
+    document.querySelector('#main-input').focus()
+  }
+
+  setPluginListHandler = (e: any) => {
+    const { plugin, list } = e.detail || {}
+    const result = new Map(this.state.result.set(plugin, list))
+    this.setState({
+      result
+    })
   }
 
   keydownHandler = (e: KeyboardEvent) => {
@@ -64,6 +80,11 @@ class MainView extends React.Component {
     }
   }
 
+  getPreview = () => {
+    const item = Array.from(this.state.result.values()).flat()[this.state.selectedIndex]
+    return item?.preview
+  }
+
   onItemClick = (
     item: CommonListItem,
     index: number,
@@ -78,14 +99,15 @@ class MainView extends React.Component {
     })
     window.ipcRenderer.invoke('HideWindow')
     this.setState({
-      keyword: ''
+      keyword: '',
+      selectedIndex: 0,
     })
-    // @ts-ignore
-    document.querySelector('#main-input').focus()
+    this.focusInput()
   }
   onInputChange = (value: string) => {
     this.setState({
-      keyword: value
+      keyword: value,
+      selectedIndex: 0,
     })
     const setResult = (plugin: PublicPlugin, list: CommonListItem[]) => {
       const result = new Map(this.state.result.set(plugin, list))
@@ -121,9 +143,17 @@ class MainView extends React.Component {
           value={this.state.keyword}
           onValueChange={this.onInputChange}></InputBar>
           {
-            this.state.keyword ? 
-            <div className="item-list">
-              {this.renderResult()}
+            this.state.keyword ?
+            <div className="result-container flex">
+              <div className="item-list">
+                {this.renderResult()}
+              </div>
+              <div className="item-preview"
+                style={{
+                  display: this.getPreview() ? 'block' : 'none'
+                }}>
+                <ResultView>{this.getPreview()}</ResultView>
+              </div>
             </div>
             : null
           }
