@@ -1,7 +1,6 @@
 {
   "name": "public",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "repository": {
     "type": "git",
@@ -26,12 +25,14 @@
   },
   "keywords": [],
   "author": "qwertyyb",
+  "description": "public tools",
   "license": "ISC",
   "build": {
     "appId": "cn.qwertyyb.public",
     "files": [
       "app/",
       "plugins/",
+      "assets",
       "render/build/",
       "./index.js",
       "!**/*.ts",
