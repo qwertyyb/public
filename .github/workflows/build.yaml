@@ -1,0 +1,32 @@
+on:
+  workflow_dispatch:
+    inputs: 
+      release:
+        description: 'release version'
+        required: true
+        default: 'v1.0.2'
+  release:
+    types: ['published']
+
+jobs:
+  build:
+
+    runs-on: macOS-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - uses: apple-actions/import-codesign-certs@v1
+      with: 
+        p12-file-base64: ${{ secrets.CERTIFICATES_P12 }}
+        p12-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
+
+    - name: install depencies
+      run: |
+        npm install
+    - name: build
+      env:
+        APPLE_ID: ${{ secrets.APPLEID }}
+        APPLE_ID_PASS: ${{ secrets.APPLE_PASSWORD }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        CI: true
+      run: npm run build

@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/qwertyyb/public.git"
+  },
   "scripts": {
     "tsc": "tsc",
     "lint": "eslint -c .eslintrc --ext .ts ./src",
@@ -12,7 +16,7 @@
     "build:render": "cd ./render && npm run build",
     "build:main": "electron-builder",
     "build": "NODE_ENV=production && npm run build:render && npm run build:main",
-    "pack": "electron-builder --dir"
+    "release": "electron-build --publish"
   },
   "nodemonConfig": {
     "ignore": [
@@ -24,19 +28,27 @@
   "author": "qwertyyb",
   "license": "ISC",
   "build": {
-    "appId": "cn.qwertyyb.public-tools",
+    "appId": "cn.qwertyyb.public",
     "files": [
       "app/",
       "plugins/",
       "render/build/",
       "./index.js",
       "!**/*.ts",
-      "!render/node_modules"
+      "!render/node_modules",
+      "!scripts/*.js",
+      "!.**/*"
     ],
+    "afterSign": "scripts/notarize.js",
     "mac": {
       "asar": true,
       "category": "public.app-category.utilities",
-      "identity": null,
+      "type": "distribution",
+      "identity": "Yongbang Yang (T68XK6867P)",
+      "hardenedRuntime": true,
+      "entitlements": "assets/entitlements.mac.plist",
+      "entitlementsInherit": "assets/entitlements.mac.plist",
+      "gatekeeperAssess": false,
       "electronLanguages": [
         "en",
         "zh_CN"
@@ -48,7 +60,6 @@
     }
   },
   "devDependencies": {
-    "@electron-forge/cli": "^6.0.0-beta.54",
     "@types/mathjs": "^6.0.11",
     "@types/node": "^12.20.4",
     "concurrently": "^6.0.0",
@@ -56,6 +67,7 @@
     "electron": "^11.2.2",
     "electron-builder": "^22.9.1",
     "electron-devtools-installer": "^3.1.1",
+    "electron-notarize": "^1.0.0",
     "nodemon": "^2.0.7",
     "robotjs": "^0.6.0",
     "typescript": "^4.2.2",
