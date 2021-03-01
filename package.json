@@ -15,7 +15,7 @@
     "build:render": "cd ./render && npm run build",
     "build:main": "npm run tsc && electron-builder",
     "build": "NODE_ENV=production && npm run build:render && npm run build:main",
-    "release": "electron-build --publish"
+    "release": "NODE_ENV=production && npm run build:render && npm run tsc && electron-builder --publish=always"
   },
   "nodemonConfig": {
     "ignore": [
