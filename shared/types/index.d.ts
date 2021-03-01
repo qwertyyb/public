@@ -1,4 +1,5 @@
 import { BrowserWindow, Common, ipcRenderer } from "electron"
+import { PublicPlugin } from './plugin'
 
 declare global {
   var ResizeObserver: any

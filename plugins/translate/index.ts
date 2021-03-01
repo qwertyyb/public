@@ -14,7 +14,7 @@ export default (app: PublicApp): PublicPlugin => {
     async onInput (keyword) {
       const [first, ...rest] = keyword.split(' ')
       const param = rest.join(' ')
-      if (!TRIGGERS.includes(first) || !param.trim()) return
+      if (!TRIGGERS.includes(first) || !param.trim()) return app.setList([])
       const response = await getResponse(param)
       app.setList([
         {

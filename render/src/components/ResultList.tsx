@@ -2,7 +2,6 @@ import React from 'react';
 import InputBar from './InputBar';
 import ListItem from './ListItem';
 import ResultView from './ResultView';
-// import { IPCEventName } from '../../shared/constant';
 import './ResultList.scss';
 import { PublicPlugin, CommonListItem } from '../../../shared/types/plugin';
 
@@ -30,7 +29,7 @@ class MainView extends React.Component {
   componentDidMount () {
     document.addEventListener('keydown', this.keydownHandler, true)
     // @ts-ignore
-    document.addEventListener('mainwindowshow', this.focusInput)
+    document.addEventListener('mainwindowshow', this.clearAndFocusInput)
     document.addEventListener('plugin:setList', this.setPluginListHandler)
   }
 
@@ -38,14 +37,18 @@ class MainView extends React.Component {
     document.removeEventListener('keydown', this.keydownHandler, true)
     document.removeEventListener('plugin:setList', this.setPluginListHandler)
     // @ts-ignore
-    document.removeEventListener('mainwindowshow', this.focusInput)
+    document.removeEventListener('mainwindowshow', this.clearAndFocusInput)
   }
 
   componentDidUpdate() {
     document.querySelector('.list-item.selected')?.scrollIntoView({ block: 'center' })
   }
 
-  focusInput = () => {
+  clearAndFocusInput = () => {
+    this.setState({
+      keyword: '',
+      selectedIndex: 0,
+    })
     // @ts-ignore
     document.querySelector('#main-input').focus()
   }
@@ -98,11 +101,7 @@ class MainView extends React.Component {
       list: pluginResult
     })
     window.ipcRenderer.invoke('HideWindow')
-    this.setState({
-      keyword: '',
-      selectedIndex: 0,
-    })
-    this.focusInput()
+    this.clearAndFocusInput()
   }
   onInputChange = (value: string) => {
     this.setState({
@@ -139,7 +138,7 @@ class MainView extends React.Component {
   render () {
     return (
       <div className="App">
-        <InputBar prefix={this.state.prefix}
+        <InputBar
           value={this.state.keyword}
           onValueChange={this.onInputChange}></InputBar>
           {

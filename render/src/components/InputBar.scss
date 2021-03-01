@@ -23,5 +23,11 @@
     outline: none;
     border: none;
     background: none;
+    &::placeholder {
+      font-size: 20px;
+      font-weight: normal;
+      position: relative;
+      top: -2px;
+    }
   }
 }
