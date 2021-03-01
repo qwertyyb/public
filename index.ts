@@ -101,7 +101,6 @@ async function createWindow () {
     win.webContents.openDevTools()
   } else {
     win.loadFile(path.join(__dirname, 'render/build/index.html'))
-    win.webContents.openDevTools()
   }
   publicApp.window.main = win
   return win
