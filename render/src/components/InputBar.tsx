@@ -1,47 +1,32 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './InputBar.scss';
 
+const getPlaceholder = () => fetch('http://open.iciba.com/dsapi/').then(res => res.json())
+
 interface InputBarProps {
-  prefix: string,
   value: string,
   onValueChange: (value: string) => void
 }
 
-class InputBar extends React.Component<InputBarProps> {
-  state = {
-    value: ''
-  }
 
-  onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && this.state.value) {
-      this.setState({
-        value: ''
-      })
-    }
-  }
-  onValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    this.setState({ value })
-    this.props.onValueChange(value)
-  }
-  render() {
-    return (
-      <div className="input-bar">
-        <div className="input-bar-wrapper flex items-center">
-          {
-            this.props.prefix
-              ? <div className="prefix flex-h-v">{this.props.prefix}</div>
-              : null
-          }
-          <input type="text"
-            id="main-input"
-            onChange={this.onValueChange}
-            onKeyDown={this.onKeyDown}
-            value={this.props.value} />
-        </div>
+function InputBar(props: InputBarProps) {
+  const [placeholder, setPlaceholder] = useState('');
+  useEffect(() => {
+    if (props.value) return;
+    getPlaceholder()
+      .then(res => setPlaceholder(res.note))
+  })
+  return (
+    <div className="input-bar">
+      <div className="input-bar-wrapper flex items-center">
+        <input type="text"
+          placeholder={placeholder}
+          id="main-input"
+          onChange={e => props.onValueChange(e.target.value)}
+          value={props.value} />
       </div>
-    )
-  }
+    </div>
+  )
 }
 
 export default InputBar

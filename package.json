@@ -32,7 +32,7 @@
     "files": [
       "app/",
       "plugins/",
-      "assets",
+      "assets/**/*",
       "render/build/",
       "./index.js",
       "!**/*.ts",
@@ -40,6 +40,9 @@
       "!scripts/*.js",
       "!.**/*"
     ],
+    "directories": {
+      "buildResources": "assets"
+    },
     "afterSign": "scripts/notarize.js",
     "mac": {
       "asar": true,

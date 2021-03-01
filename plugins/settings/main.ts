@@ -1,4 +1,4 @@
-import { CommonListItem, PublicPlugin } from "shared/types/plugin";
+import { CommonListItem, PublicPlugin } from "../../shared/types/plugin";
 
 const KEYWORDS = [
   'public settings',
@@ -54,7 +54,7 @@ export default (app: any): PublicPlugin => {
                 return;
               }
               const path = require('path')
-              const { BrowserWindow, getCurrentWindow } = require('electron').remote
+              const { BrowserWindow } = require('electron').remote
               win = new BrowserWindow({
                 width: 800,
                 height: 600,

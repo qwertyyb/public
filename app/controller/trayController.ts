@@ -16,7 +16,8 @@ module.exports = (publicApp: CoreApp) => ({
     if (publicTray) return publicTray
     const path = require('path')
     const { nativeImage, Menu , Tray } : typeof Electron = require('electron')
-    const image = nativeImage.createFromPath(path.join(__dirname, '../../assets/status/status.png'))
+    console.log(path.join(__dirname, '../../assets/status/status.png'))
+    const image = nativeImage.createFromPath(path.join(__dirname, '../../assets/status/statusTemplate.png'))
     publicTray = new Tray(image)
     const contextMenu = Menu.buildFromTemplate([
       {
@@ -28,10 +29,14 @@ module.exports = (publicApp: CoreApp) => ({
           })
         }
       },
-      { label: '关于', role: 'about' },
-      { label: '退出', role: 'quit' }
+      { label: '关于Public', role: 'about' },
+      {
+        label: '退出Public',
+        accelerator: 'Command+Q',
+        click: () => { publicApp.electronApp.exit() }
+      }
     ])
-    publicTray?.setToolTip('Public Tools')
+    publicTray?.setToolTip('Public')
     publicTray?.setContextMenu(contextMenu)
   }
 })

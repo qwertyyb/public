@@ -23,10 +23,6 @@ export interface PublicPlugin {
   title: string,
   icon: string,
   subtitle: string,
-  settings?: {
-    disabled: boolean,
-    [propName: string]: any,
-  },
   onInput?: (keyword: string, setResult: SetResult) => void,
   onSelect?: (item: CommonListItem, index: number, list: CommonListItem[]) => void,
 }
