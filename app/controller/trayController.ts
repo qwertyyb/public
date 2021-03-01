@@ -35,7 +35,7 @@ module.exports = (publicApp: CoreApp) => ({
       {
         label: '退出Public',
         accelerator: 'Command+Q',
-        click: () => { publicApp.electronApp.exit() }
+        role: 'quit'
       }
     ])
     publicTray?.setToolTip('Public')
