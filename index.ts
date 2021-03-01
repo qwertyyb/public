@@ -71,7 +71,6 @@ async function createWindow () {
     titleBarStyle: 'customButtonsOnHover',
     backgroundColor: '#00ffffff',
     vibrancy: 'sidebar',
-    closable: false,
     webPreferences: {
       webSecurity: false,
       allowRunningInsecureContent: true,
@@ -114,3 +113,7 @@ app.whenReady().then(() => {
 
   autoUpdater.checkForUpdatesAndNotify();
 })
+
+app.on('window-all-closed', () => {
+  app.quit();
+});
