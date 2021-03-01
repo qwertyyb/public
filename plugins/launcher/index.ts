@@ -7,7 +7,6 @@ import { fork } from 'child_process'
 import { CommonListItem, PublicPlugin } from 'shared/types/plugin'
 
 interface AppListItem extends CommonListItem{
-  name: string,
   path: string,
   icon: string,
 }
@@ -21,7 +20,7 @@ const getAppList = (() => {
         path.resolve(__dirname, './loadApplications')
       )
       childProcess.on('message', (message) => {
-        console.log(message.length)
+        console.log(message)
         resolve(message)
       })
     })
@@ -56,10 +55,9 @@ class LauncherPlugin implements PublicPlugin {
   ) {
     if (!keyword) return setResult([])
     keyword = keyword.toLocaleLowerCase();
-    const pinyinMatch = this.app.getUtils().pinyinMatch
+    const match = this.app.getUtils().match
     setResult(this.apps.filter(item => {
-      return item.code?.toLocaleLowerCase().includes(keyword)
-        || pinyinMatch(item.title, keyword)
+      return match([item.code, item.title], keyword)
     }))
   }
 
