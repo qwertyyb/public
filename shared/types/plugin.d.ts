@@ -24,7 +24,7 @@ export interface PublicPlugin {
   icon: string,
   subtitle: string,
   onInput?: (keyword: string, setResult: SetResult) => void,
-  onSelect?: (item: CommonListItem, index: number, list: CommonListItem[]) => void,
+  onEnter?: (item: CommonListItem, index: number, list: CommonListItem[]) => void
 }
 
 export interface PublicApp {

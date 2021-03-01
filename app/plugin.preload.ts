@@ -78,7 +78,11 @@ window.PluginManager = {
       list: CommonListItem[]
     }
   ) {
-    args.item.onEnter?.(args.item, args.index, args.list)
+    if (typeof args.item.onEnter === 'function') {
+      args.item.onEnter?.(args.item, args.index, args.list)
+    } else if (typeof plugin.onEnter === 'function') {
+      plugin.onEnter?.(args.item, args.index, args.list)
+    }
   },
 }
 
