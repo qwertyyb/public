@@ -1,8 +1,10 @@
 import { app, BrowserWindow, ipcMain, protocol } from "electron";
+import { autoUpdater } from "electron-updater"
 import * as path from 'path';
 
 export interface CoreApp {
   electronApp: typeof app,
+  updater: typeof autoUpdater
   window: {
     main?: BrowserWindow
   }
@@ -10,6 +12,7 @@ export interface CoreApp {
 
 var publicApp: CoreApp = {
   electronApp: app,
+  updater: autoUpdater,
   window: {}
 }
 
@@ -109,4 +112,6 @@ app.whenReady().then(() => {
   createWindow()
   trayController.createTray()
   app.setAccessibilitySupportEnabled(true)
+
+  autoUpdater.checkForUpdatesAndNotify();
 })

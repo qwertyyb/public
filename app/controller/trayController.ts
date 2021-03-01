@@ -1,7 +1,5 @@
 import {
   Tray as ElectronTray,
-  Menu as ElectronMenu,
-  nativeImage as ElectronNativeImage,
 } from 'electron'
 import { CoreApp } from 'index';
 
@@ -28,6 +26,10 @@ module.exports = (publicApp: CoreApp) => ({
             steal: true
           })
         }
+      },
+      {
+        label: '检查更新...',
+        click: () => publicApp.updater.checkForUpdatesAndNotify()
       },
       { label: '关于Public', role: 'about' },
       {
