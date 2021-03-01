@@ -11,8 +11,8 @@ const pinyinMatch = (hanzi: string, keyword: string) => {
 const match = (candidate: string[] | string, keyword: string) => {
   if (!keyword) return false;
   const arr = Array.isArray(candidate) ? candidate : [candidate]
-  const k = keyword.toLocaleLowerCase()
-  return arr.some(element => element.toLocaleLowerCase().includes(k) || pinyinMatch(element, k))
+  const k = keyword.toLowerCase()
+  return arr.some(element => element?.toLowerCase().includes(k) || pinyinMatch(element, k))
 }
 
 export {

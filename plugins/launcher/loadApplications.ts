@@ -63,14 +63,17 @@ const getAppList = async () => {
       icon: 'localfile://' + iconPath,
     }
   }))
-  return list.map((app: App) => ({
-    code: app.name,
-    subtitle: app.path,
-    title: app.name,
-    icon: app.icon,
-    path: app.path,
-    key: app.path,
-  }))
+  return list.map((app: App) => {
+    const enName = app.path.split('/').pop()?.replace(/\.app$/, '') || ''
+    return {
+      code: enName,
+      subtitle: app.path,
+      title: app.name.replace(/\.app$/, ''),
+      icon: app.icon,
+      path: app.path,
+      key: app.path,
+    }
+  })
 }
 
 getAppList().then((applist) => process.send?.(applist))
