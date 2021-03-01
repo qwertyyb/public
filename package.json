@@ -1,6 +1,6 @@
 {
   "name": "public",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "index.js",
   "repository": {
     "type": "git",
@@ -13,7 +13,7 @@
     "start:main": "nodemon --exec 'npm run tsc && cross-env NODE_ENV=development electron ./index.js'",
     "start": "concurrently \"npm run start:render\" \"wait-on http://localhost:8020  && npm run start:main\"",
     "build:render": "cd ./render && npm run build",
-    "build:main": "npm run tsc && electron-builder",
+    "build:main": "npm run tsc && electron-builder -c.mac.identity=null",
     "build": "NODE_ENV=production && npm run build:render && npm run build:main",
     "release": "NODE_ENV=production && npm run build:render && npm run tsc && electron-builder --publish=always"
   },
