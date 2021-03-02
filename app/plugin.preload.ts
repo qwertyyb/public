@@ -11,7 +11,8 @@ const getPluginsPath = (): string[] => {
     path.resolve(__dirname, '../plugins/calculator'),
     path.resolve(__dirname, '../plugins/qrcode'),
     path.resolve(__dirname, '../plugins/search/index'),
-    path.resolve(__dirname, '../plugins/translate/index')
+    path.resolve(__dirname, '../plugins/translate/index'),
+    path.resolve(__dirname, '../plugins/terminal/index')
   ]
   
   const customPlugins: string[] = [];
@@ -27,7 +28,6 @@ const registerPlugin = (pluginPath: string): PublicPlugin | undefined => {
       getPlugins: () => plugins,
       getUtils: () => require('./utils/index'),
       setList: (list: CommonListItem[]) => {
-        console.log('setList', plugin, list)
         const event = new CustomEvent('plugin:setList', {
           detail: {
             plugin,

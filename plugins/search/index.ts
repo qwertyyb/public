@@ -3,9 +3,9 @@ import { PublicApp, PublicPlugin, CommonListItem } from "shared/types/plugin"
 const keywords = [
   {
     key: 'google',
-    triggers: ['g', 'google', '谷歌'],
+    triggers: ['g', 'gg', 'google', '谷歌'],
     icon: 'https://img.icons8.com/color/144/000000/google-logo.png',
-    title: '谷歌搜索"${keyword}"',
+    title: '谷歌搜索“${keyword}“',
     subtitle: '',
     url: 'https://www.google.com/search?q=${keyword}'
   },
@@ -13,7 +13,7 @@ const keywords = [
     key: 'baidu',
     triggers: ['b', 'bd', 'baidu', '百度'],
     icon: 'https://img.icons8.com/color/144/000000/baidu.png',
-    title: '百度搜索"${keyword}"',
+    title: '百度搜索“${keyword}“',
     subtitle: '',
     url: 'https://www.baidu.com/s?wd=${keyword}'
   }
@@ -30,7 +30,9 @@ const getResultList = (keyword: string): CommonListItem[] => {
       const item: CommonListItem = {
         key: `plugin:search:${searchItem.key}`,
         icon: searchItem.icon,
-        title: searchItem.title.replace(/\$\{keyword\}/g, searchWord),
+        title: searchItem.title
+          .replace(/\$\{keyword\}/g, searchWord)
+          .replace(/““/, ''),
         subtitle: '',
         onEnter: () => {
           const shell = require('electron').shell
