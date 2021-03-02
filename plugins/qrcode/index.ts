@@ -50,26 +50,33 @@ export default (app: any): PublicPlugin => {
     async onInput (keyword: string, setList) {
 
       const [first, ...rest] = keyword.split(' ')
-      const val = ['qr', 'qrcode', 'ewm', '二维码'].includes(first) && rest.join(' ').trim() || ''
+      const match = ['qr', 'qrcode', 'ewm', '二维码'].includes(first)
+      const param = rest.join(' ')
 
-      if (!val) return setList([])
+      if (!match) return setList([])
 
       const list: CommonListItem[] = []
-      const QRCode = require('qrcode')
-      // 生成二维码
-      const { html, url } = await new Promise(resolve => QRCode.toDataURL(val).then((url: string) => {
-        const html = `
-          <div class="flex flex-col justify-center items-center w-full h-full">
-            <img src="${url}" class="w-full" />
-            <div class="text-single-line mt-2">${val}</div>
-          </div>s
-        `
-        resolve({ html, url })
-      }))
+      let html = ''
+      let url = ''
+      if (param) {
+        const QRCode = require('qrcode')
+        // 生成二维码
+        const res: { html: string, url: string } = await new Promise(resolve => QRCode.toDataURL(param).then((url: string) => {
+          const html = `
+            <div class="flex flex-col justify-center items-center w-full h-full">
+              <img src="${url}" class="w-full" />
+              <div class="text-single-line mt-2">${param}</div>
+            </div>s
+          `
+          resolve({ html, url })
+        }))
+        html = res.html
+        url = res.url
+      }
       list.push({
         key: 'plugin:qrcode:generate',
         title: '生成二维码',
-        subtitle: `二维码内容: ${val}`,
+        subtitle: param ? `二维码内容: ${param}` : '',
         preview: html,
         icon: 'https://img.icons8.com/pastel-glyph/64/4a90e2/qr-code--v1.png',
         qrcodeUrl: url,
