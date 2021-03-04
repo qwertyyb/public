@@ -19,7 +19,7 @@ export default (app: any): PublicPlugin => {
 
   // @ts-ignore 注册快捷键
   window.requestIdleCallback(() => {
-    const globalShortcut = require('electron').remote.globalShortcut
+    const globalShortcut = require('@electron/remote').globalShortcut
     globalShortcut.unregisterAll()
     globalShortcut.register(getLocalSettings().shortcut, () => {
       app.getMainWindow().show()
@@ -28,7 +28,7 @@ export default (app: any): PublicPlugin => {
 
   // @ts-ignore 注册开机启动
   window.requestIdleCallback(() => {
-    require('electron').remote.app.setLoginItemSettings({
+    require('@electron/remote').app.setLoginItemSettings({
       openAtLogin: getLocalSettings().settings
     })
   })
@@ -54,7 +54,7 @@ export default (app: any): PublicPlugin => {
                 return;
               }
               const path = require('path')
-              const { BrowserWindow } = require('electron').remote
+              const { BrowserWindow } = require('@electron/remote')
               win = new BrowserWindow({
                 width: 800,
                 height: 600,
@@ -63,10 +63,11 @@ export default (app: any): PublicPlugin => {
                   devTools: true,
                   nodeIntegration: true,
                   enableRemoteModule: true,
+                  contextIsolation: false,
                 }
               })
               win.webContents.loadFile(path.join(__dirname, './index.html'))
-              // win.webContents.openDevTools()
+              win.webContents.openDevTools()
               win.on('close', () => {
                 win = null
               })

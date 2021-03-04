@@ -95,13 +95,13 @@ class MainView extends React.Component {
     plugin: PublicPlugin
   ) => {
     if (!item) return;
+    window.ipcRenderer.invoke('HideWindow')
+    this.clearAndFocusInput()
     window.PluginManager.handleEnter(plugin, {
       item,
       index,
       list: pluginResult
     })
-    window.ipcRenderer.invoke('HideWindow')
-    this.clearAndFocusInput()
   }
   onInputChange = (value: string) => {
     this.setState({

@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, protocol } from "electron";
 import { autoUpdater } from "electron-updater"
 import * as path from 'path';
+require('@electron/remote/main').initialize()
 
 export interface CoreApp {
   electronApp: typeof app,
@@ -58,7 +59,7 @@ async function createWindow () {
   const win = new BrowserWindow({
     height: 48,
     useContentSize: false,
-    frame: false,
+    // frame: false,
     minWidth: 720,
     width: 720,
     y: 120,
@@ -69,9 +70,10 @@ async function createWindow () {
     maximizable: false,
     transparent: true,
     titleBarStyle: 'customButtonsOnHover',
-    backgroundColor: '#00ffffff',
-    vibrancy: 'sidebar',
+    backgroundColor: '#ffffffff',
+    // vibrancy: 'sidebar',
     webPreferences: {
+      enableBlinkFeatures: 'WebBluetooth',
       webSecurity: false,
       allowRunningInsecureContent: true,
       spellcheck: false,

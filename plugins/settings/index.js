@@ -1,4 +1,5 @@
-const { ipcRenderer, remote } = require('electron')
+const { ipcRenderer } = require('electron')
+const remote = require('@electron/remote')
 
 const createKeyEventHandler = (onChange, done) => {
   const key = {
@@ -39,10 +40,10 @@ const clearKeyEventHandler = (keyEventHandler) => {
 }
 
 const registerHotkey = (key) => {
-  const globalShortcut = require('electron').remote.globalShortcut
+  const globalShortcut = remote.globalShortcut
   globalShortcut.unregisterAll()
   globalShortcut.register(key, () => {
-    require('electron').remote.getGlobal('publicApp').window.main.show()
+    remote.getGlobal('publicApp').window.main.show()
   })
 }
 
@@ -86,7 +87,6 @@ var app = new Vue({
   },
   methods: {
     async getPlugins() {
-      const remote = require('electron').remote
       ipcRenderer.sendTo(
         remote.getGlobal('publicApp').window.main.webContents.id,
         'getPlugins'
@@ -109,7 +109,7 @@ var app = new Vue({
     onAutoLaunchChange (autoLaunch) {
       saveLocalSettings({ autoLaunch })
       this.settings.autoLaunch = autoLaunch
-      require('electron').remote.app.setLoginItemSettings({
+      remote.app.setLoginItemSettings({
         openAtLogin: autoLaunch
       })
     },
