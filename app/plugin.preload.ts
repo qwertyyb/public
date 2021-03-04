@@ -1,4 +1,6 @@
-import { ipcRenderer, remote } from 'electron'
+import { ipcRenderer } from 'electron'
+// @ts-ignore
+import * as remote from '@electron/remote'
 import { CoreApp } from 'index';
 import * as path from 'path';
 import { PublicPlugin, CommonListItem } from 'shared/types/plugin';
@@ -7,7 +9,7 @@ const getPluginsPath = (): string[] => {
   const defaultPlugins: string[] = [
     path.resolve(__dirname, '../plugins/settings/main.js'),
     path.resolve(__dirname, '../plugins/launcher/index.js'),
-    path.resolve(__dirname, '../plugins/lockscreen'),
+    path.resolve(__dirname, '../plugins/command/index'),
     path.resolve(__dirname, '../plugins/calculator'),
     path.resolve(__dirname, '../plugins/qrcode'),
     path.resolve(__dirname, '../plugins/search/index'),

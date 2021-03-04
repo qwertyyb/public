@@ -49,7 +49,7 @@ export default (app: PublicApp): PublicPlugin => {
   return {
     title: '搜索',
     subtitle: '快捷搜索',
-    icon: '',
+    icon: 'https://img.icons8.com/nolan/128/search.png',
     onInput: (keyword, setList) => {
       const resultList = getResultList(keyword)
       setList(resultList)

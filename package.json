@@ -78,6 +78,7 @@
     "wait-on": "^5.2.1"
   },
   "dependencies": {
+    "@electron/remote": "^1.0.4",
     "electron-updater": "^4.3.5",
     "file-icon": "^4.0.0",
     "mathjs": "^9.2.0",
