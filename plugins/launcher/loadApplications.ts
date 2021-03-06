@@ -42,6 +42,7 @@ const buildQuery = () => (
 )
 
 const getAppList = async () => {
+  console.log('start', new Date())
   const { stdout, terminate } = mdfind({
     query: buildQuery(),
     // @ts-ignore
@@ -52,17 +53,19 @@ const getAppList = async () => {
     await fs.promises.mkdir(iconDir, { recursive: true })
   }
   let list: any = await stdout
+  console.log('mid', new Date())
   list = await Promise.all(list.map(async (app: any) => {
     const iconPath = path.join(iconDir, app.name + '.png')
-    await fileIcon.file(app.path, {
-      destination: iconPath,
-      size: 64,
-    })
+    // await fileIcon.file(app.path, {
+    //   destination: iconPath,
+    //   size: 64,
+    // })
     return {
       ...app,
       icon: 'localfile://' + iconPath,
     }
   }))
+  console.log('end', new Date)
   return list.map((app: App) => {
     const enName = app.path.split('/').pop()?.replace(/\.app$/, '') || ''
     return {

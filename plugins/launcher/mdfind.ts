@@ -10,6 +10,7 @@ const REAL_KEYS = {
 const mfindAsync = (args: string) => {
   let process: any
   const stdout = new Promise((resolve, reject) => {
+    console.log(args)
     process = exec(`mdfind ${args}`, (err, result) => {
       if (err) return reject(err)
       const lines = result.split('\0').filter(r => r)
