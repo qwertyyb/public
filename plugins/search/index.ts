@@ -51,6 +51,29 @@ const keywords: SearchItem[] = [
       }))
       return Array.isArray(res?.s) && res?.s || []
     }
+  },
+  {
+    key: 'bing',
+    triggers: ['bing', 'by', '必应'],
+    icon: 'https://img.icons8.com/color/144/000000/bing.png',
+    label: '必应搜索',
+    url: 'https://www.bing.com/search?q=${keyword}',
+    candidateList: async (keyword: string): Promise<string[]> => {
+      // @ts-ignore
+      const res: any = await new Promise((resolve, reject) => $.ajax({
+        dataType: 'jsonp',
+        jsonp: 'cb',
+        url: 'https://api.bing.com/qsonhs.aspx?type=cb',
+        data: {
+          q: keyword
+        },
+        success: resolve,
+        error: resolve
+      }))
+      const list = res?.AS?.Results?.[0]?.Suggests
+      const texts = Array.isArray(list) && list.map(item => item.Txt) || []
+      return texts
+    }
   }
 ]
 

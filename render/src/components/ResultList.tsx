@@ -41,7 +41,9 @@ class MainView extends React.Component {
   }
 
   componentDidUpdate() {
-    document.querySelector('.list-item.selected')?.scrollIntoView({ block: 'center' })
+    // setTimeout(() => {
+    //   document.querySelector('.list-item.selected')?.scrollIntoView({ block: 'center' })
+    // })
   }
 
   clearAndFocusInput = () => {
