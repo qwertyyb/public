@@ -24,12 +24,16 @@ class MainView extends React.Component {
       result: new Map(),
       preview: '',
     }
+    // @ts-ignore
+    window.clearAndFocusInput = this.clearAndFocusInput
+    // @ts-ignore
+    window.setQuery = this.onInputChange
   }
 
   componentDidMount () {
     document.addEventListener('keydown', this.keydownHandler, true)
     // @ts-ignore
-    document.addEventListener('mainwindowshow', this.clearAndFocusInput)
+    document.addEventListener('mainwindowshow', this.focusInput)
     document.addEventListener('plugin:setList', this.setPluginListHandler)
   }
 
@@ -37,13 +41,13 @@ class MainView extends React.Component {
     document.removeEventListener('keydown', this.keydownHandler, true)
     document.removeEventListener('plugin:setList', this.setPluginListHandler)
     // @ts-ignore
-    document.removeEventListener('mainwindowshow', this.clearAndFocusInput)
+    document.removeEventListener('mainwindowshow', this.focusInput)
   }
 
   componentDidUpdate() {
-    // setTimeout(() => {
-    //   document.querySelector('.list-item.selected')?.scrollIntoView({ block: 'center' })
-    // })
+    setTimeout(() => {
+      document.querySelector('.list-item.selected')?.scrollIntoView({ block: 'center' })
+    }, 200)
   }
 
   clearAndFocusInput = () => {
@@ -51,8 +55,12 @@ class MainView extends React.Component {
       keyword: '',
       selectedIndex: 0,
     })
-    // @ts-ignore
-    document.querySelector('#main-input').focus()
+    this.focusInput();
+  }
+
+  focusInput = () => {
+    const input = document.querySelector('#main-input') as HTMLInputElement
+    input.focus()
   }
 
   setPluginListHandler = (e: any) => {
@@ -97,7 +105,7 @@ class MainView extends React.Component {
     plugin: PublicPlugin
   ) => {
     if (!item) return;
-    window.ipcRenderer.invoke('HideWindow')
+    window.ipcRenderer.send('HideWindow')
     this.clearAndFocusInput()
     window.PluginManager.handleEnter(plugin, {
       item,

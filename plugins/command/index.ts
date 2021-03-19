@@ -16,9 +16,8 @@ export default (app: PublicApp): PublicPlugin => {
           key: 'plugin:lockscreen',
           icon: 'https://img.icons8.com/fluent/48/000000/lock.png',
           command: `
-          tell application "System Events"
-            start current screen saver
-          end tell`
+            tell application "System Events" to keystroke "q" using {control down, command down}
+          `
         })
       }
       if (match(['休眠', '睡眠', 'sleep'], keyword)) {
@@ -76,6 +75,7 @@ export default (app: PublicApp): PublicPlugin => {
     onEnter: (item) => {
       if (!item.command) return;
       const str = `osascript -e '${item.command}'`
+      console.log('ccccc')
       require('child_process').exec(str)
     }
   }

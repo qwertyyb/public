@@ -14,6 +14,7 @@ const getPluginsPath = (): string[] => {
     path.resolve(__dirname, '../plugins/qrcode'),
     path.resolve(__dirname, '../plugins/search/index'),
     path.resolve(__dirname, '../plugins/translate/index'),
+    path.resolve(__dirname, '../plugins/clipboard/index'),
     path.resolve(__dirname, '../plugins/terminal/index')
   ]
   

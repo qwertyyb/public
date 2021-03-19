@@ -136,6 +136,17 @@
               {{ settings.shortcut }}
             </button>
           </li>
+          <li class="shortcut-item flex items-center justify-between bg-gray-200 mt-2 px-4">
+            <div class="text-right mr-4 py-2">自定义关键词</div>
+            <el-button icon="el-icon-plus" circle size="small" @click="onAddPluginClick"></el-button>
+          </li>
+          <li class="shortcut-item flex items-center my-2 px-4">
+            <button class="px-4 h-8 border rounded outline-none focus:outline-none focus:bg-gray-200 focus:ring-2 focus:ring-blue-400"
+              @click="onShortcutBtnClicked">
+              {{ settings.shortcut }}
+            </button>
+            <el-input placeholder="请输入关键词" size="small" class="ml-2"></el-input>
+          </li>
         </ul>
       </div>
     </div>

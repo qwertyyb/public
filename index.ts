@@ -1,11 +1,15 @@
-import { app, BrowserWindow, ipcMain, protocol } from "electron";
+import { app, BrowserWindow, globalShortcut, ipcMain, protocol } from "electron";
 import { autoUpdater } from "electron-updater"
 import * as path from 'path';
+// const robot = require('robotjs')
 require('@electron/remote/main').initialize()
+
+app.allowRendererProcessReuse = false
 
 export interface CoreApp {
   electronApp: typeof app,
-  updater: typeof autoUpdater
+  updater: typeof autoUpdater,
+  // robot: any,
   window: {
     main?: BrowserWindow
   }
@@ -14,7 +18,8 @@ export interface CoreApp {
 var publicApp: CoreApp = {
   electronApp: app,
   updater: autoUpdater,
-  window: {}
+  window: {},
+  // robot: robot
 }
 
 // @ts-ignore
@@ -46,15 +51,15 @@ protocol.registerSchemesAsPrivileged([
   }
 ])
 async function createWindow () {
-  ipcMain.handle('ResizeWindow', (
+  ipcMain.on('ResizeWindow', (
     event,
     arg: { width: number, height: number }
   ) => {
     console.log('resize window', arg)
     win.setSize(arg.width, arg.height)
   })
-  ipcMain.handle('HideWindow', () => {
-    win.hide()
+  ipcMain.on('HideWindow', () => {
+    app.hide()
   })
   const win = new BrowserWindow({
     height: 48,
@@ -82,11 +87,21 @@ async function createWindow () {
       devTools: true,
       preload: path.join(__dirname, 'app/plugin.preload.js'),
       contextIsolation: false,
+      backgroundThrottling: false
     }
   })
   win.on('ready-to-show', () => {
     publicApp.window.main?.show()
   })
+  win.on('hide', () => {
+    console.log('hide')
+    win.webContents.executeJavaScript(`clearAndFocusInput && clearAndFocusInput()`)
+  })
+  console.log(globalShortcut.register('Command+Shift+V', () => {
+    app.show()
+    win.show()
+    win.webContents.executeJavaScript(`setQuery && setQuery('cp ')`)
+  }))
   protocol.registerFileProtocol('localfile', (request, callback) => {
     const pathname = decodeURIComponent(request.url.replace('localfile://', ''));
     callback({

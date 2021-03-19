@@ -32,5 +32,6 @@ export interface PublicApp {
     getMainWindow: () => BrowserWindow,
     getPlugins: () => PublicPlugin[],
     getUtils: () => Utils,
-    setList: (list: CommonListItem[]) => void
+    setList: (list: CommonListItem[]) => void,
+    robot: any,
 }
