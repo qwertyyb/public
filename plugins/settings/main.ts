@@ -9,7 +9,10 @@ const getLocalSettings = () => {
   const val = localStorage.getItem('settings')
   return val && JSON.parse(val) || {
     autoLaunch: true,
-    shortcut: 'CommandOrControl+Space'
+    shortcut: 'CommandOrControl+Space',
+    shortcuts: [
+      { keyword: 'cp ', shortcut: 'Command+Shift+V' }
+    ]
   }
 }
 
@@ -20,7 +23,7 @@ export default (app: any): PublicPlugin => {
   // @ts-ignore 注册快捷键
   window.requestIdleCallback(() => {
     const globalShortcut = require('@electron/remote').globalShortcut
-    globalShortcut.unregisterAll()
+    // globalShortcut.unregisterAll()
     globalShortcut.register(getLocalSettings().shortcut, () => {
       app.getMainWindow().show()
     })

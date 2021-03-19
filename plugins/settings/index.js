@@ -51,7 +51,10 @@ const getLocalSettings = () => {
   const val = localStorage.getItem('settings')
   return val && JSON.parse(val) || {
     autoLaunch: true,
-    shortcut: 'CommandOrControl+Space'
+    shortcut: 'CommandOrControl+Space',
+    shortcuts: [
+      { keyword: 'cp ', shortcut: 'Command+Shift+V' }
+    ]
   }
 }
 const saveLocalSettings = (settings) => {

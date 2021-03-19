@@ -1,8 +1,8 @@
 const resizeObserver = new window.ResizeObserver((entries: any) => {
   const { width, height } = entries.pop().contentRect;
   setTimeout(() => {
-    window.ipcRenderer.invoke('ResizeWindow', { width, height })
-  }, 200)
+    window.ipcRenderer.send('ResizeWindow', { width, height })
+  }, 10)
 })
 
 const controller = {

@@ -17,7 +17,7 @@ function ListItem(props: {
         <img src={props.image} alt=""/>
       </div>
       <div className="item-info flex-1 flex-col-center">
-        <h3 className="item-title">{props.title}</h3>
+        <h3 className="item-title text-single-line">{props.title}</h3>
         <h5 className="item-subtitle color-666 text-sm text-single-line">{props.subtitle}</h5>
       </div>
     </div>
