@@ -56,10 +56,12 @@ const getAppList = async () => {
   console.log('mid', new Date())
   list = await Promise.all(list.map(async (app: any) => {
     const iconPath = path.join(iconDir, app.name + '.png')
-    // await fileIcon.file(app.path, {
-    //   destination: iconPath,
-    //   size: 64,
-    // })
+    if (process.env.NODE_ENV === 'development') {
+      await fileIcon.file(app.path, {
+        destination: iconPath,
+        size: 64,
+      })
+    }
     return {
       ...app,
       icon: 'localfile://' + iconPath,
