@@ -119,7 +119,6 @@
                 circle></el-button>
               <el-button type="text"
                 size="mini"
-                @click="onRemovePluginClick(index, plugin)"
                 circle>
                 <i class="el-icon-more"></i>
               </el-button>
@@ -132,20 +131,33 @@
           <li class="shortcut-item flex items-center">
             <div class="w-48 text-right mr-4">显示/隐藏主界面</div>
             <button class="px-4 h-8 border rounded outline-none focus:outline-none focus:bg-gray-200 focus:ring-2 focus:ring-blue-400"
-              @click="onShortcutBtnClicked">
+              @click="onShortcutBtnClicked($event, settings)">
               {{ settings.shortcut }}
             </button>
           </li>
           <li class="shortcut-item flex items-center justify-between bg-gray-200 mt-2 px-4">
             <div class="text-right mr-4 py-2">自定义关键词</div>
-            <el-button icon="el-icon-plus" circle size="small" @click="onAddPluginClick"></el-button>
+            <el-button icon="el-icon-plus" circle size="small" @click="onAddShortcutClick"></el-button>
           </li>
-          <li class="shortcut-item flex items-center my-2 px-4">
-            <button class="px-4 h-8 border rounded outline-none focus:outline-none focus:bg-gray-200 focus:ring-2 focus:ring-blue-400"
-              @click="onShortcutBtnClicked">
-              {{ settings.shortcut }}
+          <li class="shortcut-item flex items-center justify-between my-2 px-4">
+            <h3>快捷键</h3>
+            <h3>关键词</h3>
+          </li>
+          <li class="shortcut-item flex items-center my-2 px-4"
+            v-for="(item, index) in settings.shortcuts">
+            <button class="w-64 px-4 h-8 border rounded outline-none focus:outline-none focus:bg-gray-200 focus:ring-2 focus:ring-blue-400"
+              @click="onShortcutBtnClicked($event, item)">
+              {{ item.shortcut || '请输入快捷键' }}
             </button>
-            <el-input placeholder="请输入关键词" size="small" class="ml-2"></el-input>
+            <el-input placeholder="请输入关键词"
+              size="small"
+              class="ml-2 mr-2"
+              @change="updateShortcut"
+              v-model="item.keyword"></el-input>
+            <el-button type="danger" icon="el-icon-delete"
+              size="mini"
+              @click="onRemoveShortcutClick(index, item)"
+              circle></el-button>
           </li>
         </ul>
       </div>
