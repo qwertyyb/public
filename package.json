@@ -15,6 +15,7 @@
     "build:render": "cd ./render && npm run build",
     "build:main": "npm run tsc && electron-builder -c.mac.identity=null",
     "build": "NODE_ENV=production && npm run build:render && npm run build:main",
+    "postinstall": "electron-rebuild -m node_modules/robotjs",
     "release": "NODE_ENV=production && npm run build:render && npm run tsc && electron-builder --publish=always"
   },
   "nodemonConfig": {
@@ -68,7 +69,7 @@
     "@types/node": "^12.20.4",
     "concurrently": "^6.0.0",
     "cross-env": "^7.0.3",
-    "electron": "^12.0.0",
+    "electron": "^12.0.1",
     "electron-builder": "^22.9.1",
     "electron-devtools-installer": "^3.1.1",
     "electron-notarize": "^1.0.0",

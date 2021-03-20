@@ -80,11 +80,13 @@ class MainView extends React.Component {
         selectedIndex: (selectedIndex - 1 + listLength) % listLength
       })
       e.stopPropagation()
+      e.preventDefault()
     } else if(e.key === 'ArrowDown') {
       this.setState({
         selectedIndex: (selectedIndex + 1) % listLength
       })
       e.stopPropagation()
+      e.preventDefault()
     } else if(e.key === 'Enter') {
       // @ts-ignore
       document.querySelector('.list-item.selected')?.click?.();

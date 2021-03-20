@@ -39,14 +39,6 @@ const clearKeyEventHandler = (keyEventHandler) => {
   document.removeEventListener('keyup', keyEventHandler)
 }
 
-const registerHotkey = (key) => {
-  const globalShortcut = remote.globalShortcut
-  globalShortcut.unregisterAll()
-  globalShortcut.register(key, () => {
-    remote.getGlobal('publicApp').window.main.show()
-  })
-}
-
 const getLocalSettings = () => {
   const val = localStorage.getItem('settings')
   return val && JSON.parse(val) || {
@@ -56,11 +48,6 @@ const getLocalSettings = () => {
       { keyword: 'cp ', shortcut: 'Command+Shift+V' }
     ]
   }
-}
-const saveLocalSettings = (settings) => {
-  const oldSettings = getLocalSettings()
-  const val = JSON.stringify({ ...oldSettings, ...settings })
-  return localStorage.setItem('settings', val)
 }
 
 var app = new Vue({
@@ -73,7 +60,7 @@ var app = new Vue({
     },
     curView: 'common',
     plugins: [],
-    settings: getLocalSettings()
+    settings: getLocalSettings(),
   },
   created() {
     console.log(this)
@@ -95,26 +82,37 @@ var app = new Vue({
         'getPlugins'
       )
     },
-    async onShortcutBtnClicked() {
+    async onShortcutBtnClicked(event, keyObj) {
+      let original = keyObj.shortcut
       if (this.keyEventHandler) clearKeyEventHandler(this.keyEventHandler)
       const keyEventHandler = createKeyEventHandler(key => {
         console.log(key)
-        this.settings.shortcut = [...key.modifiers, key.key].filter(i => i).join('+') || 'CommandOrControl+Space'
+        keyObj.shortcut = [...key.modifiers, key.key].filter(i => i).join('+') || 'CommandOrControl+Space'
       }, (key) => {
         clearKeyEventHandler(keyEventHandler)
         const keyStore = [...key.modifiers, key.key].filter(i => i).join('+')
-        registerHotkey(keyStore)
+        keyObj.shortcut = keyStore
+        delete keyObj.temp
+        original = keyStore
+        this.updateShortcut()
       })
       this.keyEventHandler = keyEventHandler
       document.addEventListener('keydown', keyEventHandler)
       document.addEventListener('keyup', keyEventHandler)
+      event.target.addEventListener('blur', (e) => {
+        keyObj.shortcut = original
+        clearKeyEventHandler(this.keyEventHandler)
+      })
     },
     onAutoLaunchChange (autoLaunch) {
-      saveLocalSettings({ autoLaunch })
       this.settings.autoLaunch = autoLaunch
-      remote.app.setLoginItemSettings({
-        openAtLogin: autoLaunch
-      })
+      ipcRenderer.sendTo(
+        remote.getGlobal('publicApp').window.main.webContents.id,
+        'plugin:settings:openAtLogin',
+        {
+          settings: this.settings
+        }
+      )
     },
     async onAddPluginClick () {
       const file = await new Promise((resolve, reject) => {
@@ -149,6 +147,26 @@ var app = new Vue({
         'registerPlugin',
         {
           path: file.path
+        }
+      )
+    },
+    async onAddShortcutClick() {
+      this.settings.shortcuts.push({
+        keyword: '',
+        shortcut: '',
+        temp: true
+      })
+    },
+    onRemoveShortcutClick(index, shortcutItem) {
+      this.settings.shortcuts.splice(index, 1)
+      this.updateShortcut()
+    },
+    updateShortcut() {
+      ipcRenderer.sendTo(
+        remote.getGlobal('publicApp').window.main.webContents.id,
+        'plugin:settings:registerShortcut',
+        {
+          settings: this.settings
         }
       )
     }

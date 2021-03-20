@@ -4,12 +4,13 @@ import * as path from 'path';
 // const robot = require('robotjs')
 require('@electron/remote/main').initialize()
 
-app.allowRendererProcessReuse = false
+// const robot = require('robotjs')
 
+app.allowRendererProcessReuse = false
+console.log(process.versions.modules, process.versions)
 export interface CoreApp {
   electronApp: typeof app,
   updater: typeof autoUpdater,
-  // robot: any,
   window: {
     main?: BrowserWindow
   }
@@ -19,7 +20,6 @@ var publicApp: CoreApp = {
   electronApp: app,
   updater: autoUpdater,
   window: {},
-  // robot: robot
 }
 
 // @ts-ignore
@@ -64,7 +64,6 @@ async function createWindow () {
   const win = new BrowserWindow({
     height: 48,
     useContentSize: false,
-    // frame: false,
     minWidth: 720,
     width: 720,
     y: 120,
@@ -76,7 +75,6 @@ async function createWindow () {
     transparent: true,
     titleBarStyle: 'customButtonsOnHover',
     backgroundColor: '#ffffffff',
-    // vibrancy: 'sidebar',
     webPreferences: {
       enableBlinkFeatures: 'WebBluetooth',
       webSecurity: false,
@@ -97,11 +95,6 @@ async function createWindow () {
     console.log('hide')
     win.webContents.executeJavaScript(`clearAndFocusInput && clearAndFocusInput()`)
   })
-  console.log(globalShortcut.register('Command+Shift+V', () => {
-    app.show()
-    win.show()
-    win.webContents.executeJavaScript(`setQuery && setQuery('cp ')`)
-  }))
   protocol.registerFileProtocol('localfile', (request, callback) => {
     const pathname = decodeURIComponent(request.url.replace('localfile://', ''));
     callback({
