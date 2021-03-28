@@ -47,13 +47,13 @@ export default (app: any): PublicPlugin => {
     title: '二维码',
     subtitle: '解析生成二维码',
     icon: 'https://img.icons8.com/pastel-glyph/64/4a90e2/qr-code--v1.png',
-    async onInput (keyword: string, setList) {
+    async onInput (keyword: string) {
 
       const [first, ...rest] = keyword.split(' ')
       const match = ['qr', 'qrcode', 'ewm', '二维码'].includes(first)
       const param = rest.join(' ')
 
-      if (!match) return setList([])
+      if (!match) return app.setList([])
 
       const list: CommonListItem[] = []
       let html = ''
@@ -66,7 +66,7 @@ export default (app: any): PublicPlugin => {
             <div class="flex flex-col justify-center items-center w-full h-full">
               <img src="${url}" class="w-full" />
               <div class="text-single-line mt-2">${param}</div>
-            </div>s
+            </div>
           `
           resolve({ html, url })
         }))
@@ -77,6 +77,9 @@ export default (app: any): PublicPlugin => {
         key: 'plugin:qrcode:generate',
         title: '生成二维码',
         subtitle: param ? `二维码内容: ${param}` : '',
+        extraInfo: {
+          query: keyword
+        },
         preview: html,
         icon: 'https://img.icons8.com/pastel-glyph/64/4a90e2/qr-code--v1.png',
         qrcodeUrl: url,
@@ -85,7 +88,26 @@ export default (app: any): PublicPlugin => {
           const notification = new Notification('二维码已写入剪切板')
         }
       })
-      setList(list)
+      app.setList(list)
     },
+    async getResultPreview(item, index, list) {
+      if(item.key === 'plugin:qrcode:generate') {
+        const QRCode = require('qrcode')
+        const [_, ...rest] = item.extraInfo.query.split(' ')
+        const param = rest.join(' ')
+        if (!param) return;
+        // 生成二维码
+        const res: { html: string, url: string } = await new Promise(resolve => QRCode.toDataURL(param).then((url: string) => {
+          const html = `
+            <div class="flex flex-col justify-center items-center w-full h-full">
+              <img src="${url}" class="w-full" />
+              <div class="text-single-line mt-2">${param}</div>
+            </div>
+          `
+          resolve({ html, url })
+        }))
+        return res.html
+      }
+    }
   }
 }

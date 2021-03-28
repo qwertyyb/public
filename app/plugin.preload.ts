@@ -66,12 +66,11 @@ window.PluginManager = {
   getPlugins() {
     return plugins
   },
-  handleInput(
-    keyword: string,
-    setResult: (plugin: PublicPlugin, list: CommonListItem[]) => void
+  handleQuery(
+    keyword: string
   ) {
-    const setPluginResult = (plugin: PublicPlugin) => (list: CommonListItem[]) => setResult(plugin, list)
-    plugins.forEach(plugin => plugin.onInput?.(keyword, setPluginResult(plugin)))
+    console.log('aaaa')
+    plugins.forEach(plugin => plugin.onInput?.(keyword))
   },
   handleEnter(
     plugin: PublicPlugin,

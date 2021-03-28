@@ -23,8 +23,9 @@ export interface PublicPlugin {
   title: string,
   icon: string,
   subtitle: string,
-  onInput?: (keyword: string, setResult: SetResult) => void,
-  onEnter?: (item: CommonListItem, index: number, list: CommonListItem[]) => void
+  onInput?: (keyword: string) => void,
+  onEnter?: (item: CommonListItem, index: number, list: CommonListItem[]) => void,
+  getResultPreview?: (item: CommonListItem, index: number, list: CommonListItem[]) => void | Promise<string | undefined>, 
 }
 
 export interface PublicApp {

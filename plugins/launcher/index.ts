@@ -50,13 +50,12 @@ class LauncherPlugin implements PublicPlugin {
   }
 
   onInput(
-    keyword: string,
-    setResult: (list: CommonListItem[]) => void
+    keyword: string
   ) {
-    if (!keyword) return setResult([])
+    if (!keyword) return this.app.setList([])
     keyword = keyword.toLocaleLowerCase();
     const match = this.app.getUtils().match
-    setResult(this.apps.filter(item => {
+    this.app.setList(this.apps.filter(item => {
       return match([item.code, item.title], keyword)
     }))
   }

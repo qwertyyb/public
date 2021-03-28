@@ -1,7 +1,7 @@
 
 import { clipboard } from 'electron';
 import { create, all } from "mathjs";
-import { CommonListItem, PublicPlugin, SetResult } from 'shared/types/plugin';
+import { CommonListItem, PublicApp, PublicPlugin } from 'shared/types/plugin';
 
 const config = {
   epsilon: 1e-12,
@@ -67,18 +67,22 @@ export class Calculator {
 const COMMAND = 'calculator'
 
 class CalculatorPlugin implements PublicPlugin {
+  app: any
 
   icon = 'https://img.icons8.com/plasticine/100/000000/apple-calculator.png'
   title = '计算器'
   subtitle = '快捷计算表达式'
 
+  constructor(app: any) {
+    this.app = app
+  }
+
   onInput(
-    keyword: string,
-    setResult: SetResult
+    keyword: string
   ) {
     if (Calculator.isValidInput(keyword)) {
       const result = Calculator.calculate(keyword)
-      setResult([
+      this.app.setList([
         {
           title: `= ${result}`,
           subtitle: '点击复制到剪切板',
@@ -91,9 +95,9 @@ class CalculatorPlugin implements PublicPlugin {
         }
       ])
     } else {
-      setResult([])
+      this.app.setList([])
     }
   }
 }
 
-export default () => new CalculatorPlugin()
+export default (app: any) => new CalculatorPlugin(app)

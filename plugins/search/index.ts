@@ -138,9 +138,9 @@ export default (app: PublicApp): PublicPlugin => {
     title: '搜索',
     subtitle: '快捷搜索',
     icon: 'https://img.icons8.com/nolan/128/search.png',
-    onInput: async (keyword, setList) => {
+    onInput: async (keyword) => {
       const resultList = await getResultList(keyword)
-      setList(resultList)
+      app.setList(resultList)
     }
   }
 }

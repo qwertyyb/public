@@ -6,7 +6,7 @@ declare global {
   var ipcRenderer: typeof ipcRenderer
   var PluginManager: {
     getPlugins: () => PublicPlugin[],
-    handleInput: (keyword: string, setResult: (plugin: PublicPlugin, list: CommonListItem[]) => void) => void,
+    handleQuery: (keyword: string) => void,
     handleEnter: (
       plugin: PublicPlugin,
       args: {
