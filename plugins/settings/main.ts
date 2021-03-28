@@ -70,12 +70,11 @@ export default (app: PublicApp): PublicPlugin => {
     icon: 'https://img.icons8.com/nolan/64/settings--v1.png',
     subtitle: 'Public设置',
     onInput(
-      keyword: string,
-      setList: (list: CommonListItem[]) => void
+      keyword: string
     ) {
       keyword = keyword.toLocaleLowerCase()
       if (app.getUtils().match(KEYWORDS, keyword)) {
-        setList([
+        app.setList([
           {
             title: '设置',
             subtitle: 'Public设置',
@@ -111,7 +110,7 @@ export default (app: PublicApp): PublicPlugin => {
           }
         ])
       } else {
-        setList([])
+        app.setList([])
       }
     }
   }

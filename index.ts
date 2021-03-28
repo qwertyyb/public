@@ -1,10 +1,7 @@
 import { app, BrowserWindow, globalShortcut, ipcMain, protocol } from "electron";
 import { autoUpdater } from "electron-updater"
 import * as path from 'path';
-// const robot = require('robotjs')
 require('@electron/remote/main').initialize()
-
-// const robot = require('robotjs')
 
 app.allowRendererProcessReuse = false
 console.log(process.versions.modules, process.versions)
@@ -64,8 +61,8 @@ async function createWindow () {
   const win = new BrowserWindow({
     height: 48,
     useContentSize: false,
-    minWidth: 720,
-    width: 720,
+    minWidth: 780,
+    width: 780,
     y: 120,
     center: true,
     show: false,
@@ -74,7 +71,9 @@ async function createWindow () {
     maximizable: false,
     transparent: true,
     titleBarStyle: 'customButtonsOnHover',
-    backgroundColor: '#ffffffff',
+    fullscreenWindowTitle: true,
+    frame: false,
+    backgroundColor: '#f4ffffff',
     webPreferences: {
       enableBlinkFeatures: 'WebBluetooth',
       webSecurity: false,
@@ -85,7 +84,7 @@ async function createWindow () {
       devTools: true,
       preload: path.join(__dirname, 'app/plugin.preload.js'),
       contextIsolation: false,
-      backgroundThrottling: false
+      backgroundThrottling: false,
     }
   })
   win.on('ready-to-show', () => {
@@ -93,7 +92,7 @@ async function createWindow () {
   })
   win.on('hide', () => {
     console.log('hide')
-    win.webContents.executeJavaScript(`clearAndFocusInput && clearAndFocusInput()`)
+    win.webContents.executeJavaScript(`window.clearAndFocusInput && window.clearAndFocusInput()`)
   })
   protocol.registerFileProtocol('localfile', (request, callback) => {
     const pathname = decodeURIComponent(request.url.replace('localfile://', ''));
@@ -106,10 +105,10 @@ async function createWindow () {
   });
   if (process.env.NODE_ENV === 'development') {
     await installExtensions()
-    win.loadURL('http://localhost:8020')
+    win.loadURL('http://localhost:5000')
     win.webContents.openDevTools()
   } else {
-    win.loadFile(path.join(__dirname, 'render/build/index.html'))
+    win.loadFile(path.join(__dirname, 'render/public/index.html'))
   }
   publicApp.window.main = win
   return win

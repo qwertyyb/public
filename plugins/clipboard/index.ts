@@ -62,7 +62,7 @@ export default (app: PublicApp): PublicPlugin => {
     icon: 'https://img.icons8.com/cute-clipart/64/000000/clipboard.png',
     onInput: async (query: string) => {
       const [trigger, ...rest] = query.split(' ')
-      if (!match(['剪切板', 'clipboard', 'cp'], trigger)) return app.setList([]);
+      if (!['剪切板', 'clipboard', 'cp'].includes(trigger)) return app.setList([]);
       const keyword = rest.join(' ')
       let list = await db.history.orderBy('updatedAt').reverse().filter((data: any) => {
         return data.text.includes(keyword)
