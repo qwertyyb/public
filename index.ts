@@ -104,7 +104,7 @@ async function createWindow () {
     });
   });
   if (process.env.NODE_ENV === 'development') {
-    await installExtensions()
+    // await installExtensions()
     win.loadURL('http://localhost:5000')
     win.webContents.openDevTools()
   } else {

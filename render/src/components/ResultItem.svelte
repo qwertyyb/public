@@ -24,6 +24,7 @@
   display: flex;
   align-items: center;
   height: 60px;
+  max-width: 100%;
 }
 .result-item.selected {
   background: #bbb;
@@ -40,6 +41,9 @@
 .item-image-wrapper img {
   width: 42px;
   height: 42px;
+}
+.item-info {
+  max-width: calc(100% - 80px);
 }
 .item-title {
   font-size: 16px;
