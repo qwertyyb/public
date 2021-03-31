@@ -32,6 +32,10 @@ export default (app: any): PublicPlugin => {
       title: `二维码内容: ${text}`,
       subtitle: '来自剪切板,点击复制',
       icon: 'https://img.icons8.com/officel/16/4a90e2/clipboard.png',
+      text,
+      onEnter(item, index, list) {
+        clipboard.writeText(item.text)
+      }
     }
     app.setList([item])
   })

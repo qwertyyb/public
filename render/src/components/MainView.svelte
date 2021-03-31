@@ -8,6 +8,7 @@
 
   const clearAndFocusInput = () => {
     const el = document.querySelector('.input-bar input')
+    // @ts-ignore
     el && (el.value = '')
     // @ts-ignore
     el && el.focus()
@@ -66,6 +67,7 @@
   // @ts-ignore
   window.setQuery = (value: string) => {
     const el = document.querySelector('.input-bar input')
+    // @ts-ignore
     el && (el.value = value)
     // @ts-ignore
     el && (el.focus())
@@ -125,6 +127,9 @@
   })
 
   afterUpdate(() => {
+    if (window.innerHeight <= 80) {
+      return false
+    }
     setTimeout(() => {
       // @ts-ignore
       document.querySelector('.result-item.selected')?.scrollIntoViewIfNeeded(false)
@@ -166,4 +171,28 @@
     overflow: auto;
     scroll-snap-type: y mandatory;
   }
+  @media screen and (max-height: 60px) {
+    * {
+      overflow: hidden;
+    }
+    .result-list {
+      overflow: hidden;
+    }
+  }
+  /* 滚动槽 */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    border-radius: 3px;
+    background: rgba(0,0,0,0.06);
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+}
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background: rgba(0,0,0,0.12);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+}
 </style>
