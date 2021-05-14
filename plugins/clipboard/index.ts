@@ -32,14 +32,14 @@ export default (app: PublicApp): PublicPlugin => {
     console.log('new Data existsItem', existsItem)
     if (!existsItem) {
       // @ts-ignore
-      data.createdAt = new Date().toLocaleString('zh-TW', { hour12: false })
+      data.createdAt = Date.now()
       // @ts-ignore
-      data.updatedAt = new Date().toLocaleString('zh-TW', { hour12: false })
+      data.updatedAt = Date.now()
       // @ts-ignore
       data.usedTimes = 1
       await db.history.put(data)
     } else {
-      existsItem.updatedAt = new Date().toLocaleString('zh-TW', { hour12: false })
+      existsItem.updatedAt = Date.now()
       await db.history.update(existsItem.id, existsItem)
     }
   }
@@ -64,14 +64,14 @@ export default (app: PublicApp): PublicPlugin => {
       const [trigger, ...rest] = query.split(' ')
       if (!['剪切板', 'clipboard', 'cp'].includes(trigger)) return app.setList([]);
       const keyword = rest.join(' ')
-      let list = await db.history.orderBy('updatedAt').reverse().filter((data: any) => {
-        return data.text.includes(keyword)
+      let list = await db.history.orderBy('updatedAt').reverse().filter((item: any) => {
+        return item.text.includes(keyword)
       }).toArray()
       list = list.map((item: any): CommonListItem => {
         return {
           key: `plugin:clipboard:${item.text}`,
           title: item.text,
-          subtitle: item.updatedAt,
+          subtitle: new Date(item.updatedAt).toLocaleString('zh-TW', { hour12: false }),
           icon: 'https://img.icons8.com/cute-clipart/64/000000/clipboard.png',
           contentValue: item.contentValue
         }
