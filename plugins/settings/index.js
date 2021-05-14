@@ -71,6 +71,10 @@ var app = new Vue({
       this.getPlugins()
       this.$message.success('插件添加成功')
     })
+    ipcRenderer.on('removePlugin:response', (e) => {
+      this.getPlugins()
+      this.$message.success('插件移除成功')
+    })
   },
   mounted () {
     this.getPlugins()
@@ -150,6 +154,17 @@ var app = new Vue({
         }
       )
     },
+
+    async onRemovePluginClick(index, plugin) {
+      ipcRenderer.sendTo(
+        remote.getGlobal('publicApp').window.main.webContents.id,
+        'removePlugin',
+        {
+          index, plugin
+        }
+      )
+    },
+
     async onAddShortcutClick() {
       this.settings.shortcuts.push({
         keyword: '',
