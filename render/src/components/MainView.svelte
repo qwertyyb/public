@@ -58,9 +58,10 @@
     }
   }
 
-  const onInputChange = (value: string) => {
+  const onInputChange = (value: string | InputEvent) => {
+    const str = typeof value === 'string' ? value : (value.target as HTMLInputElement).value
     // @ts-ignore
-    window.PluginManager.handleQuery(value)
+    window.PluginManager.handleQuery(str)
     selectedIndex = 0
   }
 
@@ -143,7 +144,7 @@
 </script>
 
 <main>
-  <InputBar on:input={e => onInputChange(e.target.value)}/>
+  <InputBar on:input={(e) => onInputChange(e)}/>
   <div class="result-section">
     <div class="result-list">
       {#each resultList as result, i (result)}

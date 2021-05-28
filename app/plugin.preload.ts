@@ -26,9 +26,13 @@ const registerPlugin = (pluginPath: string): PublicPlugin | undefined => {
   try {
     const createPlugin = require(pluginPath).default || require(pluginPath)
     const plugin = createPlugin({
-      getApp: () => remote.getGlobal('publicApp'),
-      getMainWindow: () => remote.getGlobal('publicApp').window.main,
+      getApp: () => remote.getGlobal('coreApp'),
+      getMainWindow: () => remote.getGlobal('coreApp').mainWindow,
       getPlugins: () => plugins,
+      db: {
+        run: (sql: string, params?: Object) => ipcRenderer.invoke('db.run', sql, params),
+        all: (sql: string, params?: Object) => ipcRenderer.invoke('db.all', sql, params),
+      },
       getUtils: () => require('./utils/index'),
       setList: (list: CommonListItem[]) => {
         const event = new CustomEvent('plugin:setList', {
@@ -57,7 +61,7 @@ initPlugins()
 
 // @ts-ignore
 window.requestIdleCallback(() => {
-  (remote.getGlobal('publicApp') as CoreApp).window.main?.on('show', () => {
+  (remote.getGlobal('coreApp') as CoreApp).mainWindow?.on('show', () => {
     document.dispatchEvent(new CustomEvent('mainwindowshow'))
   })
 })

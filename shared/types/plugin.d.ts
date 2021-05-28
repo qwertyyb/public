@@ -35,4 +35,8 @@ export interface PublicApp {
     getUtils: () => Utils,
     setList: (list: CommonListItem[]) => void,
     robot: any,
+    db: {
+      run: (sql, params?) => Promise<any>,
+      all: (sql, params?) => Promise<Array>
+    }
 }
