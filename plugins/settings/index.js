@@ -82,7 +82,7 @@ var app = new Vue({
   methods: {
     async getPlugins() {
       ipcRenderer.sendTo(
-        remote.getGlobal('publicApp').window.main.webContents.id,
+        remote.getGlobal('coreApp').mainWindow?.webContents.id,
         'getPlugins'
       )
     },
@@ -111,7 +111,7 @@ var app = new Vue({
     onAutoLaunchChange (autoLaunch) {
       this.settings.autoLaunch = autoLaunch
       ipcRenderer.sendTo(
-        remote.getGlobal('publicApp').window.main.webContents.id,
+        remote.getGlobal('coreApp').mainWindow?.webContents.id,
         'plugin:settings:openAtLogin',
         {
           settings: this.settings
@@ -147,7 +147,7 @@ var app = new Vue({
       validateFile(file)
 
       ipcRenderer.sendTo(
-        remote.getGlobal('publicApp').window.main.webContents.id,
+        remote.getGlobal('coreApp').mainWindow?.webContents.id,
         'registerPlugin',
         {
           path: file.path
@@ -157,7 +157,7 @@ var app = new Vue({
 
     async onRemovePluginClick(index, plugin) {
       ipcRenderer.sendTo(
-        remote.getGlobal('publicApp').window.main.webContents.id,
+        remote.getGlobal('coreApp').mainWindow?.webContents.id,
         'removePlugin',
         {
           index, plugin
@@ -178,7 +178,7 @@ var app = new Vue({
     },
     updateShortcut() {
       ipcRenderer.sendTo(
-        remote.getGlobal('publicApp').window.main.webContents.id,
+        remote.getGlobal('coreApp').mainWindow?.webContents.id,
         'plugin:settings:registerShortcut',
         {
           settings: this.settings

@@ -60,23 +60,6 @@ export default (app: any): PublicPlugin => {
       if (!match) return app.setList([])
 
       const list: CommonListItem[] = []
-      let html = ''
-      let url = ''
-      if (param) {
-        const QRCode = require('qrcode')
-        // 生成二维码
-        const res: { html: string, url: string } = await new Promise(resolve => QRCode.toDataURL(param).then((url: string) => {
-          const html = `
-            <div class="flex flex-col justify-center items-center w-full h-full">
-              <img src="${url}" class="w-full" />
-              <div class="text-single-line mt-2">${param}</div>
-            </div>
-          `
-          resolve({ html, url })
-        }))
-        html = res.html
-        url = res.url
-      }
       list.push({
         key: 'plugin:qrcode:generate',
         title: '生成二维码',
@@ -84,9 +67,7 @@ export default (app: any): PublicPlugin => {
         extraInfo: {
           query: keyword
         },
-        preview: html,
         icon: 'https://img.icons8.com/pastel-glyph/64/4a90e2/qr-code--v1.png',
-        qrcodeUrl: url,
         onEnter: (item) => {
           clipboard.writeImage(nativeImage.createFromDataURL(item.qrcodeUrl))
           const notification = new Notification('二维码已写入剪切板')
@@ -105,7 +86,7 @@ export default (app: any): PublicPlugin => {
           const html = `
             <div class="flex flex-col justify-center items-center w-full h-full">
               <img src="${url}" class="w-full" />
-              <div class="text-single-line mt-2">${param}</div>
+              <div class="text-single-line mt-2" style="max-width:100%" title=${JSON.stringify(param)}>${param}</div>
             </div>
           `
           resolve({ html, url })
