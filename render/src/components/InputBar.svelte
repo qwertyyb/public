@@ -15,7 +15,7 @@
     position: relative;
     z-index: 100;
     -webkit-app-region: drag;
-    border-bottom: 1px solid #ddd;
+    /* border-bottom: 1px solid #ddd; */
   }
   .input-bar .input-bar-wrapper {
     position: fixed;

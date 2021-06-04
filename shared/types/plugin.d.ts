@@ -37,6 +37,7 @@ export interface PublicApp {
     robot: any,
     db: {
       run: (sql, params?) => Promise<any>,
-      all: (sql, params?) => Promise<Array>
+      all: (sql, params?) => Promise<Array>,
+      get: (sql, params?) => Promise<Any>
     }
 }

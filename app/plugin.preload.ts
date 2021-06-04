@@ -1,9 +1,19 @@
-import { ipcRenderer } from 'electron'
+import { ipcRenderer, contextBridge } from 'electron'
 // @ts-ignore
 import * as remote from '@electron/remote'
 import { CoreApp } from 'index';
 import * as path from 'path';
 import { PublicPlugin, CommonListItem } from 'shared/types/plugin';
+
+const publicApp = {
+  db: {
+    run: (sql: string, params?: Object) => ipcRenderer.invoke('db.run', sql, params),
+    all: (sql: string, params?: Object) => ipcRenderer.invoke('db.all', sql, params),
+    get: (sql: string, params?: Object) => ipcRenderer.invoke('db.get', sql, params),
+  },
+  getMainWindow: () => remote.getGlobal('coreApp').mainWindow,
+}
+
 
 const getPluginsPath = (): string[] => {
   const defaultPlugins: string[] = [
@@ -32,6 +42,7 @@ const registerPlugin = (pluginPath: string): PublicPlugin | undefined => {
       db: {
         run: (sql: string, params?: Object) => ipcRenderer.invoke('db.run', sql, params),
         all: (sql: string, params?: Object) => ipcRenderer.invoke('db.all', sql, params),
+        get: (sql: string, params?: Object) => ipcRenderer.invoke('db.get', sql, params),
       },
       getUtils: () => require('./utils/index'),
       setList: (list: CommonListItem[]) => {
@@ -66,6 +77,28 @@ window.requestIdleCallback(() => {
   })
 })
 
+ipcRenderer.on('getPlugins', (e, ...args) => {
+  e.sender.sendTo(e.senderId, 'getPlugins:response', JSON.parse(JSON.stringify(plugins)))
+})
+
+ipcRenderer.on('removePlugin', (e, { index }) => {
+  plugins.splice(index, 1);
+  e.sender.sendTo(e.senderId, 'removePlugin:response', { index })
+})
+
+ipcRenderer.on('registerPlugin', (e, { path }) => {
+  const paths = getPluginsPath()
+  if (paths.some(s => s.includes(path))) {
+    return e.sender.sendTo(e.senderId, 'registerPlugin:error', '该插件已注册')
+  }
+  const plugin = registerPlugin(path)
+  plugins.push(plugin as PublicPlugin)
+  e.sender.sendTo(e.senderId, 'registerPlugin:response', JSON.parse(JSON.stringify(plugin)))
+})
+
+
+window.ipcRenderer = ipcRenderer
+window.publicApp = publicApp
 window.PluginManager = {
   getPlugins() {
     return plugins
@@ -91,25 +124,3 @@ window.PluginManager = {
     }
   },
 }
-
-ipcRenderer.on('getPlugins', (e, ...args) => {
-  e.sender.sendTo(e.senderId, 'getPlugins:response', JSON.parse(JSON.stringify(plugins)))
-})
-
-ipcRenderer.on('removePlugin', (e, { index }) => {
-  plugins.splice(index, 1);
-  e.sender.sendTo(e.senderId, 'removePlugin:response', { index })
-})
-
-ipcRenderer.on('registerPlugin', (e, { path }) => {
-  const paths = getPluginsPath()
-  if (paths.some(s => s.includes(path))) {
-    return e.sender.sendTo(e.senderId, 'registerPlugin:error', '该插件已注册')
-  }
-  const plugin = registerPlugin(path)
-  plugins.push(plugin as PublicPlugin)
-  e.sender.sendTo(e.senderId, 'registerPlugin:response', JSON.parse(JSON.stringify(plugin)))
-})
-
-
-window.ipcRenderer = ipcRenderer
