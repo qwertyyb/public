@@ -55,7 +55,7 @@ const insertRecord = async (app: PublicApp, record: { contentType: number, text:
 }
 
 const queryRecordList = async (app: PublicApp, { keyword = '' } = {}) => {
-  const sql = `SELECT * FROM clipboardHistory where text like $keyword order by lastUseAt DESC`
+  const sql = `SELECT * FROM clipboardHistory where text like $keyword order by lastUseAt DESC limit 20 offset 0`
   return app.db.all(sql, { $keyword: `%${keyword}%` })
 }
 

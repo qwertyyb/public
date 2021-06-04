@@ -43,7 +43,8 @@ export default (app: any): PublicPlugin => {
     const script = document.createElement('script')
     script.src = 'localfile://' + path.join(__dirname, 'zxing_reader.js')
     script.onload = () => {
-      zxing = ZXing()
+      // @ts-ignore
+      zxing = window.ZXing()
     }
     document.body.append(script)
   })  

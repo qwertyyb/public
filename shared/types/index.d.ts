@@ -16,4 +16,14 @@ declare global {
       }
     ) => void,
   }
+
+
+  var publicApp: {
+    getMainWindow: () => Electron.BrowserWindow,
+    db: {
+      run: (sql, params?) => Promise<any>,
+      all: (sql, params?) => Promise<Array>,
+      get: (sql, params?) => Promise<Any>
+    }
+  }
 }

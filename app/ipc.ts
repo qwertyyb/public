@@ -28,4 +28,10 @@ export default (coreApp: CoreApp) => {
       resolve(rows)
     }))
   })
+  ipcMain.handle('db.get', (event: electron.IpcMainInvokeEvent, sql: string, params: Object) => {
+    return new Promise((resolve, reject) => coreApp.db.get(sql, params, (err, row) => {
+      if (err) return reject(err);
+      resolve(row)
+    }))
+  })
 }
