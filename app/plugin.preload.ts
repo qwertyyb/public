@@ -38,7 +38,6 @@ const registerPlugin = (pluginPath: string): PublicPlugin | undefined => {
     const plugin = createPlugin({
       getApp: () => remote.getGlobal('coreApp'),
       getMainWindow: () => remote.getGlobal('coreApp').mainWindow,
-      getPlugins: () => plugins,
       db: {
         run: (sql: string, params?: Object) => ipcRenderer.invoke('db.run', sql, params),
         all: (sql: string, params?: Object) => ipcRenderer.invoke('db.all', sql, params),

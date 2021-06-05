@@ -31,7 +31,6 @@ export interface PublicPlugin {
 export interface PublicApp {
     getApp: () => CoreApp,
     getMainWindow: () => BrowserWindow,
-    getPlugins: () => PublicPlugin[],
     getUtils: () => Utils,
     setList: (list: CommonListItem[]) => void,
     robot: any,
