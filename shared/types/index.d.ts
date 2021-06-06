@@ -1,11 +1,18 @@
-import { BrowserWindow, Common, ipcRenderer } from "electron"
+import { BrowserWindow, Common, ipcRenderer, webContents } from "electron"
 import { PublicPlugin } from './plugin'
 
 declare global {
   var ResizeObserver: any
   var ipcRenderer: typeof ipcRenderer
+  var rendererIpc: {
+    invoke: (webContentsId: number, channel: string, args: any) => Promise<any>,
+    handle: (channel: string, listener: (event: Electron.IpcRendererEvent, args: any) => any) => any,
+  }
   var PluginManager: {
     getPlugins: () => PublicPlugin[],
+    removePlugin: (index: number) => void,
+    registerPlugin: ({ path }: { path: string }) => void,
+
     handleQuery: (keyword: string) => void,
     handleEnter: (
       plugin: PublicPlugin,

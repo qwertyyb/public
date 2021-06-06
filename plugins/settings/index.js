@@ -1,5 +1,18 @@
+// import rendererIpc from '../../app/utils/rendererIpc'
+
 const { ipcRenderer } = require('electron')
-const remote = require('@electron/remote')
+const { default: rendererIpc } = require('../../app/utils/rendererIpc')
+
+window.rendererIpc = rendererIpc
+
+const getOwnerId = () => {
+  return +(new URL(location.href).searchParams.get('ownerid'))
+}
+
+const invoke = (channel, args) => rendererIpc.invoke(getOwnerId(),channel, args).catch(err => {
+  app.$message.error(err.message)
+  throw err;
+})
 
 const createKeyEventHandler = (onChange, done) => {
   const key = {
@@ -39,17 +52,6 @@ const clearKeyEventHandler = (keyEventHandler) => {
   document.removeEventListener('keyup', keyEventHandler)
 }
 
-const getLocalSettings = () => {
-  const val = localStorage.getItem('settings')
-  return val && JSON.parse(val) || {
-    autoLaunch: true,
-    shortcut: 'CommandOrControl+Space',
-    shortcuts: [
-      { keyword: 'cp ', shortcut: 'Command+Shift+V' }
-    ]
-  }
-}
-
 var app = new Vue({
   el: '#app',
   data: {
@@ -60,31 +62,20 @@ var app = new Vue({
     },
     curView: 'common',
     plugins: [],
-    settings: getLocalSettings(),
+    settings: {},
   },
   created() {
-    console.log(this)
-    ipcRenderer.on('getPlugins:response', (e, plugins) => {
-      this.plugins = plugins
-    })
-    ipcRenderer.on('registerPlugin:response', (e, plugins) => {
-      this.getPlugins()
-      this.$message.success('插件添加成功')
-    })
-    ipcRenderer.on('removePlugin:response', (e) => {
-      this.getPlugins()
-      this.$message.success('插件移除成功')
-    })
-  },
-  mounted () {
-    this.getPlugins()
+    this.refreshSettings()
   },
   methods: {
-    async getPlugins() {
-      ipcRenderer.sendTo(
-        remote.getGlobal('coreApp').mainWindow?.webContents.id,
-        'getPlugins'
-      )
+    async refreshSettings() {
+      invoke('getSettings').then(settings => {
+        this.settings = settings
+      })
+      invoke('getPlugins').then(plugins => {
+        this.plugins = plugins
+        console.log(plugins)
+      })
     },
     async onShortcutBtnClicked(event, keyObj) {
       let original = keyObj.shortcut
@@ -108,15 +99,12 @@ var app = new Vue({
         clearKeyEventHandler(this.keyEventHandler)
       })
     },
-    onAutoLaunchChange (autoLaunch) {
-      this.settings.autoLaunch = autoLaunch
-      ipcRenderer.sendTo(
-        remote.getGlobal('coreApp').mainWindow?.webContents.id,
-        'plugin:settings:openAtLogin',
-        {
-          settings: this.settings
-        }
-      )
+    async onLaunchAtLoginChange (launchAtLogin) {
+      this.settings.launchAtLogin = launchAtLogin
+      await invoke('registerLaunchAtLogin', {
+        settings: this.settings
+      })
+      this.refreshSettings()
     },
     async onAddPluginClick () {
       const file = await new Promise((resolve, reject) => {
@@ -134,7 +122,6 @@ var app = new Vue({
       const validateFile = (file) => {
         try {
           const plugin = window.require(file.path)
-          console.log(plugin)
           if (typeof plugin !== 'function' && typeof plugin.default !== 'function') {
             throw new Error('应该是一个函数')
           }
@@ -146,23 +133,15 @@ var app = new Vue({
       
       validateFile(file)
 
-      ipcRenderer.sendTo(
-        remote.getGlobal('coreApp').mainWindow?.webContents.id,
-        'registerPlugin',
-        {
-          path: file.path
-        }
-      )
+      await invoke('registerPlugin', { path: file.path })
+      this.$message.success('插件添加成功')
+      this.refreshSettings()
     },
 
     async onRemovePluginClick(index, plugin) {
-      ipcRenderer.sendTo(
-        remote.getGlobal('coreApp').mainWindow?.webContents.id,
-        'removePlugin',
-        {
-          index, plugin
-        }
-      )
+      await invoke('removePlugin', { index, plugin })
+      this.$message.success('插件移除成功')
+      this.refreshSettings()
     },
 
     async onAddShortcutClick() {
@@ -176,14 +155,11 @@ var app = new Vue({
       this.settings.shortcuts.splice(index, 1)
       this.updateShortcut()
     },
-    updateShortcut() {
-      ipcRenderer.sendTo(
-        remote.getGlobal('coreApp').mainWindow?.webContents.id,
-        'plugin:settings:registerShortcut',
-        {
-          settings: this.settings
-        }
-      )
+    async updateShortcut() {
+      await invoke('registerShortcuts', {
+        settings: this.settings
+      })
+      this.refreshSettings()
     }
   }
 })
