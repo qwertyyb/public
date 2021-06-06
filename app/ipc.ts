@@ -1,6 +1,5 @@
 import electron = require('electron');
 import { CoreApp } from 'index';
-import { string } from 'mathjs';
 const { ipcMain } = electron
 
 export default (coreApp: CoreApp) => {
