@@ -10,7 +10,7 @@
     "tsc": "tsc",
     "lint": "eslint -c .eslintrc --ext .ts ./src",
     "start:render": "cd ./render && npm run dev",
-    "start:main": "nodemon --exec 'npm run tsc && cross-env NODE_ENV=development electron ./index.js'",
+    "start:main": "nodemon --exec 'npm run tsc && cross-env NODE_ENV=development electron ./index.js || exit 1'",
     "start": "concurrently \"npm run start:render\" \"wait-on http://localhost:5000  && npm run start:main\"",
     "build:render": "cd ./render && npm run build",
     "build:main": "npm run tsc && electron-builder -c.mac.identity=null",
