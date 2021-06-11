@@ -16,12 +16,24 @@ const detectWithZXingWasm = (image: NativeImage) => {
     throw new Error(result && result.error || '二维码检测出错')
   }
   if (!result.text) {
-    throw new Error('未识别到二维码内容')
+    throw console.warn('未识别到二维码内容')
   }
   return result.text
 }
 
+const loadZXing = () => {
+  const script = document.createElement('script')
+  script.src = 'localfile://' + path.resolve(__dirname, 'zxing_reader.js')
+  script.onload = () => {
+    // @ts-ignore
+    zxing = window.ZXing()
+  }
+  document.body.append(script)
+}
+
 export default (app: any): PublicPlugin => {
+  loadZXing()
+
   app.getMainWindow().on('show', () => {
     const image: NativeImage = clipboard.readImage()
     if (image.isEmpty()) return
@@ -39,15 +51,6 @@ export default (app: any): PublicPlugin => {
     }
     app.setList([item])
   })
-  window.addEventListener('load', () => {
-    const script = document.createElement('script')
-    script.src = 'localfile://' + path.join(__dirname, 'zxing_reader.js')
-    script.onload = () => {
-      // @ts-ignore
-      zxing = window.ZXing()
-    }
-    document.body.append(script)
-  })  
   return {
     title: '二维码',
     subtitle: '解析生成二维码',

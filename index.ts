@@ -88,9 +88,6 @@ export class CoreApp {
         backgroundThrottling: false,
       }
     })
-    // setTimeout(() => {
-    //   win.webContents.setZoomFactor(1.0)
-    // }, 3000)
     win.on('ready-to-show', () => {
       win.show()
     })
