@@ -4,7 +4,6 @@ import * as path from 'path';
 import initIpc from './app/ipc'
 import initTray from './app/controller/trayController'
 import db from './app/controller/storageController'
-require('./app/controller/storageController')
 require('@electron/remote/main').initialize()
 // @ts-ignore
 // global.publicApp = publicApp
@@ -74,9 +73,8 @@ export class CoreApp {
       transparent: true,
       frame: false,
       roundedCorners: false,
-      vibrancy: 'content',
+      vibrancy: 'window',
       webPreferences: {
-        // enableBlinkFeatures: 'WebBluetooth',
         webSecurity: false,
         allowRunningInsecureContent: true,
         spellcheck: false,

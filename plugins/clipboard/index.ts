@@ -1,6 +1,5 @@
 import { CommonListItem, PublicApp, PublicPlugin } from "shared/types/plugin";
 import { clipboard } from 'electron'
-import * as path from 'path'
 
 const formatDate = function(date: Date, fmt: string = 'yyyy-MM-dd hh:mm:ss') { 
   var o = { 
@@ -55,7 +54,7 @@ const insertRecord = async (app: PublicApp, record: { contentType: number, text:
 }
 
 const queryRecordList = async (app: PublicApp, { keyword = '' } = {}) => {
-  const sql = `SELECT * FROM clipboardHistory where text like $keyword order by lastUseAt DESC limit 20 offset 0`
+  const sql = `SELECT * FROM clipboardHistory where text like $keyword order by lastUseAt DESC`
   return app.db.all(sql, { $keyword: `%${keyword}%` })
 }
 

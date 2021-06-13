@@ -25,6 +25,8 @@
   align-items: center;
   height: 60px;
   max-width: 100%;
+  content-visibility: auto;
+  contains-intrinsic-size: 60px;
 }
 .result-item.selected {
   background: #bbb;
