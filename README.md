@@ -33,3 +33,12 @@ export default (app: PublicApp): PublicPlugin => {
   }
 }
 ```
+
+## QA
+1. 为什么xx功能不支持windows?
+个人兴趣项目，主要满足自用设备的使用，所以windows暂无开发计划
+
+2. 为什么使用Electron?
+
+   1. 放眼长远来看，Electron才是桌面开发的未来
+   2. Javascript开发简单，何乐不为
