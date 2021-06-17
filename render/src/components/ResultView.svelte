@@ -77,11 +77,13 @@
 
 <div class="result-view">
   <div class="result-list-container" style="flex: 1">
-    {#each list as item, index (item)}
+    {#each list as item, index (item.key)}
       <ResultItem
-      {...item}
-      selected={index === selectedIndex}
-      onEnter={() => onResultEnter(item)}></ResultItem>
+        icon={item.icon}
+        title={item.title}
+        subtitle={item.subtitle}
+        selected={index === selectedIndex}
+        onEnter={() => onResultEnter(item)}></ResultItem>
     {/each}
   </div>
   {#if preview}
@@ -98,5 +100,22 @@
   flex: 3;
   max-height: 540px;
   overflow: auto;
+}
+
+/* 滚动槽 */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    border-radius: 3px;
+    background: rgba(0,0,0,0.03);
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+}
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background: rgba(0,0,0,0.12);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
 }
 </style>

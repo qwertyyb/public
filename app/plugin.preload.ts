@@ -40,6 +40,7 @@ window.rendererIpc = rendererIpc;
               list,
             }
           })
+          console.time(plugin.title)
           document.dispatchEvent(event)
         },
       })
@@ -75,7 +76,7 @@ window.rendererIpc = rendererIpc;
     },
     registerPlugin({ path }: { path: string }) {
       if(checkPluginsRegistered(path)) {
-        throw new Error('插件已注册,请勿重复注册')
+        throw new Error('插件已注册,请勿重复注册: ' + path)
       }
       const plugin = registerPlugin(path)
       return plugin

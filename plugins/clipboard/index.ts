@@ -28,9 +28,6 @@ const ContentType = {
   image: 1
 }
 
-// @ts-ignore
-var db: any = null;
-
 const createDatabase = async (app: PublicApp) => {
   const sql = `CREATE TABLE IF NOT EXISTS clipboardHistory (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -53,9 +50,10 @@ const insertRecord = async (app: PublicApp, record: { contentType: number, text:
   })
 }
 
-const queryRecordList = async (app: PublicApp, { keyword = '' } = {}) => {
+const queryRecordList = async (app: PublicApp, { keyword = '' } = {}, { strict = false } = {}) => {
   const sql = `SELECT * FROM clipboardHistory where text like $keyword order by lastUseAt DESC`
-  return app.db.all(sql, { $keyword: `%${keyword}%` })
+  const query = strict ? keyword : `%${keyword}%`
+  return app.db.all(sql, { $keyword: query })
 }
 
 const updateRecord = async (app: PublicApp, id: number, params: Object) => {
@@ -83,7 +81,7 @@ export default (app: PublicApp): PublicPlugin => {
   }
 
   const newItemHandler = async (data: { contentType: number, contentValue: string, text: string }) => {
-    const existsItems = await queryRecordList(app, { keyword: data.text })
+    const existsItems = await queryRecordList(app, { keyword: data.text }, { strict: true })
     console.log('new Data existsItem', existsItems)
     if (!existsItems.length) {
       return insertRecord(app, { contentType: data.contentType, text: data.text })
@@ -104,10 +102,9 @@ export default (app: PublicApp): PublicPlugin => {
       const [trigger, ...rest] = query.split(' ')
       if (!['剪切板', 'clipboard', 'cp'].includes(trigger)) return app.setList([]);
       const keyword = rest.join(' ')
-      console.time('getlist')
+      console.log('getlist start', Date.now())
       let list = await queryRecordList(app, { keyword })
-      console.timeEnd('getlist')
-      console.log(list)
+      console.log('getlist end', Date.now(), list.length)
       list = list.map((item: any): CommonListItem => {
         return {
           key: `plugin:clipboard:${item.text}`,

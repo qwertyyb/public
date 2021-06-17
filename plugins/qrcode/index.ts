@@ -32,7 +32,10 @@ const loadZXing = () => {
 }
 
 export default (app: any): PublicPlugin => {
-  loadZXing()
+  // @ts-ignore
+  window.requestIdleCallback(() => {
+    loadZXing()
+  })
 
   app.getMainWindow().on('show', () => {
     const image: NativeImage = clipboard.readImage()
