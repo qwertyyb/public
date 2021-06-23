@@ -77,7 +77,9 @@ const initPlugins = async (settings: any) => {
 }
 
 const initSettings = async () => {
+  console.log('initSettings')
   const settings = await getSettings()
+  console.log('2')
   registerLaunchAtLogin(settings)
   registerShortcuts(settings)
 

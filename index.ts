@@ -105,7 +105,6 @@ export class CoreApp {
     if (process.env.NODE_ENV === 'development') {
       // await installExtensions()
       win.loadURL('http://localhost:5000')
-      win.webContents.openDevTools()
     } else {
       win.loadFile(path.join(__dirname, 'render/public/index.html'))
     }

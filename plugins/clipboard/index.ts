@@ -106,10 +106,11 @@ export default (app: PublicApp): PublicPlugin => {
       let list = await queryRecordList(app, { keyword })
       console.log('getlist end', Date.now(), list.length)
       list = list.map((item: any): CommonListItem => {
+        const subtitle = `最后使用: ${item.lastUseAt}     创建于: ${item.createdAt}`
         return {
           key: `plugin:clipboard:${item.text}`,
           title: item.text,
-          subtitle: item.lastUseAt,
+          subtitle,
           icon: 'https://img.icons8.com/cute-clipart/64/000000/clipboard.png',
           contentValue: item.text
         }

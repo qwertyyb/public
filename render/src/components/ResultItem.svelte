@@ -29,7 +29,11 @@
   contains-intrinsic-size: 60px;
 }
 .result-item.selected {
-  background: #bbb;
+  background: rgb(64, 102, 226);
+}
+.result-item.selected .item-title,
+.result-item.selected .item-subtitle {
+  color: #fff;
 }
 .item-image-wrapper {
   width: 60px;
@@ -50,10 +54,13 @@
 .item-title {
   font-size: 16px;
   font-weight: normal;
+  height: 24px;
 }
 .item-subtitle {
   font-size: 12px;
   font-weight: normal;
   opacity: 0.6;
+  height: 16px;
+  white-space: pre;
 }
 </style>

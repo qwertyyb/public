@@ -32,7 +32,20 @@ const createTray = (coreApp: CoreApp) => {
       label: '退出Public',
       accelerator: 'Command+Q',
       role: 'quit'
-    }
+    },
+    { type: 'separator' },
+    {
+      label: '切换开发者工具',
+      click: () => {
+        const webContents = coreApp.mainWindow?.webContents
+        const isOpened = webContents?.isDevToolsOpened()
+        console.log('devtools opened', isOpened)
+        if (isOpened) {
+          return webContents?.closeDevTools()
+        }
+        webContents?.openDevTools({ mode: 'undocked' })
+      }
+    },
   ])
   publicTray?.setToolTip('Public')
   publicTray?.setContextMenu(contextMenu)
