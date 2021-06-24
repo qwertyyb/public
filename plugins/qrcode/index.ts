@@ -18,7 +18,48 @@ const detectWithZXingWasm = (image: NativeImage) => {
   if (!result.text) {
     throw console.warn('未识别到二维码内容')
   }
-  return result.text
+  return [result.text]
+}
+
+const detectWithOpencv = (() => {
+  let wr = null
+  return (image: NativeImage) => {
+    const data = image.toBitmap();
+    const size = image.getSize();
+    
+    const imgdata = {
+      ...size,
+      data
+    }
+
+    if (!wr) {
+      wr = new cv.wechat_qrcode_WeChatQRCode("wechat_qrcode/detect.prototxt", "wechat_qrcode/detect.caffemodel", "wechat_qrcode/sr.prototxt", "wechat_qrcode/sr.caffemodel")
+    }
+
+    const results = wr.detectAndDecode(cv.matFromImageData(imgdata))
+    if (results.size() < 1) {
+      throw new Error('未识别到二维码')
+    }
+    let i = 0
+    let arr = []
+    while(i < results.size()) {
+      arr.push(results.get(i++))
+    }
+    results.delete()
+    // @ts-ignore
+    console.log(arr)
+    return arr
+  }
+})()
+
+// @ts-ignore
+window.filePath = path.resolve(__dirname, 'lib/wechat_qrcode_files.data')
+
+declare global {
+  var cv: any;
+}
+
+const read = () => {
 }
 
 const loadZXing = () => {
@@ -31,28 +72,34 @@ const loadZXing = () => {
   document.body.append(script)
 }
 
+const createClipboardItem = (text: string) => {
+  const item: CommonListItem = {
+    key: `plugin:qrcode:clibpoard:${text}`,
+    title: `二维码内容: ${text}`,
+    subtitle: '来自剪切板,点击复制',
+    icon: 'https://img.icons8.com/officel/16/4a90e2/clipboard.png',
+    text,
+    onEnter(item, index, list) {
+      clipboard.writeText(item.text)
+    }
+  }
+  return item
+}
+
 export default (app: any): PublicPlugin => {
   // @ts-ignore
   window.requestIdleCallback(() => {
-    loadZXing()
+    // loadZXing()
+    require('./lib/ready_opencv.js')
   })
 
   app.getMainWindow().on('show', () => {
     const image: NativeImage = clipboard.readImage()
     if (image.isEmpty()) return
-    const text = detectWithZXingWasm(image)
-    if (!text) return
-    const item: CommonListItem = {
-      key: 'plugin:qrcode:clibpoard',
-      title: `二维码内容: ${text}`,
-      subtitle: '来自剪切板,点击复制',
-      icon: 'https://img.icons8.com/officel/16/4a90e2/clipboard.png',
-      text,
-      onEnter(item, index, list) {
-        clipboard.writeText(item.text)
-      }
-    }
-    app.setList([item])
+    const texts = detectWithOpencv(image)
+    if (!texts?.length) return
+    const list = texts.map(text => createClipboardItem(text))
+    app.setList(list)
   })
   return {
     title: '二维码',

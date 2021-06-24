@@ -1,4 +1,5 @@
 import { PublicApp, PublicPlugin } from "../../shared/types/plugin";
+
 import { initSettings, initHandler } from './handler'
 
 const KEYWORDS = [

@@ -84,6 +84,7 @@ export class CoreApp {
         preload: path.join(__dirname, 'app/plugin.preload.js'),
         contextIsolation: false,
         backgroundThrottling: false,
+        nodeIntegrationInSubFrames: true,
       }
     })
     win.on('ready-to-show', () => {

@@ -5,6 +5,8 @@ import { CoreApp } from 'index';
 import * as path from 'path';
 import rendererIpc from './utils/rendererIpc'
 import { PublicPlugin, CommonListItem } from 'shared/types/plugin';
+import * as fs from 'fs';
+import sandbox from './utils/sandbox'
 
 const publicApp = {
   db: {
@@ -65,7 +67,9 @@ window.rendererIpc = rendererIpc;
   }
 
 
-  getBasicPath().map(path => registerPlugin(path))
+  window.onload = () => {
+    getBasicPath().map(path => registerPlugin(path))
+  }
 
   window.PluginManager = {
     getPlugins() {
