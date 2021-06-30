@@ -1,6 +1,9 @@
+let timeout = null
+
 const resizeObserver = new window.ResizeObserver((entries: any) => {
   const { width, height } = entries.pop().contentRect;
-  setTimeout(() => {
+  timeout && clearTimeout(timeout)
+  timeout = setTimeout(() => {
     // @ts-ignore
     window.ipcRenderer.send('ResizeWindow', { width, height })
   }, 10)

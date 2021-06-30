@@ -101,6 +101,7 @@ export default (app: PublicApp): PublicPlugin => {
     onInput: async (query: string) => {
       const [trigger, ...rest] = query.split(' ')
       if (!['剪切板', 'clipboard', 'cp'].includes(trigger)) return app.setList([]);
+      // app.setList([]);
       const keyword = rest.join(' ')
       console.log('getlist start', Date.now())
       let list = await queryRecordList(app, { keyword })

@@ -4,6 +4,7 @@
       placeholder="请搜索"
       id="main-input"
       on:input/>
+    <img src="logo.png" alt="" class="app-logo" draggable="false">
   </div>
 </div>
 
@@ -43,5 +44,12 @@
     font-weight: normal;
     position: relative;
     top: -2px;
+  }
+
+  .app-logo {
+    width: 36px;
+    height: auto;
+    margin-right: 12px;
+    cursor: pointer;
   }
 </style>
