@@ -73,7 +73,8 @@ export class CoreApp {
       transparent: true,
       frame: false,
       roundedCorners: false,
-      vibrancy: 'window',
+      visualEffectState: 'active',
+      vibrancy: 'under-window',
       webPreferences: {
         webSecurity: false,
         allowRunningInsecureContent: true,
@@ -85,6 +86,7 @@ export class CoreApp {
         contextIsolation: false,
         backgroundThrottling: false,
         nodeIntegrationInSubFrames: true,
+        enablePreferredSizeMode: true,
       }
     })
     win.on('ready-to-show', () => {

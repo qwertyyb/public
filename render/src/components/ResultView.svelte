@@ -2,6 +2,7 @@
   import { onMount, afterUpdate } from 'svelte';
   import ResultItem from './ResultItem.svelte'
   import ResultItemPreview from './ResultItemPreview.svelte'
+  import VirtualList from './VirtualList.svelte'
   import type { PublicPlugin } from '../../../shared/types/plugin';
 
 
@@ -56,7 +57,7 @@
   const keydownHandler = (e: KeyboardEvent) => {
     const listLength = list.length || 1
     if (e.key === 'ArrowUp') {
-      selectedIndex = (selectedIndex - 1 + listLength) % listLength
+      selectedIndex = Math.max(0, selectedIndex - 1)
       e.stopPropagation()
       e.preventDefault()
     } else if(e.key === 'ArrowDown') {
@@ -77,14 +78,22 @@
 
 <div class="result-view">
   <div class="result-list-container" style="flex: 1">
-    {#each list as item, index (item.key)}
+    <VirtualList list={list} let:item={item} let:index={index}>
       <ResultItem
         icon={item.icon}
         title={item.title}
         subtitle={item.subtitle}
         selected={index === selectedIndex}
         onEnter={() => onResultEnter(item)}></ResultItem>
-    {/each}
+    </VirtualList>
+    <!-- {#each list as item, index (item.key)}
+      <ResultItem
+        icon={item.icon}
+        title={item.title}
+        subtitle={item.subtitle}
+        selected={index === selectedIndex}
+        onEnter={() => onResultEnter(item)}></ResultItem>
+    {/each} -->
   </div>
   {#if preview}
     <ResultItemPreview>{@html preview}</ResultItemPreview>

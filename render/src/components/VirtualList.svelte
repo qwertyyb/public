@@ -18,12 +18,10 @@ $: {
   offset = 0
   start = 0
   scrollOffset = 0
+  paddingBottom = Math.max(0, totalHeight - scrollOffset - itemHeight * keeps)
 }
 $: {
   visibleList = list.slice(start, start + keeps)
-}
-$: {
-  paddingBottom = totalHeight-scrollOffset-itemHeight*keeps
 }
 
 let visibleList = [];
@@ -78,6 +76,17 @@ onDestroy(() => {
 <style>
 .virtual-list {
   overflow: auto;
-  height: 540px;
+  max-height: 540px;
+}
+::-webkit-scrollbar {
+    width: 12px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.06);
+}
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.12);
 }
 </style>
