@@ -6,19 +6,20 @@ export let keeps = 30;
 export let itemHeight = 60;
 
 let listWrapper;
-let scrollOffset = 0;
+let startOffset = 0;
 let start = 0;
 let totalHeight = 0;
-let paddingBottom = 0;
 
 let offset = 0;
 
-$: {
+let prevList = list;
+
+$: if (prevList !== list) {
   totalHeight = list.length * itemHeight
   offset = 0
   start = 0
-  scrollOffset = 0
-  paddingBottom = Math.max(0, totalHeight - scrollOffset - itemHeight * keeps)
+  startOffset = 0
+  prevList = list
 }
 $: {
   visibleList = list.slice(start, start + keeps)
@@ -27,11 +28,16 @@ $: {
 let visibleList = [];
 
 const scrollDownHandler = () => {
-  const s = Math.max((listWrapper?.scrollTop ?? 0) - itemHeight * 10, 0)
-  scrollOffset = Math.floor(s / itemHeight / 10) * itemHeight * 10
-  scrollOffset = Math.min(totalHeight - itemHeight * keeps, scrollOffset)
-  start = Math.min(list.length - keeps - 10, Math.floor(scrollOffset / itemHeight))
-  start = Math.max(0, start);
+  
+  const prevCount = 10
+
+  // 最小值为0，并且前面预留10个位置
+  startOffset = Math.max((listWrapper?.scrollTop ?? 0) - itemHeight * prevCount, 0)
+
+  // 最大值不可超过最大滚动高度
+  startOffset = Math.min(totalHeight - itemHeight * keeps, startOffset)
+
+  start = Math.floor(startOffset / itemHeight)
 }
 
 const scrollUpHandler = () => {
@@ -42,15 +48,11 @@ const scrollUpHandler = () => {
   offsetBottom = Math.min(totalHeight - itemHeight * keeps, offsetBottom)
   const end = Math.max(keeps, Math.floor(offsetBottom / itemHeight))
   start = list.length - end
-  scrollOffset = totalHeight - keeps * itemHeight - offsetBottom
+  startOffset = totalHeight - keeps * itemHeight - offsetBottom
 }
 
 const scrollHandler = () => {
-  if (listWrapper?.scrollTop >= offset || true) {
-    scrollDownHandler()
-  } else {
-    scrollUpHandler()
-  }
+  scrollDownHandler()
 }
 
 onMount(() => {
@@ -66,7 +68,7 @@ onDestroy(() => {
 <div class="virtual-list"
   bind:this={listWrapper}>
   <div class="virtual-list__inner"
-    style="padding-top:{scrollOffset}px;padding-bottom:{paddingBottom}px">
+    style="padding-top:{startOffset}px;min-height:{totalHeight}px">
     {#each visibleList as item, index (item)}
       <slot item={item} index={start + index}></slot>
     {/each}
@@ -77,6 +79,9 @@ onDestroy(() => {
 .virtual-list {
   overflow: auto;
   max-height: 540px;
+}
+.virtual-list__inner {
+  box-sizing: border-box;
 }
 ::-webkit-scrollbar {
     width: 12px;
