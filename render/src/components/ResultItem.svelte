@@ -1,5 +1,6 @@
 <div class="result-item"
   class:selected="{selected}"
+  on:mouseenter
   on:click={onEnter}>
   <div class="item-image-wrapper flex-h-v">
     <img src={icon} alt=""/>

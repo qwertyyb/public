@@ -83,6 +83,7 @@
         icon={item.icon}
         title={item.title}
         subtitle={item.subtitle}
+        on:mouseenter={() => selectedIndex = index}
         selected={index === selectedIndex}
         onEnter={() => onResultEnter(item)}></ResultItem>
     </VirtualList>
