@@ -20,6 +20,7 @@ const getApplicationSupportPath = () => {
 const macosAppPaths = [
   '/System/Applications', // 系统应用
   '/Applications',  // 安装的应用
+  '/System/Library/CoreServices/Applications', // 系统工具，如屏幕共享等
 ]
 
 
@@ -41,8 +42,7 @@ const buildQuery = () => (
   supportedTypes.map(type => `kMDItemContentType=${type}`).join('||')
 )
 
-const getAppList = async () => {
-  console.log('start', new Date())
+const getAppList = async ({ onlyNewAppCreateIcon = false } = {}) => {
   const { stdout, terminate } = mdfind({
     query: buildQuery(),
     // @ts-ignore
@@ -53,21 +53,20 @@ const getAppList = async () => {
     await fs.promises.mkdir(iconDir, { recursive: true })
   }
   let list: any = await stdout
-  console.log('mid', new Date())
-  list = await Promise.all(list.map(async (app: any) => {
+  list = list.map((app: any) => {
     const iconPath = path.join(iconDir, app.name + '.png')
-    if (process.env.NODE_ENV !== 'development') {
-      await fileIcon.file(app.path, {
+    if (fs.existsSync(iconPath) && onlyNewAppCreateIcon) {
+    } else {
+      setTimeout(() => fileIcon.file(app.path, {
         destination: iconPath,
         size: 64,
-      })
+      }), 200)
     }
     return {
       ...app,
       icon: 'localfile://' + iconPath,
     }
-  }))
-  console.log('end', new Date)
+  })
   return list.map((app: App) => {
     const enName = app.path.split('/').pop()?.replace(/\.app$/, '') || ''
     return {
@@ -81,4 +80,19 @@ const getAppList = async () => {
   })
 }
 
-getAppList().then((applist) => process.send?.(applist))
+
+getAppList({
+  onlyNewAppCreateIcon: true
+}).then((applist) => process.send?.(applist))
+
+fs.watch('/Applications', { persistent: true }, (() => {
+  let timeout = null
+  return () => {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => {
+      getAppList({
+        onlyNewAppCreateIcon: true
+      }).then((applist) => process.send?.(applist))
+    }, 500)
+  }
+})())

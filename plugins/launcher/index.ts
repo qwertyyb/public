@@ -13,16 +13,14 @@ interface AppListItem extends CommonListItem{
 
 const getAppList = (() => {
   let childProcess: ReturnType<typeof fork> | undefined
-  return () => {
+  return (cb) => {
     childProcess?.kill()
-    return new Promise((resolve) => {
-      childProcess = fork(
-        path.resolve(__dirname, './loadApplications')
-      )
-      childProcess.on('message', (message) => {
-        console.log(message)
-        resolve(message)
-      })
+    childProcess = fork(
+      path.resolve(__dirname, './loadApplications')
+    )
+    childProcess.on('message', (message) => {
+      console.log(message)
+      cb(message)
     })
   }
 })()
@@ -46,7 +44,9 @@ class LauncherPlugin implements PublicPlugin {
   private apps: AppListItem[] = []
 
   private getAppList = async () => {
-    this.apps = <AppListItem[]>(await getAppList())
+    getAppList((apps: AppListItem[]) => {
+      this.apps = apps
+    })
   }
 
   onInput(
