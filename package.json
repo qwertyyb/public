@@ -32,6 +32,9 @@
   "build": {
     "appId": "cn.qwertyyb.public",
     "asar": false,
+    "asarUnpack": [
+      "node_modules/sqlite3"
+    ],
     "files": [
       "app/",
       "plugins/",
