@@ -1,4 +1,5 @@
 import {
+  app,
   Tray as ElectronTray,
 } from 'electron'
 import { CoreApp } from 'index'
@@ -9,7 +10,7 @@ let publicTray: ElectronTray | undefined
 const createTray = (coreApp: CoreApp) => {
   if (publicTray) return publicTray
   const path = require('path')
-  const { nativeImage, Menu , Tray } : typeof Electron = require('electron')
+  const { nativeImage, Menu , Tray } = require('electron')
   console.log(path.join(__dirname, '../../assets/status/status.png'))
   const image = nativeImage.createFromPath(path.join(__dirname, '../../assets/status/statusTemplate.png'))
   publicTray = new Tray(image)
@@ -31,7 +32,9 @@ const createTray = (coreApp: CoreApp) => {
     {
       label: '退出Public',
       accelerator: 'Command+Q',
-      role: 'quit'
+      click() {
+        app.exit(0)
+      }
     },
     { type: 'separator' },
     {

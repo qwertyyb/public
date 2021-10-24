@@ -39,8 +39,6 @@ export class CoreApp {
   readonly updater = autoUpdater;
 
   constructor() {
-    this.electronApp.allowRendererProcessReuse = false
-
     this.electronApp.whenReady().then(() => {
       this.mainWindow = this.createMainWindow();
       
@@ -79,7 +77,6 @@ export class CoreApp {
         webSecurity: false,
         allowRunningInsecureContent: true,
         spellcheck: false,
-        enableRemoteModule: true,
         nodeIntegration: true,
         devTools: true,
         preload: path.join(__dirname, 'app/plugin.preload.js'),
@@ -91,6 +88,7 @@ export class CoreApp {
     })
     win.on('ready-to-show', () => {
       win.show()
+      require("@electron/remote/main").enable(win.webContents)
     })
     win.on('hide', () => {
       console.log('hide')
