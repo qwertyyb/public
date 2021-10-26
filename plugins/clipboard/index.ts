@@ -101,11 +101,8 @@ export default (app: PublicApp): PublicPlugin => {
     onInput: async (query: string) => {
       const [trigger, ...rest] = query.split(' ')
       if (!['剪切板', 'clipboard', 'cp'].includes(trigger)) return app.setList([]);
-      // app.setList([]);
       const keyword = rest.join(' ')
-      console.log('getlist start', Date.now())
       let list = await queryRecordList(app, { keyword })
-      console.log('getlist end', Date.now(), list.length)
       list = list.map((item: any): CommonListItem => {
         const subtitle = `最后使用: ${item.lastUseAt}     创建于: ${item.createdAt}`
         return {
@@ -120,9 +117,7 @@ export default (app: PublicApp): PublicPlugin => {
     },
     onEnter: (item) => {
       clipboard.writeText(item.contentValue)
-      setTimeout(() => {
-        require('robotjs').keyTap("v", ["command"])
-      }, 16)
+      app.getApp().robot.keyTap("v", ["command"])
     }
   }
 }

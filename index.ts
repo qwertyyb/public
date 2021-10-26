@@ -1,12 +1,11 @@
-import { app, BrowserWindow, globalShortcut, ipcMain, protocol } from "electron";
-import { autoUpdater } from "electron-updater"
 import * as path from 'path';
+import { app, BrowserWindow, protocol } from "electron";
+import { autoUpdater } from "electron-updater"
+import robotjs from 'robotjs'
 import initIpc from './app/ipc'
 import initTray from './app/controller/trayController'
 import db from './app/controller/storageController'
 require('@electron/remote/main').initialize()
-// @ts-ignore
-// global.publicApp = publicApp
 
 const installExtensions = async () => {
   const installer = require('electron-devtools-installer');
@@ -35,6 +34,7 @@ protocol.registerSchemesAsPrivileged([
 export class CoreApp {
   readonly electronApp = app;
   readonly db = db;
+  readonly robot = robotjs;
   mainWindow?: BrowserWindow;
   readonly updater = autoUpdater;
 
