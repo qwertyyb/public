@@ -2,5 +2,6 @@
 node_modules
 out/
 *.js
+*.map
 !*.config.js
 !scripts/notarize.js
