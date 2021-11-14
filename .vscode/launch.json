@@ -14,7 +14,10 @@
         "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
       },
       "program": "${workspaceRoot}/index.js",
-      // "args" : ["./index.js"]
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "preLaunchTask": "npm: start:render"
     }
   ]
 }

@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "start:render",
+			"problemMatcher": [],
+			"label": "npm: start:render",
+			"detail": "cd ./render && npm run dev"
+		}
+	]
+}

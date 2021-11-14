@@ -24,7 +24,7 @@
   scroll-snap-align: start;
   display: flex;
   align-items: center;
-  height: 60px;
+  height: 48px;
   max-width: 100%;
   content-visibility: auto;
   contains-intrinsic-size: 60px;
@@ -37,28 +37,28 @@
   color: #fff;
 }
 .item-image-wrapper {
-  width: 60px;
+  width: 48px;
   height: 48px;
   margin-right: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 60px;
+  min-width: 48px;
 }
 .item-image-wrapper img {
-  width: 42px;
-  height: 42px;
+  width: 36px;
+  height: 36px;
 }
 .item-info {
   max-width: calc(100% - 80px);
 }
 .item-title {
-  font-size: 16px;
-  font-weight: normal;
-  height: 24px;
+  font-size: 12px;
+  font-weight: bold;
+  height: 18px;
 }
 .item-subtitle {
-  font-size: 12px;
+  font-size: 10px;
   font-weight: normal;
   opacity: 0.6;
   height: 16px;
