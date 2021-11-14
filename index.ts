@@ -77,18 +77,22 @@ export class CoreApp {
         webSecurity: false,
         allowRunningInsecureContent: true,
         spellcheck: false,
-        nodeIntegration: true,
         devTools: true,
         preload: path.join(__dirname, 'app/plugin.preload.js'),
         contextIsolation: false,
         backgroundThrottling: false,
-        nodeIntegrationInSubFrames: true,
         enablePreferredSizeMode: true,
       }
     })
+    if (process.env.NODE_ENV === 'development') {
+      win.webContents.openDevTools()
+    }
     win.on('ready-to-show', () => {
       win.show()
       require("@electron/remote/main").enable(win.webContents)
+    })
+    win.webContents.on('preferred-size-changed', (event, size) => {
+      win.setSize(size.width, size.height)
     })
     win.on('hide', () => {
       console.log('hide')

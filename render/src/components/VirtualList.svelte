@@ -3,7 +3,7 @@ import { onMount, tick, onDestroy } from 'svelte'
 
 export let list;
 export let keeps = 30;
-export let itemHeight = 60;
+export let itemHeight = 48;
 
 let listWrapper;
 let startOffset = 0;
@@ -84,14 +84,14 @@ onDestroy(() => {
   box-sizing: border-box;
 }
 ::-webkit-scrollbar {
-    width: 12px;
+    width: 6px;
     height: 6px;
 }
 ::-webkit-scrollbar-track {
-    background: rgba(0,0,0,0.06);
+    background: transparent;
 }
 /* 滚动条滑块 */
 ::-webkit-scrollbar-thumb {
-    background: rgba(0,0,0,0.12);
+    background: rgba(0,0,0,0.5);
 }
 </style>

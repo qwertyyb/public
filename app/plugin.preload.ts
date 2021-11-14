@@ -6,7 +6,6 @@ import * as path from 'path';
 import rendererIpc from './utils/rendererIpc'
 import { PublicPlugin, CommonListItem } from 'shared/types/plugin';
 import * as fs from 'fs';
-import sandbox from './utils/sandbox'
 
 const publicApp = {
   db: {

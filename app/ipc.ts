@@ -3,13 +3,6 @@ import { CoreApp } from 'index';
 const { ipcMain } = electron
 
 export default (coreApp: CoreApp) => {
-  ipcMain.on('ResizeWindow', (
-    event,
-    arg: { width: number, height: number }
-  ) => {
-    console.log('resize window', arg)
-    coreApp.mainWindow?.setSize(arg.width, arg.height)
-  })
   ipcMain.on('HideWindow', () => {
     coreApp.electronApp.hide()
   })
