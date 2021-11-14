@@ -9,9 +9,9 @@
     box-sizing: border-box;
     flex: 4;
     border-left: 1px solid #ddd;
-    min-height: 540px;
-    height: 540px;
-    max-width: 50%;
+    min-height: 432px;
+    height: 432px;
+    max-width: 64%;
     overflow: hidden;
   }
   .preview-wrapper {

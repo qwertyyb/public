@@ -87,14 +87,6 @@
         selected={index === selectedIndex}
         onEnter={() => onResultEnter(item)}></ResultItem>
     </VirtualList>
-    <!-- {#each list as item, index (item.key)}
-      <ResultItem
-        icon={item.icon}
-        title={item.title}
-        subtitle={item.subtitle}
-        selected={index === selectedIndex}
-        onEnter={() => onResultEnter(item)}></ResultItem>
-    {/each} -->
   </div>
   {#if preview}
     <ResultItemPreview>{@html preview}</ResultItemPreview>
