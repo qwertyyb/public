@@ -86,6 +86,7 @@
 <style>
   main {
     backdrop-filter: blur(20px);
+    max-width: 780px;
   }
   @media screen and (max-height: 60px) {
     * {

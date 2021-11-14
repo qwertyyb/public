@@ -91,9 +91,15 @@ export class CoreApp {
       win.show()
       require("@electron/remote/main").enable(win.webContents)
     })
-    win.webContents.on('preferred-size-changed', (event, size) => {
-      win.setSize(size.width, size.height)
-    })
+    win.webContents.on('preferred-size-changed', (() => {
+      let timeout = null
+      return (event, size) => {
+        timeout && clearTimeout(timeout)
+        setTimeout(() => {
+          win.setSize(size.width, size.height)
+        }, 40)
+      }
+    })())
     win.on('hide', () => {
       console.log('hide')
       win.webContents.executeJavaScript(`window.clearAndFocusInput && window.clearAndFocusInput()`)
