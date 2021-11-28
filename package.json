@@ -9,8 +9,11 @@
   "scripts": {
     "tsc": "tsc",
     "lint": "eslint -c .eslintrc --ext .ts ./src",
-    "start:render": "cd ./render && npm run dev",
-    "start:main": "nodemon --exec 'npm run tsc && cross-env NODE_ENV=development electron ./index.js || exit 1'",
+    "start:render": "cd ./src/render && npm run dev",
+    "webpack:main": "concurrently \"webpack -c webpack.config.js\" \"webpack -c webpack.preload.config.js\"",
+    "webpack:plugins": "webpack -c webpack.plugins.config.js",
+    "launch:main": "nodemon --exec 'electron ./pre-dist/main.js || exit 1'",
+    "start:main": "concurrently 'npm run webpack:main' 'npm run webpack:plugins' 'npm run launch:main'",
     "start": "concurrently \"npm run start:render\" \"wait-on http://localhost:5000  && npm run start:main\"",
     "build:render": "cd ./render && npm run build",
     "build:main": "npm run tsc && electron-builder -c.mac.identity=null",
@@ -20,10 +23,10 @@
     "build-dir": "electron-builder --dir"
   },
   "nodemonConfig": {
-    "ignore": [
-      "./render"
+    "watch": [
+      "pre-dist/"
     ],
-    "ext": "ts"
+    "ext": "js"
   },
   "keywords": [],
   "author": "qwertyyb",
@@ -75,6 +78,7 @@
   "devDependencies": {
     "@types/mathjs": "^6.0.11",
     "@types/node": "^12.20.4",
+    "@types/sqlite3": "^3.1.7",
     "concurrently": "^6.0.0",
     "cross-env": "^7.0.3",
     "electron": "^15.3.0",
@@ -82,19 +86,23 @@
     "electron-devtools-installer": "^3.1.1",
     "electron-notarize": "^1.0.0",
     "electron-rebuild": "^2.3.5",
+    "node-loader": "^2.0.0",
     "nodemon": "^2.0.7",
+    "ts-loader": "^9.2.6",
     "typescript": "^4.2.2",
     "wait-on": "^5.2.1",
-    "@types/sqlite3": "^3.1.7"
+    "webpack": "^5.64.2",
+    "webpack-cli": "^4.9.1"
   },
   "dependencies": {
     "@electron/remote": "^2.0.1",
+    "copy-webpack-plugin": "^10.0.0",
     "electron-updater": "^4.3.5",
     "file-icon": "^4.0.0",
     "mathjs": "^9.2.0",
     "qrcode": "^1.4.4",
+    "robotjs": "^0.6.0",
     "sqlite3": "^5.0.2",
-    "tiny-pinyin": "^1.3.2",
-    "robotjs": "^0.6.0"
+    "tiny-pinyin": "^1.3.2"
   }
 }

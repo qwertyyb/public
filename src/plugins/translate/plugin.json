@@ -1,0 +1,6 @@
+{
+  "title": "翻译",
+  "subtitle": "翻译输入内容",
+  "icon": "https://img.icons8.com/color/144/000000/google-translate.png",
+  "preload": "./index.js"
+}

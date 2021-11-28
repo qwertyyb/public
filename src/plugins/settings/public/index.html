@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>设置</title>
+  <link rel="stylesheet" href="./lib/tailwind.min.css">
+  <link rel="stylesheet" href="./lib/element-ui.css">
+  
+  <script src="./lib/vue.js"></script>
+  <script src="./lib/element-ui.js"></script>
+  <style>
+    #app {
+      height: 100vh;
+      overflow: hidden;
+    }
+    .aside {
+      height: 100%;
+      overflow: auto;
+    }
+    .main {
+      height: 100%;
+      overflow: auto;
+    }
+    .setting-item.selected {
+      background: #3B82F6;
+      color: white;
+    }
+
+    /* The slider */
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    input:checked + .slider {
+      background-color: #2196F3;
+    }
+
+    input:focus + .slider {
+      box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+      -webkit-transform: translateX(20px);
+      -ms-transform: translateX(20px);
+      transform: translateX(20px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+      border-radius: 34px;
+    }
+
+    .slider.round:before {
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="flex">
+    <div class="aside w-48">
+      <ul class="setting-list text-center border-r h-screen">
+        <li class="setting-item h-12 flex items-center justify-center cursor-pointer"
+          v-for="(label, keyName) in views"
+          :key="keyName"
+          :class="{selected: curView === keyName}"
+          @click="curView=keyName">{{label}}</li>
+      </ul>
+    </div>
+    <div class="main flex-1">
+      <div v-if="curView === 'common'">
+        <ul class="shortcut-list my-4">
+          <li class="shortcut-item flex items-center">
+            <div class="w-48 text-right mr-6">开机启动</div>
+            <el-switch v-model="settings.launchAtLogin" @change="onLaunchAtLoginChange"></el-switch>
+          </li>
+        </ul>
+      </div>
+      <div v-else-if="curView==='plugins'">
+        <div class="bg-gray-200 text-gray-600 px-2 py-2 flex justify-between items-center">
+          插件管理
+          <el-button icon="el-icon-plus" circle size="small" @click="onAddPluginClick"></el-button>
+        </div>
+        <ul class="plugin-list">
+          <li class="plugin-item flex p-4 py-3 items-center"
+            v-for="(plugin, index) in settings.plugins"
+            :key="plugin.key">
+            <img :src="plugin.icon" alt="" class="w-10 h-10">
+            <div class="info flex flex-col ml-4 justify-center">
+              <h3 class="text-base">{{plugin.title}}</h3>
+              <h5 class="text-gray-400 text-xs mt-1">{{plugin.subtitle}}</h5>
+            </div>
+            <div class="suffix ml-auto flex items-center">
+              <el-button type="danger" icon="el-icon-delete"
+                size="mini"
+                @click="onRemovePluginClick(index, plugin)"
+                circle></el-button>
+              <el-button type="text"
+                size="mini"
+                circle>
+                <i class="el-icon-more"></i>
+              </el-button>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div v-else-if="curView==='shortcut'">
+        <ul class="shortcut-list my-4">
+          <li class="shortcut-item flex items-center">
+            <div class="w-48 text-right mr-4">显示/隐藏主界面</div>
+            <button class="px-4 h-8 border rounded outline-none focus:outline-none focus:bg-gray-200 focus:ring-2 focus:ring-blue-400"
+              @click="onShortcutBtnClicked($event, settings)">
+              {{ settings.shortcut }}
+            </button>
+          </li>
+          <li class="shortcut-item flex items-center justify-between bg-gray-200 mt-2 px-4">
+            <div class="text-right mr-4 py-2">自定义关键词</div>
+            <el-button icon="el-icon-plus" circle size="small" @click="onAddShortcutClick"></el-button>
+          </li>
+          <li class="shortcut-item flex items-center justify-between my-2 px-4">
+            <h3>快捷键</h3>
+            <h3>关键词</h3>
+          </li>
+          <li class="shortcut-item flex items-center my-2 px-4"
+            v-for="(item, index) in settings.shortcuts">
+            <button class="w-64 px-4 h-8 border rounded outline-none focus:outline-none focus:bg-gray-200 focus:ring-2 focus:ring-blue-400"
+              @click="onShortcutBtnClicked($event, item)">
+              {{ item.shortcut || '请输入快捷键' }}
+            </button>
+            <el-input placeholder="请输入关键词"
+              size="small"
+              class="ml-2 mr-2"
+              @change="updateShortcut"
+              v-model="item.keyword"></el-input>
+            <el-button type="danger" icon="el-icon-delete"
+              size="mini"
+              @click="onRemoveShortcutClick(index, item)"
+              circle></el-button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="./index.js"></script>
+</body>
+</html>

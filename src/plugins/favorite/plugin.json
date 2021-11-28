@@ -1,0 +1,7 @@
+{
+
+  "title": "收藏",
+  "subtitle": "收藏常用的内容",
+  "icon": "https://img.icons8.com/cute-clipart/64/000000/likes-folder.png",
+  "preload": "./index.js"
+}
