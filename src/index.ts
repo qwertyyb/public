@@ -81,6 +81,7 @@ export class CoreApp {
         contextIsolation: false,
         backgroundThrottling: false,
         enablePreferredSizeMode: true,
+        nodeIntegrationInWorker: true,
       }
     })
     if (process.env.NODE_ENV === 'development') {

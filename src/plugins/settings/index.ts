@@ -6,6 +6,19 @@ const KEYWORDS = [
   '设置'
 ]
 
+const refreshSettings = async () =>  {
+  globalThis.publicApp.storage.getItem('config').then(settingsStr => {
+    const settings = settingsStr && JSON.parse(settingsStr) || {}
+    globalThis.publicApp.enableLaunchAtLogin(settings.launchAtLogin)
+    globalThis.publicApp.registerShortcuts(settings)
+    console.log(settings)
+    settings.plugins.forEach(({ path }) => {
+      globalThis.publicApp.pluginManager.register(path)
+    })
+  })
+}
+
+refreshSettings()
 
 const SettingsPlugin = {
   title: '设置',
@@ -17,10 +30,10 @@ const SettingsPlugin = {
     keyword: string
   ) {
     keyword = keyword.toLocaleLowerCase()
-    if (!window.publicApp.getUtils().match(KEYWORDS, keyword)) {
-      return window.publicApp.setList([])
+    if (!globalThis.publicApp.getUtils().match(KEYWORDS, keyword)) {
+      return globalThis.publicApp.setList([])
     }
-    window.publicApp.setList([
+    globalThis.publicApp.setList([
       {
         title: '设置',
         subtitle: 'Public设置',
@@ -31,7 +44,7 @@ const SettingsPlugin = {
   },
   onEnter: () => {
     console.log('ssssss')
-    window.publicApp.enterPlugin()
+    globalThis.publicApp.enterPlugin()
   }
 }
 

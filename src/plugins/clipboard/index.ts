@@ -112,7 +112,7 @@ module.exports = {
         contentValue: item.text
       }
     })
-    window.publicApp.setList(list)
+    globalThis.publicApp.setList(list)
   },
   onEnter: (item) => {
     clipboard.writeText(item.contentValue)

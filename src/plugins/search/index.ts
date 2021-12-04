@@ -140,7 +140,7 @@ const plugin: PublicPlugin = {
   icon: 'https://img.icons8.com/nolan/128/search.png',
   onInput: async (keyword) => {
     const resultList = await getResultList(keyword)
-    window.publicApp.setList(resultList)
+    globalThis.publicApp.setList(resultList)
   },
   onEnter: (item) => {
     const shell = require('electron').shell

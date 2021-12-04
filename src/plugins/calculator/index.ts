@@ -75,7 +75,7 @@ const CalculatorPlugin = {
   ) {
     if (Calculator.isValidInput(keyword)) {
       const result = Calculator.calculate(keyword)
-      window.publicApp.setList([
+      globalThis.publicApp.setList([
         {
           title: `= ${result}`,
           subtitle: '点击复制到剪切板',
@@ -85,7 +85,7 @@ const CalculatorPlugin = {
         }
       ])
     } else {
-      window.publicApp.setList([])
+      globalThis.publicApp.setList([])
     }
   },
 

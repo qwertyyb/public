@@ -1,5 +1,6 @@
+const { exec } = require('child_process')
+const { match } = globalThis.publicApp.getUtils()
 
-const { match } = window.publicApp.getUtils()
 const CommandPlugin = {
   title: '系统命令',
   subtitle: '执行锁屏、休眠、关机、重启等系统命令',
@@ -68,12 +69,14 @@ const CommandPlugin = {
           end tell`
       })
     }
-    window.publicApp.setList(list)
+    globalThis.publicApp.setList(list)
   },
   onEnter: (item) => {
     if (!item.command) return;
     const str = `osascript -e '${item.command}'`
-    require('child_process').exec(str)
+    console.time('exec command')
+    exec(str)
+    console.timeEnd('exec command')
   }
 }
 

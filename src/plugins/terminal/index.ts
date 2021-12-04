@@ -10,7 +10,7 @@ const plugin: PublicPlugin = {
       const [first, ...rest] = query.split(' ')
       const param = rest.join(' ')
       if (first === KEYWORD) {
-        window.publicApp.setList([
+        globalThis.publicApp.setList([
           {
             key: 'plugin:terminal',
             title: param || '终端命令',
@@ -20,7 +20,7 @@ const plugin: PublicPlugin = {
           }
         ])
       } else {
-        window.publicApp.setList([])
+        globalThis.publicApp.setList([])
       }
     },
     onEnter(item) {

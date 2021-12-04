@@ -28,3 +28,7 @@ declare global {
 
   var publicApp: PublicApp
 }
+
+namespace globalThis {
+  const publicApp: PublicApp
+}

@@ -1,18 +1,18 @@
 import { readFileSync } from "fs";
-import { CommonListItem, PublicPluginConfig } from "src/shared/types/plugin"
+import { CommonListItem, MessageData, PublicPluginConfig } from "src/shared/types/plugin"
 import { ipcRenderer } from "electron";
 import * as path from 'path';
 
 interface RunningPlugin{
-  webview: Electron.WebviewTag,
+  worker: Worker,
   path: string,
   config: PublicPluginConfig
 }
 
 const plugins: Map<string, RunningPlugin> = new Map()
 
-const callbackHandler = (handler: Function) => async (e: Electron.IpcMessageEvent) => {
-  console.log(e.channel, e.args, e)
+const callbackHandler = (handler: Function) => async (e: MessageEvent<MessageData>) => {
+  console.log('[main]', e)
   let result = undefined
   try {
     const value = await handler(e)
@@ -20,30 +20,38 @@ const callbackHandler = (handler: Function) => async (e: Electron.IpcMessageEven
   } catch (err) {
     result = { type: 'reject', value: err.message }
   }
-  console.log(result);
-  (e.target as Electron.WebviewTag).send('ipc-message:callback', {
-    callbackName: e.args.pop(),
-    ...result
+  (e.target as Worker).postMessage({
+    channel: 'message:callback',
+    args: {
+      callbackName: e.data.callbackName,
+      ...result
+    }
   })
 }
 
-const registerPlugin = (pluginConfigPath: string): Electron.WebviewTag => {
+const registerPlugin = (pluginConfigPath: string): Worker => {
   // @todo 错误处理
   const configDirPath = path.dirname(pluginConfigPath)
   const config = JSON.parse(readFileSync(pluginConfigPath, { encoding: 'utf-8' } ))
   const { preload, main } = config
   const mainPath = main ? 'file://' + path.join(configDirPath, main) : null;
   const preloadPath = path.join(configDirPath, preload)
-
+  const runtimePath = path.join(__dirname, 'plugin.js')
+  console.log(runtimePath)
   try {
-    const webview = document.createElement('webview')
-    webview.setAttribute('src', `${mainPath || 'http://localhost:5000'}?plugin=1&pluginPath=${encodeURIComponent(preloadPath)}`)
-    webview.preload = 'file://' + path.resolve(__dirname, './plugin.js')
-    webview.disablewebsecurity = true
+    const worker = new Worker('file://' + runtimePath + `?plugin=1&pluginPath=${encodeURIComponent(preloadPath)}`)
+    // worker.onmessage = e => console.log(e)
+    // console.log(worker, preloadPath)
 
-    webview.addEventListener('ipc-message', callbackHandler(async e => {
-      if (e.channel === 'plugin:setList') {
-        const [list] = e.args
+    // const webview = document.createElement('webview')
+    // webview.setAttribute('src', `${mainPath || 'http://localhost:5000'}?plugin=1&pluginPath=${encodeURIComponent(preloadPath)}`)
+    // webview.preload = 'file://' + path.resolve(__dirname, './plugin.js')
+    // webview.disablewebsecurity = true
+
+    worker.addEventListener('message', callbackHandler(async (e: MessageEvent<MessageData>) => {
+      const { channel, args } = e.data
+      if (channel === 'plugin:setList') {
+        const [list] = args
         const resultList = Array.isArray(list) ? list : []
         const event = new CustomEvent('plugin:setList', {
           detail: {
@@ -52,41 +60,41 @@ const registerPlugin = (pluginConfigPath: string): Electron.WebviewTag => {
           }
         })
         document.dispatchEvent(event)
-      } else if(e.channel === 'plugin:enterPlugin') {
-        webview.classList.add('show')
-      } else if (e.channel.startsWith('plugin:storage')) {
-        const name = e.channel.split(':').pop()
-        const [originalKey, value] = e.args
+      } else if(channel === 'plugin:enterPlugin') {
+        // webview.classList.add('show')
+      } else if (channel.startsWith('plugin:storage')) {
+        const name = channel.split(':').pop()
+        const [originalKey, value] = args
         // @todo 应该有一个插件ID
         const key = 'settings' + '-' + (originalKey || '')
         return ipcRenderer.invoke('storage.' + name, key, value)
-      } else if (e.channel.startsWith('plugin:pluginManager')) {
+      } else if (channel.startsWith('plugin:pluginManager')) {
         // @todo 白名单可调
-        const name = e.channel.split(':').pop()
+        const name = channel.split(':').pop()
         switch(name) {
           case 'register':
-            window.PluginManager.registerPlugin(e.args[0])
+            window.PluginManager.registerPlugin(args[0])
             break;
           case 'getList':
             const plugins = window.PluginManager.getPlugins()
             return plugins
           case 'remove':
-            window.PluginManager.removePlugin(e.args[0])
+            window.PluginManager.removePlugin(args[0])
             return;
         }
-      } else if (e.channel === 'plugin:enableLaunchAtLogin') {
-        ipcRenderer.invoke('enableLaunchAtLogin', e.args[0])
-      } else if (e.channel === 'plugin:registerShortcuts') {
-        ipcRenderer.invoke('registerShortcuts', e.args[0])
+      } else if (channel === 'plugin:enableLaunchAtLogin') {
+        ipcRenderer.invoke('enableLaunchAtLogin', args[0])
+      } else if (channel === 'plugin:registerShortcuts') {
+        ipcRenderer.invoke('registerShortcuts', args[0])
       }
     }))
-    document.body.appendChild(webview)
+    // document.body.appendChild(webview)
     plugins.set(pluginConfigPath, {
       config,
-      webview,
+      worker,
       path: pluginConfigPath
     })
-    return webview
+    return worker
   } catch (err) {
     throw new Error(`引入插件 ${pluginConfigPath} 失败: ${err.message}`)
   }
@@ -129,7 +137,12 @@ window.PluginManager = {
     keyword: string
   ) {
     console.log('handle query')
-    plugins.forEach(plugin => plugin.webview.send('onInput', keyword))
+    plugins.forEach(plugin => 
+      plugin.worker.postMessage({
+        channel: 'onInput',
+        args: { keyword }
+      })
+    );
   },
   handleEnter(
     pluginPath: string,
@@ -141,6 +154,9 @@ window.PluginManager = {
   ) {
     const targetPlugin = plugins.get(pluginPath)
     if (!targetPlugin) return;
-    targetPlugin.webview.send('onEnter', args.item)
+    targetPlugin.worker.postMessage({
+      channel: 'onEnter', 
+      args: { item: args.item }
+    })
   },
 }

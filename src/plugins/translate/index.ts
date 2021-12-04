@@ -13,9 +13,9 @@ export default {
     async onInput (keyword) {
       const [first, ...rest] = keyword.split(' ')
       const param = rest.join(' ')
-      if (!TRIGGERS.includes(first) || !param.trim()) return window.publicApp.setList([])
+      if (!TRIGGERS.includes(first) || !param.trim()) return globalThis.publicApp.setList([])
       const response = await getResponse(param)
-      window.publicApp.setList([
+      globalThis.publicApp.setList([
         {
           key: 'plugin:translate:youdao',
           title: response.tgt,

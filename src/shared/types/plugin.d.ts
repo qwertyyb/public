@@ -35,21 +35,31 @@ interface PublicPlugin {
   getResultPreview?: (item: CommonListItem, index: number, list: CommonListItem[]) => void | Promise<string | undefined>, 
 }
 
+interface MessageData {
+  channel: string,
+  args: any,
+  callbackName: string,
+}
+
 export interface PublicApp {
-    getMainWindow: () => BrowserWindow,
+    // getMainWindow: () => BrowserWindow,
     hideMainWindow: () => void,
     enterPlugin: () => void,
     getUtils: () => Utils,
     setList: (list: CommonListItem[]) => void,
-    db: {
-      run: (sql, params?) => Promise<any>,
-      all: (sql, params?) => Promise<Array>,
-      get: (sql, params?) => Promise<Any>
-    },
+    // db: {
+    //   run: (sql, params?) => Promise<any>,
+    //   all: (sql, params?) => Promise<Array>,
+    //   get: (sql, params?) => Promise<Any>
+    // },
     storage: {
       setItem: (key: string, value: string) => Promise<typeof value>,
       getItem: (key: string) => Promise<any>,
       removeItem: (key: string) => Promise<void>,
       clear: (prefix: string) => Promise<void>
-    }
+    },
+    registerShortcuts: Function,
+    enableLaunchAtLogin: (enable: boolean) => void,
+    storage: any,
+    pluginManager: any
 }

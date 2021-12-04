@@ -36,16 +36,16 @@ const createDatabase = async () => {
     createdAt TEXT NOT NULL,
     updatedAt TEXT NOT NULL
   );`
-  await window.publicApp.db.run(sql)
+  await globalThis.publicApp.db.run(sql)
   await Promise.all([
-    window.publicApp.db.run(`CREATE INDEX IF NOT EXISTS textIndex on favorite(text)`),
-    window.publicApp.db.run(`CREATE INDEX IF NOT EXISTS remarkIndex on favorite(remark)`)
+    globalThis.publicApp.db.run(`CREATE INDEX IF NOT EXISTS textIndex on favorite(text)`),
+    globalThis.publicApp.db.run(`CREATE INDEX IF NOT EXISTS remarkIndex on favorite(remark)`)
   ])
 }
 
 const insertRecord = async (record: { contentType: number, text: string, remark: string }) => {
   const sql = `INSERT INTO favorite(contentType, text, remark, createdAt, updatedAt) values ($contentType, $text, $remark, $createdAt, $updatedAt)`
-  return window.publicApp.db.run(sql, {
+  return globalThis.publicApp.db.run(sql, {
     $contentType: record.contentType || ContentType.text,
     $text: record.text,
     $remark: record.remark || null,
@@ -57,13 +57,13 @@ const insertRecord = async (record: { contentType: number, text: string, remark:
 const queryRecordList = async ({ keyword = '' } = {}, { strict = false } = {}) => {
   const sql = `SELECT * FROM favorite where text like $keyword or remark like $keyword order by updatedAt DESC`
   const query = strict ? keyword : `%${keyword}%`
-  return window.publicApp.db.all(sql, { $keyword: query })
+  return globalThis.publicApp.db.all(sql, { $keyword: query })
 }
 
 const updateRecord = async (id: number, params: Object) => {
   // @ts-ignore
   const sql = `UPDATE favorite set ${Object.keys(params).map(key => `${key} = '${params[key]}'`).join(',')} where id = $id`
-  return window.publicApp.db.run(sql, { $id: id })
+  return globalThis.publicApp.db.run(sql, { $id: id })
 }
 
 const createOrUpdateRecord = async ({ remark, text }: { remark: string, text: string }) => {

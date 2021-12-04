@@ -34,23 +34,23 @@ const LauncherPlugin = {
   onInput(
     keyword: string
   ) {
-    if (!keyword) return window.publicApp.setList([])
+    if (!keyword) return globalThis.publicApp.setList([])
     keyword = keyword.toLocaleLowerCase();
-    const match = window.publicApp.getUtils().match
-    window.publicApp.setList(apps.filter(item => {
+    const match = globalThis.publicApp.getUtils().match
+    globalThis.publicApp.setList(apps.filter(item => {
       return match([item.code, item.title], keyword)
     }))
   },
 
   onEnter (app: AppListItem) {
     exec(`open -a "${app.path}"`)
-    window.publicApp.hideMainWindow()
+    globalThis.publicApp.hideMainWindow()
   }
 }
 
 // @ts-ignore
 publicPlugin = LauncherPlugin
 // @ts-ignore
-console.log(window.publicPlugin)
+console.log(globalThis.publicPlugin)
 // export default (app: any) => new LauncherPlugin(app)
 module.exports = LauncherPlugin
