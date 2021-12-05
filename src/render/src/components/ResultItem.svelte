@@ -1,6 +1,5 @@
 <div class="result-item"
   class:selected="{selected}"
-  on:mouseenter
   on:click={onEnter}>
   <div class="item-image-wrapper flex-h-v">
     <img src={icon} alt=""/>
@@ -27,15 +26,15 @@
   height: 48px;
   max-width: 100%;
   content-visibility: auto;
-  contains-intrinsic-size: 60px;
+  contains-intrinsic-size: 48px;
+}
+.result-item:hover {
+  background: #eee;
 }
 .result-item.selected {
-  background: rgb(64, 102, 226);
+  background: #ddd;
 }
-.result-item.selected .item-title,
-.result-item.selected .item-subtitle {
-  color: #fff;
-}
+
 .item-image-wrapper {
   width: 48px;
   height: 48px;

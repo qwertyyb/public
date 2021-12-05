@@ -1,19 +1,16 @@
 <script lang="ts">
   import { onMount, afterUpdate } from 'svelte';
-  import ResultItem from './ResultItem.svelte'
-  import ResultItemPreview from './ResultItemPreview.svelte'
-  import VirtualList from './VirtualList.svelte'
-  import type { PublicPlugin } from '../../../shared/types/plugin';
+  import InputBar from '../InputBar.svelte';
+  import ResultItem from '../ResultItem.svelte'
+  import ResultItemPreview from '../ResultItemPreview.svelte'
+  import VirtualList from '../VirtualList.svelte'
 
-
-  export let resultList = [];
-  export let onResultEnter;
-
+  let keyword = ''
   let selectedIndex = 0;
   let list = []
-  let preview = ''
+  let detail = null
 
-  $: if (resultList) {
+  $: if (list) {
     // list变化时，selectedIndex归0
     selectedIndex = 0
   }
@@ -26,6 +23,7 @@
   })
 
   const keydownHandler = (e: KeyboardEvent) => {
+    console.log(e)
     const listLength = list.length || 1
     if (e.key === 'ArrowUp') {
       selectedIndex = Math.max(0, selectedIndex - 1)
@@ -42,25 +40,48 @@
     }
   }
 
+  const onEnter = (item) => {
+    // @ts-ignore
+    window._plugin.onEnter(item);
+  }
+
+  const exitPlugin = () => {
+    window.publicApp.exitPlugin();
+  }
+
   onMount(() => {
     document.addEventListener('keydown', keydownHandler)
   })
+
+  // @ts-ignore
+  window.plugin = {
+    async onInput(keyword) {
+      // @ts-ignore
+      list = await window._plugin.onInput(keyword);
+    }
+  }
 </script>
 
-<div class="result-view">
-  <div class="result-list-container" style="flex: 1">
-    <VirtualList list={resultList} let:item={item} let:index={index}>
-      <ResultItem
-        icon={item.command.icon}
-        title={item.command.title}
-        subtitle={item.command.subtitle}
-        selected={index === selectedIndex}
-        onEnter={() => onResultEnter(item)}></ResultItem>
-    </VirtualList>
+<div class="list-preview">
+  <InputBar value={keyword}
+    on:back={exitPlugin}
+    showBack />
+  <div class="result-view">
+    <div class="result-list-container" style="flex: 1">
+      <VirtualList list={list} let:item={item} let:index={index}>
+        <ResultItem
+          icon={item.icon}
+          title={item.title}
+          subtitle={item.subtitle}
+          on:mouseenter={() => selectedIndex = index}
+          selected={index === selectedIndex}
+          onEnter={() => onEnter(item)}></ResultItem>
+      </VirtualList>
+    </div>
+    {#if detail}
+    <ResultItemPreview>{@html detail}</ResultItemPreview>
+    {/if}
   </div>
-  {#if preview}
-    <ResultItemPreview>{@html preview}</ResultItemPreview>
-  {/if}
 </div>
 
 <style>

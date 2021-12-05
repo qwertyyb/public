@@ -42,24 +42,25 @@ interface MessageData {
 }
 
 export interface PublicApp {
-    // getMainWindow: () => BrowserWindow,
-    hideMainWindow: () => void,
-    enterPlugin: () => void,
+    simulate: any,
+    enterPlugin: () => any,
     getUtils: () => Utils,
-    setList: (list: CommonListItem[]) => void,
-    // db: {
-    //   run: (sql, params?) => Promise<any>,
-    //   all: (sql, params?) => Promise<Array>,
-    //   get: (sql, params?) => Promise<Any>
-    // },
+    exitPlugin: () => any,
+    setList: (list: CommonListItem[]) => any,
+    db: {
+      run: (sql, params?) => Promise<any>,
+      all: (sql, params?) => Promise<any>,
+      get: (sql, params?) => Promise<any>
+    },
     storage: {
       setItem: (key: string, value: string) => Promise<typeof value>,
-      getItem: (key: string) => Promise<any>,
+      getItem: (key: string) => Promise<string>,
       removeItem: (key: string) => Promise<void>,
       clear: (prefix: string) => Promise<void>
     },
+    hideMainWindow: () => Promise<void>,
     registerShortcuts: Function,
-    enableLaunchAtLogin: (enable: boolean) => void,
+    enableLaunchAtLogin: (enable: boolean) => Promise<void>,
     storage: any,
     pluginManager: any
 }

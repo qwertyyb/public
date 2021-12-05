@@ -39,10 +39,16 @@ const LauncherPlugin = {
     const match = globalThis.publicApp.getUtils().match
     globalThis.publicApp.setList(apps.filter(item => {
       return match([item.code, item.title], keyword)
+    }).map(item => {
+      return {
+        ...item,
+        mode: 'no-view'
+      }
     }))
   },
 
   onEnter (app: AppListItem) {
+    console.log(app)
     exec(`open -a "${app.path}"`)
     globalThis.publicApp.hideMainWindow()
   }

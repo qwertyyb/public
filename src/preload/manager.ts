@@ -1,103 +1,190 @@
 import { readFileSync } from "fs";
-import { CommonListItem, MessageData, PublicPluginConfig } from "src/shared/types/plugin"
-import { ipcRenderer } from "electron";
+import { MessageData, PublicPluginConfig } from "src/shared/types/plugin"
+import { IpcMessageEvent, ipcRenderer } from "electron";
 import * as path from 'path';
-
-interface RunningPlugin{
-  worker: Worker,
-  path: string,
-  config: PublicPluginConfig
-}
+import { match } from './utils'
 
 const plugins: Map<string, RunningPlugin> = new Map()
+const commandList: RunningCommand[] = [];
 
-const callbackHandler = (handler: Function) => async (e: MessageEvent<MessageData>) => {
+const isLocalPath = (filePath: string) => !/^(http:|https:)?\/\//.test(filePath)
+
+const transformPath = (curPath: string, filePath: string, useProtocol = true) => {
+  if (!isLocalPath(filePath)) return filePath;
+  console.log('aaa', curPath, filePath)
+  return (useProtocol ? 'file://' : '') + path.join(curPath, filePath)
+}
+
+const processPath = (config: Config, configPath: string) => {
+  const { icon, preload, entry, commands = [] } = config;
+  const configDirPath = path.dirname(configPath)
+  const iconPath = transformPath(configDirPath, icon, true)
+  const preloadPath = preload ? transformPath(configDirPath, preload, false) : null
+  const entryPath = entry ? transformPath(configDirPath, entry, false) : null
+  const concatPathCommands = commands.map(command => {
+    const { icon, entry } = command
+    return {
+      ...command,
+      icon: icon ? transformPath(configDirPath, icon, true) : iconPath,
+      entry: entry ? transformPath(configDirPath, entry, false) : entryPath,
+    }
+  })
+  return {
+    ...config,
+    icon: iconPath,
+    preload: preloadPath,
+    entry: entryPath,
+    commands: concatPathCommands
+  }
+}
+
+const simulateApi = new Proxy({}, {
+  get: (target, prop, receiver) => {
+    console.log('aaaa')
+    return (...args) => ipcRenderer.invoke('simulate', prop, ...args)
+  }
+})
+
+const getApi = (plugin: RunningPlugin) => {
+  return {
+    app: {
+      enableLaunchAtLogin(enable) {
+        ipcRenderer.invoke('enableLaunchAtLogin', enable)
+      },
+      registerShortcuts(settings) {
+        ipcRenderer.invoke('registerShortcuts', settings)
+      },
+      hide() {
+        ipcRenderer.invoke('app.hide')
+      }
+    },
+    simulate: simulateApi,
+    pluginManager: {
+      register: (configPath: string) => {
+        const { worker, handler, ...rest } = window.PluginManager.registerPlugin(configPath);
+        return rest
+      },
+      getList: () => window.PluginManager.getPlugins(),
+      remove: (name) => window.PluginManager.removePlugin(name)
+    },
+    storage: {
+      setItem: (key: string, val: string) => ipcRenderer.invoke('storage.setItem', `${plugin.config.name}-${key}`, val),
+      getItem: (key: string) => ipcRenderer.invoke('storage.getItem', `${plugin.config.name}-${key}`),
+      removeItem: (key: string) => ipcRenderer.invoke('storage.removeItem', `${plugin.config.name}-${key}`),
+      clear: () => ipcRenderer.invoke('storage.clear')
+    },
+    db: {
+      run: (sql, params) => ipcRenderer.invoke('db.run', sql, params),
+      all: (sql, params) => ipcRenderer.invoke('db.all', sql, params),
+      get: (sql, params) => ipcRenderer.invoke('db.get', sql, params),
+    },
+    plugin: {
+      setList: (commandList: Command[]) => {
+        const list: RunningCommand[] = commandList.map(command => ({
+          plugin,
+          command,
+        }))
+        const event = new CustomEvent('plugin:setList', {
+          detail: {
+            append: true,
+            resultList: list,
+          }
+        })
+        document.dispatchEvent(event);
+      },
+      exit: () => window.PluginManager.exitPlugin(plugin.config.name)
+    }
+  }
+}
+
+const parseEvent = (e: MessageEvent<MessageData> | IpcMessageEvent) => {
+  let { channel, args } = e as IpcMessageEvent
+  if (channel) {
+    const callbackName = args.pop()
+    return { channel, args, callbackName }
+  }
+  channel = (e as MessageEvent<MessageData>).data.channel
+  args = (e as MessageEvent<MessageData>).data.args
+  const callbackName = (e as MessageEvent<MessageData>).data.callbackName
+
+  return { channel, args, callbackName }
+}
+
+const callbackHandler = (api: Object) => async (e: MessageEvent<MessageData>) => {
   console.log('[main]', e)
+  const { channel, args, callbackName } = parseEvent(e)
+  const props = channel.split('.')
+  const handler = props.reduce((obj, prop) => obj?.[prop], api)
   let result = undefined
   try {
-    const value = await handler(e)
+    const value = await handler(...args)
     result = { value, type: 'resolve' }
   } catch (err) {
+    console.error(err)
     result = { type: 'reject', value: err.message }
   }
-  (e.target as Worker).postMessage({
+  (e.target as Worker).postMessage?.({
     channel: 'message:callback',
     args: {
-      callbackName: e.data.callbackName,
+      callbackName,
       ...result
     }
+  });
+  console.log(result);
+  (e.target as Electron.WebviewTag).send?.('message:callback', {
+    callbackName,
+    ...result
   })
 }
 
-const registerPlugin = (pluginConfigPath: string): Worker => {
-  // @todo 错误处理
-  const configDirPath = path.dirname(pluginConfigPath)
-  const config = JSON.parse(readFileSync(pluginConfigPath, { encoding: 'utf-8' } ))
-  const { preload, main } = config
-  const mainPath = main ? 'file://' + path.join(configDirPath, main) : null;
-  const preloadPath = path.join(configDirPath, preload)
-  const runtimePath = path.join(__dirname, 'plugin.js')
-  console.log(runtimePath)
+const launch = (config: Config): Worker => {
   try {
-    const worker = new Worker('file://' + runtimePath + `?plugin=1&pluginPath=${encodeURIComponent(preloadPath)}`)
-    // worker.onmessage = e => console.log(e)
-    // console.log(worker, preloadPath)
-
-    // const webview = document.createElement('webview')
-    // webview.setAttribute('src', `${mainPath || 'http://localhost:5000'}?plugin=1&pluginPath=${encodeURIComponent(preloadPath)}`)
-    // webview.preload = 'file://' + path.resolve(__dirname, './plugin.js')
-    // webview.disablewebsecurity = true
-
-    worker.addEventListener('message', callbackHandler(async (e: MessageEvent<MessageData>) => {
-      const { channel, args } = e.data
-      if (channel === 'plugin:setList') {
-        const [list] = args
-        const resultList = Array.isArray(list) ? list : []
-        const event = new CustomEvent('plugin:setList', {
-          detail: {
-            pluginPath: pluginConfigPath,
-            list: resultList,
-          }
-        })
-        document.dispatchEvent(event)
-      } else if(channel === 'plugin:enterPlugin') {
-        // webview.classList.add('show')
-      } else if (channel.startsWith('plugin:storage')) {
-        const name = channel.split(':').pop()
-        const [originalKey, value] = args
-        // @todo 应该有一个插件ID
-        const key = 'settings' + '-' + (originalKey || '')
-        return ipcRenderer.invoke('storage.' + name, key, value)
-      } else if (channel.startsWith('plugin:pluginManager')) {
-        // @todo 白名单可调
-        const name = channel.split(':').pop()
-        switch(name) {
-          case 'register':
-            window.PluginManager.registerPlugin(args[0])
-            break;
-          case 'getList':
-            const plugins = window.PluginManager.getPlugins()
-            return plugins
-          case 'remove':
-            window.PluginManager.removePlugin(args[0])
-            return;
-        }
-      } else if (channel === 'plugin:enableLaunchAtLogin') {
-        ipcRenderer.invoke('enableLaunchAtLogin', args[0])
-      } else if (channel === 'plugin:registerShortcuts') {
-        ipcRenderer.invoke('registerShortcuts', args[0])
-      }
-    }))
-    // document.body.appendChild(webview)
-    plugins.set(pluginConfigPath, {
-      config,
-      worker,
-      path: pluginConfigPath
-    })
+    const { preload, name } = config
+    const runtimePath = path.join(__dirname, 'plugin.js')
+    const worker = new Worker('file://' + runtimePath + `?plugin=1&pluginPath=${encodeURIComponent(preload)}`)
     return worker
   } catch (err) {
-    throw new Error(`引入插件 ${pluginConfigPath} 失败: ${err.message}`)
+    throw new Error(`引入插件失败: ${err.message}`)
   }
+}
+
+const registerPlugin = (configPath: string) => {
+  const config = processPath(
+    JSON.parse(readFileSync(configPath, { encoding: 'utf-8' } )),
+    configPath
+  )
+
+  const { name, preload, commands } = config
+  let worker = null
+
+  if (preload) {
+    worker = launch(config)
+  }
+
+  const plugin: RunningPlugin = {
+      config,
+      worker,
+      path: configPath,
+      handler: null
+  }
+  const handler = callbackHandler(getApi(plugin));
+  if (worker) {
+    worker.addEventListener('message', handler)
+  }
+
+  plugin.handler = handler
+
+  const pluginCommandList = commands.map(command => {
+    return {
+      name,
+      config,
+      command,
+      plugin,
+    }
+  })
+  commandList.push(...pluginCommandList)
+  plugins.set(name, plugin)
+  return plugins.get(name)
 }
 
 const getBasicPath = (): string[] => {
@@ -122,6 +209,9 @@ window.PluginManager = {
   getPlugins() {
     return Array.from(plugins.values()).map(({ config, path }) => ({ ...config, path }))
   },
+  getPlugin(name: string) {
+    return plugins.get(name)
+  },
   removePlugin(pluginPath: string) {
     plugins.delete(pluginPath)
   },
@@ -132,31 +222,51 @@ window.PluginManager = {
     const plugin = registerPlugin(path)
     return plugin
   },
-
-  handleQuery(
-    keyword: string
-  ) {
-    console.log('handle query')
-    plugins.forEach(plugin => 
-      plugin.worker.postMessage({
+  handleQuery(keyword: string) {
+    console.log(plugins)
+    plugins.forEach((runningPlugin) => {
+      if (!runningPlugin.worker) return;
+      runningPlugin.worker.postMessage({
         channel: 'onInput',
         args: { keyword }
       })
-    );
-  },
-  handleEnter(
-    pluginPath: string,
-    args: {
-      item: CommonListItem,
-      index: number,
-      list: CommonListItem[]
-    }
-  ) {
-    const targetPlugin = plugins.get(pluginPath)
-    if (!targetPlugin) return;
-    targetPlugin.worker.postMessage({
-      channel: 'onEnter', 
-      args: { item: args.item }
     })
+    const resultList = commandList.filter(item => {
+      const { command } = item
+      const { name, title } = command
+      const candidateList = [name, title]
+      return match(candidateList, keyword)
+    })
+    const event = new CustomEvent('plugin:setList', {
+      detail: {
+        resultList: resultList,
+      }
+    })
+    document.dispatchEvent(event)
   },
+  handleEnter(name: string, result: RunningCommand) {
+    const targetPlugin = plugins.get(result.plugin.config.name)
+    console.log(plugins)
+    if (!targetPlugin) return;
+
+    if (result.command.mode === 'no-view') {
+      return targetPlugin.worker.postMessage({
+        channel: 'onEnter', 
+        args: { item: result.command }
+      })
+    }
+
+    const { path: configPath } = targetPlugin
+    const entry = path.resolve(path.dirname(configPath), result.command.entry);
+    document.dispatchEvent(new CustomEvent('plugin:enter', {
+      detail: {
+        plugin: result.plugin.config,
+        command: { ...result.command, entry },
+        preload: transformPath(__dirname, './plugin.js', true),
+      }
+    }))
+  },
+  exitPlugin(name: string) {
+    document.dispatchEvent(new CustomEvent('plugin:exit'))
+  }
 }

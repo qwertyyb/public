@@ -1,7 +1,19 @@
 {
+  "name": "settings",
   "title": "设置",
   "icon": "https://img.icons8.com/nolan/64/settings--v1.png",
   "subtitle": "Public设置",
   "preload": "./index.js",
-  "main": "./public/index.html"
+  "main": "./public/index.html",
+  "commands": [
+    {
+      "name": "settings",
+      "title": "设置",
+      "icon": "https://img.icons8.com/nolan/64/settings--v1.png",
+      "subtitle": "Public设置",
+      "description": "应用设置",
+      "mode": "view",
+      "entry": "./public/index.html"
+    }
+  ]
 }

@@ -1,6 +1,16 @@
 {
+  "name": "calculator",
   "icon": "https://img.icons8.com/plasticine/100/000000/apple-calculator.png",
   "title": "计算器",
   "subtitle": "快捷计算表达式",
-  "preload": "./index.js"
+  "preload": "./index.js",
+  "commands": [
+    {
+      "name": "calculator",
+      "icon": "https://img.icons8.com/plasticine/100/000000/apple-calculator.png",
+      "title": "计算器",
+      "subtitle": "快捷计算表达式",
+      "mode": "no-view"
+    }
+  ]
 }

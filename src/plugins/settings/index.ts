@@ -11,21 +11,34 @@ const refreshSettings = async () =>  {
     const settings = settingsStr && JSON.parse(settingsStr) || {}
     globalThis.publicApp.enableLaunchAtLogin(settings.launchAtLogin)
     globalThis.publicApp.registerShortcuts(settings)
-    console.log(settings)
-    settings.plugins.forEach(({ path }) => {
-      globalThis.publicApp.pluginManager.register(path)
-    })
+    console.log(settings, path.resolve(__dirname, '../search-mdn/plugin.json'))
+    globalThis.publicApp.pluginManager.register(
+      path.resolve(__dirname, '../search-mdn/plugin.json')
+    )
+    globalThis.publicApp.pluginManager.register(
+      path.resolve(__dirname, '../calculator/plugin.json')
+    )
+    globalThis.publicApp.pluginManager.register(
+      path.resolve(__dirname, '../command/plugin.json')
+    )
+    globalThis.publicApp.pluginManager.register(
+      path.resolve(__dirname, '../search/plugin.json')
+    )
+    globalThis.publicApp.pluginManager.register(
+      path.resolve(__dirname, '../clipboard/plugin.json')
+    )
+    globalThis.publicApp.pluginManager.register(
+      path.resolve(__dirname, '../launcher/plugin.json')
+    )
+    // settings.plugins.forEach(({ path }) => {
+    //   // globalThis.publicApp.pluginManager.register(path)
+    // })
   })
 }
 
 refreshSettings()
 
 const SettingsPlugin = {
-  title: '设置',
-  icon: 'https://img.icons8.com/nolan/64/settings--v1.png',
-  subtitle: 'Public设置',
-
-  main: './public/index.html',
   onInput(
     keyword: string
   ) {
@@ -43,7 +56,6 @@ const SettingsPlugin = {
     ])
   },
   onEnter: () => {
-    console.log('ssssss')
     globalThis.publicApp.enterPlugin()
   }
 }

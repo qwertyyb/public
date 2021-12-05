@@ -1,14 +1,5 @@
-import { app } from 'electron'
+import db from './dbController'
 import { formatDate } from '../utils'
-import sqlite3m = require('sqlite3');
-import path = require('path')
-const sqlite3 = sqlite3m.verbose();
-
-const userDataPath = app.getPath('userData')
-
-const dbPath = path.join(userDataPath, 'db.sqlite')
-console.log('dbPath', dbPath)
-const db = new sqlite3.Database(dbPath)
 
 const dbExec = (api: string) => (sql: string, params: string[] = []) => {
   return new Promise((resolve, reject) => db[api](sql, params, (err: Error | null, res: any) => {
@@ -63,7 +54,7 @@ const removeItem = (key: string) => {
 
 const getItem = (key: string) => {
   const sql = `select value from storage where key = ?`
-  return dbGet(sql, [key]).then((res: any) => res.value)
+  return dbGet(sql, [key]).then((res: any) => res?.value)
 }
 
 const clear = (prefix: string) => {

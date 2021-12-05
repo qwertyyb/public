@@ -4,6 +4,7 @@ import { autoUpdater } from "electron-updater"
 import robotjs from 'robotjs'
 import initIpc from './app/ipc'
 import initTray from './app/controller/trayController'
+import db from './app/controller/dbController';
 require('@electron/remote/main').initialize()
 
 const installExtensions = async () => {
@@ -33,6 +34,7 @@ protocol.registerSchemesAsPrivileged([
 export class CoreApp {
   readonly electronApp = app;
   readonly robot = robotjs;
+  readonly db = db;
   mainWindow?: BrowserWindow;
   readonly updater = autoUpdater;
 
@@ -56,7 +58,7 @@ export class CoreApp {
 
   private createMainWindow() {
     const win = new BrowserWindow({
-      height: 48,
+      height: 480 + 32,
       useContentSize: false,
       minWidth: 780,
       width: 780,
@@ -70,7 +72,7 @@ export class CoreApp {
       frame: false,
       roundedCorners: false,
       visualEffectState: 'active',
-      vibrancy: 'under-window',
+      // vibrancy: 'under-window',
       webPreferences: {
         webviewTag: true,
         webSecurity: false,
@@ -95,9 +97,9 @@ export class CoreApp {
       let timeout = null
       return (event, size) => {
         timeout && clearTimeout(timeout)
-        setTimeout(() => {
-          win.setSize(size.width, size.height)
-        }, 40)
+        // setTimeout(() => {
+        //   win.setSize(size.width, size.height)
+        // }, 40)
       }
     })())
     win.on('hide', () => {

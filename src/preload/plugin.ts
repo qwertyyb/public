@@ -1,4 +1,4 @@
-import * as path from 'path'
+import { contextBridge, ipcRenderer } from 'electron';
 import { MessageData, PublicApp, PublicPlugin } from 'src/shared/types/plugin';
 
 let plugin: PublicPlugin;
@@ -12,7 +12,7 @@ interface Logger {
 }
 
 const logger: Logger = ['info', 'warn', 'error'].reduce((obj, key) => {
-  const log = (...args) => console[key]('[plugin]', ...args)
+  const log = (...args) => console[key](`[plugin]${getPluginPath()}`, ...args)
   return { ...obj, [key]: log }
 }, {}) as Logger
 
@@ -23,57 +23,76 @@ const invoke = (channel: string, ...args: any[]): Promise<any> => {
       resolve, reject
     }
     logger.info(callbackName)
-    postMessage({
-      channel,
-      args,
-      callbackName
-    })
+    if (globalThis.window) {
+      ipcRenderer.sendToHost(channel, ...args, callbackName)
+    } else {
+      postMessage({
+        channel,
+        args,
+        callbackName
+      })
+    }
   })
 }
 
 const on = (() => {
   const events = new Map();
-  onmessage = (e: MessageEvent<MessageData>) => {
-    const { channel, args } = e.data
-    const handlers = events.get(channel) || []
-    handlers.forEach(handler => handler(e, args))
-  }
-  return (channel: string, callback: Function) => {
-    const handlers = events.get(channel) || []
-    handlers.push(callback)
-    events.set(channel, handlers)
+  if (globalThis.window) {
+    return ipcRenderer.on.bind(ipcRenderer)
+  } else {
+    onmessage = (e: MessageEvent<MessageData>) => {
+      const { channel, args } = e.data
+      const handlers = events.get(channel) || []
+      handlers.forEach(handler => handler(e, args))
+    }
+    return (channel: string, callback: Function) => {
+      const handlers = events.get(channel) || []
+      handlers.push(callback)
+      events.set(channel, handlers)
+    }
   }
 })()
 
-const getPluginPath = () => __non_webpack_require__.resolve(new URL(location.href).searchParams.get('pluginPath'))
+const getPluginPath = () => new URL(location.href).searchParams.get('pluginPath')
+
+const getEntry = () => new URL(location.href).searchParams.get('entry')
 
 const createIpcSender = (eventName: string) => (...args: any[]) => invoke(eventName, ...args)
 
 const storageApi = ['setItem', 'getItem', 'removeItem', 'clear']
   .reduce((obj: Object, name) => {
-    return { ...obj, [name]: createIpcSender('plugin:storage:' + name)}
+    return { ...obj, [name]: createIpcSender('storage.' + name)}
   }, {}) as PublicApp["storage"]
 
-globalThis.publicApp = {
+const createSimulateMethod = method => (...args) => invoke(`simulate.${method}`, ...args)
+const simulateApi = ['keyTap'].reduce((obj, key) => {
+  return {
+    ...obj,
+    [key]: createSimulateMethod(key)
+  }
+}, {})
+
+const publicApp: PublicApp = {
   storage: storageApi,
   // @todo 调用会影响全局，应校验时机
-  hideMainWindow: () => invoke('HideWindow'),
+  hideMainWindow: () => invoke('app.hide'),
+  db: {
+    run: (sql, args) => invoke('db.run', sql, args),
+    all: (sql, args) => invoke('db.all', sql, args),
+    get: (sql, args) => invoke('db.get', sql, args)
+  },
+  simulate: simulateApi,
   getUtils: () => require('./utils'),
-  enterPlugin: () => {
-    // if (!plugin.main || !plugin.main.endsWith('.html')) return;
-    // const htmlPath = path.join(path.dirname(getPluginPath()), plugin.main);
-    invoke('plugin:enterPlugin')
-  },
+  enterPlugin: () => invoke('plugin.enterPlugin'),
+  setList: (list) => invoke('plugin.setList', list),
+  exitPlugin: () => invoke('plugin.exit'),
   pluginManager: {
-    getList: () => invoke('plugin:pluginManager:getList'),
-    register: (pluginPath: string) => invoke('plugin:pluginManager:register', pluginPath),
-    remove: (pluginPath: string) => invoke('plugin:pluginManager:remove', pluginPath),
+    getList: () => invoke('pluginManager.getList'),
+    register: (pluginPath: string) => invoke('pluginManager.register', pluginPath),
+    remove: (pluginPath: string) => invoke('pluginManager.remove', pluginPath),
   },
-  enableLaunchAtLogin: (enable) => invoke('plugin:enableLaunchAtLogin', enable),
-  registerShortcuts: ({ shortcuts }) => invoke('plugin:registerShortcuts', { shortcuts: shortcuts }),
-  setList: (list) => {
-    invoke('plugin:setList', list)
-  }
+  enableLaunchAtLogin: (enable) => invoke('app.enableLaunchAtLogin', enable),
+  registerShortcuts: (settings) => invoke('app.registerShortcuts', settings),
 }
 
 const registerPlugin = (pluginPath: string) => {
@@ -85,14 +104,33 @@ const registerPlugin = (pluginPath: string) => {
   }
 }
 
-setImmediate(() => {
-  logger.info(getPluginPath())
-  plugin = registerPlugin(getPluginPath())
-  logger.info(self)
+console.log(location.href)
+if (getPluginPath()) {
+  globalThis.publicApp = publicApp
+  setImmediate(() => {
+    plugin = registerPlugin(getPluginPath())
 
-
-  on('message:callback', (e: MessageEvent, { type, callbackName, value }) => {
-    logger.info(e, callbackName, value, callbakMap)
+    on('message:callback', (e: MessageEvent, { type, callbackName, value }) => {
+      logger.info(e, callbackName, value, callbakMap)
+      if (type === 'resolve') {
+        callbakMap[callbackName].resolve(value)
+      } else {
+        callbakMap[callbackName].reject(value)
+      }
+      callbakMap[callbackName] = null
+    })
+    on('onInput', (e, { keyword }) => {
+      plugin.onInput?.(keyword)
+    })
+    on('onEnter', (e, { item }) => {
+      plugin.onEnter(item, 0, [])
+    })
+  })
+} else if (getEntry()) {
+  globalThis.publicApp = publicApp
+  const plugin = registerPlugin(getEntry())
+  on('message:callback', (e, { type, callbackName, value }) => {
+    logger.info(callbackName, value, callbakMap)
     if (type === 'resolve') {
       callbakMap[callbackName].resolve(value)
     } else {
@@ -100,12 +138,7 @@ setImmediate(() => {
     }
     callbakMap[callbackName] = null
   })
-  on('onInput', (e, { keyword }) => {
-    logger.info('onInput', keyword)
-    plugin.onInput(keyword)
-  })
-  on('onEnter', (e, { item }) => {
-    logger.warn('onEnter')
-    plugin.onEnter(item, 0, [])
-  })
-})
+
+  contextBridge.exposeInMainWorld('publicApp', publicApp)
+  contextBridge.exposeInMainWorld('_plugin', plugin)
+}

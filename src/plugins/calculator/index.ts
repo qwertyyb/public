@@ -65,11 +65,6 @@ export class Calculator {
 }
 
 const CalculatorPlugin = {
-
-  icon: 'https://img.icons8.com/plasticine/100/000000/apple-calculator.png',
-  title: '计算器',
-  subtitle: '快捷计算表达式',
-
   onInput(
     keyword: string
   ) {
@@ -82,6 +77,7 @@ const CalculatorPlugin = {
           icon: 'https://img.icons8.com/plasticine/100/000000/apple-calculator.png',
           text: `${result}`,
           key: 'plugin:calculator',
+          mode: 'no-view'
         }
       ])
     } else {
@@ -90,6 +86,7 @@ const CalculatorPlugin = {
   },
 
   onEnter(item: CommonListItem) {
+    console.log(item)
     clipboard.writeText(String(item.text))
   }
 }

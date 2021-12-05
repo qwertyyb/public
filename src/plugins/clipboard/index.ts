@@ -28,6 +28,7 @@ const ContentType = {
   image: 1
 }
 
+
 const createDatabase = async () => {
   const sql = `CREATE TABLE IF NOT EXISTS clipboardHistory (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -94,26 +95,23 @@ createDatabase().then(_ => {
 })
 
 module.exports = {
-  title: '剪切板',
-  subtitle: '增强剪切板',
-  icon: 'https://img.icons8.com/cute-clipart/64/000000/clipboard.png',
-  onInput: async (query: string) => {
-    const [trigger, ...rest] = query.split(' ')
-    if (!['剪切板', 'clipboard', 'cp'].includes(trigger)) return publicApp.setList([]);
-    const keyword = rest.join(' ')
-    let list = await queryRecordList({ keyword })
-    list = list.map((item: any): CommonListItem => {
-      const subtitle = `最后使用: ${item.lastUseAt}     创建于: ${item.createdAt}`
-      return {
-        key: `plugin:clipboard:${item.text}`,
-        title: item.text,
-        subtitle,
-        icon: 'https://img.icons8.com/cute-clipart/64/000000/clipboard.png',
-        contentValue: item.text
-      }
-    })
-    globalThis.publicApp.setList(list)
-  },
+  // onInput: async (query: string) => {
+  //   const [trigger, ...rest] = query.split(' ')
+  //   if (!['剪切板', 'clipboard', 'cp'].includes(trigger)) return publicApp.setList([]);
+  //   const keyword = rest.join(' ')
+  //   let list = await queryRecordList({ keyword })
+  //   list = list.map((item: any): CommonListItem => {
+  //     const subtitle = `最后使用: ${item.lastUseAt}     创建于: ${item.createdAt}`
+  //     return {
+  //       key: `plugin:clipboard:${item.text}`,
+  //       title: item.text,
+  //       subtitle,
+  //       icon: 'https://img.icons8.com/cute-clipart/64/000000/clipboard.png',
+  //       contentValue: item.text
+  //     }
+  //   })
+  //   globalThis.publicApp.setList(list)
+  // },
   onEnter: (item) => {
     clipboard.writeText(item.contentValue)
     // app.getApp().robot.keyTap("v", ["command"])

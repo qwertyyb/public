@@ -1,6 +1,17 @@
 {
+  "name": "clipboard",
   "title": "剪切板",
   "subtitle": "增强剪切板",
   "icon": "https://img.icons8.com/cute-clipart/64/000000/clipboard.png",
-  "preload": "./index.js"
+  "preload": "./index.js",
+  "commands": [
+    {
+      "name": "clipboard-history",
+      "title": "剪切板",
+      "subtitle": "剪切板历史",
+      "icon": "https://img.icons8.com/cute-clipart/64/000000/clipboard.png",
+      "mode": "list-preview",
+      "entry": "public/index.js"
+    }
+  ]
 }

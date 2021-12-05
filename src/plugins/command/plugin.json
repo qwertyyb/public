@@ -1,6 +1,45 @@
 {
+  "name": "system-command",
   "title": "系统命令",
   "subtitle": "执行锁屏、休眠、关机、重启等系统命令",
   "icon": "https://img.icons8.com/ios-filled/50/000000/command.png",
-  "preload": "./index.js"
+  "preload": "./index.js",
+  "entry": "./index.js",
+  "commands": [
+    {
+      "name": "lock",
+      "title": "锁屏",
+      "subtitle": "锁定屏幕",
+      "icon": "public/lock.png",
+      "mode": "no-view"
+    },
+    {
+      "name": "shutdown",
+      "title": "关机",
+      "subtitle": "关闭Mac",
+      "icon": "public/shutdown.png",
+      "mode": "no-view"
+    },
+    {
+      "name": "restart",
+      "title": "重启",
+      "subtitle": "重启Mac",
+      "icon": "public/restart.png",
+      "mode": "no-view"
+    },
+    {
+      "name": "logout",
+      "title": "注销",
+      "subtitle": "退出当前用户",
+      "icon": "public/logout.png",
+      "mode": "no-view"
+    },
+    {
+      "name": "sleep",
+      "title": "休眠",
+      "subtitle": "电脑休眠",
+      "icon": "./public/sleep.png",
+      "mode": "no-view"
+    }
+  ]
 }

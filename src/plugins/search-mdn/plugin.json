@@ -1,0 +1,18 @@
+{
+  "name": "search-mdn",
+  "title": "搜索MDN文档",
+  "subtitle": "在线搜索查看MDN文档",
+  "description": "在线搜索查看MDN文档",
+  "icon": "public/icon.png",
+  "commands": [
+    {
+      "name": "search-mdn",
+      "title": "搜索MDN文档",
+      "subtitle": "在线搜索查看MDN文档",
+      "description": "在线搜索查看MDN文档",
+      "icon": "public/icon.png",
+      "mode": "list-preview",
+      "entry": "./index.js"
+    }
+  ]
+}

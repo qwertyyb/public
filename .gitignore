@@ -6,3 +6,4 @@ out/
 *.map
 !*.config.js
 !scripts/notarize.js
+!**/**/public/*.js

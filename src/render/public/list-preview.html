@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>List Preview</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    height, body, .list-preview, .list, .preview {
+      height: 432px;
+      min-height: 432px;
+    }
+    .list-preview {
+      display: flex;
+    }
+    .list {
+      overflow: auto;
+      flex: 1;
+      border-right: 1px solid #eee;
+    }
+    .preview {
+      overflow: auto;
+      flex: 2;
+    }
+  </style>
+</head>
+<body>
+  <div class="list-preview">
+    <ul class="list">
+      <li class="list-item"></li>
+    </ul>
+    <div class="preview">
+      哈哈哈
+    </div>
+  </div>
+</body>
+</html>
