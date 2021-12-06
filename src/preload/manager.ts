@@ -246,7 +246,6 @@ window.PluginManager = {
   },
   handleEnter(name: string, result: RunningCommand) {
     const targetPlugin = plugins.get(result.plugin.config.name)
-    console.log(plugins)
     if (!targetPlugin) return;
 
     if (result.command.mode === 'no-view') {
@@ -256,8 +255,7 @@ window.PluginManager = {
       })
     }
 
-    const { path: configPath } = targetPlugin
-    const entry = path.resolve(path.dirname(configPath), result.command.entry);
+    const entry = 'file://' + result.command.entry;
     document.dispatchEvent(new CustomEvent('plugin:enter', {
       detail: {
         plugin: result.plugin.config,
