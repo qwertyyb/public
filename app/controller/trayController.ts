@@ -2,7 +2,7 @@ import {
   app,
   Tray as ElectronTray,
 } from 'electron'
-import { CoreApp } from 'index'
+import { CoreApp } from '../index'
 
 let publicTray: ElectronTray | undefined
 

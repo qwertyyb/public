@@ -2,9 +2,9 @@ import * as path from 'path';
 import { app, BrowserWindow, protocol } from "electron";
 import { autoUpdater } from "electron-updater"
 import * as robotjs from '@nut-tree-fork/nut-js'
-import initIpc from './app/ipc'
-import initTray from './app/controller/trayController'
-import db from './app/controller/storageController'
+import initIpc from './ipc'
+import initTray from './controller/trayController'
+import db from './controller/storageController'
 require('@electron/remote/main').initialize()
 
 const installExtensions = async () => {
@@ -78,7 +78,7 @@ export class CoreApp {
         allowRunningInsecureContent: false,
         spellcheck: false,
         devTools: true,
-        preload: path.join(__dirname, 'app/plugin.preload.js'),
+        preload: path.join(__dirname, './plugin.preload.js'),
         contextIsolation: false,
         backgroundThrottling: false,
         enablePreferredSizeMode: true,
@@ -98,7 +98,7 @@ export class CoreApp {
         timeout && clearTimeout(timeout)
         setTimeout(() => {
           win.setSize(size.width, size.height)
-        }, 100)
+        }, 10)
       }
     })())
     win.on('hide', () => {

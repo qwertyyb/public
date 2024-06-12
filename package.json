@@ -10,12 +10,11 @@
     "tsc": "tsc",
     "lint": "eslint -c .eslintrc --ext .ts ./src",
     "start:render": "cd ./render && npm run dev",
-    "start:main": "nodemon --exec 'npm run tsc && cross-env NODE_ENV=development electron ./index.js || exit 1'",
+    "start:main": "nodemon --exec 'npm run tsc && cross-env NODE_ENV=development electron dist/app/index.js || exit 1'",
     "start": "concurrently \"npm run start:render\" \"wait-on http://localhost:5000  && npm run start:main\"",
     "build:render": "cd ./render && npm run build",
     "build:main": "npm run tsc && electron-builder -c.mac.identity=null",
     "build": "NODE_ENV=production && npm run build:render && npm run build:main",
-    "postinstall": "electron-rebuild -m node_modules/robotjs",
     "release": "NODE_ENV=production && npm run build:render && npm run tsc && electron-builder --publish=always",
     "build-dir": "electron-builder --dir"
   },
@@ -33,8 +32,7 @@
     "appId": "cn.qwertyyb.public",
     "asar": false,
     "asarUnpack": [
-      "node_modules/sqlite3",
-      "node_modules/robotjs"
+      "node_modules/sqlite3"
     ],
     "files": [
       "app/",

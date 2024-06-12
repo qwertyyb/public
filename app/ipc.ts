@@ -1,6 +1,6 @@
 import { MouseClass, straightTo } from '@nut-tree-fork/nut-js';
 import electron = require('electron');
-import { CoreApp } from 'index';
+import { CoreApp } from './index';
 const { ipcMain } = electron
 
 export default (coreApp: CoreApp) => {

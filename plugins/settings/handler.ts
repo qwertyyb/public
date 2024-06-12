@@ -55,7 +55,7 @@ const registerLaunchAtLogin =(settings: any) => {
 const getSettings = async () => {
   let value = await createDatabase().then(() => queryRecord({ key: 'config' })).then(res => res?.value)
   if (!value) {
-    value = getDefaultSettings()
+    const value = getDefaultSettings()
     insertRecord({ key: 'config', value })
   }
   return value
