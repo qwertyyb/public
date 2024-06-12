@@ -24,7 +24,7 @@
   scroll-snap-align: start;
   display: flex;
   align-items: center;
-  height: 48px;
+  height: 54px;
   max-width: 100%;
   content-visibility: auto;
   contains-intrinsic-size: 60px;
@@ -46,19 +46,20 @@
   min-width: 48px;
 }
 .item-image-wrapper img {
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
 }
 .item-info {
   max-width: calc(100% - 80px);
 }
 .item-title {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: bold;
   height: 18px;
+  margin-bottom: 4px;
 }
 .item-subtitle {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: normal;
   opacity: 0.6;
   height: 16px;

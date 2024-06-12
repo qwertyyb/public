@@ -78,7 +78,7 @@ onDestroy(() => {
 <style>
 .virtual-list {
   overflow: auto;
-  max-height: 432px;
+  max-height: calc(54px * 9);
 }
 .virtual-list__inner {
   box-sizing: border-box;
