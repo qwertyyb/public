@@ -1,4 +1,10 @@
-<div class="input-bar">
+<script lang="ts">
+  const focusInput = () => {
+    document.querySelector<HTMLInputElement>('.input-bar input')?.focus()
+  }
+</script>
+
+<div class="input-bar" on:click={focusInput}>
   <div class="input-bar-wrapper">
     <input type="text"
       placeholder="请搜索"
@@ -15,7 +21,6 @@
     max-height: 48px;
     position: relative;
     z-index: 100;
-    -webkit-app-region: drag;
     /* border-bottom: 1px solid #ddd; */
   }
   .input-bar .input-bar-wrapper {
@@ -38,6 +43,9 @@
     outline: none;
     border: none;
     background: none;
+  }
+  input:placeholder-shown {
+    -webkit-app-region: drag;
   }
   input::placeholder {
     font-size: 20px;

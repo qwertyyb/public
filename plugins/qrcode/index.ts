@@ -93,7 +93,7 @@ export default (app: any): PublicPlugin => {
     require('./lib/ready_opencv.js')
   })
 
-  app.getMainWindow().on('show', () => {
+  window.addEventListener('publicApp.mainWindow.show', () => {
     const image: NativeImage = clipboard.readImage()
     if (image.isEmpty()) return
     const texts = detectWithOpencv(image)

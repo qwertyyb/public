@@ -17,8 +17,6 @@
       console.log('focus', el.focus())
     }, 200)
   }
-  // @ts-ignore
-  window.clearAndFocusInput = clearAndFocusInput
 
   let pluginResultMap = new Map<PublicPlugin, CommonListItem[]>();
 
@@ -28,19 +26,16 @@
     window.PluginManager.handleQuery(str)
   }
 
-  // @ts-ignore
-  window.setQuery = (value: string) => {
-    const el = document.querySelector('.input-bar input')
-    // @ts-ignore
+  const setKeyword = (event: CustomEvent<{ value: string }>) => {
+    const { value } = event.detail;
+    const el = document.querySelector<HTMLInputElement>('.input-bar input')
     el && (el.value = value)
-    // @ts-ignore
     el && (el.focus())
     onInputChange(value)
   }
 
   const setPluginResults = (e: CustomEvent) => {
     const { plugin, list } = e.detail || {}
-    console.timeEnd(plugin.title)
     pluginResultMap = pluginResultMap.set(plugin, list)
   }
 
@@ -59,7 +54,6 @@
       }
     }
 
-    window.ipcRenderer.send('HideWindow')
     clearAndFocusInput()
     window.PluginManager.handleEnter(targetPlugin, {
       item,
@@ -70,10 +64,14 @@
 
   onMount(() => {
     document.addEventListener('plugin:setList', setPluginResults)
+    window.addEventListener('publicApp.mainWindow.hide', clearAndFocusInput)
+    window.addEventListener('inputBar.setValue', setKeyword)
   })
 
   onDestroy(() => {
     document.removeEventListener('plugin:setList', setPluginResults)
+    window.removeEventListener('publicApp.mainWindow.hide', clearAndFocusInput)
+    window.removeEventListener('inputBar.setValue', setKeyword)
   })
 </script>
 

@@ -115,9 +115,12 @@ export default (app: PublicApp): PublicPlugin => {
       })
       app.setList(list);
     },
-    onEnter: (item) => {
+    onEnter: async (item) => {
       clipboard.writeText(item.contentValue)
-      app.getApp().robot.keyTap("v", ["command"])
+      await window.publicApp.mainWindow.hide()
+      const robot = app.getApp().robot
+      robot.keyboard.pressKey(robot.Key.LeftCmd, robot.Key.V)
+      console.log('item', item)
     }
   }
 }

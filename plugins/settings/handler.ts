@@ -1,5 +1,6 @@
 import { queryRecord, updateRecord, insertRecord, createDatabase } from './storage'
-const path = require('path')
+import { ipcRenderer } from 'electron'
+import * as path from 'path'
 
 const getDefaultSettings = () => {
   const getDefaultPluginPaths = () => {
@@ -38,9 +39,8 @@ const registerShortcuts = (settings: any) => {
   globalShortcut.unregisterAll()
   list.forEach(({ keyword, shortcut, temp }) => {
     shortcut && !temp && globalShortcut.register(shortcut, () => {
-      window.publicApp.getMainWindow().show()
-      // @ts-ignore
-      keyword && window.setQuery && window.setQuery(keyword)
+      window.publicApp.mainWindow.show()
+      window.publicApp.inputBar.setValue(keyword)
     })
   })
 }
@@ -95,31 +95,30 @@ const updatePluginsSettings = async () => {
 }
 
 const initHandler = () => {
-  const { handle } = window.rendererIpc
-  handle('registerShortcuts', async (e, args) => {
+  ipcRenderer.on('registerShortcuts', async (e, args) => {
     await updateSettings(args.settings)
     registerShortcuts(args.settings)
   })
 
-  handle('registerLaunchAtLogin', async (e, args) => {
+  ipcRenderer.on('registerLaunchAtLogin', async (e, args) => {
     await updateSettings(args.settings)
     registerLaunchAtLogin(args.settings)
   })
 
-  handle('getSettings', async() => {
+  ipcRenderer.on('getSettings', async() => {
     return getSettings();
   })
 
-  handle('getPlugins', () => {
+  ipcRenderer.on('getPlugins', () => {
     return JSON.parse(JSON.stringify(window.PluginManager.getPlugins()))
   })
 
-  handle('removePlugin', async (e, { index }) => {
+  ipcRenderer.on('removePlugin', async (e, { index }) => {
     window.PluginManager.removePlugin(index);
     await updatePluginsSettings()
   })
   
-  handle('registerPlugin', async (e, { path }) => {
+  ipcRenderer.on('registerPlugin', async (e, { path }) => {
     try {
       window.PluginManager.registerPlugin({ path })
       await updatePluginsSettings()

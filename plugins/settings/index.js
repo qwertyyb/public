@@ -1,18 +1,4 @@
-// import rendererIpc from '../../app/utils/rendererIpc'
-
 const { ipcRenderer } = require('electron')
-const { default: rendererIpc } = require('../../app/utils/rendererIpc')
-
-window.rendererIpc = rendererIpc
-
-const getOwnerId = () => {
-  return +(new URL(location.href).searchParams.get('ownerid'))
-}
-
-const invoke = (channel, args) => rendererIpc.invoke(getOwnerId(),channel, args).catch(err => {
-  app.$message.error(err.message)
-  throw err;
-})
 
 const createKeyEventHandler = (onChange, done) => {
   const key = {
@@ -69,10 +55,10 @@ var app = new Vue({
   },
   methods: {
     async refreshSettings() {
-      invoke('getSettings').then(settings => {
+      ipcRenderer.invoke('getSettings').then(settings => {
         this.settings = settings
       })
-      invoke('getPlugins').then(plugins => {
+      ipcRenderer.invoke('getPlugins').then(plugins => {
         this.plugins = plugins
         console.log(plugins)
       })
@@ -101,7 +87,7 @@ var app = new Vue({
     },
     async onLaunchAtLoginChange (launchAtLogin) {
       this.settings.launchAtLogin = launchAtLogin
-      await invoke('registerLaunchAtLogin', {
+      await ipcRenderer.invoke('registerLaunchAtLogin', {
         settings: this.settings
       })
       this.refreshSettings()
@@ -133,13 +119,13 @@ var app = new Vue({
       
       validateFile(file)
 
-      await invoke('registerPlugin', { path: file.path })
+      await ipcRenderer.invoke('registerPlugin', { path: file.path })
       this.$message.success('插件添加成功')
       this.refreshSettings()
     },
 
     async onRemovePluginClick(index, plugin) {
-      await invoke('removePlugin', { index, plugin })
+      await ipcRenderer.invoke('removePlugin', { index, plugin })
       this.$message.success('插件移除成功')
       this.refreshSettings()
     },
@@ -156,7 +142,7 @@ var app = new Vue({
       this.updateShortcut()
     },
     async updateShortcut() {
-      await invoke('registerShortcuts', {
+      await ipcRenderer.invoke('registerShortcuts', {
         settings: this.settings
       })
       this.refreshSettings()

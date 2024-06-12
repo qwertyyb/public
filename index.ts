@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { app, BrowserWindow, protocol } from "electron";
 import { autoUpdater } from "electron-updater"
-import robotjs from 'robotjs'
+import * as robotjs from '@nut-tree-fork/nut-js'
 import initIpc from './app/ipc'
 import initTray from './app/controller/trayController'
 import db from './app/controller/storageController'
@@ -68,20 +68,21 @@ export class CoreApp {
       resizable: false,
       minimizable: false, 
       maximizable: false,
-      transparent: true,
+      transparent: false,
       frame: false,
       roundedCorners: false,
       visualEffectState: 'active',
       vibrancy: 'under-window',
       webPreferences: {
         webSecurity: false,
-        allowRunningInsecureContent: true,
+        allowRunningInsecureContent: false,
         spellcheck: false,
         devTools: true,
         preload: path.join(__dirname, 'app/plugin.preload.js'),
         contextIsolation: false,
         backgroundThrottling: false,
         enablePreferredSizeMode: true,
+        sandbox: false,
       }
     })
     if (process.env.NODE_ENV === 'development') {
@@ -97,12 +98,14 @@ export class CoreApp {
         timeout && clearTimeout(timeout)
         setTimeout(() => {
           win.setSize(size.width, size.height)
-        }, 40)
+        }, 100)
       }
     })())
     win.on('hide', () => {
-      console.log('hide')
-      win.webContents.executeJavaScript(`window.clearAndFocusInput && window.clearAndFocusInput()`)
+      win.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.hide'))`)
+    })
+    win.on('show', () => {
+      win.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.show'))`)
     })
     protocol.registerFileProtocol('localfile', (request, callback) => {
       const pathname = decodeURIComponent(request.url.replace('localfile://', ''));

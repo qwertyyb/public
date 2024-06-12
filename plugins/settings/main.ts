@@ -57,7 +57,7 @@ export default (app: PublicApp): PublicPlugin => {
           contextIsolation: false,
         }
       })
-      win.webContents.loadURL('file://' + path.join(__dirname, './index.html?ownerid=' + app.getMainWindow().webContents.id))
+      win.webContents.loadURL('file://' + path.join(__dirname, './index.html'))
       // win.webContents.openDevTools()
       win.on('close', () => {
         win = null
