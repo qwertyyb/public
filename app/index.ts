@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { app, BrowserWindow, protocol } from "electron";
+import { app, BrowserWindow, protocol, type Tray } from "electron";
 import { autoUpdater } from "electron-updater"
 import * as robotjs from '@nut-tree-fork/nut-js'
 import initIpc from './ipc'
@@ -35,6 +35,7 @@ export class CoreApp {
   readonly electronApp = app;
   readonly db = db;
   readonly robot = robotjs;
+  tray: Tray;
   mainWindow?: BrowserWindow;
   readonly updater = autoUpdater;
 
@@ -46,9 +47,10 @@ export class CoreApp {
     
       this.updater.checkForUpdatesAndNotify();
 
-      initTray(this)
+      this.tray = initTray(this)
 
       initIpc(this)
+      console.log(this.tray)
     })
     
     this.electronApp.on('window-all-closed', () => {

@@ -2,24 +2,7 @@ import { clipboard, nativeImage, NativeImage } from "electron"
 import * as path from 'path'
 import { CommonListItem, PublicPlugin } from "shared/types/plugin";
 
-declare var ZXing: any;
-let zxing: any;
-
-const detectWithZXingWasm = (image: NativeImage) => {
-  const png = image.toPNG()
-  const buffer = zxing._malloc(png.length)
-  zxing.HEAPU8.set(png, buffer);
-  const result = zxing.readBarcodeFromPng(buffer, png.length, true, 'QR_CODE');
-  zxing._free(buffer.byteOffset);
-
-  if (!result || result.error) {
-    throw new Error(result && result.error || '二维码检测出错')
-  }
-  if (!result.text) {
-    throw console.warn('未识别到二维码内容')
-  }
-  return [result.text]
-}
+let opencv: any;
 
 const detectWithOpencv = (() => {
   let wr = null
@@ -33,10 +16,10 @@ const detectWithOpencv = (() => {
     }
 
     if (!wr) {
-      wr = new cv.wechat_qrcode_WeChatQRCode("wechat_qrcode/detect.prototxt", "wechat_qrcode/detect.caffemodel", "wechat_qrcode/sr.prototxt", "wechat_qrcode/sr.caffemodel")
+      wr = new opencv.wechat_qrcode_WeChatQRCode("wechat_qrcode/detect.prototxt", "wechat_qrcode/detect.caffemodel", "wechat_qrcode/sr.prototxt", "wechat_qrcode/sr.caffemodel")
     }
 
-    const results = wr.detectAndDecode(cv.matFromImageData(imgdata))
+    const results = wr.detectAndDecode(opencv.matFromImageData(imgdata))
     if (results.size() < 1) {
       throw new Error('未识别到二维码')
     }
@@ -46,7 +29,6 @@ const detectWithOpencv = (() => {
       arr.push(results.get(i++))
     }
     results.delete()
-    // @ts-ignore
     console.log(arr)
     return arr
   }
@@ -54,23 +36,6 @@ const detectWithOpencv = (() => {
 
 // @ts-ignore
 window.filePath = path.resolve(__dirname, 'lib/wechat_qrcode_files.data')
-
-declare global {
-  var cv: any;
-}
-
-const read = () => {
-}
-
-const loadZXing = () => {
-  const script = document.createElement('script')
-  script.src = 'localfile://' + path.resolve(__dirname, 'zxing_reader.js')
-  script.onload = () => {
-    // @ts-ignore
-    zxing = window.ZXing()
-  }
-  document.body.append(script)
-}
 
 const createClipboardItem = (text: string) => {
   const item: CommonListItem = {
@@ -88,9 +53,8 @@ const createClipboardItem = (text: string) => {
 
 export default (app: any): PublicPlugin => {
   // @ts-ignore
-  window.requestIdleCallback(() => {
-    // loadZXing()
-    require('./lib/ready_opencv.js')
+  window.requestIdleCallback(async () => {
+    opencv = await require('../../../plugins/qrcode/lib/ready_opencv.js')
   })
 
   window.addEventListener('publicApp.mainWindow.show', () => {

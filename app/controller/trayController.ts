@@ -1,19 +1,11 @@
-import {
-  app,
-  Tray as ElectronTray,
-} from 'electron'
+import { app, Tray, nativeImage, Menu } from 'electron'
 import { CoreApp } from '../index'
 
-let publicTray: ElectronTray | undefined
-
-
 const createTray = (coreApp: CoreApp) => {
-  if (publicTray) return publicTray
   const path = require('path')
-  const { nativeImage, Menu , Tray } = require('electron')
   console.log(path.join(__dirname, '../../assets/status/status.png'))
-  const image = nativeImage.createFromPath(path.join(__dirname, '../../assets/status/statusTemplate.png'))
-  publicTray = new Tray(image)
+  const image = nativeImage.createFromPath(path.join(__dirname, '../../../assets/status/statusTemplate.png'))
+  const publicTray = new Tray(image)
   const contextMenu = Menu.buildFromTemplate([
     {
       label: '显示',
@@ -52,13 +44,9 @@ const createTray = (coreApp: CoreApp) => {
   ])
   publicTray?.setToolTip('Public')
   publicTray?.setContextMenu(contextMenu)
+  return publicTray
 }
 
 export default (coreApp: CoreApp) => {
-  createTray(coreApp);
-  return {
-    getTray() {
-      return publicTray;
-    },
-  }
+  return createTray(coreApp);
 }

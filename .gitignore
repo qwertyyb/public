@@ -5,3 +5,4 @@ out/
 *.map
 !*.config.js
 !scripts/notarize.js
+.DS_Store
