@@ -79,9 +79,6 @@ const createOrUpdateRecord = async ({ remark, text }: { remark: string, text: st
 export default (app: PublicApp): PublicPlugin => {
   createDatabase()
   return {
-    title: '收藏',
-    subtitle: '收藏常用的内容',
-    icon: 'https://img.icons8.com/cute-clipart/64/000000/likes-folder.png',
     onInput: async (query: string) => {
       const [command, remark = '', ...textArr] = query.split(' ')
       if ((['收藏', 'favorite', 'fa', 'faa', 'fas'].includes(command))) {

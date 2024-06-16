@@ -54,7 +54,7 @@ const createClipboardItem = (text: string) => {
 export default (app: any): PublicPlugin => {
   // @ts-ignore
   window.requestIdleCallback(async () => {
-    opencv = await require('../../../plugins/qrcode/lib/ready_opencv.js')
+    opencv = await require('./lib/ready_opencv.js')
   })
 
   window.addEventListener('publicApp.mainWindow.show', () => {
@@ -66,9 +66,6 @@ export default (app: any): PublicPlugin => {
     app.setList(list)
   })
   return {
-    title: '二维码',
-    subtitle: '解析生成二维码',
-    icon: 'https://img.icons8.com/pastel-glyph/64/4a90e2/qr-code--v1.png',
     async onInput (keyword: string) {
 
       const [first, ...rest] = keyword.split(' ')

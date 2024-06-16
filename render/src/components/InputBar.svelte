@@ -1,6 +1,5 @@
 <script lang="ts">
   const focusInput = () => {
-    console.log('mousedown', document.querySelector<HTMLInputElement>('.input-bar input'))
     document.querySelector<HTMLInputElement>('.input-bar input')?.focus()
   }
 </script>

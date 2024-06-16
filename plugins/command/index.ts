@@ -3,9 +3,6 @@ import { PublicApp, PublicPlugin } from "shared/types/plugin";
 export default (app: PublicApp): PublicPlugin => {
   const { match } = app.getUtils()
   return {
-    title: '系统命令',
-    subtitle: '执行锁屏、休眠、关机、重启等系统命令',
-    icon: 'https://img.icons8.com/ios-filled/50/000000/command.png',
     onInput: (keyword) => {
       const list = []
       if (match(['锁屏', 'lock'], keyword)) {

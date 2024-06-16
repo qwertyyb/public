@@ -1,0 +1,17 @@
+{
+  "name": "settings",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "publicPlugin": {
+    "title": "Public设置",
+    "subtitle": "Public应用设置",
+    "icon": "https://img.icons8.com/nolan/64/settings--v1.png"
+  }
+}

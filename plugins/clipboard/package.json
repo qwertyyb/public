@@ -1,0 +1,17 @@
+{
+  "name": "clipboard",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "publicPlugin": {
+    "title": "剪切板",
+    "subtitle": "增强剪切板",
+    "icon": "https://img.icons8.com/cute-clipart/64/000000/clipboard.png"
+  }
+}

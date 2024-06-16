@@ -95,9 +95,6 @@ export default (app: PublicApp): PublicPlugin => {
   })
 
   return {
-    title: '剪切板',
-    subtitle: '增强剪切板',
-    icon: 'https://img.icons8.com/cute-clipart/64/000000/clipboard.png',
     onInput: async (query: string) => {
       const [trigger, ...rest] = query.split(' ')
       if (!['剪切板', 'clipboard', 'cp'].includes(trigger)) return app.setList([]);

@@ -1,0 +1,17 @@
+{
+  "name": "calculator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "publicPlugin": {
+    "title": "计算器",
+    "subtitle": "快捷计算表达式",
+    "icon": "https://img.icons8.com/plasticine/100/000000/apple-calculator.png"
+  }
+}

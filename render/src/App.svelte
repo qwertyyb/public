@@ -2,12 +2,16 @@
 	import MainView from './components/MainView.svelte'
 </script>
 
-
-<MainView />
+<div id="app">
+  <MainView />
+</div>
 
 <style>
   :global(body) {
-    background: #fff;
+    background: #ddd;
+  }
+  #app {
+    backdrop-filter: blur(6px);
   }
 	@media (prefers-color-scheme: dark) {
     :global(html) {

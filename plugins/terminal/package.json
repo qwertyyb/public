@@ -1,0 +1,17 @@
+{
+  "name": "terminal",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "publicPlugin": {
+    "title": "执行终端命令",
+    "subtitle": "在终端中执行输入的命令",
+    "icon": "https://img.icons8.com/officel/80/000000/console.png"
+  }
+}

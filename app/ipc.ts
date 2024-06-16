@@ -1,10 +1,9 @@
 import { MouseClass, straightTo } from '@nut-tree-fork/nut-js';
-import electron = require('electron');
 import { CoreApp } from './index';
-const { ipcMain } = electron
+import { BrowserWindow, Menu, ipcMain, net } from 'electron';
 
 export default (coreApp: CoreApp) => {
-  ipcMain.handle('db.run', (event: electron.IpcMainInvokeEvent, sql: string, params: Object) => {
+  ipcMain.handle('db.run', (event, sql: string, params: Object) => {
     console.log('run', sql, params)
     return new Promise((resolve, reject) => coreApp.db.run(sql, params, (err: any, res: any, ...args: any[]) => {
       console.log('run end', err, res, ...args)
@@ -12,13 +11,13 @@ export default (coreApp: CoreApp) => {
       resolve(res)
     }))
   })
-  ipcMain.handle('db.all', (event: electron.IpcMainInvokeEvent, sql: string, params: Object) => {
+  ipcMain.handle('db.all', (event, sql: string, params: Object) => {
     return new Promise((resolve, reject) => coreApp.db.all(sql, params, (err, rows) => {
       if (err) return reject(err);
       resolve(rows)
     }))
   })
-  ipcMain.handle('db.get', (event: electron.IpcMainInvokeEvent, sql: string, params: Object) => {
+  ipcMain.handle('db.get', (event, sql: string, params: Object) => {
     return new Promise((resolve, reject) => coreApp.db.get(sql, params, (err, row) => {
       if (err) return reject(err);
       resolve(row)
@@ -58,5 +57,25 @@ export default (coreApp: CoreApp) => {
       ps.push(coreApp.robot.mouse.scrollUp(-y))
     }
     await Promise.all(ps)
+  })
+
+  ipcMain.handle('fetch', async (event, url: string, init: RequestInit) => {
+    const response = await net.fetch(url, init)
+    const result = {
+      status: response.status,
+      ok: response.ok,
+      statusText: response.statusText,
+      text: await response.text()
+    }
+    return result
+  })
+
+  ipcMain.handle('contextmenu', event => {
+    const menu = Menu.buildFromTemplate([
+      { label: '打开开发者工具', role: 'toggleDevTools' }
+    ])
+    menu.popup({
+      window: BrowserWindow.getFocusedWindow()
+    })
   })
 }

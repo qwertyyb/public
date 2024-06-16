@@ -9,8 +9,8 @@
   "scripts": {
     "lint": "eslint -c .eslintrc --ext .ts ./src",
     "tsc": "tsc",
-    "electron": "cross-env NODE_ENV=development electron dist/app/index.js",
-    "watch:assets": "gulp watchAssets",
+    "electron": "cross-env NODE_ENV=development electron dist/app/index.js --remote-debugging-port=8222",
+    "watch:assets": "cpx \"plugins/**/*.{js,css,html,ttf,woff,data,json}\" dist/plugins/ -w -v",
     "watch:electron": "nodemon --exec 'npm run tsc && npm run electron || exit 1'",
     "start:render": "cd ./render && npm run dev",
     "start:main": "concurrently --names \"assets,typescript\" -c \"bgBlue.bold,bgRed.bold,bgMagenta.bold\" \"npm run watch:assets\" \"npm run watch:electron\"",
@@ -71,18 +71,17 @@
     }
   },
   "devDependencies": {
-    "@types/gulp": "^4.0.17",
     "@types/mathjs": "^6.0.11",
     "@types/node": "^12.20.4",
     "@types/sqlite3": "^3.1.7",
     "concurrently": "^6.0.0",
+    "cpx2": "^7.0.1",
     "cross-env": "^7.0.3",
     "electron": "^31.0.0",
     "electron-builder": "^22.13.1",
     "electron-devtools-installer": "^3.1.1",
     "electron-notarize": "^1.0.0",
     "electron-rebuild": "^3.2.9",
-    "gulp": "^5.0.0",
     "nodemon": "^2.0.7",
     "typescript": "^4.2.2",
     "wait-on": "^7.2.0"

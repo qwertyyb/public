@@ -135,9 +135,6 @@ const getResultList = async (keyword: string): Promise<CommonListItem[]> => {
 
 export default (app: PublicApp): PublicPlugin => {
   return {
-    title: '搜索',
-    subtitle: '快捷搜索',
-    icon: 'https://img.icons8.com/nolan/128/search.png',
     onInput: async (keyword) => {
       const resultList = await getResultList(keyword)
       app.setList(resultList)

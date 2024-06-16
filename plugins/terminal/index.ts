@@ -4,9 +4,6 @@ const KEYWORD = '>'
 
 export default (app: PublicApp): PublicPlugin => {
   return {
-    title: '执行终端命令',
-    subtitle: '在终端中执行输入的命令',
-    icon: 'https://img.icons8.com/officel/80/000000/console.png',
     onInput (query: string) {
       const [first, ...rest] = query.split(' ')
       const param = rest.join(' ')

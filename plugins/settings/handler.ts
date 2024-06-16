@@ -1,18 +1,18 @@
 import { queryRecord, updateRecord, insertRecord, createDatabase } from './storage'
-import { ipcRenderer } from 'electron'
 import * as path from 'path'
 
 const getDefaultSettings = () => {
   const getDefaultPluginPaths = () => {
     const paths = [
-      path.resolve(__dirname, '../launcher/index.js'),
-      path.resolve(__dirname, '../command/index'),
+      path.resolve(__dirname, '../launcher'),
+      path.resolve(__dirname, '../command'),
       path.resolve(__dirname, '../calculator'),
       path.resolve(__dirname, '../qrcode'),
-      path.resolve(__dirname, '../search/index'),
-      path.resolve(__dirname, '../translate/index'),
-      path.resolve(__dirname, '../clipboard/index'),
-      path.resolve(__dirname, '../terminal/index')
+      path.resolve(__dirname, '../search'),
+      path.resolve(__dirname, '../translate'),
+      path.resolve(__dirname, '../clipboard'),
+      path.resolve(__dirname, '../terminal'),
+      path.resolve(__dirname, '../favorite')
     ].map(pathstr => ({ path: require.resolve(pathstr) }))
 
     return paths
@@ -56,7 +56,7 @@ const getSettings = async () => {
   let value = await createDatabase().then(() => queryRecord({ key: 'config' })).then(res => res?.value)
   if (!value) {
     const value = getDefaultSettings()
-    insertRecord({ key: 'config', value })
+    updateRecord({ key: 'config', value })
   }
   return value
 }
@@ -67,9 +67,10 @@ const updateSettings = async (settings: any) => {
 
 const initPlugins = async (settings: any) => {
   const plugins = settings.plugins || []
+  console.log(settings)
   return plugins.map((p: any) => {
     try {
-      window.PluginManager.registerPlugin(p)
+      window.PluginManager.addPlugin(p.path)
     } catch(err) {
       console.warn(err);
     }
@@ -94,39 +95,61 @@ const updatePluginsSettings = async () => {
   return updateSettings(settings)
 }
 
-const initHandler = () => {
-  ipcRenderer.on('registerShortcuts', async (e, args) => {
+const handlers = {
+  async registerShortcuts(args) {
     await updateSettings(args.settings)
-    registerShortcuts(args.settings)
-  })
-
-  ipcRenderer.on('registerLaunchAtLogin', async (e, args) => {
+    registerShortcuts(args.shortcuts)
+  },
+  async registerLaunchAtLogin(args) {
     await updateSettings(args.settings)
     registerLaunchAtLogin(args.settings)
-  })
-
-  ipcRenderer.on('getSettings', async() => {
-    return getSettings();
-  })
-
-  ipcRenderer.on('getPlugins', () => {
-    return JSON.parse(JSON.stringify(window.PluginManager.getPlugins()))
-  })
-
-  ipcRenderer.on('removePlugin', async (e, { index }) => {
-    window.PluginManager.removePlugin(index);
+  },
+  async removePlugin(args) {
+    window.PluginManager.removePlugin(args.name);
     await updatePluginsSettings()
-  })
-  
-  ipcRenderer.on('registerPlugin', async (e, { path }) => {
+  },
+  async registerPlugin(args) {
+    window.PluginManager.addPlugin(args.path)
+    await updatePluginsSettings()
+  },
+  getPlugins() {
+    return JSON.parse(JSON.stringify(window.PluginManager.getPlugins()))
+  },
+  getSettings() {
+    return getSettings()
+  },
+}
+
+let targetWin: Window | null = null
+
+const initHandler = () => {
+  window.addEventListener('message', async (event: MessageEvent<{
+    type: string,
+    methodName: string,
+    args: any,
+    callbackName: string
+  }>) => {
+    const { type, methodName, args, callbackName } = event.data
+    if (type !== 'method') return
     try {
-      window.PluginManager.registerPlugin({ path })
-      await updatePluginsSettings()
+      const returnValue = await handlers[methodName]?.(args)
+      targetWin?.postMessage({
+        type: 'callback',
+        callbackName,
+        returnValue,
+        error: null,
+      }, '*')
     } catch (err) {
-      console.warn(err)
-      return { error: err.message}
+      targetWin?.postMessage({
+        type: 'callback',
+        callbackName,
+        err,
+      }, '*')
+      throw err;
     }
   })
 }
 
-export { initHandler, initSettings }
+const setTargetWin = (win: Window) => targetWin = win
+
+export { initHandler, initSettings, setTargetWin }

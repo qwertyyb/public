@@ -1,0 +1,17 @@
+{
+  "name": "launcher",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "publicPlugin": {
+    "title": "应用启动器",
+    "subtitle": "快速启动应用",
+    "icon": "https://img.icons8.com/fluent/48/000000/apps-tab.png"
+  }
+}

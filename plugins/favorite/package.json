@@ -1,0 +1,17 @@
+{
+  "name": "favorite",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "publicPlugin": {
+    "title": "收藏",
+    "subtitle": "收藏常用的内容",
+    "icon": "https://img.icons8.com/cute-clipart/64/000000/likes-folder.png"
+  }
+}

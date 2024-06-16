@@ -7,7 +7,10 @@
   </div>
   <div class="item-info flex-1 flex-col-center">
     <h3 class="item-title text-single-line">{title}</h3>
+
+    {#if subtitle}
     <h5 class="item-subtitle color-666 text-sm text-single-line">{subtitle}</h5>
+    {/if}
   </div>
 </div>
 

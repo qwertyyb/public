@@ -11,7 +11,7 @@
 
   let selectedIndex = 0;
   let list = []
-  let preview = ''
+  let preview: string | void = ''
 
   $: if (results) {
     // list变化时，selectedIndex归0
@@ -48,7 +48,6 @@
         targetIndex,
         results.get(targetPlugin)
       )).then(res => {
-        console.log(res)
         preview = res
       })
     }
@@ -65,8 +64,7 @@
       e.stopPropagation()
       e.preventDefault()
     } else if(e.key === 'Enter') {
-      // @ts-ignore
-      document.querySelector('.result-item.selected')?.click?.();
+      document.querySelector<HTMLElement>('.result-item.selected')?.click?.();
       e.stopPropagation()
     }
   }

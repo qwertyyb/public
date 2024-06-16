@@ -22,7 +22,6 @@
 
   const onInputChange = (value: string | Event) => {
     const str = typeof value === 'string' ? value : (value.target as HTMLInputElement).value
-    // @ts-ignore
     window.PluginManager.handleQuery(str)
   }
 

@@ -4,13 +4,13 @@ import { PublicPlugin } from './plugin'
 declare global {
   var ResizeObserver: any
   var PluginManager: {
-    getPlugins: () => PublicPlugin[],
-    removePlugin: (index: number) => void,
-    registerPlugin: ({ path }: { path: string }) => void,
+    getPlugins: () => RunningPublicPlugin[],
+    removePlugin: (name: string) => void,
+    addPlugin: (path: string) => void,
 
     handleQuery: (keyword: string) => void,
     handleEnter: (
-      plugin: PublicPlugin,
+      plugin: RunningPublicPlugin,
       args: {
         item: CommonListItem,
         index: number,
@@ -48,6 +48,7 @@ declare global {
       release: (button: 'LEFT' | 'MIDDLE' | 'RIGHT') => Promise<void>,
       drag: (point: {x: number, y: number}) => Promise<void>,
       scroll: (point: {x?: number, y?: number}) => Promise<void>
-    }
+    },
+    fetch: typeof fetch
   }
 }

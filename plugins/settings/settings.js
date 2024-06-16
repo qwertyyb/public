@@ -1,4 +1,36 @@
-const { ipcRenderer } = require('electron')
+
+const createRpc = () => {
+  const callbackMap = new Map()
+  window.addEventListener('message', (event) => {
+    const { type, callbackName, returnValue, error } = event.data
+    if (type !== 'callback') return;
+    const { resolve, reject } = callbackMap.get(callbackName)
+    if (error) {
+      reject?.(new Error(error))
+    } else {
+      resolve?.(returnValue)
+    }
+    callbackMap.delete(callbackName)
+  })
+  return {
+    invoke(methodName, args) {
+      return new Promise((resolve, reject) => {
+        const callbackName = `${methodName}_${Math.random()}`
+        callbackMap.set(callbackName, { resolve, reject })
+        window.opener?.postMessage({
+          type: 'method',
+          methodName,
+          args,
+          callbackName
+        }, '*')
+      })
+    }
+  }
+}
+
+const rpc = createRpc()
+
+window.rpc = rpc
 
 const createKeyEventHandler = (onChange, done) => {
   const key = {
@@ -55,10 +87,10 @@ var app = new Vue({
   },
   methods: {
     async refreshSettings() {
-      ipcRenderer.invoke('getSettings').then(settings => {
+      rpc.invoke('getSettings').then(settings => {
         this.settings = settings
       })
-      ipcRenderer.invoke('getPlugins').then(plugins => {
+      rpc.invoke('getPlugins').then(plugins => {
         this.plugins = plugins
         console.log(plugins)
       })
@@ -87,7 +119,7 @@ var app = new Vue({
     },
     async onLaunchAtLoginChange (launchAtLogin) {
       this.settings.launchAtLogin = launchAtLogin
-      await ipcRenderer.invoke('registerLaunchAtLogin', {
+      await rpc.invoke('registerLaunchAtLogin', {
         settings: this.settings
       })
       this.refreshSettings()
@@ -119,13 +151,13 @@ var app = new Vue({
       
       validateFile(file)
 
-      await ipcRenderer.invoke('registerPlugin', { path: file.path })
+      await rpc.invoke('registerPlugin', { path: file.path })
       this.$message.success('插件添加成功')
       this.refreshSettings()
     },
 
     async onRemovePluginClick(index, plugin) {
-      await ipcRenderer.invoke('removePlugin', { index, plugin })
+      await rpc.invoke('removePlugin', { index, plugin })
       this.$message.success('插件移除成功')
       this.refreshSettings()
     },
@@ -142,7 +174,7 @@ var app = new Vue({
       this.updateShortcut()
     },
     async updateShortcut() {
-      await ipcRenderer.invoke('registerShortcuts', {
+      await rpc.invoke('registerShortcuts', {
         settings: this.settings
       })
       this.refreshSettings()

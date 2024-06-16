@@ -1,0 +1,17 @@
+{
+  "name": "translate",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "publicPlugin": {
+    "title": "翻译",
+    "subtitle": "翻译输入内容",
+    "icon": "https://img.icons8.com/color/144/000000/google-translate.png"
+  }
+}

@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { app, BrowserWindow, protocol, type Tray } from "electron";
+import { app, BrowserWindow, Menu, protocol, type Tray } from "electron";
 import { autoUpdater } from "electron-updater"
 import * as robotjs from '@nut-tree-fork/nut-js'
 import initIpc from './ipc'
@@ -50,7 +50,6 @@ export class CoreApp {
       this.tray = initTray(this)
 
       initIpc(this)
-      console.log(this.tray)
     })
     
     this.electronApp.on('window-all-closed', () => {
@@ -70,10 +69,9 @@ export class CoreApp {
       resizable: false,
       minimizable: false, 
       maximizable: false,
-      transparent: false,
+      transparent: true,
       frame: false,
       roundedCorners: false,
-      visualEffectState: 'active',
       vibrancy: 'under-window',
       webPreferences: {
         webSecurity: false,
@@ -88,7 +86,7 @@ export class CoreApp {
       }
     })
     if (process.env.NODE_ENV === 'development') {
-      win.webContents.openDevTools()
+      // win.webContents.openDevTools()
     }
     win.on('ready-to-show', () => {
       win.show()
@@ -103,6 +101,16 @@ export class CoreApp {
         }, 10)
       }
     })())
+    win.webContents.setWindowOpenHandler((detail) => {
+      return {
+        action: 'allow',
+        overrideBrowserWindowOptions: {
+          webPreferences: {
+            nodeIntegration: true
+          }
+        }
+      }
+    })
     win.on('hide', () => {
       win.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.hide'))`)
     })
