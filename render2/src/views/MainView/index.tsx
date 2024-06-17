@@ -4,7 +4,9 @@ import ResultView from "../../components/ResultView";
 import { CommonListItem, PublicPlugin } from "../../../../shared/types/plugin";
 
 const MainView: Component = () => {
-  const [pluginResultMap, setPluginResultMap] = createSignal(new Map<PublicPlugin, CommonListItem[]>())
+  const [pluginResultMap, setPluginResultMap] = createSignal(new Map<PublicPlugin, CommonListItem[]>(), {
+    equals: false
+  })
 
   const onInputChange = (value: string | Event) => {
     const str = typeof value === 'string' ? value : (value.target as HTMLInputElement).value
@@ -58,7 +60,6 @@ const MainView: Component = () => {
 
   const setPluginResults = (e: CustomEvent) => {
     const { plugin, list } = e.detail || {}
-    console.log(e)
     setPluginResultMap(pluginResultMap().set(plugin, list))
   }
 

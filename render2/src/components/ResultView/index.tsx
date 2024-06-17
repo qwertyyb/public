@@ -11,7 +11,7 @@ interface Props {
 
 const ResultView: Component<Props> = (props) => {
   const [selectedIndex, setSelectedIndex] = createSignal(0);
-  const list = () => Object.values(props.result).flat()
+  const list = () => Array.from(props.result.values()).flat()
   const [preview, setPreview] = createSignal('');
 
   createEffect(() => {
