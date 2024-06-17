@@ -29,7 +29,7 @@ let opencvModule = {
 opencvModule.setStatus('Downloading...');
 
 // 加载模型文件
-opencvModule = require('./wechat_qrcode_files')(opencvModule, 'localfile://' + path.resolve(__dirname, './wechat_qrcode_files.data'))
+opencvModule = require('./wechat_qrcode_files')(opencvModule, 'file://' + path.resolve(__dirname, './wechat_qrcode_files.data'))
 
 // 加载opencv wasm
 const opencv = require('./opencv')(opencvModule)

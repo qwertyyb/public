@@ -64,7 +64,7 @@ const getAppList = async ({ onlyNewAppCreateIcon = false } = {}) => {
     }
     return {
       ...app,
-      icon: 'localfile://' + iconPath,
+      icon: 'file://' + iconPath,
     }
   })
   return list.map((app: App) => {

@@ -39,7 +39,7 @@ const addPlugin = (pluginPath: string): RunningPublicPlugin | undefined => {
       setList: (list: CommonListItem[]) => {
         const event = new CustomEvent('plugin:setList', {
           detail: {
-            plugin,
+            plugin: pluginInstance,
             list,
           }
         })

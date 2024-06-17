@@ -58,7 +58,6 @@
 .item-title {
   font-size: 14px;
   font-weight: bold;
-  height: 18px;
   margin-bottom: 4px;
 }
 .item-subtitle {

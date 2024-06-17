@@ -7,30 +7,6 @@ import initTray from './controller/trayController'
 import db from './controller/storageController'
 require('@electron/remote/main').initialize()
 
-const installExtensions = async () => {
-  const installer = require('electron-devtools-installer');
-  const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-  const extensions = ['REACT_DEVELOPER_TOOLS'];
-
-  return installer
-    .default(
-      extensions.map((name) => installer[name]),
-      forceDownload
-    )
-    .catch(console.log);
-};
-
-protocol.registerSchemesAsPrivileged([
-  {
-    scheme: 'localfile',
-    privileges: {
-      standard: true,
-      supportFetchAPI: true,
-      secure: true
-    }
-  }
-])
-
 export class CoreApp {
   readonly electronApp = app;
   readonly db = db;
@@ -117,15 +93,6 @@ export class CoreApp {
     win.on('show', () => {
       win.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.show'))`)
     })
-    protocol.registerFileProtocol('localfile', (request, callback) => {
-      const pathname = decodeURIComponent(request.url.replace('localfile://', ''));
-      callback({
-        path: pathname,
-        headers: {
-          'Cache-Control': 'max-age=31536000'
-        }
-      });
-    });
     if (process.env.NODE_ENV === 'development') {
       // await installExtensions()
       win.loadURL('http://localhost:5000')
