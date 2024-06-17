@@ -29,5 +29,9 @@ export default () => ({
     drag: (point: {x: number, y: number}) => ipcRenderer.invoke('mouse.drag', point),
     scroll: (point: {x?: number, y?: number}) => ipcRenderer.invoke('mouse.scroll', point),
   },
-  fetch: (...args: Parameters<typeof fetch>) => ipcRenderer.invoke('fetch', ...args)
+  fetch: (...args: Parameters<typeof fetch>) => ipcRenderer.invoke('fetch', ...args),
+  enter: (item: { icon: string, title: string }, args: any) => {
+    window.dispatchEvent(new CustomEvent('inputBar.enter', { detail: { item } }))
+    return ipcRenderer.invoke('enter', item, args)
+  }
 })

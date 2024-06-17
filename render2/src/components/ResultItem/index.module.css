@@ -1,0 +1,44 @@
+.resultItem {
+  scroll-snap-align: start;
+  display: flex;
+  align-items: center;
+  height: 54px;
+  max-width: 100%;
+  content-visibility: auto;
+  contains-intrinsic-size: 60px;
+}
+.resultItem.selected {
+  background: rgb(64, 102, 226);
+}
+.resultItem.selected .item-title,
+.resultItem.selected .item-subtitle {
+  color: #fff;
+}
+.itemImageWrapper {
+  width: 48px;
+  height: 48px;
+  margin-right: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+}
+.itemImageWrapper img {
+  width: 42px;
+  height: 42px;
+}
+.itemInfo {
+  max-width: calc(100% - 80px);
+}
+.itemTitle {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+.itemSubtitle {
+  font-size: 12px;
+  font-weight: normal;
+  opacity: 0.6;
+  height: 16px;
+  white-space: pre;
+}

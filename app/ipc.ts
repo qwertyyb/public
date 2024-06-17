@@ -1,6 +1,6 @@
 import { MouseClass, straightTo } from '@nut-tree-fork/nut-js';
 import { CoreApp } from './index';
-import { BrowserWindow, Menu, ipcMain, net } from 'electron';
+import { BrowserWindow, Menu, WebContentsView, ipcMain, net } from 'electron';
 
 export default (coreApp: CoreApp) => {
   ipcMain.handle('db.run', (event, sql: string, params: Object) => {
@@ -68,6 +68,13 @@ export default (coreApp: CoreApp) => {
       text: await response.text()
     }
     return result
+  })
+
+  ipcMain.handle('enter', async (event, item: { icon: string, title: string }, args: any) => {
+    const view = new WebContentsView(args)
+    coreApp.mainWindow.contentView.addChildView(view)
+    view.setBounds({ x: 0, y: 48, width: 540, height: 480 })
+    view.webContents.loadURL(args.url)
   })
 
   ipcMain.handle('contextmenu', event => {
