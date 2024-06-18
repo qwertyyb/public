@@ -1,87 +1,94 @@
-import { Component, createSignal, onCleanup, onMount } from "solid-js";
+import { Component, createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
 import InputBar from "../../components/InputBar";
 import ResultView from "../../components/ResultView";
-import { CommonListItem, PublicPlugin } from "../../../../shared/types/plugin";
+import { CommonListItem } from "../../../../shared/types/plugin";
+
+declare global {
+  interface WindowEventMap {
+    'publicApp.mainWindow.hide': CustomEvent<{}>;
+    'publicApp.mainWindow.show': CustomEvent<{}>;
+    'plugin:setList': CustomEvent<{ name: string, list: CommonListItem[] }>;
+    'inputBar.setValue': CustomEvent<{ value: string }>;
+    'inputBar.enter': CustomEvent<{ name: string, item: CommonListItem }>
+  }
+}
 
 const MainView: Component = () => {
-  const [pluginResultMap, setPluginResultMap] = createSignal(new Map<PublicPlugin, CommonListItem[]>(), {
-    equals: false
-  })
+  const [pluginResultMap, setPluginResultMap] = createSignal<Record<string, CommonListItem[]>>({})
+  const [keyword, setKeyword] = createSignal('')
+  const [command, setCommand] = createSignal<CommonListItem | null>(null)
 
-  const onInputChange = (value: string | Event) => {
-    const str = typeof value === 'string' ? value : (value.target as HTMLInputElement).value
-    window.PluginManager.handleQuery(str)
-  }
-
-  const clearAndFocusInput = () => {
-    const el = document.querySelector('input')
-    // @ts-ignore
-    el && (el.value = '')
-    // @ts-ignore
-    el && el.focus()
-    onInputChange('');
-    setTimeout(() => {
-      // @ts-ignore
-      console.log('focus', el.focus())
-    }, 200)
-  }
-
-  const onResultEnter = (item: CommonListItem) => {
-    if (!item) return;
-
-    let targetPlugin: PublicPlugin | null = null
-    let targetIndex: number = 0
-    for (const [plugin, list] of pluginResultMap()) {
-      const index = list.indexOf(item)
-      if (index !== -1) {
-        // 找到了
-        targetIndex = index
-        targetPlugin = plugin
-        break;
-      }
+  createEffect(on(keyword, (value) => {
+    console.log(value)
+    if (value) {
+      window.PluginManager?.handleQuery(value)
+    } else {
+      setPluginResultMap({})
     }
+  }))
 
-    clearAndFocusInput()
+  const focusInput = () => {
+    const el = document.querySelector<HTMLInputElement>('#main-input')
+    el?.focus()
+  }
 
-    window.PluginManager.handleEnter(targetPlugin, {
+  const onResultEnter = (name: string, item: CommonListItem, itemIndex: number) => {
+    const targetPlugin = window.PluginManager?.getPlugins()?.get(name)
+    if (!targetPlugin) return;
+
+    window.PluginManager?.handleEnter(targetPlugin, {
       item,
-      index: targetIndex,
-      list: pluginResultMap().get(targetPlugin!)!
+      index: itemIndex,
+      list: pluginResultMap()[name]
     })
   }
 
-  const setKeyword = (event: CustomEvent<{ value: string }>) => {
+  const setInputBarValue = (event: CustomEvent<{ value: string }>) => {
     const { value } = event.detail;
-    const el = document.querySelector<HTMLInputElement>('input')
-    el && (el.value = value)
-    el && (el.focus())
-    onInputChange(value)
+    setKeyword(value)
   }
 
-  const setPluginResults = (e: CustomEvent) => {
-    const { plugin, list } = e.detail || {}
-    setPluginResultMap(pluginResultMap().set(plugin, list))
+  const setPluginResults = (e: CustomEvent<{ name: string, list: CommonListItem[] }>) => {
+    const { name, list } = e.detail || {}
+    console.log(name, list)
+    setPluginResultMap({
+      ...pluginResultMap(),
+      [name]: list
+    })
+  }
+
+  const enterSubInput = (e: CustomEvent<{ name: string, item: CommonListItem }>) => {
+    const { item } = e.detail || {}
+    setCommand(item)
+  }
+
+  const exitCommand = () => {
+    setCommand(null)
+    window.PluginManager?.exitPlugin('xxx')
   }
 
   onMount(() => {
-    // @ts-ignore
-    document.addEventListener('plugin:setList', setPluginResults)
-    window.addEventListener('publicApp.mainWindow.hide', clearAndFocusInput)
-    // @ts-ignore
-    window.addEventListener('inputBar.setValue', setKeyword)
+    window.addEventListener('plugin:setList', setPluginResults)
+    window.addEventListener('publicApp.mainWindow.show', focusInput)
+    window.addEventListener('inputBar.setValue', setInputBarValue)
+    window.addEventListener('inputBar.enter', enterSubInput)
   })
 
   onCleanup(() => {
-    // @ts-ignore
-    document.removeEventListener('plugin:setList', setPluginResults)
-    window.removeEventListener('publicApp.mainWindow.hide', clearAndFocusInput)
-    // @ts-ignore
-    window.removeEventListener('inputBar.setValue', setKeyword)
+    window.removeEventListener('plugin:setList', setPluginResults)
+    window.removeEventListener('publicApp.mainWindow.show', focusInput)
+    window.removeEventListener('inputBar.setValue', setInputBarValue)
+    window.removeEventListener('inputBar.enter', enterSubInput)
+
   })
 
   return (
     <>
-      <InputBar onInput={onInputChange}/>
+      <InputBar value={keyword()}
+        command={command()}
+        setValue={setKeyword}
+        exit={exitCommand}
+      />
       <ResultView result={pluginResultMap()}
         onResultEnter={onResultEnter}></ResultView>
     </>

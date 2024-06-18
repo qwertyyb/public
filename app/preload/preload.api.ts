@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron'
+import { CommonListItem } from 'shared/types/plugin'
 
 export default () => ({
   db: {
@@ -30,8 +31,7 @@ export default () => ({
     scroll: (point: {x?: number, y?: number}) => ipcRenderer.invoke('mouse.scroll', point),
   },
   fetch: (...args: Parameters<typeof fetch>) => ipcRenderer.invoke('fetch', ...args),
-  enter: (item: { icon: string, title: string }, args: any) => {
-    window.dispatchEvent(new CustomEvent('inputBar.enter', { detail: { item } }))
-    return ipcRenderer.invoke('enter', item, args)
-  }
+
+  enter: (name: string, item: CommonListItem, args: any) => window.PluginManager.enterPlugin(name, item, args),
+  exit: (name: string) => window.PluginManager.exitPlugin(name)
 })

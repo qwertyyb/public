@@ -1,4 +1,4 @@
-import pinyin from 'tiny-pinyin'
+import * as pinyin from 'tiny-pinyin'
 
 
 const pinyinMatch = (hanzi: string, keyword: string) => {

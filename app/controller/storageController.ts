@@ -1,6 +1,6 @@
 import { app } from 'electron'
-import sqlite3m = require('sqlite3');
-import path = require('path')
+import * as path from 'path'
+import * as sqlite3m from 'sqlite3'
 const sqlite3 = sqlite3m.verbose();
 
 const userDataPath = app.getPath('userData')

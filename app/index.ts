@@ -1,8 +1,8 @@
 import * as path from 'path';
-import { app, BrowserWindow, Menu, protocol, type Tray } from "electron";
+import { app, BaseWindow, BrowserWindow, Menu, protocol, WebContentsView, type Tray } from "electron";
 import { autoUpdater } from "electron-updater"
 import * as robotjs from '@nut-tree-fork/nut-js'
-import initIpc from './ipc'
+import initIpc from './ipc.js'
 import initTray from './controller/trayController'
 import db from './controller/storageController'
 require('@electron/remote/main').initialize()
@@ -12,7 +12,8 @@ export class CoreApp {
   readonly db = db;
   readonly robot = robotjs;
   tray: Tray;
-  mainWindow?: BrowserWindow;
+  mainWindow?: BaseWindow;
+  mainView?: WebContentsView;
   readonly updater = autoUpdater;
 
   constructor() {
@@ -34,21 +35,21 @@ export class CoreApp {
   }
 
   private createMainWindow() {
-    const win = new BrowserWindow({
-      height: 48,
+    const win = new BaseWindow({
+      height: 48 + 54 * 9,
       useContentSize: false,
       minWidth: 780,
       width: 780,
       y: 120,
       center: true,
-      show: false,
+      show: true,
       resizable: false,
       minimizable: false, 
       maximizable: false,
-      transparent: true,
       frame: false,
       roundedCorners: false,
-      vibrancy: 'under-window',
+    })
+    const mainView = new WebContentsView({
       webPreferences: {
         webSecurity: false,
         allowRunningInsecureContent: false,
@@ -61,23 +62,22 @@ export class CoreApp {
         sandbox: false,
       }
     })
-    if (process.env.NODE_ENV === 'development') {
-      // win.webContents.openDevTools()
-    }
-    win.on('ready-to-show', () => {
-      win.show()
-      require("@electron/remote/main").enable(win.webContents)
-    })
-    win.webContents.on('preferred-size-changed', (() => {
+    this.mainView = mainView
+    win.contentView.addChildView(mainView)
+    mainView.setBounds({ x: 0, y: 0, width: 780, height: 600 })
+    require("@electron/remote/main").enable(mainView.webContents)
+
+    mainView.webContents.on('preferred-size-changed', (() => {
       let timeout = null
       return (event, size) => {
         timeout && clearTimeout(timeout)
         setTimeout(() => {
-          win.setSize(size.width, size.height)
+          // mainView.setBounds({ ...mainView.getBounds(), height: size.height })
+          // win.setSize(780, size.height)
         }, 10)
       }
     })())
-    win.webContents.setWindowOpenHandler((detail) => {
+    mainView.webContents.setWindowOpenHandler((detail) => {
       return {
         action: 'allow',
         overrideBrowserWindowOptions: {
@@ -88,17 +88,18 @@ export class CoreApp {
       }
     })
     win.on('hide', () => {
-      win.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.hide'))`)
+      mainView.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.hide'))`)
     })
     win.on('show', () => {
-      win.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.show'))`)
+      mainView.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.show'))`)
     })
     if (process.env.NODE_ENV === 'development') {
       // await installExtensions()
-      win.loadURL('http://localhost:3000')
+      mainView.webContents.loadURL('http://localhost:3000')
     } else {
-      win.loadFile(path.join(__dirname, 'render/public/index.html'))
+      mainView.webContents.loadFile(path.join(__dirname, 'render/public/index.html'))
     }
+
     return win
   }
 }

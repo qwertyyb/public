@@ -147,9 +147,21 @@ importers:
 
   render2:
     dependencies:
+      '@kenh24/solid-virtual-list':
+        specifier: 0.0.1-alpha3
+        version: 0.0.1-alpha3
+      '@tanstack/solid-virtual':
+        specifier: ^3.5.1
+        version: 3.5.1(solid-js@1.8.17)
+      cui-virtual-list:
+        specifier: ^1.0.7
+        version: 1.0.7
       solid-js:
         specifier: ^1.8.11
         version: 1.8.17
+      virtua:
+        specifier: ^0.31.0
+        version: 0.31.0(solid-js@1.8.17)
     devDependencies:
       solid-devtools:
         specifier: ^0.29.2
@@ -638,6 +650,9 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
+  '@kenh24/solid-virtual-list@0.0.1-alpha3':
+    resolution: {integrity: sha512-ZOZK5JTWgGk65VEuoMbwUeupoGsKYeoOFbqFWRKKZ5wa9cPWZ2h1jf8aIELOKug3JlaTAKzH21vtgJ7i0QGogg==}
+
   '@malept/cross-spawn-promise@1.1.1':
     resolution: {integrity: sha512-RTBGWL5FWQcg9orDOCcp4LvItNzUPcyEU9bwaeJX0rJ1IQxzucC48Y0/sQLp/g6t99IQgAlGIaesJS+gTn7tVQ==}
     engines: {node: '>= 10'}
@@ -936,6 +951,14 @@ packages:
   '@szmarczak/http-timer@4.0.6':
     resolution: {integrity: sha512-4BAffykYOgO+5nzBWYwE3W90sBgLJoUPRWWcL8wlyiM8IB8ipJz3UMJ9KXQd1RKQXpKp8Tutn80HZtWsu2u76w==}
     engines: {node: '>=10'}
+
+  '@tanstack/solid-virtual@3.5.1':
+    resolution: {integrity: sha512-BhDKs3DDwGvA45rAgqeN3igcV0BJMwUX9lDxPmGDg2jEnGUy/iNeV5a8WexbbmOHzQiPNOZWirRU4C0Zc7nBnA==}
+    peerDependencies:
+      solid-js: ^1.3.0
+
+  '@tanstack/virtual-core@3.5.1':
+    resolution: {integrity: sha512-046+AUSiDru/V9pajE1du8WayvBKeCvJ2NmKPy/mR8/SbKKrqmSbj7LJBfXE+nSq4f5TBXvnCzu0kcYebI9WdQ==}
 
   '@tokenizer/token@0.3.0':
     resolution: {integrity: sha512-OvjF+z51L3ov0OyAU0duzsYuvO01PH7x4t6DJx+guahgTnBHkhJdG7soQeTSFLWN3efnHyibZ4Z8l2EuWwJN3A==}
@@ -1453,6 +1476,9 @@ packages:
 
   csstype@3.1.3:
     resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
+
+  cui-virtual-list@1.0.7:
+    resolution: {integrity: sha512-h0kdQlu60FMQU9NIscEmq6KAvUwIaxSxl+9aROGJpleOiNweA7aWB5jVIzTIRo+hbpuD3/l1Q2uAf75NDRV10Q==}
 
   date-fns@2.30.0:
     resolution: {integrity: sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==}
@@ -3358,6 +3384,26 @@ packages:
     resolution: {integrity: sha512-veufcmxri4e3XSrT0xwfUR7kguIkaxBeosDg00yDWhk49wdwkSUrvvsm7nc75e1PUyvIeZj6nS8VQRYz2/S4Xg==}
     engines: {node: '>=0.6.0'}
 
+  virtua@0.31.0:
+    resolution: {integrity: sha512-E7xGz1OKz4E/YRjIYfCyEHgg1XrASvkYLn5hhpPV6WEbGnMMmG1MF5VyumKRKmpNke3Tu3b7wfUNM8K0HVPlgw==}
+    peerDependencies:
+      react: '>=16.14.0'
+      react-dom: '>=16.14.0'
+      solid-js: '>=1.0'
+      svelte: '>=4.0'
+      vue: '>=3.2'
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
+      solid-js:
+        optional: true
+      svelte:
+        optional: true
+      vue:
+        optional: true
+
   vite-plugin-solid@2.10.2:
     resolution: {integrity: sha512-AOEtwMe2baBSXMXdo+BUwECC8IFHcKS6WQV/1NEd+Q7vHPap5fmIhLcAzr+DUJ04/KHx/1UBU0l1/GWP+rMAPQ==}
     peerDependencies:
@@ -4054,6 +4100,10 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.4.15
 
+  '@kenh24/solid-virtual-list@0.0.1-alpha3':
+    dependencies:
+      solid-js: 1.8.17
+
   '@malept/cross-spawn-promise@1.1.1':
     dependencies:
       cross-spawn: 7.0.3
@@ -4380,6 +4430,13 @@ snapshots:
   '@szmarczak/http-timer@4.0.6':
     dependencies:
       defer-to-connect: 2.0.1
+
+  '@tanstack/solid-virtual@3.5.1(solid-js@1.8.17)':
+    dependencies:
+      '@tanstack/virtual-core': 3.5.1
+      solid-js: 1.8.17
+
+  '@tanstack/virtual-core@3.5.1': {}
 
   '@tokenizer/token@0.3.0': {}
 
@@ -5022,6 +5079,8 @@ snapshots:
   crypto-random-string@2.0.0: {}
 
   csstype@3.1.3: {}
+
+  cui-virtual-list@1.0.7: {}
 
   date-fns@2.30.0:
     dependencies:
@@ -7071,6 +7130,10 @@ snapshots:
       core-util-is: 1.0.2
       extsprintf: 1.4.1
     optional: true
+
+  virtua@0.31.0(solid-js@1.8.17):
+    optionalDependencies:
+      solid-js: 1.8.17
 
   vite-plugin-solid@2.10.2(solid-js@1.8.17)(vite@5.3.1(@types/node@20.14.2)(sass@1.77.5)(terser@5.31.1)):
     dependencies:

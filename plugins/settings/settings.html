@@ -106,10 +106,10 @@
           <li class="plugin-item flex p-4 py-3 items-center"
             v-for="(plugin, index) in plugins"
             :key="plugin.key">
-            <img :src="plugin.icon" alt="" class="w-10 h-10">
+            <img :src="plugin.pkg.publicPlugin.icon" alt="" class="w-10 h-10">
             <div class="info flex flex-col ml-4 justify-center">
-              <h3 class="text-base">{{plugin.title}}</h3>
-              <h5 class="text-gray-400 text-xs mt-1">{{plugin.subtitle}}</h5>
+              <h3 class="text-base">{{plugin.pkg.publicPlugin.title}}</h3>
+              <h5 class="text-gray-400 text-xs mt-1">{{plugin.pkg.publicPlugin.subtitle}}</h5>
             </div>
             <div class="suffix ml-auto flex items-center">
               <el-button type="danger" icon="el-icon-delete"
@@ -162,6 +162,8 @@
       </div>
     </div>
   </div>
-  <script type="module" src="./settings.js"></script>
+  <script>
+    require('./settings.js')
+  </script>
 </body>
 </html>

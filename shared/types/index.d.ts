@@ -1,10 +1,10 @@
 import { BrowserWindow, Common, webContents } from "electron"
-import { PublicPlugin } from './plugin'
+import { CommonListItem, PublicPlugin, RunningPublicPlugin } from './plugin'
 
 declare global {
   var ResizeObserver: any
   var PluginManager: {
-    getPlugins: () => RunningPublicPlugin[],
+    getPlugins: () => Map<string, RunningPublicPlugin>,
     removePlugin: (name: string) => void,
     addPlugin: (path: string) => void,
 
@@ -17,6 +17,9 @@ declare global {
         list: CommonListItem[]
       }
     ) => void,
+
+    enterPlugin: (name: string, item: CommonListItem, args: any) => Promise<MessagePort>,
+    exitPlugin: (name: string) => Promise<void>
   }
 
 
@@ -49,6 +52,8 @@ declare global {
       drag: (point: {x: number, y: number}) => Promise<void>,
       scroll: (point: {x?: number, y?: number}) => Promise<void>
     },
-    fetch: typeof fetch
+    fetch: typeof fetch,
+    enter: (name: string, item: CommonListItem, args: any) => Promise<MessagePort>,
+    exit: (name: string) => Promise<void>
   }
 }

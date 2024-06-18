@@ -1,6 +1,6 @@
 import { PublicApp, PublicPlugin } from "../../shared/types/plugin";
 
-import { initSettings, initHandler, setTargetWin } from './handler'
+import { initSettings, initHandler } from './handler'
 
 const KEYWORDS = [
   'public settings',
@@ -13,8 +13,6 @@ export default (app: PublicApp): PublicPlugin => {
   window.requestIdleCallback(() => {
     initSettings()
   })
-
-  initHandler()
 
   return {
     onInput(
@@ -33,10 +31,23 @@ export default (app: PublicApp): PublicPlugin => {
         }
       ])
     },
-    onEnter: () => {
+    onEnter: async (item) => {
       const path = require('path')
-      const win = window.open('file://' + path.join(__dirname, './settings.html'), 'settings', 'nodeIntegration=yes,contextIsolation=no')
-      setTargetWin(win)
+      const port = await app.enter(item, {
+        path: path.join(__dirname, './settings.html'),
+        webPreferences: {
+          nodeIntegration: true,
+          webSecurity: false,
+          allowRunningInsecureContent: false,
+          spellcheck: false,
+          devTools: true,
+          contextIsolation: false,
+          backgroundThrottling: false,
+          enablePreferredSizeMode: true,
+          sandbox: false,
+        }
+      })
+      initHandler(port)
     }
   }
 }

@@ -1,6 +1,6 @@
 import { BrowserWindow } from "electron";
 import { CoreApp } from "index"
-import { CommonListItem, PublicPlugin } from ".";
+import type { CommonListItem, PublicPlugin } from ".";
 
 
 interface SetResult {
@@ -25,6 +25,12 @@ export interface PublicPlugin {
   getResultPreview?: (item: CommonListItem, index: number, list: CommonListItem[]) => void | Promise<string | undefined>, 
 }
 
+interface RunningPublicPlugin {
+  plugin: PublicPlugin
+  path: string
+  pkg: any
+}
+
 export interface PublicApp {
     getApp: () => CoreApp,
     getMainWindow: () => BrowserWindow,
@@ -35,5 +41,8 @@ export interface PublicApp {
       run: (sql, params?) => Promise<any>,
       all: (sql, params?) => Promise<Array>,
       get: (sql, params?) => Promise<Any>
-    }
+    },
+
+    enter: (item: CommonListItem, args: any) => Promise<MessagePort>,
+    exit: () => Promise<void>
 }

@@ -1,6 +1,31 @@
 import { MouseClass, straightTo } from '@nut-tree-fork/nut-js';
 import { CoreApp } from './index';
-import { BrowserWindow, Menu, WebContentsView, ipcMain, net } from 'electron';
+import { BrowserWindow, IpcMainEvent, Menu, WebContentsView, ipcMain, net } from 'electron';
+
+let curPluginView: WebContentsView | null = null
+
+const removePluginView = (coreApp: CoreApp) => {
+  if (!curPluginView) return;
+  curPluginView.webContents.close()
+  coreApp.mainWindow.contentView.removeChildView(curPluginView)
+  curPluginView = null
+}
+
+const setPluginView = (coreApp: CoreApp, event: IpcMainEvent, args: any) => {
+  if (curPluginView) {
+    removePluginView(coreApp)
+  }
+  const view = new WebContentsView(args)
+  coreApp.mainWindow.contentView.addChildView(view)
+  view.setBounds({ x: 0, y: 48, width: 780, height: 54 * 9 })
+  const port = event.ports[0]
+  view.webContents.on('dom-ready', () => {
+    port.postMessage('ready')
+    view.webContents.postMessage('port', null, [port])
+  })
+  view.webContents.loadFile(args.path)
+  curPluginView = view
+}
 
 export default (coreApp: CoreApp) => {
   ipcMain.handle('db.run', (event, sql: string, params: Object) => {
@@ -70,11 +95,11 @@ export default (coreApp: CoreApp) => {
     return result
   })
 
-  ipcMain.handle('enter', async (event, item: { icon: string, title: string }, args: any) => {
-    const view = new WebContentsView(args)
-    coreApp.mainWindow.contentView.addChildView(view)
-    view.setBounds({ x: 0, y: 48, width: 540, height: 480 })
-    view.webContents.loadURL(args.url)
+  ipcMain.on('enter', (event, { item, args }) => {
+    setPluginView(coreApp, event, args)
+  })
+  ipcMain.handle('exit', () => {
+    removePluginView(coreApp)
   })
 
   ipcMain.handle('contextmenu', event => {

@@ -10,10 +10,10 @@ interface RunningPublicPlugin {
   pkg: any
 }
 
-const plugins: RunningPublicPlugin[] = []
+const plugins: Map<string, RunningPublicPlugin> = new Map();
 
 const checkPluginsRegistered = (path: string) => {
-  const resolvedPaths = plugins.map((p: any) => require.resolve(p.path))
+  const resolvedPaths = Array.from(plugins.values()).map((p: any) => require.resolve(p.path))
   const targetPath = require.resolve(path);
   return resolvedPaths?.includes(targetPath)
 }
@@ -28,30 +28,26 @@ const addPlugin = (pluginPath: string): RunningPublicPlugin | undefined => {
     const createPlugin = require(pluginPath).default || require(pluginPath)
     const pkg = JSON.parse(fs.readFileSync(nodePath.join(nodePath.dirname(require.resolve(pluginPath)), './package.json'), { encoding: 'utf-8' }))
     const plugin = createPlugin({
-      getApp: () => remote.getGlobal('coreApp'),
-      getMainWindow: () => remote.getGlobal('coreApp').mainWindow,
-      db: {
-        run: (sql: string, params?: Object) => ipcRenderer.invoke('db.run', sql, params),
-        all: (sql: string, params?: Object) => ipcRenderer.invoke('db.all', sql, params),
-        get: (sql: string, params?: Object) => ipcRenderer.invoke('db.get', sql, params),
-      },
+      db: window.publicApp.db,
       getUtils: () => require('../utils/index'),
       setList: (list: CommonListItem[]) => {
         const event = new CustomEvent('plugin:setList', {
           detail: {
-            plugin: pluginInstance,
+            name: pkg.name,
             list,
           }
         })
-        document.dispatchEvent(event)
+        window.dispatchEvent(event)
       },
+      enter: (item: CommonListItem, args: any) => window.publicApp.enter(pkg.name, item, args),
+      exit: () => window.publicApp.exit(pkg.name)
     }) as PublicPlugin
     const pluginInstance = {
       plugin,
       pkg,
       path: pluginPath
     }
-    plugins.push(pluginInstance)
+    plugins.set(pkg.name, pluginInstance)
     return pluginInstance
   } catch (err) {
     throw new Error(`引入插件 ${pluginPath} 失败: ${err.message}`)
@@ -59,16 +55,12 @@ const addPlugin = (pluginPath: string): RunningPublicPlugin | undefined => {
 }
 
 const removePlugin = (name: string) => {
-  const index = plugins.findIndex(plugin => plugin.pkg.name === name)
-  if (index > -1) {
-    plugins.splice(index, 1)
-  }
+  plugins.delete(name)
 }
 
 const getPlugins = () => plugins
 
 const handleQuery = (keyword: string) => {
-  console.log('handleQuery', keyword, plugins)
   plugins.forEach(plugin => plugin.plugin.onInput?.(keyword))
 }
 
@@ -80,4 +72,21 @@ const handleEnter = (plugin: RunningPublicPlugin, args: { item: CommonListItem, 
   }
 }
 
-export { getPlugins, addPlugin, removePlugin, handleQuery, handleEnter }
+const enterPlugin = (name: string, item: CommonListItem, args: any) => {
+  window.dispatchEvent(new CustomEvent('inputBar.enter', { detail: { name, item } }))
+
+  const { port1, port2 } = new MessageChannel()
+  return new Promise<MessagePort>(resolve => {
+    ipcRenderer.postMessage('enter', { item, args }, [port2])
+    port1.addEventListener('message', (event) => {
+      if (event.data === 'ready') {
+        resolve(port1)
+      }
+    }, { once: true })
+    port1.start()
+  })
+}
+
+const exitPlugin = (name: string) => ipcRenderer.invoke('exit')
+
+export { getPlugins, addPlugin, removePlugin, handleQuery, handleEnter, enterPlugin, exitPlugin }

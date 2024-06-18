@@ -113,17 +113,15 @@ const handlers = {
     await updatePluginsSettings()
   },
   getPlugins() {
-    return JSON.parse(JSON.stringify(window.PluginManager.getPlugins()))
+    return JSON.parse(JSON.stringify(Array.from(window.PluginManager.getPlugins().values())))
   },
   getSettings() {
     return getSettings()
   },
 }
 
-let targetWin: Window | null = null
-
-const initHandler = () => {
-  window.addEventListener('message', async (event: MessageEvent<{
+const initHandler = (port: MessagePort) => {
+  port.addEventListener('message', async (event: MessageEvent<{
     type: string,
     methodName: string,
     args: any,
@@ -133,23 +131,21 @@ const initHandler = () => {
     if (type !== 'method') return
     try {
       const returnValue = await handlers[methodName]?.(args)
-      targetWin?.postMessage({
+      port?.postMessage({
         type: 'callback',
         callbackName,
         returnValue,
         error: null,
-      }, '*')
+      })
     } catch (err) {
-      targetWin?.postMessage({
+      port?.postMessage({
         type: 'callback',
         callbackName,
         err,
-      }, '*')
+      })
       throw err;
     }
   })
 }
 
-const setTargetWin = (win: Window) => targetWin = win
-
-export { initHandler, initSettings, setTargetWin }
+export { initHandler, initSettings }

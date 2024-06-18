@@ -10,8 +10,8 @@
 .resultItem.selected {
   background: rgb(64, 102, 226);
 }
-.resultItem.selected .item-title,
-.resultItem.selected .item-subtitle {
+.resultItem.selected .itemTitle,
+.resultItem.selected .itemSubtitle {
   color: #fff;
 }
 .itemImageWrapper {
