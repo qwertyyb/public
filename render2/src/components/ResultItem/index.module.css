@@ -6,13 +6,10 @@
   max-width: 100%;
   content-visibility: auto;
   contains-intrinsic-size: 60px;
+  transition: all .2s;
 }
 .resultItem.selected {
-  background: rgb(64, 102, 226);
-}
-.resultItem.selected .itemTitle,
-.resultItem.selected .itemSubtitle {
-  color: #fff;
+  background: #cbcbcb;
 }
 .itemImageWrapper {
   width: 48px;

@@ -1,0 +1,16 @@
+.subListView {
+  display: flex;
+  flex-direction: column;
+}
+.subListView > * {
+  width: 100%;
+}
+.loadingBar {
+  position: fixed;
+  top: 0;
+  height: 1px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: #0ff;
+}

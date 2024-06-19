@@ -12,7 +12,8 @@ const getDefaultSettings = () => {
       path.resolve(__dirname, '../translate'),
       path.resolve(__dirname, '../clipboard'),
       path.resolve(__dirname, '../terminal'),
-      path.resolve(__dirname, '../favorite')
+      path.resolve(__dirname, '../favorite'),
+      path.resolve(__dirname, '../find')
     ].map(pathstr => ({ path: require.resolve(pathstr) }))
 
     return paths
@@ -53,11 +54,11 @@ const registerLaunchAtLogin =(settings: any) => {
 }
 
 const getSettings = async () => {
-  let value = await createDatabase().then(() => queryRecord({ key: 'config' })).then(res => res?.value)
-  if (!value) {
+  // let value = await createDatabase().then(() => queryRecord({ key: 'config' })).then(res => res?.value)
+  // if (!value) {
     const value = getDefaultSettings()
-    updateRecord({ key: 'config', value })
-  }
+    // updateRecord({ key: 'config', value })
+  // }
   return value
 }
 

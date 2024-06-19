@@ -1,49 +1,27 @@
-import { exec } from 'child_process'
-import * as path from 'path'
+import { type ChildProcess, exec } from 'child_process'
 
 const REAL_KEYS = {
   kMDItemDisplayName: 'name',
-  kMDItemLastUsedDate: 'lastUsed',
-  kMDItemUseCount: 'useCount'
 }
 
 const mfindAsync = (args: string) => {
-  let childProcess: any
-  const stdout = new Promise((resolve, reject) => {
+  let childProcess: ChildProcess | null = null
+  const result = new Promise<string[]>((resolve, reject) => {
     childProcess = exec(`mdfind ${args}`, (err, result) => {
       if (err) return reject(err)
       const lines = result.split('\0').filter(r => r)
-      const results = lines.map(line => parseLine(line))
-      return resolve(results)
+      return resolve(lines.map(line => parseLine(line)))
     })
   })
   return {
-    stdout,
-    terminate: () => childProcess.kill()
+    result,
+    terminate: () => childProcess?.kill()
   }
 }
 
-/**
- * Parse mdfind result line to JS object
- *
- * @param  {String} line
- * @return {Object}
- */
-function parseLine(line: string) {
-  const attrs = line.split('   ')
-  // First attr is always full path to the item
-  const filePath = <string>attrs.shift()
-  const result: any = {
-    path: filePath,
-    filename: path.basename(filePath).replace(/\.app$/, '')
-  }
-  attrs.forEach(attr => {
-    const [key, value] = attr.split(' = ')
-    // @ts-ignore
-    result[REAL_KEYS[key] || key] = getValue(value)
-  })
-  return result
-}
+const makeArgs = (array: string[], argName: string) => (
+  array.map(item => [argName, item]).flat()
+)
 
 const getValue = (item: string) => {
   if (!item || item === '(null)') {
@@ -56,9 +34,19 @@ const getValue = (item: string) => {
   return item
 }
 
-const makeArgs = (array: string[], argName: string) => (
-  array.map(item => [argName, item]).flat()
-)
+const parseLine = (line: string) => {
+  const attrs = line.split('   ')
+  // First attr is always full path to the item
+  const filePath = <string>attrs.shift()
+  const result: any = {
+    path: filePath
+  }
+  attrs.forEach(attr => {
+    const [key, value] = attr.split(' = ')
+    result[REAL_KEYS[key] || key] = getValue(value)
+  })
+  return result
+}
 
 export default function mdfind({
   query = '',
@@ -84,10 +72,16 @@ export default function mdfind({
     queryArgs
   ).flat().join(' ')
 
-  const process = mfindAsync(`${args}`)
-  // @ts-ignore
-  process.stdout = process.stdout
-  
+  const { result } = mfindAsync(`${args}`)
 
-  return process
+  return result
 }
+
+const test = async () => {
+  const result = await mdfind({
+    query: 'kMDItemContentType=com.apple.application-bundle'
+  })
+  console.log(result)
+}
+
+test()

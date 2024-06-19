@@ -10,7 +10,7 @@ interface SetResult {
 interface CommonListItem {
   code?: string,
   title: string,
-  subtitle: string,
+  subtitle?: string,
   preview?: string,
   icon: string,
   key: string | number,

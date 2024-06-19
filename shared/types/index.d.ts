@@ -19,7 +19,8 @@ declare global {
     ) => void,
 
     enterPlugin: (name: string, item: CommonListItem, args: any) => Promise<MessagePort>,
-    exitPlugin: (name: string) => Promise<void>
+    exitPlugin: (name: string) => Promise<void>,
+    setSubInputValue: (value: string) => void,
   }
 
 

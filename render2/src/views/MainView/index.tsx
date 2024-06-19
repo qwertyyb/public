@@ -2,6 +2,7 @@ import { Component, createEffect, createSignal, on, onCleanup, onMount } from "s
 import InputBar from "../../components/InputBar";
 import ResultView from "../../components/ResultView";
 import { CommonListItem } from "../../../../shared/types/plugin";
+import styles from './index.module.css'
 
 declare global {
   interface WindowEventMap {
@@ -19,7 +20,10 @@ const MainView: Component = () => {
   const [command, setCommand] = createSignal<CommonListItem | null>(null)
 
   createEffect(on(keyword, (value) => {
-    console.log(value)
+    if (command()) {
+      window.PluginManager?.setSubInputValue(value)
+      return
+    }
     if (value) {
       window.PluginManager?.handleQuery(value)
     } else {
@@ -43,6 +47,11 @@ const MainView: Component = () => {
     })
   }
 
+  const onResultSelected = (name: string, item: CommonListItem, itemIndex: number) => {
+    const targetPlugin = window.PluginManager?.getPlugins().get(name)
+    return targetPlugin?.plugin?.getResultPreview?.(item, itemIndex, pluginResultMap()[name])
+  }
+
   const setInputBarValue = (event: CustomEvent<{ value: string }>) => {
     const { value } = event.detail;
     setKeyword(value)
@@ -56,15 +65,21 @@ const MainView: Component = () => {
       [name]: list
     })
   }
-
+  
+  let preKeyword = ''
   const enterSubInput = (e: CustomEvent<{ name: string, item: CommonListItem }>) => {
+    preKeyword = keyword()
+    setKeyword('')
     const { item } = e.detail || {}
     setCommand(item)
   }
 
   const exitCommand = () => {
+    if (!command()) return
     setCommand(null)
     window.PluginManager?.exitPlugin('xxx')
+    setKeyword(preKeyword)
+    focusInput()
   }
 
   onMount(() => {
@@ -83,15 +98,16 @@ const MainView: Component = () => {
   })
 
   return (
-    <>
+    <div class={styles.mainView}>
       <InputBar value={keyword()}
         command={command()}
         setValue={setKeyword}
         exit={exitCommand}
       />
       <ResultView result={pluginResultMap()}
+        onResultSelected={onResultSelected}
         onResultEnter={onResultEnter}></ResultView>
-    </>
+    </div>
   )
 }
 

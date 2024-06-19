@@ -1,21 +1,28 @@
+import * as path from 'path';
 import { MouseClass, straightTo } from '@nut-tree-fork/nut-js';
 import { CoreApp } from './index';
 import { BrowserWindow, IpcMainEvent, Menu, WebContentsView, ipcMain, net } from 'electron';
 
-let curPluginView: WebContentsView | null = null
 
 const removePluginView = (coreApp: CoreApp) => {
-  if (!curPluginView) return;
-  curPluginView.webContents.close()
-  coreApp.mainWindow.contentView.removeChildView(curPluginView)
-  curPluginView = null
+  if (!coreApp.pluginView) return;
+  coreApp.pluginView.webContents.close()
+  coreApp.mainWindow.contentView.removeChildView(coreApp.pluginView)
+  coreApp.pluginView = null
 }
 
 const setPluginView = (coreApp: CoreApp, event: IpcMainEvent, args: any) => {
-  if (curPluginView) {
+  if (coreApp.pluginView) {
     removePluginView(coreApp)
   }
-  const view = new WebContentsView(args)
+  if (!args.entry) return;
+  const view = new WebContentsView({
+    webPreferences: {
+      ...args.webPreferences,
+      nodeIntegration: true,
+      preload: path.join(__dirname, 'preload/preload.plugin-view.js'),
+    }
+  })
   coreApp.mainWindow.contentView.addChildView(view)
   view.setBounds({ x: 0, y: 48, width: 780, height: 54 * 9 })
   const port = event.ports[0]
@@ -23,8 +30,14 @@ const setPluginView = (coreApp: CoreApp, event: IpcMainEvent, args: any) => {
     port.postMessage('ready')
     view.webContents.postMessage('port', null, [port])
   })
-  view.webContents.loadFile(args.path)
-  curPluginView = view
+  if (args.entry.startsWith('http://') || args.entry.startsWith('file://')) {
+    const url = new URL(args.entry)
+    url.searchParams.set('preload', args.webPreferences.preload || '')
+    view.webContents.loadURL(url.href)
+  } else {
+    view.webContents.loadFile(args.entry)
+  }
+  coreApp.pluginView = view
 }
 
 export default (coreApp: CoreApp) => {

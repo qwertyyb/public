@@ -1,0 +1,8 @@
+.mainView {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.mainView > * {
+  width: 100%;
+}

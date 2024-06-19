@@ -1,5 +1,4 @@
 import { ipcRenderer } from 'electron'
-import * as remote from '@electron/remote'
 import { CommonListItem, PublicPlugin } from "shared/types/plugin";
 import * as nodePath from 'path'
 import * as fs from 'fs'
@@ -72,6 +71,8 @@ const handleEnter = (plugin: RunningPublicPlugin, args: { item: CommonListItem, 
   }
 }
 
+let pluginViewPort: MessagePort | null = null
+
 const enterPlugin = (name: string, item: CommonListItem, args: any) => {
   window.dispatchEvent(new CustomEvent('inputBar.enter', { detail: { name, item } }))
 
@@ -84,9 +85,15 @@ const enterPlugin = (name: string, item: CommonListItem, args: any) => {
       }
     }, { once: true })
     port1.start()
+    pluginViewPort = port1;
   })
 }
 
-const exitPlugin = (name: string) => ipcRenderer.invoke('exit')
+const exitPlugin = (name: string) => {
+  pluginViewPort = null
+  return ipcRenderer.invoke('exit')
+}
 
-export { getPlugins, addPlugin, removePlugin, handleQuery, handleEnter, enterPlugin, exitPlugin }
+const setSubInputValue = (value: string) => pluginViewPort.postMessage({ type: 'event', eventName: 'inputValueChanged', payload: value })
+
+export { getPlugins, addPlugin, removePlugin, handleQuery, handleEnter, enterPlugin, exitPlugin, setSubInputValue }

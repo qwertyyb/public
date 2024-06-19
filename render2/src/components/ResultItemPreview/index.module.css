@@ -2,8 +2,7 @@
   box-sizing: border-box;
   flex: 4;
   border-left: 1px solid #ddd;
-  min-height: 432px;
-  height: 432px;
+  min-height: 486px;
   max-width: 64%;
   overflow: hidden;
 }

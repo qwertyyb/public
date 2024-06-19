@@ -12,7 +12,7 @@ export default () => ({
     hide: () => ipcRenderer.invoke('mainWindow.hide'),
   },
   inputBar: {
-    setValue: (value: string) => { window.dispatchEvent(new CustomEvent('inputBar.setValue', { detail: { value } })) }
+    setValue: (value: string) => { window.dispatchEvent(new CustomEvent('inputBar.setValue', { detail: { value } })) },
   },
   keyboard: {
     type: (...keys: string[]) => ipcRenderer.invoke('keyboard.type', ...keys),

@@ -34,7 +34,7 @@ export default (app: PublicApp): PublicPlugin => {
     onEnter: async (item) => {
       const path = require('path')
       const port = await app.enter(item, {
-        path: path.join(__dirname, './settings.html'),
+        entry: path.join(__dirname, './settings.html'),
         webPreferences: {
           nodeIntegration: true,
           webSecurity: false,

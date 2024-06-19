@@ -3,19 +3,20 @@
 }
 .resultListContainer {
   flex: 3;
-  max-height: 540px;
   overflow: auto;
 }
 
 /* 滚动槽 */
 ::-webkit-scrollbar {
-    width: 12px;
+    width: 5px;
     height: 6px;
-}
-::-webkit-scrollbar-track {
-    background: rgba(0,0,0,0.06);
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
 }
 /* 滚动条滑块 */
 ::-webkit-scrollbar-thumb {
-    background: rgba(0,0,0,0.12);
+    background: rgba(0,0,0,0.3);
+    border-radius: 9999px;
 }

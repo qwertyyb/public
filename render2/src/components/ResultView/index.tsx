@@ -1,4 +1,4 @@
-import { Component, For, Show, createEffect, createResource, createSignal, on, onCleanup, onMount } from "solid-js";
+import { Component, Show, createEffect, createResource, createSignal, on, onCleanup, onMount } from "solid-js";
 import { VirtualList } from "cui-virtual-list";
 import styles from './index.module.css';
 import ResultItem from "../ResultItem";
@@ -9,38 +9,12 @@ import { getTargetInfo } from '../../utils'
 interface Props {
   result: Record<string, CommonListItem[]>,
   onResultEnter: (name: string, item: CommonListItem, itemIndex: number) => void,
+  onResultSelected: (name: string, item: CommonListItem, itemIndex: number) => Promise<string> | undefined,
 }
 
 const ResultView: Component<Props> = (props) => {
   const [selectedIndex, setSelectedIndex] = createSignal(0);
   const list = () => Object.values(props.result).flat();
-
-  // createEffect(() => {
-  //   let targetPlugin: PublicPlugin | null = null
-  //   let targetIndex: number = -1
-  //   const item = list()[selectedIndex()]
-  //   for (const [plugin, list] of props.result) {
-  //     const index = list.indexOf(item)
-  //     if (index !== -1) {
-  //       // 找到了
-  //       targetIndex = index
-  //       targetPlugin = plugin
-  //       break;
-  //     }
-  //   }
-  //   if (!targetPlugin) {
-  //     setPreview('')
-  //   } else {
-  //     // @ts-ignore
-  //     Promise.resolve(targetPlugin.getResultPreview?.(
-  //       item,
-  //       targetIndex,
-  //       props.result.get(targetPlugin)!
-  //     )).then(res => {
-  //       setPreview(res || '');
-  //     })
-  //   }
-  // })
 
   const onResultEnter = (index: number) => {
     const item = list()[index]
@@ -65,15 +39,12 @@ const ResultView: Component<Props> = (props) => {
   }
 
   const getPreview = (item: CommonListItem) => {
-    console.log('getPreview')
     const { targetKey, targetIndex } = getTargetInfo(props.result, item)
     if (!targetKey) return ''
-    const targetPlugin = window.PluginManager?.getPlugins().get(targetKey)
-    if (!targetPlugin) return ''
-    return Promise.resolve(targetPlugin.plugin.getResultPreview?.(
+    return Promise.resolve(props.onResultSelected(
+      targetKey,
       item,
       targetIndex,
-      props.result[targetKey],
     ))
   }
 
@@ -108,13 +79,14 @@ const ResultView: Component<Props> = (props) => {
               subtitle={itemProps.item.subtitle}
               selected={itemProps.index === selectedIndex()}
               onEnter={() => onResultEnter(itemProps.index)}
+              onSelect={() => setSelectedIndex(itemProps.index)}
               index={itemProps.index}
             />
           )}
         </VirtualList>
       </div>
       <Show when={preview.latest}>
-          <ResultItemPreview html={preview.latest}></ResultItemPreview>
+          <ResultItemPreview html={preview.latest!}></ResultItemPreview>
       </Show>
     </div>
   )

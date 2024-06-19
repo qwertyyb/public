@@ -1,15 +1,22 @@
 import { Component, Show } from 'solid-js'
 import styles from './index.module.css'
 
-console.log(styles)
-
-interface Props { icon: string, title: string, subtitle: string, selected: boolean, onEnter: (event: Event) => void, index: number }
+interface Props {
+  icon: string,
+  title: string,
+  subtitle: string,
+  selected: boolean,
+  index: number,
+  onEnter: (event: Event) => void,
+  onSelect: (event: Event) => void
+}
 
 const ResultItem: Component<Props> = (props) => {
   return (
     <div class={styles.resultItem + ' result-item'}
       classList={{ [styles.selected]: props.selected }}
       data-result-item-index={props.index}
+      onMouseOver={props.onSelect}
       onClick={props.onEnter}>
       <div class={styles.itemImageWrapper + ' flex-h-v'}>
         <img src={props.icon} alt=""/>

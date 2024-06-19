@@ -14,6 +14,7 @@ export class CoreApp {
   tray: Tray;
   mainWindow?: BaseWindow;
   mainView?: WebContentsView;
+  pluginView?: WebContentsView;
   readonly updater = autoUpdater;
 
   constructor() {
@@ -71,12 +72,26 @@ export class CoreApp {
       let timeout = null
       return (event, size) => {
         timeout && clearTimeout(timeout)
-        setTimeout(() => {
-          // mainView.setBounds({ ...mainView.getBounds(), height: size.height })
-          // win.setSize(780, size.height)
-        }, 10)
+        if (this.pluginView) {
+          win.setSize(780, 48 + 54 * 9)
+        } else {
+          setTimeout(() => {
+            mainView.setBounds({ ...mainView.getBounds(), height: size.height })
+            win.setSize(780, size.height)
+          }, 10)
+        }
       }
     })())
+    mainView.webContents.on('before-input-event', (event, inputEvent) => {
+      const keys = {
+        ArrowUp: 'Up',
+        ArrowLeft: 'Left',
+        ArrowRight: 'Right',
+        ArrowDown: 'Down'
+      }
+      // @ts-ignore
+      this.pluginView?.webContents.sendInputEvent({ type: inputEvent.type, keyCode: keys[inputEvent.key] || inputEvent.key })
+    })
     mainView.webContents.setWindowOpenHandler((detail) => {
       return {
         action: 'allow',
@@ -91,6 +106,7 @@ export class CoreApp {
       mainView.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.hide'))`)
     })
     win.on('show', () => {
+      mainView.webContents.focus()
       mainView.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.show'))`)
     })
     if (process.env.NODE_ENV === 'development') {
