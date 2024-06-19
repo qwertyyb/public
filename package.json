@@ -10,7 +10,7 @@
     "lint": "eslint -c .eslintrc --ext .ts ./src",
     "tsc": "tsc",
     "electron": "cross-env NODE_ENV=development electron dist/app/index.js --remote-debugging-port=8222",
-    "watch:assets": "cpx \"plugins/**/*.{js,css,html,ttf,woff,data,json}\" dist/plugins/ -w -v",
+    "watch:assets": "cpx \"plugins/**/*.{js,css,html,ttf,woff,data,json,node}\" dist/plugins/ -w -v",
     "watch:electron": "nodemon --exec 'npm run tsc && npm run electron || exit 1'",
     "start:render": "cd ./render && npm run dev",
     "start:main": "concurrently --names \"assets,typescript\" -c \"bgBlue.bold,bgRed.bold,bgMagenta.bold\" \"npm run watch:assets\" \"npm run watch:electron\"",

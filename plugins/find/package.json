@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@public/mdfind": "workspace:*"
+    "@public/mdfind": "workspace:*",
+    "nan": "^2.20.0"
   }
 }

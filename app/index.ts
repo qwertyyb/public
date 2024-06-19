@@ -92,16 +92,6 @@ export class CoreApp {
       // @ts-ignore
       this.pluginView?.webContents.sendInputEvent({ type: inputEvent.type, keyCode: keys[inputEvent.key] || inputEvent.key })
     })
-    mainView.webContents.setWindowOpenHandler((detail) => {
-      return {
-        action: 'allow',
-        overrideBrowserWindowOptions: {
-          webPreferences: {
-            nodeIntegration: true
-          }
-        }
-      }
-    })
     win.on('hide', () => {
       mainView.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.hide'))`)
     })
