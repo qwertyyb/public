@@ -1,7 +1,4 @@
-import * as path from 'path'
 import * as fs from 'fs'
-// @ts-ignore
-import fileIcon from 'file-icon'
 import mdfind from './mdfind'
 
 interface App {
@@ -45,35 +42,16 @@ const buildQuery = () => (
 const getAppList = async ({ onlyNewAppCreateIcon = false } = {}) => {
   const { stdout, terminate } = mdfind({
     query: buildQuery(),
-    // @ts-ignore
     directories: macosAppPaths,
   })
-  const iconDir = path.join(getApplicationSupportPath(), 'launcher-icons')
-  if(!await fs.promises.access(iconDir).catch(err => false)) {
-    await fs.promises.mkdir(iconDir, { recursive: true })
-  }
   let list: any = await stdout
-  list = list.map((app: any) => {
-    const iconPath = path.join(iconDir, app.name + '.png')
-    if (fs.existsSync(iconPath) && onlyNewAppCreateIcon) {
-    } else {
-      setTimeout(() => fileIcon.file(app.path, {
-        destination: iconPath,
-        size: 64,
-      }), 200)
-    }
-    return {
-      ...app,
-      icon: 'file://' + iconPath,
-    }
-  })
   return list.map((app: App) => {
     const enName = app.path.split('/').pop()?.replace(/\.app$/, '') || ''
     return {
       code: enName,
       subtitle: app.path,
       title: app.name.replace(/\.app$/, ''),
-      icon: app.icon,
+      icon: `ipublic://public.qwertyyb.com/file-icon?path=${encodeURIComponent(app.path)}&size=48`,
       path: app.path,
       key: app.path,
     }

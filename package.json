@@ -12,14 +12,15 @@
     "electron": "cross-env NODE_ENV=development electron dist/app/index.js --remote-debugging-port=8222",
     "watch:assets": "cpx \"plugins/**/*.{js,css,html,ttf,woff,data,json,node}\" dist/plugins/ -w -v",
     "watch:electron": "nodemon --exec 'npm run tsc && npm run electron || exit 1'",
-    "start:render": "cd ./render && npm run dev",
+    "start:render": "cd ./render2 && npm run start",
     "start:main": "concurrently --names \"assets,typescript\" -c \"bgBlue.bold,bgRed.bold,bgMagenta.bold\" \"npm run watch:assets\" \"npm run watch:electron\"",
     "start": "concurrently --names \"assets,frontend,electron\" -c \"bgBlue.bold,bgRed.bold,bgMagenta.bold\" \"npm run watch:assets\" \"npm run start:render\" \"wait-on tcp:localhost:5000 && nodemon --exec 'npm run tsc && npm run electron || exit 1'\"",
     "build:render": "cd ./render && npm run build",
     "build:main": "npm run tsc && electron-builder -c.mac.identity=null",
     "build": "NODE_ENV=production && npm run build:render && npm run build:main",
     "release": "NODE_ENV=production && npm run build:render && npm run tsc && electron-builder --publish=always",
-    "build-dir": "electron-builder --dir"
+    "build-dir": "electron-builder --dir",
+    "rebuild": "electron-rebuild"
   },
   "nodemonConfig": {
     "ignore": [
@@ -70,6 +71,11 @@
       }
     }
   },
+  "pnpm": {
+    "overrides": {
+      "node-gyp": "^10.0.0"
+    }
+  },
   "devDependencies": {
     "@types/mathjs": "^6.0.11",
     "@types/node": "^12.20.4",
@@ -82,6 +88,7 @@
     "electron-devtools-installer": "^3.1.1",
     "electron-notarize": "^1.0.0",
     "electron-rebuild": "^3.2.9",
+    "node-gyp": "^10.0.0",
     "nodemon": "^2.0.7",
     "typescript": "^4.2.2",
     "wait-on": "^7.2.0"
@@ -89,8 +96,10 @@
   "dependencies": {
     "@electron/remote": "^2.1.2",
     "@nut-tree-fork/nut-js": "^4.2.1",
+    "@public/osx-fileicon": "workspace:*",
     "electron-updater": "^4.3.5",
     "file-icon": "^4.0.0",
+    "isbinaryfile": "^5.0.2",
     "mathjs": "^13.0.0",
     "qrcode": "^1.4.4",
     "sqlite3": "^5.0.2",

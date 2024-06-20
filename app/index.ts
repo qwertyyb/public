@@ -1,4 +1,5 @@
 import * as path from 'path';
+import { getFileIcon } from '@public/osx-fileicon'
 import { app, BaseWindow, BrowserWindow, Menu, protocol, WebContentsView, type Tray } from "electron";
 import { autoUpdater } from "electron-updater"
 import * as robotjs from '@nut-tree-fork/nut-js'
@@ -26,6 +27,18 @@ export class CoreApp {
       this.updater.checkForUpdatesAndNotify();
 
       this.tray = initTray(this)
+
+      protocol.handle('ipublic', async (request) => {
+        const { host, pathname, searchParams } = new URL(request.url)
+        if (request.method === 'GET' && host === 'public.qwertyyb.com' && pathname === '/file-icon') {
+          const buffer = await getFileIcon(searchParams.get('path'), Number(searchParams.get('size')) || 100)
+          return new Response(buffer, {
+            headers: {
+              'Content-Type': 'image/png'
+            }
+          })
+        }
+      })
 
       initIpc(this)
     })

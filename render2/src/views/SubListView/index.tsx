@@ -1,7 +1,8 @@
-import { Component, createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
+import { Component, Show, createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
 import ResultView from "../../components/ResultView";
 import { CommonListItem } from "../../../../shared/types/plugin";
 import styles from './index.module.css'
+import LoadingBar from "../../components/LoadingBar";
 
 declare global {
   interface WindowEventMap {
@@ -22,13 +23,20 @@ declare global {
 
 const MainView: Component = () => {
   const [pluginResultMap, setPluginResultMap] = createSignal<Record<'main', CommonListItem[]>>({ main: [] })
+  const [loading, setLoading] = createSignal(false)
   const [keyword, setKeyword] = createSignal('')
 
   createEffect(on(keyword, (value) => {
     if (value) {
-      window.plugin?.search(value, (list) => setPluginResultMap({ main: list }))
+      setLoading(true)
+      window.plugin?.search(value, (list) => {
+        if (value !== keyword()) return
+        setPluginResultMap({ main: list })
+        setLoading(false)
+      })
     } else {
       setPluginResultMap({ main: [] })
+      setLoading(false)
     }
   }))
 
@@ -62,7 +70,9 @@ const MainView: Component = () => {
 
   return (
     <div class={styles.subListView}>
-      <div class={styles.loadingBar}></div>
+      <Show when={loading()}>
+        <LoadingBar />
+      </Show>
       <ResultView result={pluginResultMap()}
         onResultSelected={onResultSelected}
         onResultEnter={onResultEnter}></ResultView>

@@ -18,6 +18,9 @@ const mfindAsync = (args: string[], callback: (lines: any[]) => void) => {
   childProcess.on('error', (code) => {
     console.log('mdfind error', code)
   })
+  childProcess.on('exit', () => {
+    callback([])
+  })
   return childProcess
 }
 

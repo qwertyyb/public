@@ -15,11 +15,13 @@ interface Props {
 const ResultView: Component<Props> = (props) => {
   const [selectedIndex, setSelectedIndex] = createSignal(0);
   const list = () => Object.values(props.result).flat();
+  const selectedItem = () => list()[selectedIndex()]
+  const [preview, setPreview] = createSignal('')
 
   const onResultEnter = (index: number) => {
     const item = list()[index]
     const { targetKey, targetIndex } = getTargetInfo(props.result, item)
-    if (!targetKey) return;
+    if (!targetKey) return
     props.onResultEnter(targetKey, item, targetIndex)
   }
 
@@ -29,7 +31,7 @@ const ResultView: Component<Props> = (props) => {
       e.stopPropagation()
       e.preventDefault()
     } else if(e.key === 'ArrowDown') {
-      setSelectedIndex((selectedIndex() + 1) % (list().length || 1))
+      setSelectedIndex(Math.min(selectedIndex() + 1, list().length - 1))
       e.stopPropagation()
       e.preventDefault()
     } else if(e.key === 'Enter') {
@@ -38,25 +40,29 @@ const ResultView: Component<Props> = (props) => {
     }
   }
 
-  const getPreview = (item: CommonListItem) => {
+  const getPreview = async (item: CommonListItem) => {
+    if (!item) return setPreview('')
     const { targetKey, targetIndex } = getTargetInfo(props.result, item)
-    if (!targetKey) return ''
-    return Promise.resolve(props.onResultSelected(
+    if (!targetKey) {
+      return setPreview('')
+    }
+    const result = await props.onResultSelected(
       targetKey,
       item,
       targetIndex,
-    ))
+    )
+    setPreview(result || '')
   }
 
   // 结果变化时，把 selectedIndex 置 0
   createEffect(on(list, (v) => { setSelectedIndex(0) }))
 
   // selectedIndex 变化时，滚动到选择位置，调用preview
-  createEffect(() => {
-    (document.querySelector<HTMLElement>(`.result-item[data-result-item-index="${selectedIndex()}"]`) as any)?.scrollIntoViewIfNeeded(false)
-  })
+  createEffect(on(selectedIndex, (value) => {
+    (document.querySelector<HTMLElement>(`.result-item[data-result-item-index="${value}"]`) as any)?.scrollIntoViewIfNeeded(false)
+  }))
 
-  const [preview] = createResource(() => list()[selectedIndex()], getPreview)
+  createEffect(on(selectedItem, getPreview))
 
   onMount(() => {
     document.addEventListener('keydown', keydownHandler)
@@ -85,8 +91,8 @@ const ResultView: Component<Props> = (props) => {
           )}
         </VirtualList>
       </div>
-      <Show when={preview.latest}>
-          <ResultItemPreview html={preview.latest!}></ResultItemPreview>
+      <Show when={preview()}>
+          <ResultItemPreview html={preview()}></ResultItemPreview>
       </Show>
     </div>
   )

@@ -2,10 +2,13 @@
   box-sizing: border-box;
   flex: 4;
   border-left: 1px solid #ddd;
+  height: 486px;
   min-height: 486px;
   max-width: 64%;
-  overflow: hidden;
+  overflow: auto;
 }
 .previewWrapper {
-  padding: 20px;
+  padding: 12px;
+  box-sizing: border-box;
+  height: 100%;
 }
