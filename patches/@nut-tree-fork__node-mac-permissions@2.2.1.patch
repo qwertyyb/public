@@ -1,0 +1,10 @@
+diff --git a/index.js b/index.js
+index ccf6ae30c6be79389d931aa5ea0da610cea82e43..84af308481da080db191056325c7ce0e1d976b44 100644
+--- a/index.js
++++ b/index.js
+@@ -1,4 +1,4 @@
+-const permissions = require('bindings')('permissions.node')
++const permissions = require('./build/Release/permissions.node')
+ 
+ function getAuthStatus(type) {
+   const validTypes = [
