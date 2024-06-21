@@ -105,7 +105,7 @@ export default {
         <div style="flex:1;overflow:hidden;font-size:14px;background:#dedede;box-sizing:border-box;padding:8px;border-radius:6px;display:flex">
           ${
             isBinary
-            ? `<div style="width:100%;height:100%;background-size:cover;background-repeat:no-repeat;background-position:center center;background-image:url(ipublic://public.qwertyyb.com/file-icon?path=${encodeURIComponent(item.data.filePath)}&size=400)"></div>`
+            ? `<div style="width:100%;height:100%;background-size:contain;background-repeat:no-repeat;background-position:center center;background-image:url(ipublic://public.qwertyyb.com/file-icon?path=${encodeURIComponent(item.data.filePath)}&size=400)"></div>`
             : `<div style="white-space:break-spaces;font-family:Lucida Console, Courier, monospace;word-break:break-all;line-height:1.4">${escapeHtml(content)}</div>`
           }
         </div>
