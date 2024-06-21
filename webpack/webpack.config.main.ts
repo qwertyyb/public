@@ -6,7 +6,7 @@ const config: webpack.Configuration = {
   entry: './app/index.ts',
   target: 'electron-main',
   output: {
-    path: path.resolve(__dirname, '../dist/app'),
+    path: path.resolve(__dirname, '../dist'),
     filename: 'index.js',
   },
   watchOptions: {

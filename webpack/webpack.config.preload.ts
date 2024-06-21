@@ -9,7 +9,7 @@ const config: webpack.Configuration = {
   },
   target: 'electron-preload',
   output: {
-    path: path.resolve(__dirname, '../dist/app'),
+    path: path.resolve(__dirname, '../dist'),
     filename: '[name].js',
   },
   node: {

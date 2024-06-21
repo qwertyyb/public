@@ -7,7 +7,7 @@
     "url": "https://github.com/qwertyyb/public.git"
   },
   "scripts": {
-    "electron": "cross-env NODE_ENV=development electron dist/app/index.js --remote-debugging-port=8222",
+    "electron": "cross-env NODE_ENV=development electron dist/index.js --remote-debugging-port=8222",
     "start:electron": "nodemon --exec 'npm run electron || exit 1'",
     "start:render": "cd ./render2 && npm run start",
     "webpack:main": "webpack --config ./webpack/webpack.config.main.ts -w",
@@ -15,9 +15,14 @@
     "webpack:plugin": "webpack --config ./webpack/webpack.config.plugin.ts -w",
     "webpack:plugin:preload": "webpack --config ./webpack/webpack.config.plugin.preload.ts -w",
     "start": "concurrently --names \"main,preload,plugin,render,electron\" -c \"bgBlue.bold,bgRed.bold,bgMagenta.bold,bgYellow.bold,bgGreen.bold\" \"npm run webpack:main\" \"npm run webpack:preload\" \"npm run webpack:plugin\" \"npm run start:render\" \"wait-on tcp:localhost:3000 && npm run start:electron\"",
+    "build:main": "webpack --config ./webpack/webpack.config.main.ts --mode=production",
+    "build:preload": "webpack --config ./webpack/webpack.config.preload.ts --mode=production",
+    "build:plugin": "webpack --config ./webpack/webpack.config.plugin.ts --mode=production",
+    "build:plugin:preload": "webpack --config ./webpack/webpack.config.plugin.preload.ts --mode=production",
     "build:render": "cd ./render2 && npm run build",
-    "build:main": "npm run tsc && electron-builder -c.mac.identity=null",
-    "build": "NODE_ENV=production && npm run build:render && npm run build:main",
+    "build": "concurrently --names \"main,preload,plugin,render,plguin-preload\" -c \"bgBlue.bold,bgRed.bold,bgMagenta.bold,bgYellow.bold,bgGreen.bold\" \"npm run build:main\" \"npm run build:preload\" \"npm run build:plugin\" \"npm run build:render\" \"npm run build:electron\"",
+    "build:electron": "electron-builder -c.mac.identity=null --dir build",
+    "pack": "electron-builder -c.mac.identity=null --dir --project dist",
     "release": "NODE_ENV=production && npm run build:render && npm run tsc && electron-builder --publish=always"
   },
   "nodemonConfig": {
@@ -36,14 +41,7 @@
       "node_modules/sqlite3"
     ],
     "files": [
-      "app/",
-      "plugins/",
-      "assets/**/*",
-      "render/public/",
-      "./index.js",
-      "!**/*.ts",
-      "!**/*.map",
-      "!scripts/"
+      "dist/**/*.js"
     ],
     "directories": {
       "buildResources": "assets"
@@ -94,9 +92,7 @@
     "typescript": "^4.9.5",
     "wait-on": "^7.2.0",
     "webpack": "^5.92.1",
-    "webpack-cli": "^5.1.4"
-  },
-  "dependencies": {
+    "webpack-cli": "^5.1.4",
     "@electron/remote": "^2.1.2",
     "@nut-tree-fork/nut-js": "^4.2.1",
     "@public/osx-fileicon": "workspace:*",
@@ -107,5 +103,7 @@
     "qrcode": "^1.4.4",
     "sqlite3": "^5.0.2",
     "tiny-pinyin": "^1.3.2"
+  },
+  "dependencies": {
   }
 }
