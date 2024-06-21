@@ -1,9 +1,9 @@
 import * as path from 'path';
 import { getFileIcon } from '@public/osx-fileicon'
-import { app, BaseWindow, BrowserWindow, Menu, protocol, WebContentsView, type Tray } from "electron";
+import { app, BaseWindow, protocol, WebContentsView, type Tray } from "electron";
 import { autoUpdater } from "electron-updater"
 import * as robotjs from '@nut-tree-fork/nut-js'
-import initIpc from './ipc.js'
+import initIpc from './ipc'
 import initTray from './controller/trayController'
 import db from './controller/storageController'
 require('@electron/remote/main').initialize()
@@ -69,7 +69,7 @@ export class CoreApp {
         allowRunningInsecureContent: false,
         spellcheck: false,
         devTools: true,
-        preload: path.join(__dirname, './plugin.preload.js'),
+        preload: path.join(__dirname, './preload.js'),
         contextIsolation: false,
         backgroundThrottling: false,
         enablePreferredSizeMode: true,

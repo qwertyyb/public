@@ -7,13 +7,6 @@ interface App {
   icon: string,
 }
 
-const getApplicationSupportPath = () => {
-  const path = require('path')
-  const subPath = '/cn.qwertyyb.public/launcher'
-  const fullPath = path.join(process.env.HOME + '/Library/Application Support/', subPath);
-  return fullPath
-}
-
 const macosAppPaths = [
   '/System/Applications', // 系统应用
   '/Applications',  // 安装的应用
@@ -39,7 +32,7 @@ const buildQuery = () => (
   supportedTypes.map(type => `kMDItemContentType=${type}`).join('||')
 )
 
-const getAppList = async ({ onlyNewAppCreateIcon = false } = {}) => {
+const getAppList = async () => {
   const { stdout, terminate } = mdfind({
     query: buildQuery(),
     directories: macosAppPaths,
@@ -59,18 +52,4 @@ const getAppList = async ({ onlyNewAppCreateIcon = false } = {}) => {
 }
 
 
-getAppList({
-  onlyNewAppCreateIcon: true
-}).then((applist) => process.send?.(applist))
-
-fs.watch('/Applications', { persistent: true }, (() => {
-  let timeout = null
-  return () => {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => {
-      getAppList({
-        onlyNewAppCreateIcon: true
-      }).then((applist) => process.send?.(applist))
-    }, 500)
-  }
-})())
+export default getAppList

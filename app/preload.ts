@@ -10,7 +10,7 @@ window.addEventListener('contextmenu', () => {
   ipcRenderer.invoke('contextmenu')
 })
 
-const basicPlugin = path.join(__dirname, '../plugins/settings')
+const basicPlugin = path.join(__dirname, '../../plugins/settings')
 console.log(basicPlugin)
 PluginManager.addPlugin(basicPlugin)
 

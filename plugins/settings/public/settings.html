@@ -5,11 +5,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>设置</title>
-  <link rel="stylesheet" href="./lib/tailwind.min.css">
-  <link rel="stylesheet" href="./lib/element-ui.css">
+  <link rel="stylesheet" href="../lib/tailwind.min.css">
+  <link rel="stylesheet" href="../lib/element-ui.css">
   
-  <script src="./lib/vue.js"></script>
-  <script src="./lib/element-ui.js"></script>
+  <script src="../lib/vue.js"></script>
+  <script src="../lib/element-ui.js"></script>
   <style>
     #app {
       height: 100vh;
@@ -105,7 +105,7 @@
         <ul class="plugin-list">
           <li class="plugin-item flex p-4 py-3 items-center"
             v-for="(plugin, index) in plugins"
-            :key="plugin.key">
+            :key="plugin.path">
             <img :src="plugin.pkg.publicPlugin.icon" alt="" class="w-10 h-10">
             <div class="info flex flex-col ml-4 justify-center">
               <h3 class="text-base">{{plugin.pkg.publicPlugin.title}}</h3>
@@ -162,8 +162,6 @@
       </div>
     </div>
   </div>
-  <script>
-    require('./settings')
-  </script>
+  <script type="module" src="./settings.js"></script>
 </body>
 </html>

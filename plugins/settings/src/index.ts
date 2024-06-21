@@ -1,4 +1,5 @@
-import { PublicApp, PublicPlugin } from "../../shared/types/plugin";
+import * as path from 'path'
+import type { PublicApp, PublicPlugin } from "../../../shared/types/plugin"
 
 import { initSettings, initHandler } from './handler'
 
@@ -32,9 +33,8 @@ export default (app: PublicApp): PublicPlugin => {
       ])
     },
     onEnter: async (item) => {
-      const path = require('path')
       const port = await app.enter(item, {
-        entry: path.join(__dirname, './settings.html'),
+        entry: path.join(__dirname, '../public/settings.html'),
         webPreferences: {
           nodeIntegration: true,
           webSecurity: false,

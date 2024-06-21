@@ -104,7 +104,8 @@ export default (app: PublicApp): PublicPlugin => {
             onEnter: () => {
               require('electron').clipboard.writeText(item.text)
               setTimeout(() => {
-                require('robotjs').keyTap("v", ["command"])
+                const robot = app.getApp().robot
+                robot.keyboard.pressKey(robot.Key.LeftCmd, robot.Key.V)
               }, 16)
             }
           })))

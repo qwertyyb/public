@@ -1,62 +1,15 @@
-import type { RunningPublicPlugin } from "shared/types/plugin"
-import { ipcRenderer } from "electron"
-
-const createRpc = () => {
-  const callbackMap = new Map()
-  let queue = []
-  let port = null
-  ipcRenderer.on('port', event => {
-    port = event.ports[0]
-    port.addEventListener('message', (event: MessageEvent) => {
-      console.log('event', event)
-      const { type, callbackName, returnValue, error } = event.data
-      if (type !== 'callback') return;
-      const { resolve, reject } = callbackMap.get(callbackName)
-      if (error) {
-        reject?.(new Error(error))
-      } else {
-        resolve?.(returnValue)
-      }
-      callbackMap.delete(callbackName)
-    })
-    port.start()
-    queue.slice().forEach(item => port?.postMessage(item))
-    queue = []
-  })
-  return {
-    invoke(methodName: string, args?: any) {
-      return new Promise((resolve, reject) => {
-        const callbackName = `${methodName}_${Math.random()}`
-        callbackMap.set(callbackName, { resolve, reject })
-        const item = {
-          type: 'method',
-          methodName,
-          args,
-          callbackName
-        }
-        if (port) {
-          port?.postMessage(item)
-        } else {
-          queue.push(item)
-        }
-      })
-    }
-  }
-}
-
-const rpc = createRpc()
-
-interface ShortcutKey {
-  modifiers: string[],
-  key: string | null
-}
-
-const createKeyEventHandler = (onChange: (key: ShortcutKey) => void, done: (key: ShortcutKey) => void) => {
+/**
+ * 
+ * @param {(key: ShortcutKey) => void} onChange 
+ * @param {(key: ShortcutKey) => void} done 
+ * @returns 
+ */
+const createKeyEventHandler = (onChange, done) => {
   const key = {
     modifiers: [],
     key: null
   }
-  return (event: KeyboardEvent) => {
+  return (event) => {
     event.preventDefault()
     const detectKeys = ['Meta', 'Control', 'Alt', 'Shift']
     // 键名windows和mac不一样，需要转换
@@ -107,11 +60,12 @@ var app = new Vue({
   },
   methods: {
     async refreshSettings() {
-      rpc.invoke('getSettings').then(settings => {
+      window.portHandle.invoke('getSettings').then(settings => {
         this.settings = settings
       })
-      rpc.invoke('getPlugins').then(plugins => {
+      window.portHandle.invoke('getPlugins').then(plugins => {
         this.plugins = plugins
+        console.log(plugins)
       })
     },
     async onShortcutBtnClicked(event, keyObj) {
@@ -138,25 +92,25 @@ var app = new Vue({
     },
     async onLaunchAtLoginChange (launchAtLogin) {
       this.settings.launchAtLogin = launchAtLogin
-      await rpc.invoke('registerLaunchAtLogin', {
+      await window.portHandle.invoke('registerLaunchAtLogin', {
         settings: this.settings
       })
       this.refreshSettings()
     },
     async onAddPluginClick () {
-      const file: File = await new Promise((resolve, reject) => {
+      const file = await new Promise((resolve, reject) => {
         const input = document.createElement('input')
         input.type = 'file'
         input.accept = '.js'
-        input.onchange = (e: InputEvent) => {
-          const [file] = (e.target as HTMLInputElement).files
+        input.onchange = (e) => {
+          const [file] = e.target.files
           if (!file) reject(new Error('no file selected'))
           resolve(file)
         }
         input.click()
       })
 
-      const validateFile = (file: File) => {
+      const validateFile = (file) => {
         try {
           const plugin = window.require(file.path)
           if (typeof plugin !== 'function' && typeof plugin.default !== 'function') {
@@ -170,13 +124,13 @@ var app = new Vue({
       
       validateFile(file)
 
-      await rpc.invoke('registerPlugin', { path: file.path })
+      await window.portHandle.invoke('registerPlugin', { path: file.path })
       this.$message.success('插件添加成功')
       this.refreshSettings()
     },
 
-    async onRemovePluginClick(index: number, plugin: Pick<RunningPublicPlugin, 'plugin'>) {
-      await rpc.invoke('removePlugin', { index, plugin })
+    async onRemovePluginClick(index, plugin) {
+      await window.portHandle.invoke('removePlugin', { index, plugin })
       this.$message.success('插件移除成功')
       this.refreshSettings()
     },
@@ -188,12 +142,12 @@ var app = new Vue({
         temp: true
       })
     },
-    onRemoveShortcutClick(index: number, shortcutItem) {
+    onRemoveShortcutClick(index, shortcutItem) {
       this.settings.shortcuts.splice(index, 1)
       this.updateShortcut()
     },
     async updateShortcut() {
-      await rpc.invoke('registerShortcuts', {
+      await window.portHandle.invoke('registerShortcuts', {
         settings: this.settings
       })
       this.refreshSettings()

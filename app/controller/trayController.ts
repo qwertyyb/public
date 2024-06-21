@@ -1,11 +1,9 @@
+import * as path from 'path'
 import { app, Tray, nativeImage, Menu } from 'electron'
 import { CoreApp } from '../index'
 
 const createTray = (coreApp: CoreApp) => {
-  const path = require('path')
-  console.log(path.join(__dirname, '../../assets/status/status.png'))
-  const image = nativeImage.createFromPath(path.join(__dirname, '../../../assets/status/statusTemplate.png'))
-  const publicTray = new Tray(image)
+  const publicTray = new Tray(path.join(__dirname, '../../assets/status/statusTemplate.png'))
   const contextMenu = Menu.buildFromTemplate([
     {
       label: '显示',

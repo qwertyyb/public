@@ -20,8 +20,8 @@ const setPluginView = (coreApp: CoreApp, event: IpcMainEvent, args: any) => {
     webPreferences: {
       ...args.webPreferences,
       nodeIntegration: true,
-      preload: path.join(__dirname, 'preload/preload.plugin-view.js'),
-    }
+      preload: path.join(__dirname, './preload.plugin.js'),
+    },
   })
   coreApp.mainWindow.contentView.addChildView(view)
   view.setBounds({ x: 0, y: 48, width: 780, height: 54 * 9 })

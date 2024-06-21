@@ -1,29 +1,10 @@
-// import fs from 'fs'
-import * as path from 'path'
-import { fork } from 'child_process'
-// @ts-ignore
-// import fileIcon from 'file-icon'
-// import mdfind from './mdfind'
 import { CommonListItem, PublicPlugin } from 'shared/types/plugin'
+import getAppList from './loadApplications'
 
 interface AppListItem extends CommonListItem{
   path: string,
   icon: string,
 }
-
-const getAppList = (() => {
-  let childProcess: ReturnType<typeof fork> | undefined
-  return (cb) => {
-    childProcess?.kill()
-    childProcess = fork(
-      path.resolve(__dirname, './loadApplications')
-    )
-    childProcess.on('message', (message) => {
-      console.log(message)
-      cb(message)
-    })
-  }
-})()
 
 class LauncherPlugin implements PublicPlugin {
   app: any
@@ -39,9 +20,8 @@ class LauncherPlugin implements PublicPlugin {
   private apps: AppListItem[] = []
 
   private getAppList = async () => {
-    getAppList((apps: AppListItem[]) => {
-      this.apps = apps
-    })
+    const apps = await getAppList()
+    this.apps = apps
   }
 
   onInput(

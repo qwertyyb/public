@@ -1,7 +1,8 @@
 import { ipcRenderer } from 'electron'
-import { CommonListItem, PublicPlugin } from "shared/types/plugin";
+import type { CommonListItem, PublicPlugin } from "shared/types/plugin";
 import * as nodePath from 'path'
 import * as fs from 'fs'
+import * as utils from '../utils'
 
 interface RunningPublicPlugin {
   plugin: PublicPlugin
@@ -12,23 +13,25 @@ interface RunningPublicPlugin {
 const plugins: Map<string, RunningPublicPlugin> = new Map();
 
 const checkPluginsRegistered = (path: string) => {
-  const resolvedPaths = Array.from(plugins.values()).map((p: any) => require.resolve(p.path))
-  const targetPath = require.resolve(path);
+  const resolvedPaths = Array.from(plugins.values()).map((p: any) => __non_webpack_require__.resolve(p.path))
+  const targetPath = __non_webpack_require__.resolve(path);
   return resolvedPaths?.includes(targetPath)
 }
 
 
-const addPlugin = (pluginPath: string): RunningPublicPlugin | undefined => {
+const addPlugin = (pluginPath: string) => {
   console.log('addPlugin', pluginPath)
   if (checkPluginsRegistered(pluginPath)) {
     throw new Error('插件已注册,请勿重复注册: ' + pluginPath)
   }
   try {
-    const createPlugin = require(pluginPath).default || require(pluginPath)
-    const pkg = JSON.parse(fs.readFileSync(nodePath.join(nodePath.dirname(require.resolve(pluginPath)), './package.json'), { encoding: 'utf-8' }))
+
+    const pkg = JSON.parse(fs.readFileSync(nodePath.join(pluginPath, './package.json'), { encoding: 'utf-8' }))
+    const createPlugin = __non_webpack_require__(pluginPath).default || __non_webpack_require__(pluginPath)
+    console.log(createPlugin)
     const plugin = createPlugin({
       db: window.publicApp.db,
-      getUtils: () => require('../utils/index'),
+      getUtils: () => utils,
       setList: (list: CommonListItem[]) => {
         const event = new CustomEvent('plugin:setList', {
           detail: {

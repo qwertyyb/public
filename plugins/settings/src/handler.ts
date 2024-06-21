@@ -4,19 +4,19 @@ import * as path from 'path'
 const getDefaultSettings = () => {
   const getDefaultPluginPaths = () => {
     const paths = [
-      path.resolve(__dirname, '../launcher'),
-      path.resolve(__dirname, '../command'),
-      path.resolve(__dirname, '../calculator'),
-      path.resolve(__dirname, '../qrcode'),
-      path.resolve(__dirname, '../search'),
-      path.resolve(__dirname, '../translate'),
-      path.resolve(__dirname, '../clipboard'),
-      path.resolve(__dirname, '../terminal'),
-      path.resolve(__dirname, '../favorite'),
-      path.resolve(__dirname, '../find')
-    ].map(pathstr => ({ path: require.resolve(pathstr) }))
-
-    return paths
+      path.resolve(__dirname, '../../launcher'),
+      path.resolve(__dirname, '../../command'),
+      path.resolve(__dirname, '../../calculator'),
+      path.resolve(__dirname, '../../qrcode'),
+      path.resolve(__dirname, '../../search'),
+      path.resolve(__dirname, '../../translate'),
+      path.resolve(__dirname, '../../clipboard'),
+      path.resolve(__dirname, '../../terminal'),
+      path.resolve(__dirname, '../../favorite'),
+      path.resolve(__dirname, '../../find')
+    ]
+    console.log('default plugins', paths)
+    return paths.map(pathstr => ({ path: pathstr }))
   }
 
   return {

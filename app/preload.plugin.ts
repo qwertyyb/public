@@ -4,11 +4,11 @@ import EventEmitter from "events"
 const createPortHandle = () => {
   const callbackMap = new Map()
   let queue = []
-  let port = null
+  let port: MessagePort | null = null
   const eventBus = new EventEmitter()
   ipcRenderer.on('port', event => {
     port = event.ports[0]
-    port.addEventListener('message', (event: MessageEvent) => {
+    port?.addEventListener('message', (event: MessageEvent) => {
       const { type } = event.data
       if (type === 'event') {
         const { eventName, payload } = event.data
@@ -54,14 +54,22 @@ const createPortHandle = () => {
 
 const portHandle = createPortHandle()
 
+declare global {
+  interface Window {
+    portHandle: typeof portHandle,
+    plugin?: any,
+  }
+}
+
 const preload = new URL(location.href).searchParams.get('preload')
 if (preload) {
-  const plugin = require(preload)
+  const plugin = __non_webpack_require__(preload)
 
-  // @ts-ignore
   window.plugin = plugin.default || plugin
 }
 
 portHandle.on('inputValueChanged', async (value: string) => {
   window.dispatchEvent(new CustomEvent('inputBar.setValue', { detail: { value } }))
 })
+
+window.portHandle = portHandle

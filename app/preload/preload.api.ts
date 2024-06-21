@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron'
-import { CommonListItem } from 'shared/types/plugin'
+import type { CommonListItem } from 'shared/types/plugin'
 
 export default () => ({
   db: {
