@@ -72,13 +72,14 @@
     },
     "patchedDependencies": {
       "sqlite3@5.1.7": "patches/sqlite3@5.1.7.patch",
-      "@nut-tree-fork/node-mac-permissions@2.2.1": "patches/@nut-tree-fork__node-mac-permissions@2.2.1.patch"
+      "@nut-tree-fork/node-mac-permissions@2.2.1": "patches/@nut-tree-fork__node-mac-permissions@2.2.1.patch",
+      "@nut-tree-fork/libnut-darwin@2.7.2": "patches/@nut-tree-fork__libnut-darwin@2.7.2.patch"
     }
   },
   "devDependencies": {
+    "@electron/rebuild": "^3.6.0",
     "@electron/remote": "^2.1.2",
     "@nut-tree-fork/nut-js": "^4.2.1",
-    "@public/osx-fileicon": "workspace:*",
     "@types/mathjs": "^6.0.11",
     "@types/node": "^12.20.55",
     "@types/sqlite3": "^3.1.7",
@@ -90,8 +91,10 @@
     "electron-builder": "^22.13.1",
     "electron-devtools-installer": "^3.1.1",
     "electron-notarize": "^1.0.0",
-    "electron-rebuild": "^3.2.9",
-    "electron-updater": "^4.3.5",
+    "electron-updater": "^4.3.5"
+  },
+  "dependencies": {
+    "@public/osx-fileicon": "workspace:*",
     "file-icon": "^4.0.0",
     "isbinaryfile": "^5.0.2",
     "mathjs": "^13.0.0",

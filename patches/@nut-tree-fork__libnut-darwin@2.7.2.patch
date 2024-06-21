@@ -1,0 +1,32 @@
+diff --git a/index.js b/index.js
+index 21765870002ac4c6cdb4ddd31532855b7f76aa3b..f95bd57969642a94d89f9507651ac76f16df819d 100644
+--- a/index.js
++++ b/index.js
+@@ -2,7 +2,7 @@ let libnut;
+ if (process.platform === 'darwin') {
+     libnut = require("./permissionCheck");
+ } else {
+-    libnut = require("bindings")("libnut");
++    libnut = require("./build/Release/libnut.node");
+ }
+ 
+ module.exports = libnut;
+diff --git a/permissionCheck.js b/permissionCheck.js
+index d62d56104cdd1fd3a32bcaa02c7eb2fa2eef80b5..ae1178026e263edc6a6a107e2c623ff7f86d772d 100644
+--- a/permissionCheck.js
++++ b/permissionCheck.js
+@@ -1,4 +1,4 @@
+-let libnut = require("bindings")("libnut");
++let libnut = require("./build/Release/libnut.node");
+ 
+ let hasScreenRecordingPermission = false;
+ let hasAccessibilityPermission = false;
+@@ -92,7 +92,7 @@ try {
+     e.message
+   );
+   console.warn(`Returning original module.`);
+-  libnut = require("bindings")("libnut");
++  libnut = require("./build/Release/libnut.node");
+ } finally {
+   module.exports = libnut;
+ }
