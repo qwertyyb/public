@@ -54,7 +54,7 @@ const createClipboardItem = (text: string) => {
 export default (app: any): PublicPlugin => {
   // @ts-ignore
   window.requestIdleCallback(async () => {
-    opencv = await require('../lib/ready_opencv.js')
+    opencv = await __non_webpack_require__('../lib/ready_opencv.js')
   })
 
   window.addEventListener('publicApp.mainWindow.show', () => {

@@ -18,7 +18,7 @@ const prepareFs = function (Module, dataFilePath) {
 
     var REMOTE_PACKAGE_SIZE = metadata['remote_package_size'];
 
-    function fetchRemotePackage(packageName, packageSize, callback, errback) {
+    function fetchPackageByXhr(packageName, packageSize, callback, errback) {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', dataFilePath, true);
       xhr.responseType = 'arraybuffer';
@@ -64,6 +64,19 @@ const prepareFs = function (Module, dataFilePath) {
       };
       xhr.send(null);
     };
+
+    const fetchPackageByNode = (packageName, packageSize, callback) => {
+      const fs = require('fs')
+      const path = require('path')
+      callback(fs.readFileSync(path.join(__dirname, packageName)))
+    }
+
+    const fetchRemotePackage = (...args) => {
+      if (typeof require === 'function' && typeof module === 'object') {
+        return fetchPackageByNode(...args)
+      }
+      return fetchPackageByXhr(...args)
+    }
 
     function handleError(error) {
       console.error('package error:', error);
@@ -123,8 +136,9 @@ const prepareFs = function (Module, dataFilePath) {
 
 
       function processPackageData(arrayBuffer) {
+        console.log(arrayBuffer)
         assert(arrayBuffer, 'Loading data file failed.');
-        assert(arrayBuffer instanceof ArrayBuffer, 'bad input to processPackageData');
+        assert(arrayBuffer instanceof ArrayBuffer || arrayBuffer instanceof Uint8Array, 'bad input to processPackageData');
         var byteArray = new Uint8Array(arrayBuffer);
         var curr;
 
