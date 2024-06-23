@@ -6,7 +6,10 @@ import * as robotjs from '@nut-tree-fork/nut-js'
 import initIpc from './ipc'
 import initTray from './controller/trayController'
 import db from './controller/storageController'
+import { getConfig } from './config';
 require('@electron/remote/main').initialize()
+
+const config = getConfig();
 
 export class CoreApp {
   readonly electronApp = app;
@@ -112,12 +115,8 @@ export class CoreApp {
       mainView.webContents.focus()
       mainView.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.show'))`)
     })
-    if (process.env.NODE_ENV === 'development') {
-      // await installExtensions()
-      mainView.webContents.loadURL('http://localhost:3000')
-    } else {
-      mainView.webContents.loadFile(path.join(__dirname, 'render/public/index.html'))
-    }
+    mainView.webContents.loadURL(config.rendererEntry)
+    mainView.webContents.openDevTools({ mode: 'detach' })
 
     return win
   }

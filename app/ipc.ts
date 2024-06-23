@@ -2,7 +2,9 @@ import * as path from 'path';
 import { MouseClass, straightTo } from '@nut-tree-fork/nut-js';
 import { CoreApp } from './index';
 import { BrowserWindow, IpcMainEvent, Menu, WebContentsView, ipcMain, net } from 'electron';
+import { getConfig } from './config';
 
+const config = getConfig()
 
 const removePluginView = (coreApp: CoreApp) => {
   if (!coreApp.pluginView) return;
@@ -15,7 +17,8 @@ const setPluginView = (coreApp: CoreApp, event: IpcMainEvent, args: any) => {
   if (coreApp.pluginView) {
     removePluginView(coreApp)
   }
-  if (!args.entry) return;
+  let entry = args.type === 'listView' ? config.rendererEntry + '#/plugin/list-view' : args.entry
+  if (!entry) return;
   const view = new WebContentsView({
     webPreferences: {
       ...args.webPreferences,
@@ -30,12 +33,12 @@ const setPluginView = (coreApp: CoreApp, event: IpcMainEvent, args: any) => {
     port.postMessage('ready')
     view.webContents.postMessage('port', null, [port])
   })
-  if (args.entry.startsWith('http://') || args.entry.startsWith('file://')) {
-    const url = new URL(args.entry)
+  if (entry.startsWith('http://') || entry.startsWith('file://')) {
+    const url = new URL(entry)
     url.searchParams.set('preload', args.webPreferences.preload || '')
     view.webContents.loadURL(url.href)
   } else {
-    view.webContents.loadFile(args.entry)
+    view.webContents.loadFile(entry)
   }
   coreApp.pluginView = view
 }

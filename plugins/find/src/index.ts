@@ -20,7 +20,7 @@ export default (app: PublicApp): PublicPlugin => {
         icon: 'https://img.icons8.com/?size=100&id=119218&format=png&color=000000',
         onEnter: (item) => {
           app.enter(JSON.parse(JSON.stringify(item)), {
-            entry: 'http://localhost:3000/#/plugin/list-view',
+            type: 'listView',
             webPreferences: {
               preload: path.join(__dirname, './preload.js'),
               nodeIntegration: true,

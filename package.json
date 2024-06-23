@@ -1,7 +1,7 @@
 {
   "name": "public",
   "version": "0.0.6",
-  "main": "index.js",
+  "main": "dist/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/qwertyyb/public.git"
@@ -20,9 +20,8 @@
     "build:plugin": "webpack --config ./webpack/webpack.config.plugin.ts --mode=production",
     "build:plugin:preload": "webpack --config ./webpack/webpack.config.plugin.preload.ts --mode=production",
     "build:render": "cd ./render2 && npm run build",
-    "build": "concurrently --names \"main,preload,plugin,render,plguin-preload\" -c \"bgBlue.bold,bgRed.bold,bgMagenta.bold,bgYellow.bold,bgGreen.bold\" \"npm run build:main\" \"npm run build:preload\" \"npm run build:plugin\" \"npm run build:render\" \"npm run build:electron\"",
-    "build:electron": "electron-builder -c.mac.identity=null --dir build",
-    "pack": "electron-builder -c.mac.identity=null --dir --project dist",
+    "build": "concurrently --names \"main,preload,plugin,render,plguin-preload\" -c \"bgBlue.bold,bgRed.bold,bgMagenta.bold,bgYellow.bold,bgGreen.bold\" \"npm run build:main\" \"npm run build:preload\" \"npm run build:plugin\" \"npm run build:render\" \"npm run build:plugin:preload\"",
+    "pack": "electron-builder -c.mac.identity=null --dir",
     "release": "NODE_ENV=production && npm run build:render && npm run tsc && electron-builder --publish=always"
   },
   "nodemonConfig": {
@@ -37,14 +36,31 @@
   "build": {
     "appId": "cn.qwertyyb.public",
     "asar": false,
-    "asarUnpack": [
-      "node_modules/sqlite3"
-    ],
     "files": [
-      "dist/**/*.js"
+      "dist/**/*",
+      "assets/**/*",
+      "!**/node_modules",
+      "plugins/*/package.json",
+      "plugins/*/dist/**/*",
+      "plugins/*/lib/**/*",
+      "plugins/*/public/**/*",
+      "!plugins/src",
+      "render2/dist/**/*",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/*.d.ts",
+      "!**/node_modules/.bin",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!**/._*",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+      "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
+      "!**/{appveyor.yml,.travis.yml,circle.yml}",
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
     ],
     "directories": {
-      "buildResources": "assets"
+      "buildResources": "assets",
+      "output": "build"
     },
     "afterSign": "scripts/notarize.js",
     "mac": {
@@ -80,6 +96,7 @@
     "@electron/rebuild": "^3.6.0",
     "@electron/remote": "^2.1.2",
     "@nut-tree-fork/nut-js": "^4.2.1",
+    "@public/osx-fileicon": "workspace:*",
     "@types/mathjs": "^6.0.11",
     "@types/node": "^12.20.55",
     "@types/sqlite3": "^3.1.7",
@@ -88,13 +105,10 @@
     "concurrently": "^6.0.0",
     "cross-env": "^7.0.3",
     "electron": "^31.0.0",
-    "electron-builder": "^22.13.1",
+    "electron-builder": "^24.13.3",
     "electron-devtools-installer": "^3.1.1",
     "electron-notarize": "^1.0.0",
-    "electron-updater": "^4.3.5"
-  },
-  "dependencies": {
-    "@public/osx-fileicon": "workspace:*",
+    "electron-updater": "^4.3.5",
     "file-icon": "^4.0.0",
     "isbinaryfile": "^5.0.2",
     "mathjs": "^13.0.0",

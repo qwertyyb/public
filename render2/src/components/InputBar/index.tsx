@@ -1,6 +1,8 @@
 import { Component, Show } from "solid-js";
 import styles from './index.module.css'
 import { CommonListItem } from "../../../../shared/types/plugin";
+import Logo from '../../logo.svg'
+import Back from '../../assets/back.svg'
 
 interface Props {
   value: string
@@ -27,7 +29,7 @@ const InputBar: Component<Props> = (props) => {
       <div class={styles.inputBarWrapper}>
         <Show when={props.command}>
           <div class={styles.navBack} onClick={props.exit}>
-            <img src='/src/assets/back.svg' alt="" class={styles.backIcon} draggable="false" />
+            <img src={Back} alt="" class={styles.backIcon} draggable="false" />
           </div>
         </Show>
         <input type="text"
@@ -38,7 +40,7 @@ const InputBar: Component<Props> = (props) => {
           onKeyDown={onKeyDown}
           value={props.value}
           id="main-input"/>
-        <img src={props.command?.icon ?? '/src/logo.svg'} alt="" class={styles.appLogo} draggable="false" />
+        <img src={props.command?.icon ?? Logo} alt="" class={styles.appLogo} draggable="false" />
       </div>
     </div>
   )
