@@ -46,3 +46,28 @@ export interface PublicApp {
     enter: (item: CommonListItem, args: any) => Promise<MessagePort>,
     exit: () => Promise<void>
 }
+
+export interface PluginCommandMatch {
+  type: 'text', // text | regexp
+  match: string[],
+  title?: string,
+}
+
+export interface PluginCommand {
+  name: string
+  icon?: string
+  title?: string
+  subtitle?: string
+  mode?: 'listView',
+  matches: PluginCommandMatch[],
+  entry?: string
+}
+
+export interface PluginManifest {
+  icon: string
+  title: string
+  subtitle?: string,
+  descript?: string,
+  commands?: PluginCommand[]
+  entry?: string
+}

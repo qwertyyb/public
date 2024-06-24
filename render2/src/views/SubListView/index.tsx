@@ -27,15 +27,14 @@ const MainView: Component = () => {
   const [keyword, setKeyword] = createSignal('')
 
   createEffect(on(keyword, (value) => {
-    if (value) {
-      setLoading(true)
+    setLoading(true)
+    try {
       window.plugin?.search(value, (list) => {
         if (value !== keyword()) return
         setPluginResultMap({ main: list })
         setLoading(false)
       })
-    } else {
-      setPluginResultMap({ main: [] })
+    } catch (err) {
       setLoading(false)
     }
   }))

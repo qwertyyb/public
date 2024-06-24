@@ -16,7 +16,7 @@ export default (app: PublicApp): PublicPlugin => {
       const list: CommonListItem[] = []
       list.push({
         key: 'plugin:find:enter',
-        title: '搜索文件',
+        title: param ? `搜索文件“${param}”` : '搜索文件',
         icon: 'https://img.icons8.com/?size=100&id=119218&format=png&color=000000',
         onEnter: (item) => {
           app.enter(JSON.parse(JSON.stringify(item)), {

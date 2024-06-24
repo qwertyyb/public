@@ -1,5 +1,6 @@
-import { CommonListItem, PublicApp, PublicPlugin } from "shared/types/plugin";
+import { PublicApp, PublicPlugin } from "shared/types/plugin";
 import { clipboard } from 'electron'
+import * as path from 'path'
 
 const formatDate = function(date: Date, fmt: string = 'yyyy-MM-dd hh:mm:ss') { 
   var o = { 
@@ -99,25 +100,28 @@ export default (app: PublicApp): PublicPlugin => {
       const [trigger, ...rest] = query.split(' ')
       if (!['剪切板', 'clipboard', 'cp'].includes(trigger)) return app.setList([]);
       const keyword = rest.join(' ')
-      let list = await queryRecordList(app, { keyword })
-      list = list.map((item: any): CommonListItem => {
-        const subtitle = `最后使用: ${item.lastUseAt}     创建于: ${item.createdAt}`
-        return {
-          key: `plugin:clipboard:${item.text}`,
-          title: item.text,
-          subtitle,
-          icon: 'https://img.icons8.com/cute-clipart/64/000000/clipboard.png',
-          contentValue: item.text
+      app.setList([{
+        title: "剪切板",
+        subtitle: "剪切板历史",
+        icon: "https://img.icons8.com/cute-clipart/64/000000/clipboard.png",
+        onEnter: (item) => {
+          app.enter(JSON.parse(JSON.stringify(item)), {
+            type: 'listView',
+            webPreferences: {
+              preload: path.join(__dirname, './preload.js'),
+              nodeIntegration: true,
+              webSecurity: false,
+              allowRunningInsecureContent: false,
+              spellcheck: false,
+              devTools: true,
+              contextIsolation: false,
+              backgroundThrottling: false,
+              enablePreferredSizeMode: true,
+              sandbox: false,
+            }
+          })
         }
-      })
-      app.setList(list);
+      }]);
     },
-    onEnter: async (item) => {
-      clipboard.writeText(item.contentValue)
-      await window.publicApp.mainWindow.hide()
-      const robot = app.getApp().robot
-      robot.keyboard.pressKey(robot.Key.LeftCmd, robot.Key.V)
-      console.log('item', item)
-    }
   }
 }

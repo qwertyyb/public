@@ -16,6 +16,25 @@
   "publicPlugin": {
     "icon": "https://img.icons8.com/?size=100&id=119218&format=png&color=000000",
     "title": "文件搜索",
-    "subtitle": "搜索本机文件"
+    "subtitle": "搜索本机文件",
+    "commands": [
+      {
+        "name": "search",
+        "title": "搜索文件",
+        "mode": "listView",
+        "matches": [
+          {
+            "type": "text",
+            "match": ["search files", "搜索文件", "文件搜索", "file search"]
+          },
+          {
+            "type": "regexp",
+            "match": "^(.{4,})$",
+            "title": "搜索文件\"$1\"..."
+          }
+        ],
+        "entry": "./dist/preload.js"
+      }
+    ]
   }
 }

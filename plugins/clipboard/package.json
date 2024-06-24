@@ -11,7 +11,7 @@
   "license": "ISC",
   "publicPlugin": {
     "title": "剪切板",
-    "subtitle": "增强剪切板",
+    "subtitle": "剪切板历史",
     "icon": "https://img.icons8.com/cute-clipart/64/000000/clipboard.png"
   }
 }

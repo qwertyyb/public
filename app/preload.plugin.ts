@@ -1,5 +1,8 @@
 import { ipcRenderer } from "electron"
 import EventEmitter from "events"
+import createAPI from './preload/preload.api'
+
+window.publicApp = createAPI()
 
 const createPortHandle = () => {
   const callbackMap = new Map()
