@@ -1,7 +1,7 @@
 
 import { clipboard } from 'electron';
 import { create, all } from "mathjs";
-import { CommonListItem, PublicPlugin } from 'shared/types/plugin';
+import { PluginCommand, PublicPlugin } from 'shared/types/plugin';
 
 const DECIMAL_SEPARATOR = '.'
 const ARG_SEPARATOR = ','
@@ -76,21 +76,25 @@ class CalculatorPlugin implements PublicPlugin {
   ) {
     if (Calculator.isValidInput(keyword)) {
       const result = Calculator.calculate(keyword)
-      this.app.setList([
+      this.app.updateCommands([
         {
+          name: "calculator",
           title: `= ${result}`,
           subtitle: '点击复制到剪切板',
           icon: 'https://img.icons8.com/plasticine/100/000000/apple-calculator.png',
           text: `${result}`,
-          key: 'plugin:calculator',
-          onEnter: (item: CommonListItem) => {
-            clipboard.writeText(String(item.text))
-          }
+          matches: [
+            { type: 'text', keywords: [keyword] }
+          ]
         }
       ])
     } else {
       this.app.setList([])
     }
+  }
+
+  onEnter (item: PluginCommand) {
+    clipboard.writeText(String(item.text))
   }
 }
 

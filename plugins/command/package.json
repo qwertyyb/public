@@ -12,6 +12,38 @@
   "publicPlugin": {
     "title": "系统命令",
     "subtitle": "执行锁屏、休眠、关机、重启等系统命令",
-    "icon": "https://img.icons8.com/ios-filled/50/000000/command.png"
+    "icon": "https://img.icons8.com/ios-filled/50/000000/command.png",
+    "commands": [
+      {
+        "name": "lock",
+        "title": "锁屏",
+        "subtitle": "锁定你的电脑",
+        "icon": "https://img.icons8.com/fluent/48/000000/lock.png"
+      },
+      {
+        "name": "sleep",
+        "title": "休眠",
+        "subtitle": "电脑休眠",
+        "icon": "https://img.icons8.com/ios-filled/100/4a90e2/sleep-mode.png"
+      },
+      {
+        "name": "logout",
+        "title": "登出",
+        "subtitle": "退出当前登录的用户",
+        "icon": "https://img.icons8.com/nolan/64/logout-rounded-down.png"
+      },
+      {
+        "name": "shutdown",
+        "title": "关机",
+        "subtitle": "关闭你的电脑",
+        "icon": "https://img.icons8.com/nolan/96/shutdown.png"
+      },
+      {
+        "name": "restart",
+        "title": "重启",
+        "subtitle": "重启你的电脑",
+        "icon": "https://img.icons8.com/nolan/128/restart.png"
+      }
+    ]
   }
 }

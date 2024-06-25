@@ -1,6 +1,6 @@
 import { Component, Show, createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
 import ResultView from "../../components/ResultView";
-import { CommonListItem } from "../../../../shared/types/plugin";
+import { CommonListItem, ListItem } from "../../../../shared/types/plugin";
 import styles from './index.module.css'
 import LoadingBar from "../../components/LoadingBar";
 
@@ -39,12 +39,12 @@ const MainView: Component = () => {
     }
   }))
 
-  const onResultEnter = (name: string, item: CommonListItem, itemIndex: number) => {
-    window.plugin?.enter(item, itemIndex)
+  const onResultEnter = (name: string, item: ListItem, itemIndex: number) => {
+    window.plugin?.enter(item as CommonListItem, itemIndex)
   }
 
-  const onResultSelected = (name: string, item: CommonListItem, itemIndex: number) => {
-    return window.plugin?.select?.(item, itemIndex)
+  const onResultSelected = (name: string, item: ListItem, itemIndex: number) => {
+    return window.plugin?.select?.(item as CommonListItem, itemIndex)
   }
 
   const setInputValue = (event: CustomEvent<{ value: string }>) => {

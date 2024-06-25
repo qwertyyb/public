@@ -12,6 +12,16 @@
   "publicPlugin": {
     "title": "Public设置",
     "subtitle": "Public应用设置",
-    "icon": "https://img.icons8.com/nolan/64/settings--v1.png"
+    "icon": "https://img.icons8.com/nolan/64/settings--v1.png",
+    "entry": "./dist/index.js",
+    "commands": [
+      {
+        "name": "settings",
+        "matches": [
+          { "type": "text", "keywords": ["public settings", "Public设置"] }
+        ],
+        "mode": "none"
+      }
+    ]
   }
 }

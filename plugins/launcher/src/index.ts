@@ -1,4 +1,4 @@
-import { CommonListItem, PublicPlugin } from 'shared/types/plugin'
+import { CommonListItem, PluginCommand, PublicPlugin } from 'shared/types/plugin'
 import getAppList from './loadApplications'
 
 interface AppListItem extends CommonListItem{
@@ -22,20 +22,22 @@ class LauncherPlugin implements PublicPlugin {
   private getAppList = async () => {
     const apps = await getAppList()
     this.apps = apps
+    this.app.updateCommands(apps.map(item => ({
+      name: `app:${item.path}`,
+      icon: item.icon,
+      title: item.title,
+      subtitle: item.subtitle,
+      path: item.path,
+      matches: [
+        {
+          type: 'text',
+          keywords: [item.title]
+        }
+      ]
+    })))
   }
 
-  onInput(
-    keyword: string
-  ) {
-    if (!keyword) return this.app.setList([])
-    keyword = keyword.toLocaleLowerCase();
-    const match = this.app.getUtils().match
-    this.app.setList(this.apps.filter(item => {
-      return match([item.code, item.title], keyword)
-    }))
-  }
-
-  onEnter (app: AppListItem) {
+  onEnter (app: PluginCommand) {
     const { exec } = require('child_process')
     exec(`open -a "${app.path}"`)
   }

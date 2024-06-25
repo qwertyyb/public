@@ -1,14 +1,14 @@
 import { Component, createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
 import InputBar from "../../components/InputBar";
 import ResultView from "../../components/ResultView";
-import { CommonListItem } from "../../../../shared/types/plugin";
+import { CommonListItem, ListItem, PluginCommand } from "../../../../shared/types/plugin";
 import styles from './index.module.css'
 
 declare global {
   interface WindowEventMap {
     'publicApp.mainWindow.hide': CustomEvent<{}>;
     'publicApp.mainWindow.show': CustomEvent<{}>;
-    'plugin:setList': CustomEvent<{ name: string, list: CommonListItem[] }>;
+    'plugin:showCommands': CustomEvent<{ name: string, commands: CommonListItem[] }>;
     'inputBar.setValue': CustomEvent<{ value: string }>;
     'inputBar.enter': CustomEvent<{ name: string, item: CommonListItem }>
   }
@@ -25,7 +25,9 @@ const MainView: Component = () => {
       return
     }
     if (value) {
-      window.PluginManager?.handleQuery(value)
+      const results = window.PluginManager?.handleQuery(value) || []
+      // @ts-ignore
+      setPluginResultMap({ main: results })
     } else {
       setPluginResultMap({})
     }
@@ -36,20 +38,12 @@ const MainView: Component = () => {
     el?.focus()
   }
 
-  const onResultEnter = (name: string, item: CommonListItem, itemIndex: number) => {
-    const targetPlugin = window.PluginManager?.getPlugins()?.get(name)
-    if (!targetPlugin) return;
-
-    window.PluginManager?.handleEnter(targetPlugin, {
-      item,
-      index: itemIndex,
-      list: pluginResultMap()[name]
-    })
+  const onResultEnter = (name: string, item: ListItem, itemIndex: number) => {
+    window.PluginManager?.handleEnter(item as PluginCommand)
   }
 
-  const onResultSelected = (name: string, item: CommonListItem, itemIndex: number) => {
-    const targetPlugin = window.PluginManager?.getPlugins().get(name)
-    return targetPlugin?.plugin?.getResultPreview?.(item, itemIndex, pluginResultMap()[name])
+  const onResultSelected = (name: string, item: ListItem, itemIndex: number) => {
+    return window.PluginManager?.handleSelect(item as PluginCommand, keyword())
   }
 
   const setInputBarValue = (event: CustomEvent<{ value: string }>) => {
@@ -57,12 +51,10 @@ const MainView: Component = () => {
     setKeyword(value)
   }
 
-  const setPluginResults = (e: CustomEvent<{ name: string, list: CommonListItem[] }>) => {
-    const { name, list } = e.detail || {}
-    console.log(name, list)
+  const setPluginResults = (e: CustomEvent<{ name: string, commands: CommonListItem[] }>) => {
+    const { name, commands } = e.detail || {}
     setPluginResultMap({
-      ...pluginResultMap(),
-      [name]: list
+      main: commands
     })
   }
   
@@ -83,18 +75,17 @@ const MainView: Component = () => {
   }
 
   onMount(() => {
-    window.addEventListener('plugin:setList', setPluginResults)
+    window.addEventListener('plugin:showCommands', setPluginResults)
     window.addEventListener('publicApp.mainWindow.show', focusInput)
     window.addEventListener('inputBar.setValue', setInputBarValue)
     window.addEventListener('inputBar.enter', enterSubInput)
   })
 
   onCleanup(() => {
-    window.removeEventListener('plugin:setList', setPluginResults)
+    window.removeEventListener('plugin:showCommands', setPluginResults)
     window.removeEventListener('publicApp.mainWindow.show', focusInput)
     window.removeEventListener('inputBar.setValue', setInputBarValue)
     window.removeEventListener('inputBar.enter', enterSubInput)
-
   })
 
   return (

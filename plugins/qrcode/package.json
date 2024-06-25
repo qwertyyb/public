@@ -12,6 +12,28 @@
   "publicPlugin": {
     "title": "二维码",
     "subtitle": "生成、解析二维码",
-    "icon": "https://img.icons8.com/pastel-glyph/64/4a90e2/qr-code--v1.png"
+    "icon": "https://img.icons8.com/pastel-glyph/64/4a90e2/qr-code--v1.png",
+    "entry": "./dist/index.js",
+    "commands": [
+      {
+        "name": "generate",
+        "title": "生成二维码",
+        "subtitle": "生成二维码",
+        "mode": "none",
+        "matches": [
+          { "type": "text", "keywords": ["qrcode $query", "生成二维码 $query"] },
+          { "type": "trigger", "triggers": ["qr"], "title": "生成二维码“$query”" }
+        ]
+      },
+      {
+        "name": "detect",
+        "title": "解析二维码",
+        "subtitle": "解析二维码",
+        "mode": "none",
+        "matches": [
+          { "type": "text", "keywords": ["detect qrcode", "解析二维码"] }
+        ]
+      }
+    ]
   }
 }

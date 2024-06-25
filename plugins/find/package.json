@@ -25,12 +25,12 @@
         "matches": [
           {
             "type": "text",
-            "match": ["search files", "搜索文件", "文件搜索", "file search"]
+            "keywords": ["search files", "搜索文件", "文件搜索", "file search", "search", "files"]
           },
           {
-            "type": "regexp",
-            "match": "^(.{4,})$",
-            "title": "搜索文件\"$1\"..."
+            "type": "trigger",
+            "triggers": ["fs"],
+            "title": "搜索文件“$query”..."
           }
         ],
         "entry": "./dist/preload.js"

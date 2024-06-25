@@ -96,10 +96,8 @@
     "@electron/rebuild": "^3.6.0",
     "@electron/remote": "^2.1.2",
     "@nut-tree-fork/nut-js": "^4.2.1",
-    "@public/osx-fileicon": "workspace:*",
     "@types/mathjs": "^6.0.11",
     "@types/node": "^12.20.55",
-    "@types/sqlite3": "^3.1.7",
     "@types/webpack": "^5.28.5",
     "@types/webpack-env": "^1.18.5",
     "concurrently": "^6.0.0",
@@ -116,7 +114,6 @@
     "node-loader": "^2.0.0",
     "nodemon": "^2.0.7",
     "qrcode": "^1.4.4",
-    "sqlite3": "^5.0.2",
     "tiny-pinyin": "^1.3.2",
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
@@ -124,5 +121,9 @@
     "wait-on": "^7.2.0",
     "webpack": "^5.92.1",
     "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "@public/osx-fileicon": "workspace:*",
+    "sqlite3": "^5.0.2"
   }
 }

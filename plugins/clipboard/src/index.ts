@@ -1,6 +1,5 @@
 import { PublicApp, PublicPlugin } from "shared/types/plugin";
 import { clipboard } from 'electron'
-import * as path from 'path'
 
 const formatDate = function(date: Date, fmt: string = 'yyyy-MM-dd hh:mm:ss') { 
   var o = { 
@@ -95,33 +94,5 @@ export default (app: PublicApp): PublicPlugin => {
     startListener(newItemHandler)
   })
 
-  return {
-    onInput: async (query: string) => {
-      const [trigger, ...rest] = query.split(' ')
-      if (!['剪切板', 'clipboard', 'cp'].includes(trigger)) return app.setList([]);
-      const keyword = rest.join(' ')
-      app.setList([{
-        title: "剪切板",
-        subtitle: "剪切板历史",
-        icon: "https://img.icons8.com/cute-clipart/64/000000/clipboard.png",
-        onEnter: (item) => {
-          app.enter(JSON.parse(JSON.stringify(item)), {
-            type: 'listView',
-            webPreferences: {
-              preload: path.join(__dirname, './preload.js'),
-              nodeIntegration: true,
-              webSecurity: false,
-              allowRunningInsecureContent: false,
-              spellcheck: false,
-              devTools: true,
-              contextIsolation: false,
-              backgroundThrottling: false,
-              enablePreferredSizeMode: true,
-              sandbox: false,
-            }
-          })
-        }
-      }]);
-    },
-  }
+  return {}
 }

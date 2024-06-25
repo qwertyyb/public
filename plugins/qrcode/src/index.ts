@@ -1,6 +1,6 @@
 import { clipboard, nativeImage, NativeImage } from "electron"
 import * as path from 'path'
-import { CommonListItem, PublicPlugin } from "shared/types/plugin";
+import { CommonListItem, PluginCommand, PublicPlugin } from "shared/types/plugin";
 
 let opencv: any;
 
@@ -38,15 +38,15 @@ const detectWithOpencv = (() => {
 window.filePath = path.resolve(__dirname, 'lib/wechat_qrcode_files.data')
 
 const createClipboardItem = (text: string) => {
-  const item: CommonListItem = {
-    key: `plugin:qrcode:clibpoard:${text}`,
+  const item: PluginCommand = {
+    name: 'detect',
     title: `二维码内容: ${text}`,
     subtitle: '来自剪切板,点击复制',
     icon: 'https://img.icons8.com/officel/16/4a90e2/clipboard.png',
     text,
-    onEnter(item, index, list) {
-      clipboard.writeText(item.text)
-    }
+    matches: [
+      { type: 'text', keywords: [''] }
+    ]
   }
   return item
 }
@@ -63,37 +63,13 @@ export default (app: any): PublicPlugin => {
     const texts = detectWithOpencv(image)
     if (!texts?.length) return
     const list = texts.map(text => createClipboardItem(text))
-    app.setList(list)
+    app.showCommands(list)
   })
   return {
-    async onInput (keyword: string) {
-
-      const [first, ...rest] = keyword.split(' ')
-      const match = ['qr', 'qrcode', 'ewm', '二维码'].includes(first)
-      const param = rest.join(' ')
-
-      if (!match) return app.setList([])
-
-      const list: CommonListItem[] = []
-      list.push({
-        key: 'plugin:qrcode:generate',
-        title: '生成二维码',
-        subtitle: param ? `二维码内容: ${param}` : '',
-        extraInfo: {
-          query: keyword
-        },
-        icon: 'https://img.icons8.com/pastel-glyph/64/4a90e2/qr-code--v1.png',
-        onEnter: (item) => {
-          clipboard.writeImage(nativeImage.createFromDataURL(item.qrcodeUrl))
-          const notification = new Notification('二维码已写入剪切板')
-        }
-      })
-      app.setList(list)
-    },
-    async getResultPreview(item, index, list) {
-      if(item.key === 'plugin:qrcode:generate') {
+    async onSelect(command: PluginCommand, keyword: string) {
+      if(command.name === 'generate') {
         const QRCode = require('qrcode')
-        const [_, ...rest] = item.extraInfo.query.split(' ')
+        const [_, ...rest] = keyword.split(' ')
         const param = rest.join(' ')
         if (!param) return;
         // 生成二维码
@@ -108,6 +84,11 @@ export default (app: any): PublicPlugin => {
         }))
         return res.html
       }
-    }
+    },
+    onEnter: (command) => {
+      if (command.name === 'detect' && command.text) {
+        clipboard.writeText(command.text)
+      }
+    },
   }
 }

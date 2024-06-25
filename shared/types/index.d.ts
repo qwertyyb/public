@@ -1,5 +1,5 @@
 import { BrowserWindow, Common, webContents } from "electron"
-import { CommonListItem, PublicPlugin, RunningPublicPlugin } from './plugin'
+import { CommonListItem, PluginCommand, PublicPlugin, RunningPublicPlugin } from './plugin'
 
 declare global {
   var ResizeObserver: any
@@ -8,20 +8,14 @@ declare global {
     removePlugin: (name: string) => void,
     addPlugin: (path: string) => void,
 
-    handleQuery: (keyword: string) => void,
-    handleEnter: (
-      plugin: RunningPublicPlugin,
-      args: {
-        item: CommonListItem,
-        index: number,
-        list: CommonListItem[]
-      }
-    ) => void,
+    handleQuery: (keyword: string) => PluginCommand[],
+    handleEnter: (command: PluginCommand) => void,
+    handleSelect: (command: PluginCommand, keyword: string) => string | HTMLElement | Promise<string> | Promise<HTMLElement>,
 
-    enterPlugin: (name: string, item: CommonListItem, args: any) => Promise<MessagePort>,
+    enterPlugin: (name: string, item: PluginCommand, args: any) => Promise<MessagePort>,
     exitPlugin: (name: string) => Promise<void>,
     setSubInputValue: (value: string) => void,
-  }
+  } | undefined
 
 
   var publicApp: {

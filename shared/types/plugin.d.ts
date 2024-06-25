@@ -7,12 +7,15 @@ interface SetResult {
   (list: CommonListItem[]): void
 }
 
-interface CommonListItem {
-  code?: string,
+interface ListItem {
   title: string,
+  icon?: string,
   subtitle?: string,
+}
+
+interface CommonListItem extends ListItem {
+  code?: string,
   preview?: string,
-  icon: string,
   key: string | number,
   onSelect?: () => void,
   onEnter?: (item: CommonListItem, index: number, list: CommonListItem[]) => void,
@@ -21,8 +24,8 @@ interface CommonListItem {
 
 export interface PublicPlugin {
   onInput?: (keyword: string) => void,
-  onEnter?: (item: CommonListItem, index: number, list: CommonListItem[]) => void,
-  getResultPreview?: (item: CommonListItem, index: number, list: CommonListItem[]) => void | Promise<string | undefined>, 
+  onSelect?: (command: PluginCommand, keyword: string) => string | HTMLElement | Promise<string> | Promise<HTMLElement>,
+  onEnter?: (item: PluginCommand, keyword: string) => void
 }
 
 interface RunningPublicPlugin {
@@ -47,26 +50,29 @@ export interface PublicApp {
     exit: () => Promise<void>
 }
 
-export interface PluginCommandMatch {
-  type: 'text', // text | regexp
-  match: string[],
-  title?: string,
-}
-
-export interface PluginCommand {
-  name: string
-  icon?: string
+export interface TriggerPluginCommandMatch {
+  type: 'trigger' // text | regexp
+  triggers: string[]
   title?: string
-  subtitle?: string
-  mode?: 'listView',
-  matches: PluginCommandMatch[],
-  entry?: string
+}
+export interface TextPluginCommandMatch {
+  type: 'text'
+  keywords: string[]
 }
 
-export interface PluginManifest {
-  icon: string
-  title: string
-  subtitle?: string,
+export type PluginCommandMatch = TextPluginCommandMatch | TriggerPluginCommandMatch
+
+export interface PluginCommand extends Partial<ListItem> {
+  name: string
+  mode?: 'listView' | 'none' | 'view',
+  matches: PluginCommandMatch[],
+  entry?: string,
+
+  [index: string]: any
+}
+
+export interface PluginManifest extends Required<ListItem> {
+  name: string
   descript?: string,
   commands?: PluginCommand[]
   entry?: string
