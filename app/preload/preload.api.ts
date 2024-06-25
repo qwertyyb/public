@@ -32,6 +32,7 @@ export default () => ({
   },
   fetch: (...args: Parameters<typeof fetch>) => ipcRenderer.invoke('fetch', ...args),
 
+  // @ts-ignore
   enter: (name: string, item: CommonListItem, args: any) => window.PluginManager.enterPlugin(name, item, args),
   exit: (name: string) => window.PluginManager.exitPlugin(name)
 })
