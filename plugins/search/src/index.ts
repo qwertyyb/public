@@ -1,4 +1,5 @@
 import { PublicApp, PublicPlugin, CommonListItem } from "shared/types/plugin"
+import { shell } from 'electron'
 
 interface SearchItem {
   key: string,
@@ -77,6 +78,12 @@ const keywords: SearchItem[] = [
   }
 ]
 
+const urls = {
+  google: 'https://www.google.com/search?q=${keyword}',
+  baidu: 'https://www.baidu.com/s?wd=${keyword}',
+  bing: 'https://www.bing.com/search?q=${keyword}'
+}
+
 const getCandidateItem = (searchItem: SearchItem, query: string, {
   isCandidate = false,
   index = -1
@@ -135,9 +142,11 @@ const getResultList = async (keyword: string): Promise<CommonListItem[]> => {
 
 export default (app: PublicApp): PublicPlugin => {
   return {
-    onInput: async (keyword) => {
-      const resultList = await getResultList(keyword)
-      app.setList(resultList)
-    }
+    onEnter(item, keyword) {
+      const url = urls[item.name]
+      if (!url) return;
+      const target = url.replace(/\$\{keyword\}/g, encodeURIComponent(keyword))
+      shell.openExternal(url)
+    },
   }
 }

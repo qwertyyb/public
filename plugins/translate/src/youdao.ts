@@ -48,7 +48,6 @@ export const translate = async (text: string) => {
     abtest: '0',
     yduuid: "abcdefg",
   }
-  // @ts-ignore
   const res = await window.publicApp.fetch("https://dict.youdao.com/webtranslate", {
     "headers": {
       "content-type": "application/x-www-form-urlencoded",
@@ -58,11 +57,10 @@ export const translate = async (text: string) => {
     "body": new URLSearchParams(bodyJson).toString(),
     "method": "POST"
   });
-  const resBase64 = await res.text;
+  const resBase64 = res.text;
   const key = Buffer.from("08149da73c59ce62555b01e92f34e838", "hex")
   const iv = Buffer.from("d2bb1bfde83b38c344366357b79cae1c", "hex");
   const r = crypto.createDecipheriv("aes-128-cbc", key, iv);
-  // @ts-ignore
-  let s = r.update(resBase64, "base64", "utf-8") as string;
+  let s = r.update(resBase64, "base64", "utf8") as string;
   return s += r.final("utf-8")
 }

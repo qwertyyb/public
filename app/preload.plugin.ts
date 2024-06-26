@@ -65,10 +65,8 @@ declare global {
 }
 
 const preload = new URL(location.href).searchParams.get('preload')
-console.log(preload)
 if (preload) {
   const plugin = __non_webpack_require__(preload)
-  console.log(plugin)
 
   window.plugin = plugin.default || plugin
 }

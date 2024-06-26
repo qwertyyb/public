@@ -1,6 +1,6 @@
-import { clipboard, nativeImage, NativeImage } from "electron"
+import { clipboard, NativeImage } from "electron"
 import * as path from 'path'
-import { CommonListItem, PluginCommand, PublicPlugin } from "shared/types/plugin";
+import { PluginCommand, PublicPlugin } from "shared/types/plugin";
 
 let opencv: any;
 

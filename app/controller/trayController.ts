@@ -18,7 +18,14 @@ const createTray = (coreApp: CoreApp) => {
       label: '检查更新...',
       click: () => coreApp.updater.checkForUpdatesAndNotify()
     },
-    { label: '关于Public', role: 'about' },
+    {
+      label: '关于Public',
+      role: 'about',
+      click: () => {
+        app.showAboutPanel()
+        app.focus({ steal: true })
+      }
+    },
     {
       label: '退出Public',
       accelerator: 'Command+Q',

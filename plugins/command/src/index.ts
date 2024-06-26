@@ -29,7 +29,7 @@ const scripts = {
 export default (app: PublicApp): PublicPlugin => {
   return {
     onEnter: (item) => {
-      if (!item.command) return;
+      if (!scripts[item.name]) return;
       const str = `osascript -e '${scripts[item.name]}'`
       require('child_process').exec(str)
     }

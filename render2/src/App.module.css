@@ -1,5 +1,3 @@
 .App {
-  backdrop-filter: blur(20px);
   max-width: 780px;
-  background: #fff;
 }

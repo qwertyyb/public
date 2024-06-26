@@ -1,5 +1,5 @@
 {
-  "name": "clipboard",
+  "name": "douban",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
@@ -10,16 +10,14 @@
   "author": "",
   "license": "ISC",
   "publicPlugin": {
-    "title": "剪切板",
-    "subtitle": "剪切板历史",
-    "icon": "https://img.icons8.com/cute-clipart/64/000000/clipboard.png",
-    "entry": "./dist/index.js",
+    "icon": "https://img1.doubanio.com/f/talion/18932a3e71a60ed7150ca2ca7ebf21ddadd7092e/pics/icon/m_logo_120.png",
+    "title": "豆瓣",
+    "subtitle": "查询豆瓣影片、书籍等",
     "commands": [
       {
-        "name": "clipboard",
-        "matches": [
-          { "type": "text", "keywords": ["剪切板", "clipboard", "cp"] }
-        ],
+        "name": "movie",
+        "title": "豆瓣影片",
+        "subtitle": "查询豆瓣影片评分",
         "mode": "listView",
         "preload": "./dist/preload.js"
       }

@@ -31,7 +31,7 @@ class LauncherPlugin implements PublicPlugin {
       matches: [
         {
           type: 'text',
-          keywords: [item.title]
+          keywords: [item.title.toLowerCase()]
         }
       ]
     })))

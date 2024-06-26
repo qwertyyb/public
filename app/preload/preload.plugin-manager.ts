@@ -4,6 +4,7 @@ import * as nodePath from 'path'
 import * as fs from 'fs'
 import * as utils from '../utils'
 import { getConfig } from '../config';
+import { hanziToPinyin } from '@public/osx-fileicon';
 
 interface RunningPublicPlugin {
   plugin: PublicPlugin
@@ -11,6 +12,26 @@ interface RunningPublicPlugin {
   pkg: any,
   manifest: Omit<PluginManifest, 'commands'>,
   commands: PluginCommand[]
+}
+
+const calcScore = (query: string, target: string) => {
+  if (query && target.includes(query)) {
+    return query.length / target.length
+  }
+  return -1
+}
+
+const pinyin = (text: string) => {
+  if (/[^\x00-\xff]/.test(text)) {
+    const full: string = hanziToPinyin(text)
+    if (full) {
+      return [
+        full,
+        full.split(' ').map(i => i.trim()[0]).filter(i => i).join('').toLowerCase()
+      ]
+    }
+  }
+  return []
 }
 
 const formatCommand = (command: PluginCommand, manifest: PluginManifest) => {
@@ -23,10 +44,19 @@ const formatCommand = (command: PluginCommand, manifest: PluginManifest) => {
     mode: command.mode ?? 'none',
     entry: command.entry
   }
-  const keywords: string[] = [item.name, item.title, item.subtitle]
+  const keywords: string[] = [item.name, item.title, item.subtitle, ...pinyin(item.title), ...pinyin(item.subtitle)]
+  const matches = (command.matches || []).map(match => {
+    if (match.type === 'text') {
+      const keywords = (match.keywords || []).reduce<string[]>((acc, keyword) => {
+        return [...acc, keyword, ...pinyin(keyword)]
+      }, [])
+      return { ...match, keywords }
+    }
+    return match
+  })
   return {
     ...item,
-    matches: [...(command.matches || []), { type: 'text', keywords } as TextPluginCommandMatch]
+    matches: [...matches, { type: 'text', keywords } as TextPluginCommandMatch]
   }
 }
 
@@ -64,7 +94,7 @@ const addPlugin = async (pluginPath: string) => {
         pluginInstance.commands = commands.map(item => formatCommand(item, manifest))
       },
       showCommands: (commands: PluginCommand[]) => {
-        commands.forEach(command => resultsMap.set(command, pluginInstance))
+        commands.forEach(command => resultsMap.set(command, { score: 1, query: '', owner: pluginInstance }))
         window.dispatchEvent(new CustomEvent('plugin:showCommands', { detail: { name: manifest.name, commands }}))
       }
     }) as PublicPlugin
@@ -89,7 +119,7 @@ const removePlugin = (name: string) => {
 
 const getPlugins = () => plugins
 
-const resultsMap = new WeakMap<PluginCommand, RunningPublicPlugin>()
+const resultsMap = new WeakMap<PluginCommand, { score: number, query: string, owner: RunningPublicPlugin }>()
 
 const handleQuery = (keyword: string) => {
   plugins.forEach(plugin => plugin.plugin.onInput?.(keyword))
@@ -99,52 +129,51 @@ const handleQuery = (keyword: string) => {
     commands.forEach(command => {
       const { matches } = command
       const triggerMatch = matches.find(match => match.type === 'trigger') as TriggerPluginCommandMatch | null
-      console.log(triggerMatch, keyword)
       if (triggerMatch) {
         const triggerIndex = triggerMatch.triggers.findIndex(trigger => keyword.startsWith(trigger + ' '))
         if (triggerIndex >= 0) {
           const query = keyword.substring(triggerMatch.triggers[triggerIndex].length + 1)
           const result = {
             ...command,
-            title: (query && triggerMatch.title) ? triggerMatch.title.replace('$query', query) : command.title,
+            title: (query && triggerMatch.title) ? triggerMatch.title.replaceAll('$query', query) : command.title,
           }
           results.push(result)
-          resultsMap.set(result, plugin)
+          resultsMap.set(result, { query, score: 1, owner: plugin })
           return
         }
       }
-      const matched = matches.some((match: PluginCommandMatch) => {
+      let score = -1
+      matches.forEach((match: PluginCommandMatch) => {
         if (match.type === 'text') {
-          return match.keywords.some(word => word.toLocaleLowerCase().includes(keyword))
+          score = Math.max(score, ...match.keywords.map(word => calcScore(keyword, word)))
         }
-        return false
       })
-      if (matched) {
+      if (score > 0) {
         const result = { ...command }
         results.push(result)
-        resultsMap.set(result, plugin)
+        resultsMap.set(result, { query: keyword, score, owner: plugin })
       }
     })
   })
-  return results
+  return results.sort((prev, next) => resultsMap.get(next).score - resultsMap.get(prev).score)
 }
+
 
 const handleSelect = (command: PluginCommand, keyword: string) => {
   const rp = resultsMap.get(command)
-  return rp?.plugin?.onSelect?.(command, keyword)
+  return rp?.owner.plugin?.onSelect?.(command, keyword)
 }
-
 
 const handleEnter = (command: PluginCommand) => {
   const rp = resultsMap.get(command)
   if (command.mode === 'none') {
-    rp?.plugin.onEnter(command, '')
+    rp?.owner.plugin.onEnter(command, '')
   } else if (command.mode === 'listView') {
     // js entry
-    enterPlugin(rp.manifest.name, command, {
+    enterPlugin(rp.owner.manifest.name, command, {
       entry: getConfig().rendererEntry + '#/plugin/list-view',
       webPreferences: {
-        preload: nodePath.join(rp.path, command.entry),
+        preload: nodePath.join(rp.owner.path, command.preload),
         nodeIntegration: true,
         webSecurity: false,
         allowRunningInsecureContent: false,
@@ -158,9 +187,10 @@ const handleEnter = (command: PluginCommand) => {
     })
   } else if (command.mode === 'view') {
     // html entry
-    enterPlugin(rp.manifest.name, command, {
-      entry: nodePath.join(rp.path, command.entry),
+    enterPlugin(rp.owner.manifest.name, command, {
+      entry: nodePath.join(rp.owner.path, command.entry),
       webPreferences: {
+        ...(command.preload ? { preload: nodePath.join(rp.owner.path, command.preload) } : {}),
         nodeIntegration: true,
         webSecurity: false,
         allowRunningInsecureContent: false,
@@ -211,4 +241,3 @@ export {
   exitPlugin,
   setSubInputValue,
 }
-

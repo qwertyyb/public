@@ -47,8 +47,12 @@ declare global {
       drag: (point: {x: number, y: number}) => Promise<void>,
       scroll: (point: {x?: number, y?: number}) => Promise<void>
     },
-    fetch: typeof fetch,
+    fetch: (...args: Parameters<typeof fetch>) => Promise<{ status: number, ok: boolean, statusText: string, text: string, headers: Headers }>,
     enter: (name: string, item: CommonListItem, args: any) => Promise<MessagePort>,
-    exit: (name: string) => Promise<void>
+    exit: (name: string) => Promise<void>,
+
+    utils: {
+      debounce: <F extends (...args: any[]) => any>(fn: F) => (...args: Parameters<F>) => void
+    }
   }
 }

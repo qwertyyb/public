@@ -29,6 +29,7 @@ const MainView: Component = () => {
   createEffect(on(keyword, (value) => {
     setLoading(true)
     try {
+      console.log('startLoading', window.plugin)
       window.plugin?.search(value, (list) => {
         if (value !== keyword()) return
         setPluginResultMap({ main: list })

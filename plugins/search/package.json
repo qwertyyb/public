@@ -12,6 +12,40 @@
   "publicPlugin": {
     "title": "搜索",
     "subtitle": "快速使用 bing、baidu、google 搜索",
-    "icon": "https://img.icons8.com/nolan/128/search.png"
+    "icon": "https://img.icons8.com/nolan/128/search.png",
+    "commands": [
+      {
+        "name": "google",
+        "title": "谷歌搜索",
+        "subtitle": "",
+        "icon": "https://img.icons8.com/color/144/000000/google-logo.png",
+        "matches": [
+          { "type": "text", "keywords": ["谷歌", "search"] },
+          { "type": "trigger", "triggers": ["gg"], "title": "谷歌搜索$query..." }
+        ]
+      },
+      {
+        "name": "baidu",
+        "title": "百度搜索",
+        "subtitle": "",
+        "icon": "https://img.icons8.com/color/144/000000/baidu.png",
+        "matches": [
+          { "type": "text", "keywords": ["百度", "search"] },
+          { "type": "trigger", "triggers": ["bd"], "title": "百度搜索$query..." }
+
+        ]
+      },
+      {
+        "name": "bing",
+        "title": "必应搜索",
+        "subtitle": "",
+        "icon": "https://img.icons8.com/color/144/000000/bing.png",
+        "matches": [
+          { "type": "text", "keywords": ["bing", "必应", "search"] },
+          { "type": "trigger", "triggers": ["bing"], "title": "必应搜索$query..." }
+
+        ]
+      }
+    ]
   }
 }

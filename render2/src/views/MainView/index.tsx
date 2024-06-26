@@ -67,6 +67,7 @@ const MainView: Component = () => {
   }
 
   const exitCommand = () => {
+    console.log('command', command())
     if (!command()) return
     setCommand(null)
     window.PluginManager?.exitPlugin('xxx')

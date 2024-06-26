@@ -6,8 +6,18 @@ body {
   font-weight: 500;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* background-color: blue; */
+  background-repeat: no-repeat;
+  background-size: cover;
 	color: #444;
 }
+/* body::after {
+  content: " ";
+  display: block;
+  position: fixed;
+  inset: 0;
+  backdrop-filter: blur(40px);
+} */
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',

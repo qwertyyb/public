@@ -12,6 +12,17 @@
   "publicPlugin": {
     "title": "翻译",
     "subtitle": "翻译输入内容",
-    "icon": "https://img.icons8.com/color/144/000000/google-translate.png"
+    "icon": "https://img.icons8.com/color/144/000000/google-translate.png",
+    "commands": [
+      {
+        "name": "youdao",
+        "matches": [
+          { "type": "text", "keywords": ["翻译", "translate", "yd"] },
+          { "type": "trigger", "triggers": ["yd"] }
+        ],
+        "mode": "listView",
+        "preload": "./dist/preload.js"
+      }
+    ]
   }
 }

@@ -65,9 +65,9 @@ void HanziToPinyin(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   CFRelease(mutableString);
 }
 
-void Init(v8::Local<v8::Object> exports) {
-  Nan::Set(exports, Nan::New("hanziToPinyin").ToLocalChecked(),
+NAN_MODULE_INIT(Init) {
+  Nan::Set(target, Nan::New("hanziToPinyin").ToLocalChecked(),
            Nan::GetFunction(Nan::New<v8::FunctionTemplate>(HanziToPinyin)).ToLocalChecked());
 }
 
-NODE_MODULE(pinyin, Init)
+NODE_MODULE_CONTEXT_AWARE(pinyin, Init)

@@ -1,6 +1,16 @@
 import { ipcRenderer } from 'electron'
 import type { CommonListItem } from 'shared/types/plugin'
 
+const debounce = <F extends (...args: any[]) => any>(fn: F) => {
+  let timeout = null
+  return (...args: Parameters<F>) => {
+    if (timeout) {
+      clearTimeout(timeout)
+    }
+    timeout = setTimeout(() => fn(...args), 200)
+  }
+}
+
 export default () => ({
   db: {
     run: (sql: string, params?: Object) => ipcRenderer.invoke('db.run', sql, params),
@@ -34,5 +44,9 @@ export default () => ({
 
   // @ts-ignore
   enter: (name: string, item: CommonListItem, args: any) => window.PluginManager.enterPlugin(name, item, args),
-  exit: (name: string) => window.PluginManager.exitPlugin(name)
+  exit: (name: string) => window.PluginManager.exitPlugin(name),
+
+  utils: {
+    debounce
+  }
 })

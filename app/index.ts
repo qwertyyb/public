@@ -9,7 +9,9 @@ import db from './controller/storageController'
 import { getConfig } from './config';
 require('@electron/remote/main').initialize()
 
-const config = getConfig();
+const config = getConfig()
+
+app.setActivationPolicy('accessory')
 
 export class CoreApp {
   readonly electronApp = app;
@@ -64,7 +66,10 @@ export class CoreApp {
       minimizable: false, 
       maximizable: false,
       frame: false,
-      roundedCorners: false,
+      vibrancy: 'under-window',
+      hiddenInMissionControl: true,
+      skipTaskbar: true,
+      roundedCorners: true
     })
     const mainView = new WebContentsView({
       webPreferences: {
@@ -77,6 +82,7 @@ export class CoreApp {
         backgroundThrottling: false,
         enablePreferredSizeMode: true,
         sandbox: false,
+        transparent: true
       }
     })
     this.mainView = mainView
@@ -87,15 +93,15 @@ export class CoreApp {
     mainView.webContents.on('preferred-size-changed', (() => {
       let timeout = null
       return (event, size) => {
-        timeout && clearTimeout(timeout)
-        if (this.pluginView) {
-          win.setSize(780, 48 + 54 * 9)
-        } else {
-          setTimeout(() => {
-            mainView.setBounds({ ...mainView.getBounds(), height: size.height })
-            win.setSize(780, size.height)
-          }, 10)
-        }
+        // timeout && clearTimeout(timeout)
+        // if (this.pluginView) {
+        //   win.setSize(780, 48 + 54 * 9)
+        // } else {
+        //   setTimeout(() => {
+        //     mainView.setBounds({ ...mainView.getBounds(), height: size.height })
+        //     win.setSize(780, size.height)
+        //   }, 10)
+        // }
       }
     })())
     mainView.webContents.on('before-input-event', (event, inputEvent) => {
@@ -116,7 +122,7 @@ export class CoreApp {
       mainView.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.show'))`)
     })
     mainView.webContents.loadURL(config.rendererEntry)
-    mainView.webContents.openDevTools({ mode: 'detach' })
+    // mainView.webContents.openDevTools({ mode: 'detach' })
 
     return win
   }

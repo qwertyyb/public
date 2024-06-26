@@ -58,8 +58,9 @@ void RunCallback(const Nan::FunctionCallbackInfo<v8::Value>& info) {
     resource.runInAsyncScope(Nan::GetCurrentContext()->Global(), cb, 1, argv);
 }
 
-void Init(v8::Local<v8::Object> exports, v8::Local<v8::Object> module) {
-    Nan::SetMethod(module, "exports", RunCallback);
+NAN_MODULE_INIT(Init) {
+    Nan::Set(target, Nan::New("getIconForFile").ToLocalChecked(),
+           Nan::GetFunction(Nan::New<v8::FunctionTemplate>(RunCallback)).ToLocalChecked());
 }
 
-NODE_MODULE(getIconForFile, Init)
+NODE_MODULE_CONTEXT_AWARE(getIconForFile, Init)

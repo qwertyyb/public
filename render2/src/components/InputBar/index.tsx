@@ -28,7 +28,7 @@ const InputBar: Component<Props> = (props) => {
     <div class={styles.inputBar} onClick={focusInput}>
       <div class={styles.inputBarWrapper}>
         <Show when={props.command}>
-          <div class={styles.navBack} onClick={props.exit}>
+          <div class={styles.navBack} onPointerDown={props.exit}>
             <img src={Back} alt="" class={styles.backIcon} draggable="false" />
           </div>
         </Show>
@@ -40,6 +40,7 @@ const InputBar: Component<Props> = (props) => {
           onKeyDown={onKeyDown}
           value={props.value}
           id="main-input"/>
+        <div class={styles.searchSpace}></div>
         <img src={props.command?.icon ?? Logo} alt="" class={styles.appLogo} draggable="false" />
       </div>
     </div>

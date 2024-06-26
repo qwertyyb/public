@@ -8,9 +8,10 @@ const getDefaultSettings = () => {
       path.resolve(__dirname, '../../command'),
       path.resolve(__dirname, '../../calculator'),
       path.resolve(__dirname, '../../qrcode'),
-      // path.resolve(__dirname, '../../search'),
-      // path.resolve(__dirname, '../../translate'),
+      path.resolve(__dirname, '../../search'),
+      path.resolve(__dirname, '../../translate'),
       path.resolve(__dirname, '../../clipboard'),
+      path.resolve(__dirname, '../../douban'),
       // path.resolve(__dirname, '../../terminal'),
       // path.resolve(__dirname, '../../favorite'),
       path.resolve(__dirname, '../../find')

@@ -24,7 +24,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: #efefef;
+  background-color: rgba(0, 0, 0, 0.06);
 }
 .navBack {
   font-size: 16px;
@@ -33,24 +33,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #efefef;
   cursor: pointer;
 }
 .backIcon {
   width: 20px;
   height: 20px;
 }
+.navBack + .input {
+  padding-left: 0;
+}
 .input {
   height: 42px;
   min-height: 42px;
   font-size: 28px;
   padding: 0 10px;
-  width: 100%;
+  min-width: 4em;
   box-sizing: border-box;
   outline: none;
   border: none;
   background: none;
-  -webkit-app-region: drag;
 }
 .input::placeholder {
   font-size: 20px;
@@ -58,11 +59,14 @@
   position: relative;
   top: -2px;
 }
-
+.searchSpace {
+  flex: 1;
+  -webkit-app-region: drag;
+  height: 100%;
+}
 .appLogo {
   width: 36px;
   height: auto;
   cursor: pointer;
   padding: 6px;
-  background-color: #efefef;
 }

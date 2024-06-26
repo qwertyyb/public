@@ -21,7 +21,7 @@
         "subtitle": "生成二维码",
         "mode": "none",
         "matches": [
-          { "type": "text", "keywords": ["qrcode $query", "生成二维码 $query"] },
+          { "type": "text", "keywords": ["qrcode", "生成二维码"] },
           { "type": "trigger", "triggers": ["qr"], "title": "生成二维码“$query”" }
         ]
       },

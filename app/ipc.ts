@@ -21,8 +21,9 @@ const setPluginView = (coreApp: CoreApp, event: IpcMainEvent, args: any) => {
   if (!entry) return;
   const view = new WebContentsView({
     webPreferences: {
-      ...args.webPreferences,
+      transparent: true,
       nodeIntegration: true,
+      ...args.webPreferences,
       preload: path.join(__dirname, './preload.plugin.js'),
     },
   })
@@ -106,7 +107,8 @@ export default (coreApp: CoreApp) => {
       status: response.status,
       ok: response.ok,
       statusText: response.statusText,
-      text: await response.text()
+      text: await response.text(),
+      headers: response.headers
     }
     return result
   })
