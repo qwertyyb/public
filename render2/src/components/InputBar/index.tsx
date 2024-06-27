@@ -1,6 +1,6 @@
 import { Component, Show } from "solid-js";
 import styles from './index.module.css'
-import { CommonListItem } from "../../../../shared/types/plugin";
+import { ListItem } from "../../../../shared/types/plugin";
 import Logo from '../../logo.svg'
 import Back from '../../assets/back.svg'
 
@@ -8,7 +8,7 @@ interface Props {
   value: string
   setValue: (value: string) => any,
 
-  command?: CommonListItem | null,
+  command?: ListItem | null,
   exit: () => void
 }
 
@@ -39,6 +39,7 @@ const InputBar: Component<Props> = (props) => {
           onInput={event => props.setValue(event.target.value)}
           onKeyDown={onKeyDown}
           value={props.value}
+          size={props.value.length}
           id="main-input"/>
         <div class={styles.searchSpace}></div>
         <img src={props.command?.icon ?? Logo} alt="" class={styles.appLogo} draggable="false" />

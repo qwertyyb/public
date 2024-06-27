@@ -1,23 +1,24 @@
 import { Component, createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
 import InputBar from "../../components/InputBar";
 import ResultView from "../../components/ResultView";
-import { CommonListItem, ListItem, PluginCommand } from "../../../../shared/types/plugin";
+import { PluginCommand } from "../../../../shared/types/plugin";
 import styles from './index.module.css'
 
 declare global {
   interface WindowEventMap {
     'publicApp.mainWindow.hide': CustomEvent<{}>;
     'publicApp.mainWindow.show': CustomEvent<{}>;
-    'plugin:showCommands': CustomEvent<{ name: string, commands: CommonListItem[] }>;
+    'plugin:showCommands': CustomEvent<{ name: string, commands: PluginCommand[] }>;
     'inputBar.setValue': CustomEvent<{ value: string }>;
-    'inputBar.enter': CustomEvent<{ name: string, item: CommonListItem }>
+    'inputBar.enter': CustomEvent<{ name: string, item: PluginCommand }>
   }
 }
 
 const MainView: Component = () => {
-  const [pluginResultMap, setPluginResultMap] = createSignal<Record<string, CommonListItem[]>>({})
+  const [results, setResults] = createSignal<PluginCommand[]>([])
   const [keyword, setKeyword] = createSignal('')
-  const [command, setCommand] = createSignal<CommonListItem | null>(null)
+  const [command, setCommand] = createSignal<PluginCommand | null>(null)
+  const list = () => results().map(item => ({ ...item, action: item.mode && ['listView', 'view'].includes(item.mode) ? 'next' : false }))
 
   createEffect(on(keyword, (value) => {
     if (command()) {
@@ -26,10 +27,9 @@ const MainView: Component = () => {
     }
     if (value) {
       const results = window.PluginManager?.handleQuery(value) || []
-      // @ts-ignore
-      setPluginResultMap({ main: results })
+      setResults(results)
     } else {
-      setPluginResultMap({})
+      setResults([])
     }
   }))
 
@@ -38,12 +38,12 @@ const MainView: Component = () => {
     el?.focus()
   }
 
-  const onResultEnter = (name: string, item: ListItem, itemIndex: number) => {
-    window.PluginManager?.handleEnter(item as PluginCommand)
+  const onResultEnter = (item: PluginCommand, itemIndex: number) => {
+    window.PluginManager?.handleEnter(results()[itemIndex])
   }
 
-  const onResultSelected = (name: string, item: ListItem, itemIndex: number) => {
-    return window.PluginManager?.handleSelect(item as PluginCommand, keyword())
+  const onResultSelected = (item: PluginCommand, itemIndex: number) => {
+    return window.PluginManager?.handleSelect(results()[itemIndex], keyword())
   }
 
   const setInputBarValue = (event: CustomEvent<{ value: string }>) => {
@@ -51,15 +51,13 @@ const MainView: Component = () => {
     setKeyword(value)
   }
 
-  const setPluginResults = (e: CustomEvent<{ name: string, commands: CommonListItem[] }>) => {
+  const setPluginResults = (e: CustomEvent<{ name: string, commands: PluginCommand[] }>) => {
     const { name, commands } = e.detail || {}
-    setPluginResultMap({
-      main: commands
-    })
+    setResults(commands)
   }
   
   let preKeyword = ''
-  const enterSubInput = (e: CustomEvent<{ name: string, item: CommonListItem }>) => {
+  const enterSubInput = (e: CustomEvent<{ name: string, item: PluginCommand }>) => {
     preKeyword = keyword()
     setKeyword('')
     const { item } = e.detail || {}
@@ -67,7 +65,6 @@ const MainView: Component = () => {
   }
 
   const exitCommand = () => {
-    console.log('command', command())
     if (!command()) return
     setCommand(null)
     window.PluginManager?.exitPlugin('xxx')
@@ -96,7 +93,7 @@ const MainView: Component = () => {
         setValue={setKeyword}
         exit={exitCommand}
       />
-      <ResultView result={pluginResultMap()}
+      <ResultView results={list()}
         onResultSelected={onResultSelected}
         onResultEnter={onResultEnter}></ResultView>
     </div>

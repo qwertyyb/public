@@ -7,12 +7,16 @@ import { getConfig } from '../config';
 import { hanziToPinyin } from '@public/osx-fileicon';
 
 interface RunningPublicPlugin {
-  plugin: PublicPlugin
+  plugin?: PublicPlugin
   path: string
   pkg: any,
   manifest: Omit<PluginManifest, 'commands'>,
   commands: PluginCommand[]
 }
+
+const plugins: Map<string, RunningPublicPlugin> = new Map();
+
+const resultsMap = new WeakMap<PluginCommand, { score: number, query: string, owner: RunningPublicPlugin }>()
 
 const calcScore = (query: string, target: string) => {
   if (query && target.includes(query)) {
@@ -60,12 +64,8 @@ const formatCommand = (command: PluginCommand, manifest: PluginManifest) => {
   }
 }
 
-const plugins: Map<string, RunningPublicPlugin> = new Map();
-
 const checkPluginsRegistered = (path: string) => {
-  const resolvedPaths = Array.from(plugins.values()).map((p: any) => __non_webpack_require__.resolve(p.path))
-  const targetPath = __non_webpack_require__.resolve(path);
-  return resolvedPaths?.includes(targetPath)
+  return Array.from(plugins.values()).some(item => item.path === path)
 }
 
 
@@ -82,28 +82,32 @@ const addPlugin = async (pluginPath: string) => {
       ...rest
     }
     const commands: PluginCommand[] = (pkg.publicPlugin.commands || []).map(item => formatCommand(item, manifest))
-    const createPlugin = __non_webpack_require__(pluginPath).default || __non_webpack_require__(pluginPath)
-    const plugin = createPlugin({
-      db: window.publicApp.db,
-      getUtils: () => utils,
-      setList: (list: CommonListItem[]) => {
-      },
-      enter: (item: CommonListItem, args: any) => window.publicApp.enter(pkg.name, item, args),
-      exit: () => window.publicApp.exit(pkg.name),
-      updateCommands: (commands: PluginCommand[]) => {
-        pluginInstance.commands = commands.map(item => formatCommand(item, manifest))
-      },
-      showCommands: (commands: PluginCommand[]) => {
-        commands.forEach(command => resultsMap.set(command, { score: 1, query: '', owner: pluginInstance }))
-        window.dispatchEvent(new CustomEvent('plugin:showCommands', { detail: { name: manifest.name, commands }}))
-      }
-    }) as PublicPlugin
-    const pluginInstance = {
-      plugin,
+    const entry = manifest.entry || pkg.main
+    const pluginInstance: RunningPublicPlugin = {
       pkg,
-      path: pluginPath,
       manifest,
+      path: pluginPath,
       commands
+    }
+    if (entry) {
+      const entryPath = nodePath.join(pluginPath, entry)
+      const createPlugin = __non_webpack_require__(entryPath).default || __non_webpack_require__(entryPath)
+      const plugin = createPlugin({
+        db: window.publicApp.db,
+        getUtils: () => utils,
+        setList: (list: CommonListItem[]) => {
+        },
+        enter: (item: CommonListItem, args: any) => window.publicApp.enter(pkg.name, item, args),
+        exit: () => window.publicApp.exit(pkg.name),
+        updateCommands: (commands: PluginCommand[]) => {
+          pluginInstance.commands = commands.map(item => formatCommand(item, manifest))
+        },
+        showCommands: (commands: PluginCommand[]) => {
+          commands.forEach(command => resultsMap.set(command, { score: 1, query: '', owner: pluginInstance }))
+          window.dispatchEvent(new CustomEvent('plugin:showCommands', { detail: { name: manifest.name, commands }}))
+        }
+      }) as PublicPlugin
+      pluginInstance.plugin = plugin
     }
     plugins.set(pkg.name, pluginInstance)
     return pluginInstance
@@ -117,12 +121,8 @@ const removePlugin = (name: string) => {
   plugins.delete(name)
 }
 
-const getPlugins = () => plugins
-
-const resultsMap = new WeakMap<PluginCommand, { score: number, query: string, owner: RunningPublicPlugin }>()
-
 const handleQuery = (keyword: string) => {
-  plugins.forEach(plugin => plugin.plugin.onInput?.(keyword))
+  plugins.forEach(plugin => plugin.plugin?.onInput?.(keyword))
   let results: PluginCommand[] = []
   plugins.forEach((plugin, name) => {
     const { commands = [] } = plugins.get(name)
@@ -155,6 +155,7 @@ const handleQuery = (keyword: string) => {
       }
     })
   })
+  console.log(results)
   return results.sort((prev, next) => resultsMap.get(next).score - resultsMap.get(prev).score)
 }
 
@@ -166,8 +167,9 @@ const handleSelect = (command: PluginCommand, keyword: string) => {
 
 const handleEnter = (command: PluginCommand) => {
   const rp = resultsMap.get(command)
+  console.log(command, rp)
   if (command.mode === 'none') {
-    rp?.owner.plugin.onEnter(command, '')
+    rp?.owner.plugin?.onEnter?.(command, rp.query)
   } else if (command.mode === 'listView') {
     // js entry
     enterPlugin(rp.owner.manifest.name, command, {
@@ -229,6 +231,8 @@ const exitPlugin = (name: string) => {
 }
 
 const setSubInputValue = (value: string) => pluginViewPort.postMessage({ type: 'event', eventName: 'inputValueChanged', payload: value })
+
+const getPlugins = () => plugins
 
 export {
   getPlugins,

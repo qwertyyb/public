@@ -1,6 +1,6 @@
 import { Component, Show, createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
 import ResultView from "../../components/ResultView";
-import { CommonListItem, ListItem } from "../../../../shared/types/plugin";
+import { ListItem } from "../../../../shared/types/plugin";
 import styles from './index.module.css'
 import LoadingBar from "../../components/LoadingBar";
 
@@ -8,21 +8,20 @@ declare global {
   interface WindowEventMap {
     'publicApp.mainWindow.hide': CustomEvent<{}>;
     'publicApp.mainWindow.show': CustomEvent<{}>;
-    'plugin:setList': CustomEvent<{ name: string, list: CommonListItem[] }>;
+    'plugin:setList': CustomEvent<{ name: string, list: ListItem[] }>;
     'inputBar.setValue': CustomEvent<{ value: string }>;
-    'inputBar.enter': CustomEvent<{ name: string, item: CommonListItem }>
   }
   interface Window {
     plugin?: {
-      search: (keyword: string, setList: (list: CommonListItem[]) => void) => void,
-      select: (item: CommonListItem, itemIndex: number) => Promise<string>,
-      enter: (item: CommonListItem, itemIndex: number) => void
+      search: (keyword: string, setList: (list: ListItem[]) => void) => void,
+      select: (item: ListItem, itemIndex: number) => Promise<string>,
+      enter: (item: ListItem, itemIndex: number) => void
     }
   }
 }
 
 const MainView: Component = () => {
-  const [pluginResultMap, setPluginResultMap] = createSignal<Record<'main', CommonListItem[]>>({ main: [] })
+  const [results, setResults] = createSignal<ListItem[]>([])
   const [loading, setLoading] = createSignal(false)
   const [keyword, setKeyword] = createSignal('')
 
@@ -32,7 +31,7 @@ const MainView: Component = () => {
       console.log('startLoading', window.plugin)
       window.plugin?.search(value, (list) => {
         if (value !== keyword()) return
-        setPluginResultMap({ main: list })
+        setResults(list)
         setLoading(false)
       })
     } catch (err) {
@@ -40,22 +39,20 @@ const MainView: Component = () => {
     }
   }))
 
-  const onResultEnter = (name: string, item: ListItem, itemIndex: number) => {
-    window.plugin?.enter(item as CommonListItem, itemIndex)
+  const onResultEnter = (item: ListItem, itemIndex: number) => {
+    window.plugin?.enter(item as ListItem, itemIndex)
   }
 
-  const onResultSelected = (name: string, item: ListItem, itemIndex: number) => {
-    return window.plugin?.select?.(item as CommonListItem, itemIndex)
+  const onResultSelected = (item: ListItem, itemIndex: number) => {
+    return window.plugin?.select?.(item as ListItem, itemIndex)
   }
 
   const setInputValue = (event: CustomEvent<{ value: string }>) => {
     setKeyword(event.detail.value)
   }
 
-  const setPluginResults = (event: CustomEvent<{ name: string, list: CommonListItem[] }>) => {
-    setPluginResultMap({
-      main: event.detail.list || []
-    })
+  const setPluginResults = (event: CustomEvent<{ name: string, list: ListItem[] }>) => {
+    setResults(event.detail.list || [])
   }
 
   onMount(() => {
@@ -73,7 +70,7 @@ const MainView: Component = () => {
       <Show when={loading()}>
         <LoadingBar />
       </Show>
-      <ResultView result={pluginResultMap()}
+      <ResultView results={results()}
         onResultSelected={onResultSelected}
         onResultEnter={onResultEnter}></ResultView>
     </div>

@@ -1,0 +1,29 @@
+{
+  "name": "magic",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "publicPlugin": {
+    "icon": "https://img.icons8.com/?size=100&id=ZXnn88azBI7W&format=png&color=000000",
+    "title": "魔方平台",
+    "subtitle": "魔方平台快捷操作",
+    "commands": [
+      {
+        "name": "act",
+        "title": "魔方活动编辑页",
+        "subtitle": "打开魔方活动编辑页",
+        "mode": "none",
+        "matches": [
+          { "type": "text", "keywords": ["magic"] },
+          { "type": "trigger", "triggers": ["magic"] }
+        ]
+      }
+    ]
+  }
+}

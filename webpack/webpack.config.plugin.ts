@@ -42,6 +42,10 @@ const preloadConfig: (env: Record<string, string>, argv: Record<string, any>) =>
           use: 'ts-loader',
           exclude: /node_modules/,
         },
+        {
+          test: /\.css$/i,
+          use: ['style-loader', 'css-loader'],
+        },
       ],
     }
   }
@@ -56,10 +60,18 @@ const indexConfig: (env: Record<string, string>, argv: Record<string, any>) => P
     plugins = fs.readdirSync(pluginsPath, { encoding: 'utf-8' }).filter(name => !name.startsWith('.'))
   }
 
+  const entries = plugins.reduce((acc, name) => {
+    const exits = fs.existsSync(path.join(pluginsPath, name, './src/index.ts'))
+    if (!exits) return { ...acc }
+    return { ...acc, [name]: './' + path.join(name, './src/index.ts') }
+  }, {})
+
+  console.log(entries)
+
   return {
     context: pluginsPath,
     mode: 'development',
-    entry: plugins.reduce((acc, name) => ({ ...acc, [name]: './' + path.join(name, './src/index.ts') }), {}),
+    entry: entries,
     target: 'electron-preload',
     output: {
       path: pluginsPath,
@@ -78,6 +90,10 @@ const indexConfig: (env: Record<string, string>, argv: Record<string, any>) => P
           test: /\.ts$/,
           use: 'ts-loader',
           exclude: /node_modules/,
+        },
+        {
+          test: /\.css$/i,
+          use: ['style-loader', 'css-loader']
         },
       ],
     }

@@ -66,7 +66,7 @@ export class CoreApp {
       minimizable: false, 
       maximizable: false,
       frame: false,
-      vibrancy: 'under-window',
+      // vibrancy: 'under-window',
       hiddenInMissionControl: true,
       skipTaskbar: true,
       roundedCorners: true
@@ -90,20 +90,20 @@ export class CoreApp {
     mainView.setBounds({ x: 0, y: 0, width: 780, height: 600 })
     require("@electron/remote/main").enable(mainView.webContents)
 
-    mainView.webContents.on('preferred-size-changed', (() => {
-      let timeout = null
-      return (event, size) => {
-        // timeout && clearTimeout(timeout)
-        // if (this.pluginView) {
-        //   win.setSize(780, 48 + 54 * 9)
-        // } else {
-        //   setTimeout(() => {
-        //     mainView.setBounds({ ...mainView.getBounds(), height: size.height })
-        //     win.setSize(780, size.height)
-        //   }, 10)
-        // }
-      }
-    })())
+    // mainView.webContents.on('preferred-size-changed', (() => {
+    //   let timeout = null
+    //   return (event, size) => {
+    //     // timeout && clearTimeout(timeout)
+    //     // if (this.pluginView) {
+    //     //   win.setSize(780, 48 + 54 * 9)
+    //     // } else {
+    //     //   setTimeout(() => {
+    //     //     mainView.setBounds({ ...mainView.getBounds(), height: size.height })
+    //     //     win.setSize(780, size.height)
+    //     //   }, 10)
+    //     // }
+    //   }
+    // })())
     mainView.webContents.on('before-input-event', (event, inputEvent) => {
       const keys = {
         ArrowUp: 'Up',
@@ -122,7 +122,10 @@ export class CoreApp {
       mainView.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.show'))`)
     })
     mainView.webContents.loadURL(config.rendererEntry)
-    // mainView.webContents.openDevTools({ mode: 'detach' })
+
+    mainView.webContents.on('context-menu', () => {
+      mainView.webContents.openDevTools({ mode: 'detach' })
+    })
 
     return win
   }

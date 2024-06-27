@@ -12,6 +12,8 @@ const getDefaultSettings = () => {
       path.resolve(__dirname, '../../translate'),
       path.resolve(__dirname, '../../clipboard'),
       path.resolve(__dirname, '../../douban'),
+      path.resolve(__dirname, '../../magic'),
+      path.resolve(__dirname, '../../ai-chat'),
       // path.resolve(__dirname, '../../terminal'),
       // path.resolve(__dirname, '../../favorite'),
       path.resolve(__dirname, '../../find')

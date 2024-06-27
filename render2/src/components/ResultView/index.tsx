@@ -1,28 +1,26 @@
-import { Component, Show, createEffect, createResource, createSignal, on, onCleanup, onMount } from "solid-js";
-import { VirtualList } from "cui-virtual-list";
+import { Show, createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
 import styles from './index.module.css';
 import ResultItem from "../ResultItem";
 import { ListItem } from "../../../../shared/types/plugin";
 import ResultItemPreview from "../ResultItemPreview";
-import { getTargetInfo } from '../../utils'
+import VirtualList from "../VirtualList";
 
-interface Props {
-  result: Record<string, ListItem[]>,
-  onResultEnter: (name: string, item: ListItem, itemIndex: number) => void,
-  onResultSelected: (name: string, item: ListItem, itemIndex: number) => string | HTMLElement | Promise<string> | Promise<HTMLElement> | undefined,
+console.log(styles)
+
+interface Props<D> {
+  results: D[],
+  onResultEnter: (item: D, itemIndex: number) => void,
+  onResultSelected: (item: D, itemIndex: number) => string | HTMLElement | Promise<string> | Promise<HTMLElement> | undefined,
 }
 
-const ResultView: Component<Props> = (props) => {
+function ResultView<D extends ListItem>(props: Props<D>) {
   const [selectedIndex, setSelectedIndex] = createSignal(0);
-  const list = () => Object.values(props.result).flat();
-  const selectedItem = () => list()[selectedIndex()]
+  const selectedItem = () => props.results[selectedIndex()]
   const [preview, setPreview] = createSignal<string | HTMLElement>('')
 
   const onResultEnter = (index: number) => {
-    const item = list()[index]
-    const { targetKey, targetIndex } = getTargetInfo(props.result, item)
-    if (!targetKey) return
-    props.onResultEnter(targetKey, item, targetIndex)
+    const item = props.results[index]
+    props.onResultEnter(item, index)
   }
 
   const keydownHandler = (e: KeyboardEvent) => {
@@ -31,7 +29,7 @@ const ResultView: Component<Props> = (props) => {
       e.stopPropagation()
       e.preventDefault()
     } else if(e.key === 'ArrowDown') {
-      setSelectedIndex(Math.min(selectedIndex() + 1, list().length - 1))
+      setSelectedIndex(Math.min(selectedIndex() + 1, props.results.length - 1))
       e.stopPropagation()
       e.preventDefault()
     } else if(e.key === 'Enter') {
@@ -40,22 +38,14 @@ const ResultView: Component<Props> = (props) => {
     }
   }
 
-  const getPreview = async (item: ListItem) => {
+  const getPreview = async (item: D) => {
     if (!item) return setPreview('')
-    const { targetKey, targetIndex } = getTargetInfo(props.result, item)
-    if (!targetKey) {
-      return setPreview('')
-    }
-    const result = await props.onResultSelected(
-      targetKey,
-      item,
-      targetIndex,
-    )
+    const result = await props.onResultSelected(item, selectedIndex())
     setPreview(result || '')
   }
 
   // 结果变化时，把 selectedIndex 置 0
-  createEffect(on(list, (v) => { setSelectedIndex(0) }))
+  createEffect(on(() => props.results, (v) => { setSelectedIndex(0) }))
 
   // selectedIndex 变化时，滚动到选择位置，调用preview
   createEffect(on(selectedIndex, (value) => {
@@ -73,16 +63,17 @@ const ResultView: Component<Props> = (props) => {
 
   return (
     <div class={styles.resultView}>
-      <div class={styles.resultListContainer}>
+      <div class={styles.resultsListContainer}>
         <VirtualList
-          maxHeight={54 * 9}
-          items={list()}
-          itemEstimatedSize={54}
+          list={props.results}
+          keeps={30}
+          itemHeight={54}
         >
-          {(itemProps: any) => (
+          {(itemProps) => (
             <ResultItem icon={itemProps.item.icon}
               title={itemProps.item.title}
               subtitle={itemProps.item.subtitle}
+              action={itemProps.item.action}
               selected={itemProps.index === selectedIndex()}
               onEnter={() => onResultEnter(itemProps.index)}
               onSelect={() => setSelectedIndex(itemProps.index)}

@@ -1,8 +1,8 @@
 .resultView {
   display: flex;
 }
-.resultListContainer {
-  flex: 3;
+.resultsListContainer {
+  flex: 2;
   overflow: auto;
 }
 

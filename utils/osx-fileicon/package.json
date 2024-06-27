@@ -4,7 +4,6 @@
   "description": "Get the Finder icon for a file path",
   "main": "index.ts",
   "scripts": {
-    "postinstall": "node-gyp rebuild"
   },
   "keywords": [
     "Finder",

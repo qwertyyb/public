@@ -34,6 +34,9 @@ const setPluginView = (coreApp: CoreApp, event: IpcMainEvent, args: any) => {
     port.postMessage('ready')
     view.webContents.postMessage('port', null, [port])
   })
+  view.webContents.on('context-menu', () => {
+    view.webContents.openDevTools({ mode: 'detach' })
+  })
   if (entry.startsWith('http://') || entry.startsWith('file://')) {
     const url = new URL(entry)
     url.searchParams.set('preload', args.webPreferences.preload || '')

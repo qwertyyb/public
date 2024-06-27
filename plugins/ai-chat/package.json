@@ -1,0 +1,39 @@
+{
+  "name": "ai-chat",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "publicPlugin": {
+    "icon": "https://lf-coze-web-cdn.coze.cn/obj/coze-web-cn/obric/coze/favicon.1970.png",
+    "title": "AI助手",
+    "subtitle": "AI助手",
+    "commands": [
+      {
+        "name": "ai-chat",
+        "mode": "listView",
+        "matches": [
+          {
+            "type": "text",
+            "keywords": [
+              "AI",
+              "ai",
+              "ask",
+              "chat"
+            ]
+          }
+        ],
+        "preload": "./dist/preload.js"
+      }
+    ]
+  },
+  "dependencies": {
+    "github-markdown-css": "^5.6.1",
+    "marked": "^13.0.1",
+    "sse.js": "^2.5.0"
+  }
+}

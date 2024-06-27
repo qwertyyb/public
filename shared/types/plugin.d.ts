@@ -11,6 +11,7 @@ interface ListItem {
   title: string,
   icon?: string,
   subtitle?: string,
+  [propName: string]: any
 }
 
 interface CommonListItem extends ListItem {
@@ -26,12 +27,6 @@ export interface PublicPlugin {
   onInput?: (keyword: string) => void,
   onSelect?: (command: PluginCommand, keyword: string) => string | HTMLElement | Promise<string> | Promise<HTMLElement>,
   onEnter?: (item: PluginCommand, keyword: string) => void
-}
-
-interface RunningPublicPlugin {
-  plugin: PublicPlugin
-  path: string
-  pkg: any
 }
 
 export interface PublicApp {
@@ -62,7 +57,7 @@ export interface TextPluginCommandMatch {
 
 export type PluginCommandMatch = TextPluginCommandMatch | TriggerPluginCommandMatch
 
-export interface PluginCommand extends Partial<ListItem> {
+export interface PluginCommand extends ListItem {
   name: string
   mode?: 'listView' | 'none' | 'view',
   matches: PluginCommandMatch[],
