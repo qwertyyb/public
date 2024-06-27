@@ -6,6 +6,10 @@ import { getConfig } from './config';
 
 const config = getConfig()
 
+function easeInCubic( t ) {
+  return t * t * t;
+}
+
 const removePluginView = (coreApp: CoreApp) => {
   if (!coreApp.pluginView) return;
   coreApp.pluginView.webContents.close()
@@ -28,7 +32,16 @@ const setPluginView = (coreApp: CoreApp, event: IpcMainEvent, args: any) => {
     },
   })
   coreApp.mainWindow.contentView.addChildView(view)
-  view.setBounds({ x: 0, y: 48, width: 780, height: 54 * 9 })
+  view.setBounds({ x: 780, y: 48, width: 780, height: 54 * 9 })
+  let cur = 0;
+  const interval = setInterval(() => {
+    const bounds = view.getBounds()
+    const x = Math.max(0, 780 - 780 * easeInCubic(cur += 0.025))
+    view.setBounds({ ...bounds, x  })
+    if (x <= 0) {
+      clearInterval(interval)
+    }
+  }, 10)
   const port = event.ports[0]
   view.webContents.on('dom-ready', () => {
     port.postMessage('ready')

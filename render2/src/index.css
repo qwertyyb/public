@@ -1,3 +1,6 @@
+:root {
+  color-scheme: light dark;
+}
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -9,7 +12,8 @@ body {
   /* background-color: blue; */
   background-repeat: no-repeat;
   background-size: cover;
-	color: #444;
+	color: light-dark(#444, #ccc);
+  background-color: light-dark(#ccc, #161616);
 }
 /* body::after {
   content: " ";
@@ -64,3 +68,10 @@ body {
 ::-webkit-scrollbar {
   width: 0;
 }
+
+/* @media (prefers-color-scheme: dark) {
+  body {
+    background: #000;
+    color: #fff;
+  }
+} */

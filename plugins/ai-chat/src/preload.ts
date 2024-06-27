@@ -56,7 +56,7 @@ const createPreviewContent = (query: string) => {
   wrapper.classList.add('preview-wrapper')
 
   const div = document.createElement('div')
-  div.style.cssText = 'position:relative;height:100%;padding-bottom:60px;box-sizing:border-box;overflow:auto;padding-right:12px'
+  div.style.cssText = 'position:relative;height:100%;background:none;padding-bottom:60px;box-sizing:border-box;overflow:auto;padding-right:12px'
   div.classList.add('markdown-body')
 
   const h3 = document.createElement('h3')
@@ -104,22 +104,35 @@ export default {
 
     const source = streamChat(item.query)
     let answer = ''
+    let curPos = 0
+    let ended = false
+    const interval = setInterval(async () => {
+      if (curPos === answer.length) {
+        if (ended) {
+          clearInterval(interval)
+        }
+        return;
+      }
+      curPos += 1;
+      const content = item.preview?.querySelector('.answer')
+      content.innerHTML = await marked.parse(answer.substring(0, curPos))
+      item.preview?.querySelector('.markdown-body')?.scrollTo({ left: 0, top: 9999, behavior: 'smooth' })
+    }, 100)
     const handler = async (e) => {
       const json = JSON.parse(e.data)
+      console.log(json)
       const { event, message } = json;
       if (event === 'message' && message.role === 'assistant' && message.type === 'answer') {
         answer += message.content
-        const content = item.preview?.querySelector('.answer')
-        content.innerHTML = await marked.parse(answer)
-        item.preview?.querySelector('.markdown-body')?.scrollTo({ left: 0, top: 9999, behavior: 'smooth' })
+      }
+      if (event === 'error') {
+        answer += JSON.parse(json.error_information)
       }
       if (event === 'done' || event === 'error') {
         const loading: HTMLDivElement = item.preview?.querySelector('.loading-btn')
         loading?.parentNode?.removeChild(loading)
         source.removeEventListener('message', handler)
-      }
-      if (event === 'error') {
-        answer += JSON.parse(json.error_information)
+        ended = true
       }
     }
 

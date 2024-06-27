@@ -1,7 +1,7 @@
 .resultItemPreview {
   box-sizing: border-box;
   flex: 4;
-  border-left: 1px solid #ddd;
+  border-left: 1px solid light-dark(#ddd, #333);
   height: 486px;
   min-height: 486px;
   max-width: 64%;

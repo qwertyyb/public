@@ -28,8 +28,8 @@ const InputBar: Component<Props> = (props) => {
     <div class={styles.inputBar} onClick={focusInput}>
       <div class={styles.inputBarWrapper}>
         <Show when={props.command}>
-          <div class={styles.navBack} onPointerDown={props.exit}>
-            <img src={Back} alt="" class={styles.backIcon} draggable="false" />
+          <div class={styles.navBack + ' material-symbols-outlined'} onPointerDown={props.exit}>
+            arrow_back
           </div>
         </Show>
         <input type="text"

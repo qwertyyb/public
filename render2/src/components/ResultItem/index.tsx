@@ -17,8 +17,8 @@ const ResultItem: Component<Props> = (props) => {
     <div class={styles.resultItem + ' result-item'}
       classList={{ [styles.selected]: props.selected }}
       data-result-item-index={props.index}
-      onMouseOver={props.onSelect}
-      onClick={props.onEnter}>
+      onClick={props.onSelect}
+      onDblClick={props.onEnter}>
       <Show when={props.icon}>
         <div class={styles.itemImageWrapper + ' flex-h-v'}>
           <img src={props.icon} alt=""/>
