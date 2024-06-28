@@ -13,7 +13,7 @@ body {
   background-repeat: no-repeat;
   background-size: cover;
 	color: light-dark(#444, #ccc);
-  background-color: light-dark(#ccc, #161616);
+  background-color: light-dark(#d7d7d7, #161616);
 }
 /* body::after {
   content: " ";

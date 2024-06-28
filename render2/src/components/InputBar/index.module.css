@@ -47,13 +47,14 @@
   height: 42px;
   min-height: 42px;
   font-size: 18px;
-  padding: 0 10px;
+  padding: 0 12px;
   min-width: 4em;
   box-sizing: border-box;
   outline: none;
   border: none;
   background: none;
   field-sizing: content;
+  font-weight: 500;
 }
 .input::placeholder {
   font-weight: normal;

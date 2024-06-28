@@ -14,8 +14,8 @@ declare global {
   interface Window {
     plugin?: {
       search: (keyword: string, setList: (list: ListItem[]) => void) => void,
-      select: (item: ListItem, itemIndex: number) => Promise<string>,
-      enter: (item: ListItem, itemIndex: number) => void
+      select: (item: ListItem, itemIndex: number, keyword: string) => Promise<string>,
+      enter: (item: ListItem, itemIndex: number, keyword: string) => void
     }
   }
 }
@@ -40,11 +40,11 @@ const MainView: Component = () => {
   }))
 
   const onResultEnter = (item: ListItem, itemIndex: number) => {
-    window.plugin?.enter(item as ListItem, itemIndex)
+    window.plugin?.enter(item as ListItem, itemIndex, keyword())
   }
 
   const onResultSelected = (item: ListItem, itemIndex: number) => {
-    return window.plugin?.select?.(item as ListItem, itemIndex)
+    return window.plugin?.select?.(item as ListItem, itemIndex, keyword())
   }
 
   const setInputValue = (event: CustomEvent<{ value: string }>) => {

@@ -28,5 +28,19 @@
 			]
 			]
 		},
+		{
+			"target_name": "foreground_app",
+			"include_dirs": ["<!(node -e \"require('nan')\")"],
+			"conditions": [[
+				'OS=="mac"',
+				{
+					"sources": ["lib/foreground_app.mm"],
+					"link_settings": {
+						"libraries": ["-framework AppKit"]
+					}
+				}
+			]
+			]
+		},
 	]
 }
