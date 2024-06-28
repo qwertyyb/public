@@ -3,6 +3,7 @@ import { getFileIcon } from '@public/osx-fileicon'
 import { app, BaseWindow, protocol, WebContentsView, type Tray } from "electron";
 import { autoUpdater } from "electron-updater"
 import * as robotjs from '@nut-tree-fork/nut-js'
+import { uIOhook, UiohookKey } from 'uiohook-napi'
 import initIpc from './ipc'
 import initTray from './controller/trayController'
 import db from './controller/storageController'
@@ -51,6 +52,25 @@ export class CoreApp {
     this.electronApp.on('window-all-closed', () => {
       this.electronApp.quit();
     });
+
+    uIOhook.on('keydown', (() => {
+      let lastCalledTime = 0
+      return (e) => {
+        if (e.keycode === UiohookKey.Meta) {
+          if (Date.now() - lastCalledTime < 200) {
+            this.mainWindow?.show()
+            lastCalledTime = 0
+            return
+          } else {
+            lastCalledTime = Date.now()
+          }
+        } else {
+          lastCalledTime = 0
+        }
+      }
+    })())
+    
+    uIOhook.start()
   }
 
   private createMainWindow() {

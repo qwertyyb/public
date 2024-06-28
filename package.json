@@ -126,6 +126,7 @@
   },
   "dependencies": {
     "@public/osx-fileicon": "workspace:*",
-    "sqlite3": "^5.0.2"
+    "sqlite3": "^5.0.2",
+    "uiohook-napi": "^1.5.4"
   }
 }
