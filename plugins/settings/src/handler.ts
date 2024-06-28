@@ -125,31 +125,9 @@ const handlers = {
   },
 }
 
-const initHandler = (port: MessagePort) => {
-  port.addEventListener('message', async (event: MessageEvent<{
-    type: string,
-    methodName: string,
-    args: any,
-    callbackName: string
-  }>) => {
-    const { type, methodName, args, callbackName } = event.data
-    if (type !== 'method') return
-    try {
-      const returnValue = await handlers[methodName]?.(args)
-      port?.postMessage({
-        type: 'callback',
-        callbackName,
-        returnValue,
-        error: null,
-      })
-    } catch (err) {
-      port?.postMessage({
-        type: 'callback',
-        callbackName,
-        err,
-      })
-      throw err;
-    }
+const initHandler = (bridge) => {
+  Object.keys(handlers).forEach(name => {
+    bridge.handle(name, handlers[name])
   })
 }
 

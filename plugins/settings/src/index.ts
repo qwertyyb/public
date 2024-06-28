@@ -12,7 +12,7 @@ export default (app: PublicApp): PublicPlugin => {
 
   return {
     onEnter: async (item) => {
-      const port = await app.enter(item, {
+      const bridge = await app.enter(item, {
         entry: path.join(__dirname, '../public/settings.html'),
         webPreferences: {
           nodeIntegration: true,
@@ -26,7 +26,8 @@ export default (app: PublicApp): PublicPlugin => {
           sandbox: false,
         }
       })
-      initHandler(port)
+      console.log('bridge', bridge)
+      initHandler(bridge)
     }
   }
 }

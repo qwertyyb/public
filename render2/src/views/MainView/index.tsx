@@ -10,12 +10,14 @@ declare global {
     'publicApp.mainWindow.show': CustomEvent<{}>;
     'plugin:showCommands': CustomEvent<{ name: string, commands: PluginCommand[] }>;
     'inputBar.setValue': CustomEvent<{ value: string }>;
-    'inputBar.enter': CustomEvent<{ name: string, item: PluginCommand }>
+    'inputBar.enter': CustomEvent<{ name: string, item: PluginCommand }>,
+    'inputBar.disable': CustomEvent<{ disable: boolean }>
   }
 }
 
 const MainView: Component = () => {
   const [results, setResults] = createSignal<PluginCommand[]>([])
+  const [inputDisable, setInputDisable] = createSignal(false)
   const [keyword, setKeyword] = createSignal('')
   const [command, setCommand] = createSignal<PluginCommand | null>(null)
   const list = () => results().map(item => ({ ...item, action: item.mode && ['listView', 'view'].includes(item.mode) ? 'next' : false }))
@@ -51,9 +53,13 @@ const MainView: Component = () => {
     setKeyword(value)
   }
 
-  const setPluginResults = (e: CustomEvent<{ name: string, commands: PluginCommand[] }>) => {
-    const { name, commands } = e.detail || {}
+  const setPluginResults = (e: CustomEvent<{ commands: PluginCommand[] }>) => {
+    const { commands } = e.detail || {}
     setResults(commands)
+  }
+
+  const setInputBarDisable = (e: CustomEvent<{ disable: boolean }>) => {
+    setInputDisable(e.detail.disable)
   }
   
   let preKeyword = ''
@@ -68,8 +74,11 @@ const MainView: Component = () => {
     if (!command()) return
     setCommand(null)
     window.PluginManager?.exitPlugin('xxx')
+    setInputDisable(false)
     setKeyword(preKeyword)
-    focusInput()
+    setTimeout(() => {
+      focusInput()
+    })
   }
 
   onMount(() => {
@@ -77,6 +86,7 @@ const MainView: Component = () => {
     window.addEventListener('publicApp.mainWindow.show', focusInput)
     window.addEventListener('inputBar.setValue', setInputBarValue)
     window.addEventListener('inputBar.enter', enterSubInput)
+    window.addEventListener('inputBar.disable', setInputBarDisable)
   })
 
   onCleanup(() => {
@@ -84,6 +94,7 @@ const MainView: Component = () => {
     window.removeEventListener('publicApp.mainWindow.show', focusInput)
     window.removeEventListener('inputBar.setValue', setInputBarValue)
     window.removeEventListener('inputBar.enter', enterSubInput)
+    window.removeEventListener('inputBar.disable', setInputBarDisable)
   })
 
   return (
@@ -92,6 +103,7 @@ const MainView: Component = () => {
         command={command()}
         setValue={setKeyword}
         exit={exitCommand}
+        disable={inputDisable()}
       />
       <ResultView results={list()}
         onResultSelected={onResultSelected}

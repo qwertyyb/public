@@ -60,10 +60,10 @@ var app = new Vue({
   },
   methods: {
     async refreshSettings() {
-      window.portHandle.invoke('getSettings').then(settings => {
+      window.bridge.invoke('getSettings').then(settings => {
         this.settings = settings
       })
-      window.portHandle.invoke('getPlugins').then(plugins => {
+      window.bridge.invoke('getPlugins').then(plugins => {
         this.plugins = plugins
         console.log(plugins)
       })
@@ -92,7 +92,7 @@ var app = new Vue({
     },
     async onLaunchAtLoginChange (launchAtLogin) {
       this.settings.launchAtLogin = launchAtLogin
-      await window.portHandle.invoke('registerLaunchAtLogin', {
+      await window.bridge.invoke('registerLaunchAtLogin', {
         settings: this.settings
       })
       this.refreshSettings()
@@ -124,13 +124,13 @@ var app = new Vue({
       
       validateFile(file)
 
-      await window.portHandle.invoke('registerPlugin', { path: file.path })
+      await window.bridge.invoke('registerPlugin', { path: file.path })
       this.$message.success('插件添加成功')
       this.refreshSettings()
     },
 
     async onRemovePluginClick(index, plugin) {
-      await window.portHandle.invoke('removePlugin', { index, plugin })
+      await window.bridge.invoke('removePlugin', { index, plugin })
       this.$message.success('插件移除成功')
       this.refreshSettings()
     },
@@ -147,7 +147,7 @@ var app = new Vue({
       this.updateShortcut()
     },
     async updateShortcut() {
-      await window.portHandle.invoke('registerShortcuts', {
+      await window.bridge.invoke('registerShortcuts', {
         settings: this.settings
       })
       this.refreshSettings()

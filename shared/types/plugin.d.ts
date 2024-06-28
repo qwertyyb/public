@@ -1,6 +1,7 @@
 import { BrowserWindow } from "electron";
 import { CoreApp } from "index"
 import type { CommonListItem, PublicPlugin } from ".";
+import { PortBridge } from "app/utils";
 
 
 interface SetResult {
@@ -41,7 +42,7 @@ export interface PublicApp {
       get: (sql, params?) => Promise<Any>
     },
 
-    enter: (item: CommonListItem, args: any) => Promise<MessagePort>,
+    enter: (item: CommonListItem, args: any) => Promise<PortBridge>,
     exit: () => Promise<void>
 }
 

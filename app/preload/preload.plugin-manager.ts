@@ -155,7 +155,6 @@ const handleQuery = (keyword: string) => {
       }
     })
   })
-  console.log(results)
   return results.sort((prev, next) => resultsMap.get(next).score - resultsMap.get(prev).score)
 }
 
@@ -207,7 +206,7 @@ const handleEnter = (command: PluginCommand) => {
   }
 }
 
-let pluginViewPort: MessagePort | null = null
+let controlBridge: utils.PortBridge | null = null
 
 const enterPlugin = (name: string, item: PluginCommand, args: any) => {
   window.dispatchEvent(new CustomEvent('inputBar.enter', { detail: { name, item } }))
@@ -215,24 +214,24 @@ const enterPlugin = (name: string, item: PluginCommand, args: any) => {
   // 搞两个 channel, 一个用来做 API 控制层调用，另一个将会插件做通信
   const { port1, port2 } = new MessageChannel()
   const { port1: controlPort1, port2: controlPort2 } = new MessageChannel()
-  return new Promise<MessagePort>(resolve => {
-    ipcRenderer.postMessage('enter', { item, args }, [port2, controlPort2])
-    controlPort1.addEventListener('message', (event) => {
-      if (event.data === 'ready') {
-        resolve(port1)
-      }
-    }, { once: true })
+  return new Promise<utils.PortBridge>(resolve => {
+    controlBridge = utils.createBridge(controlPort1)
+    controlBridge.handle('inputBar.disable', ({ disable }) => {
+      window.dispatchEvent(new CustomEvent('inputBar.disable', { detail: { disable } }))
+    })
+    controlBridge.once('ready', () => resolve(utils.createBridge(port1)))
     controlPort1.start()
-    pluginViewPort = controlPort1;
+    ipcRenderer.postMessage('enter', { item, args }, [port2, controlPort2])
   })
 }
 
+
 const exitPlugin = (name: string) => {
-  pluginViewPort = null
+  controlBridge = null
   return ipcRenderer.invoke('exit')
 }
 
-const setSubInputValue = (value: string) => pluginViewPort.postMessage({ type: 'event', eventName: 'inputValueChanged', payload: value })
+const setSubInputValue = (value: string) => controlBridge.invoke('setInputValue', { value })
 
 const getPlugins = () => plugins
 

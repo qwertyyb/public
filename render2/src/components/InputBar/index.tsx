@@ -1,4 +1,4 @@
-import { Component, Show } from "solid-js";
+import { Component, Show, onCleanup, onMount } from "solid-js";
 import styles from './index.module.css'
 import { ListItem } from "../../../../shared/types/plugin";
 import Logo from '../../logo.svg'
@@ -9,7 +9,9 @@ interface Props {
   setValue: (value: string) => any,
 
   command?: ListItem | null,
-  exit: () => void
+  exit: () => void,
+
+  disable?: boolean,
 }
 
 const InputBar: Component<Props> = (props) => {
@@ -23,6 +25,20 @@ const InputBar: Component<Props> = (props) => {
       props.exit()
     }
   }
+  onMount(() => {
+    const handler = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      if (props.value) {
+        props.setValue('')
+      } else if (props.command) {
+        props.exit()
+      }
+    }
+    window.addEventListener('keydown', handler)
+    onCleanup(() => {
+      window.removeEventListener('keydown', handler)
+    })
+  })
 
   return (
     <div class={styles.inputBar} onClick={focusInput}>
@@ -32,15 +48,17 @@ const InputBar: Component<Props> = (props) => {
             arrow_back
           </div>
         </Show>
-        <input type="text"
-          class={styles.input}
-          ref={inputEl!}
-          placeholder="请搜索"
-          onInput={event => props.setValue(event.target.value)}
-          onKeyDown={onKeyDown}
-          value={props.value}
-          size={props.value.length}
-          id="main-input"/>
+        <Show when={!props.disable}>
+          <input type="text"
+            class={styles.input}
+            ref={inputEl!}
+            placeholder="请搜索"
+            onInput={event => props.setValue(event.target.value)}
+            onKeyDown={onKeyDown}
+            value={props.value}
+            size={props.value.length}
+            id="main-input"/>
+        </Show>
         <div class={styles.searchSpace}></div>
         <img src={props.command?.icon ?? Logo} alt="" class={styles.appLogo} draggable="false" />
       </div>

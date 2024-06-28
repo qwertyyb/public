@@ -44,7 +44,7 @@ const setPluginView = (coreApp: CoreApp, event: IpcMainEvent, args: any) => {
   }, 10)
   const [port2, controlPort2] = event.ports
   view.webContents.on('dom-ready', () => {
-    controlPort2.postMessage('ready')
+    controlPort2.postMessage({ type: 'event', eventName: 'ready' })
     view.webContents.postMessage('port', null, [port2, controlPort2])
   })
   view.webContents.on('context-menu', () => {

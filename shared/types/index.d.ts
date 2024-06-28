@@ -1,5 +1,6 @@
 import { BrowserWindow, Common, webContents } from "electron"
 import { CommonListItem, PluginCommand, PublicPlugin, RunningPublicPlugin } from './plugin'
+import { PortBridge } from "app/utils"
 
 declare global {
   interface PublicApp {
@@ -32,7 +33,7 @@ declare global {
       scroll: (point: {x?: number, y?: number}) => Promise<void>
     },
     fetch: (...args: Parameters<typeof fetch>) => Promise<{ status: number, ok: boolean, statusText: string, text: string, headers: Headers }>,
-    enter: (name: string, item: CommonListItem, args: any) => Promise<MessagePort>,
+    enter: (name: string, item: CommonListItem, args: any) => Promise<PortBridge>,
     exit: (name: string) => Promise<void>,
   
     utils: {
@@ -50,7 +51,7 @@ declare global {
     handleEnter: (command: PluginCommand) => void,
     handleSelect: (command: PluginCommand, keyword: string) => string | HTMLElement | Promise<string> | Promise<HTMLElement>,
 
-    enterPlugin: (name: string, item: PluginCommand, args: any) => Promise<MessagePort>,
+    enterPlugin: (name: string, item: PluginCommand, args: any) => Promise<PortBridge>,
     exitPlugin: (name: string) => Promise<void>,
     setSubInputValue: (value: string) => void,
   } | undefined

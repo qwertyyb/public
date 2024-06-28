@@ -2,6 +2,7 @@ import { ipcRenderer } from "electron"
 import EventEmitter from "events"
 import createAPI from './preload/preload.api'
 import { ListItem } from "shared/types/plugin"
+import { createBridge } from "./utils"
 
 declare global {
   interface PublicApp {
@@ -15,98 +16,70 @@ declare global {
   var pluginData: PluginData
 }
 
-const createBridge = (port: MessagePort) => {
-  const eventBus = new EventEmitter()
-  const callbackMap = new Map<string, { resolve: Function, reject: Function }>()
-  port.addEventListener('message', (event: MessageEvent) => {
-    const { type } = event.data
-    if (type === 'event') {
-      const { eventName, payload } = event.data
-      eventBus.emit(eventName, payload)
-      return
-    }
-    if (type === 'callback') {
-      const { callbackName, returnValue, error } = event.data
-      const { resolve, reject } = callbackMap.get(callbackName)
-      if (error) {
-        reject?.(new Error(error))
-      } else {
-        resolve?.(returnValue)
-      }
-      callbackMap.delete(callbackName)
-    }
-  })
-  return {
-    invoke(methodName: string, args?: any) {
-      return new Promise((resolve, reject) => {
-        const callbackName = `${methodName}_${Math.random()}`
-        callbackMap.set(callbackName, { resolve, reject })
-        const item = {
-          type: 'method',
-          methodName,
-          args,
-          callbackName
-        }
-        port.postMessage(item)
-      })
-    },
-    on: eventBus.on.bind(eventBus)
-  }
-}
-
-const createPortHandle = () => {
-  const callbackMap = new Map()
-  let queue = []
-  let controlPort2: MessagePort | null = null
-  const eventBus = new EventEmitter()
+const initBridge = () => {
+  const controlBridge = createBridge()
+  const pluginBridge = createBridge()
   ipcRenderer.on('port', event => {
-    controlPort2 = event.ports[1]
-    const port2 = event.ports[1]
-    controlPort2?.addEventListener('message', (event: MessageEvent) => {
-      const { type } = event.data
-      if (type === 'event') {
-        const { eventName, payload } = event.data
-        eventBus.emit(eventName, payload)
-        return
-      }
-      if (type === 'callback') {
-        const { callbackName, returnValue, error } = event.data
-        const { resolve, reject } = callbackMap.get(callbackName)
-        if (error) {
-          reject?.(new Error(error))
-        } else {
-          resolve?.(returnValue)
-        }
-        callbackMap.delete(callbackName)
-      }
-    })
-    controlPort2.start()
-    queue.slice().forEach(item => controlPort2?.postMessage(item))
-    queue = []
+    const [port2, controlPort2] = event.ports
+    controlBridge.setPort(controlPort2)
+    pluginBridge.setPort(port2)
   })
-  return {
-    invoke(methodName: string, args?: any) {
-      return new Promise((resolve, reject) => {
-        const callbackName = `${methodName}_${Math.random()}`
-        callbackMap.set(callbackName, { resolve, reject })
-        const item = {
-          type: 'method',
-          methodName,
-          args,
-          callbackName
-        }
-        if (controlPort2) {
-          controlPort2.postMessage(item)
-        } else {
-          queue.push(item)
-        }
-      })
-    },
-    on: eventBus.on.bind(eventBus)
-  }
+  return { controlBridge, pluginBridge }
 }
 
-const portHandle = createPortHandle()
+// const createPortHandle = () => {
+//   const callbackMap = new Map()
+//   let queue = []
+//   let controlPort2: MessagePort | null = null
+//   const eventBus = new EventEmitter()
+//   ipcRenderer.on('port', event => {
+//     controlPort2 = event.ports[1]
+//     const port2 = event.ports[1]
+//     controlPort2?.addEventListener('message', (event: MessageEvent) => {
+//       const { type } = event.data
+//       if (type === 'event') {
+//         const { eventName, payload } = event.data
+//         eventBus.emit(eventName, payload)
+//         return
+//       }
+//       if (type === 'callback') {
+//         const { callbackName, returnValue, error } = event.data
+//         const { resolve, reject } = callbackMap.get(callbackName)
+//         if (error) {
+//           reject?.(new Error(error))
+//         } else {
+//           resolve?.(returnValue)
+//         }
+//         callbackMap.delete(callbackName)
+//       }
+//     })
+//     controlPort2.start()
+//     queue.slice().forEach(item => controlPort2?.postMessage(item))
+//     queue = []
+//   })
+//   return {
+//     invoke(methodName: string, args?: any) {
+//       return new Promise((resolve, reject) => {
+//         const callbackName = `${methodName}_${Math.random()}`
+//         callbackMap.set(callbackName, { resolve, reject })
+//         const item = {
+//           type: 'method',
+//           methodName,
+//           args,
+//           callbackName
+//         }
+//         if (controlPort2) {
+//           controlPort2.postMessage(item)
+//         } else {
+//           queue.push(item)
+//         }
+//       })
+//     },
+//     on: eventBus.on.bind(eventBus)
+//   }
+// }
+
+const { controlBridge, pluginBridge } = initBridge()
 
 window.pluginData = {
   list: []
@@ -121,7 +94,7 @@ window.publicApp = {
 
 declare global {
   interface Window {
-    portHandle: typeof portHandle,
+    bridge: typeof pluginBridge,
     plugin?: any,
   }
 }
@@ -134,12 +107,13 @@ if (preload) {
   
   if (!window.plugin?.search) {
     // 没有 search 函数，禁用输入框
-    portHandle.invoke('inputBar.disable', { disable: true })
+    console.log('disable input')
+    controlBridge.invoke('inputBar.disable', { disable: true })
   }
 }
 
-portHandle.on('inputValueChanged', async (value: string) => {
+controlBridge.on('inputValueChanged', async (value: string) => {
   window.dispatchEvent(new CustomEvent('inputBar.setValue', { detail: { value } }))
 })
 
-window.portHandle = portHandle
+window.bridge = pluginBridge
