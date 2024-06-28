@@ -18,7 +18,7 @@ interface ChatItem {
 const updateStore = (data: ChatItem[]) => window.localStorage.setItem('store', JSON.stringify(data))
 const getStore = (): ChatItem[] => {
   try {
-    return JSON.parse(window.localStorage.getItem('store')) || []
+    return JSON.parse(window.localStorage.getItem('store')).reverse() || []
   } catch(err) {
     return []
   }
@@ -162,8 +162,11 @@ export default {
     }
     setList(results)
   },
-  select(item: ChatItem) {
-    const preview = createPreviewContent(item)
+  async select(item: ChatItem) {
+    const preview = await createPreviewContent(item)
+    setTimeout(() => {
+      preview.querySelector('.markdown-body').scrollTo({ left: 0, top: 99999 })
+    }, 0)
     return preview
   },
   async enter(item, index, query: string) {
@@ -171,7 +174,7 @@ export default {
     let chatItem = { ...rest }
     if (isTemp) {
       // 新创建会话，保存本地
-      chatList.push(chatItem)
+      chatList.unshift(chatItem)
     }
     const answerCallback = createAnswerAnimation(chatItem)
     askWithStore(chatItem, (answer, done) => {

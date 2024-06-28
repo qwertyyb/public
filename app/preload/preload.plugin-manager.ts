@@ -30,7 +30,7 @@ const pinyin = (text: string) => {
     const full: string = hanziToPinyin(text)
     if (full) {
       return [
-        full,
+        full.replace(/\s/g, ''),
         full.split(' ').map(i => i.trim()[0]).filter(i => i).join('').toLowerCase()
       ]
     }
