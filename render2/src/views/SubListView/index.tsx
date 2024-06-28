@@ -10,6 +10,8 @@ declare global {
     'publicApp.mainWindow.show': CustomEvent<{}>;
     'plugin:setList': CustomEvent<{ name: string, list: ListItem[] }>;
     'inputBar.setValue': CustomEvent<{ value: string }>;
+    'listchanged': CustomEvent<{ list: ListItem[] }>;
+    'previewchanged': CustomEvent<{ preview?: string | HTMLElement }>
   }
   interface Window {
     plugin?: {
@@ -28,7 +30,6 @@ const MainView: Component = () => {
   createEffect(on(keyword, (value) => {
     setLoading(true)
     try {
-      console.log('startLoading', window.plugin)
       window.plugin?.search(value, (list) => {
         if (value !== keyword()) return
         setResults(list)
@@ -51,18 +52,20 @@ const MainView: Component = () => {
     setKeyword(event.detail.value)
   }
 
-  const setPluginResults = (event: CustomEvent<{ name: string, list: ListItem[] }>) => {
+  const setPluginResults = (event: CustomEvent<{ list: ListItem[] }>) => {
     setResults(event.detail.list || [])
   }
 
   onMount(() => {
-    window.addEventListener('plugin:setList', setPluginResults)
+    // @ts-ignore
+    setResults(window.pluginData?.list || [])
     window.addEventListener('inputBar.setValue', setInputValue)
+    window.addEventListener('listchanged', setPluginResults)
   })
 
   onCleanup(() => {
-    window.removeEventListener('plugin:setList', setPluginResults)
     window.removeEventListener('inputBar.setValue', setInputValue)
+    window.removeEventListener('listchanged', setPluginResults)
   })
 
   return (

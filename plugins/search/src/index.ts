@@ -145,8 +145,8 @@ export default (app: PublicApp): PublicPlugin => {
     onEnter(item, keyword) {
       const url = urls[item.name]
       if (!url) return;
-      const target = url.replace(/\$\{keyword\}/g, encodeURIComponent(keyword))
-      shell.openExternal(url)
+      const target = url.replaceAll('${keyword}', encodeURIComponent(keyword))
+      shell.openExternal(target)
     },
   }
 }

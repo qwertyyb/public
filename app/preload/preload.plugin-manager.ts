@@ -212,16 +212,18 @@ let pluginViewPort: MessagePort | null = null
 const enterPlugin = (name: string, item: PluginCommand, args: any) => {
   window.dispatchEvent(new CustomEvent('inputBar.enter', { detail: { name, item } }))
 
+  // 搞两个 channel, 一个用来做 API 控制层调用，另一个将会插件做通信
   const { port1, port2 } = new MessageChannel()
+  const { port1: controlPort1, port2: controlPort2 } = new MessageChannel()
   return new Promise<MessagePort>(resolve => {
-    ipcRenderer.postMessage('enter', { item, args }, [port2])
-    port1.addEventListener('message', (event) => {
+    ipcRenderer.postMessage('enter', { item, args }, [port2, controlPort2])
+    controlPort1.addEventListener('message', (event) => {
       if (event.data === 'ready') {
         resolve(port1)
       }
     }, { once: true })
-    port1.start()
-    pluginViewPort = port1;
+    controlPort1.start()
+    pluginViewPort = controlPort1;
   })
 }
 

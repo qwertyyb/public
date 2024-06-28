@@ -42,10 +42,10 @@ const setPluginView = (coreApp: CoreApp, event: IpcMainEvent, args: any) => {
       clearInterval(interval)
     }
   }, 10)
-  const port = event.ports[0]
+  const [port2, controlPort2] = event.ports
   view.webContents.on('dom-ready', () => {
-    port.postMessage('ready')
-    view.webContents.postMessage('port', null, [port])
+    controlPort2.postMessage('ready')
+    view.webContents.postMessage('port', null, [port2, controlPort2])
   })
   view.webContents.on('context-menu', () => {
     view.webContents.openDevTools({ mode: 'detach' })

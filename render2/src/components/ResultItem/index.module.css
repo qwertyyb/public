@@ -11,10 +11,10 @@
   box-sizing: border-box;
 }
 .resultItem:hover {
-  background-color: light-dark(#e7e7e7, #393939);
+  background-color: light-dark(#c4c4c4, #393939);
 }
 .resultItem.selected {
-  background-color: light-dark(#e2e2e2, #2a2a2a);
+  background-color: light-dark(#b4b4b4, #2a2a2a);
 }
 .itemImageWrapper {
   width: 36px;
