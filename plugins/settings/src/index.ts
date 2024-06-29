@@ -26,7 +26,6 @@ export default (app: PublicApp): PublicPlugin => {
           sandbox: false,
         }
       })
-      console.log('bridge', bridge)
       initHandler(bridge)
     }
   }

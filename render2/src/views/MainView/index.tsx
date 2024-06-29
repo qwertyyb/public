@@ -10,7 +10,7 @@ declare global {
     'publicApp.mainWindow.show': CustomEvent<{}>;
     'plugin:showCommands': CustomEvent<{ name: string, commands: PluginCommand[] }>;
     'inputBar.setValue': CustomEvent<{ value: string }>;
-    'inputBar.enter': CustomEvent<{ name: string, item: PluginCommand }>,
+    'inputBar.enter': CustomEvent<{ name: string, command: PluginCommand }>,
     'inputBar.disable': CustomEvent<{ disable: boolean }>
   }
 }
@@ -41,10 +41,12 @@ const MainView: Component = () => {
   }
 
   const onResultEnter = (item: PluginCommand, itemIndex: number) => {
+    if (command()) return
     window.PluginManager?.handleEnter(results()[itemIndex])
   }
 
   const onResultSelected = (item: PluginCommand, itemIndex: number) => {
+    if (command()) return
     return window.PluginManager?.handleSelect(results()[itemIndex], keyword())
   }
 
@@ -63,11 +65,10 @@ const MainView: Component = () => {
   }
   
   let preKeyword = ''
-  const enterSubInput = (e: CustomEvent<{ name: string, item: PluginCommand }>) => {
+  const enterSubInput = (e: CustomEvent<{ name: string, command: PluginCommand }>) => {
     preKeyword = keyword()
     setKeyword('')
-    const { item } = e.detail || {}
-    setCommand(item)
+    setCommand(e.detail.command)
   }
 
   const exitCommand = () => {

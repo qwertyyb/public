@@ -21,7 +21,7 @@
         "preload": "./dist/preload.js"
       },
       {
-        "name": "new",
+        "name": "latest",
         "title": "v2ex新贴",
         "subtitle": "查看v2ex新贴",
         "mode": "listView",

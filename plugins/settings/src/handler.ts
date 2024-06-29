@@ -1,26 +1,32 @@
 import { queryRecord, updateRecord, insertRecord, createDatabase } from './storage'
 import * as path from 'path'
 
+const names = [
+  'launcher', 'command', 'calculator', 'qrcode', 'search', 'translate', 'clipboard',
+  'douban', 'magic', 'ai-chat', 'v2ex', 'terminal', 'find'
+]
+
 const getDefaultSettings = () => {
   const getDefaultPluginPaths = () => {
-    const paths = [
-      path.resolve(__dirname, '../../launcher'),
-      path.resolve(__dirname, '../../command'),
-      path.resolve(__dirname, '../../calculator'),
-      path.resolve(__dirname, '../../qrcode'),
-      path.resolve(__dirname, '../../search'),
-      path.resolve(__dirname, '../../translate'),
-      path.resolve(__dirname, '../../clipboard'),
-      path.resolve(__dirname, '../../douban'),
-      path.resolve(__dirname, '../../magic'),
-      path.resolve(__dirname, '../../ai-chat'),
-      path.resolve(__dirname, '../../v2ex'),
-      // path.resolve(__dirname, '../../terminal'),
-      // path.resolve(__dirname, '../../favorite'),
-      path.resolve(__dirname, '../../find')
-    ]
-    console.log('default plugins', paths)
-    return paths.map(pathstr => ({ path: pathstr }))
+    return names.map(name => ({ path: path.join(__dirname, '../../', name) }))
+    // const paths = [
+    //   path.resolve(__dirname, '../../launcher'),
+    //   path.resolve(__dirname, '../../command'),
+    //   path.resolve(__dirname, '../../calculator'),
+    //   path.resolve(__dirname, '../../qrcode'),
+    //   path.resolve(__dirname, '../../search'),
+    //   path.resolve(__dirname, '../../translate'),
+    //   path.resolve(__dirname, '../../clipboard'),
+    //   path.resolve(__dirname, '../../douban'),
+    //   path.resolve(__dirname, '../../magic'),
+    //   path.resolve(__dirname, '../../ai-chat'),
+    //   path.resolve(__dirname, '../../v2ex'),
+    //   path.resolve(__dirname, '../../terminal'),
+    //   // path.resolve(__dirname, '../../favorite'),
+    //   path.resolve(__dirname, '../../find')
+    // ]
+    // console.log('default plugins', paths)
+    // return paths.map(pathstr => ({ path: pathstr }))
   }
 
   return {

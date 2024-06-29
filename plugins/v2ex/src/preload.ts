@@ -10,8 +10,9 @@ const withCache = <F extends (...args: any[]) => any>(fn: F) => {
   }
 }
 
-const getHot = withCache(async () => {
-  const response = await window.publicApp.fetch('https://www.v2ex.com/api/topics/hot.json')
+const getData = withCache(async (type: 'hot' | 'latest' = 'hot') => {
+  const url = type === 'hot' ? 'https://www.v2ex.com/api/topics/hot.json' : 'https://www.v2ex.com/api/topics/latest.json'
+  const response = await window.publicApp.fetch(url)
   const list: { id: string, title: string, subtitle: string, icon: string }[] = JSON.parse(response.text).map(item => ({
     id: item.id,
     title: item.title,
@@ -22,7 +23,7 @@ const getHot = withCache(async () => {
   return list
 })
 
-getHot().then(list => {
+getData(window.command.name as 'hot' | 'latest').then(list => {
   window.publicApp.setList(list)
 })
 

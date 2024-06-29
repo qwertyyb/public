@@ -158,7 +158,6 @@ const handleQuery = (keyword: string) => {
   return results.sort((prev, next) => resultsMap.get(next).score - resultsMap.get(prev).score)
 }
 
-
 const handleSelect = (command: PluginCommand, keyword: string) => {
   const rp = resultsMap.get(command)
   return rp?.owner.plugin?.onSelect?.(command, keyword)
@@ -173,8 +172,8 @@ const handleEnter = (command: PluginCommand) => {
     // js entry
     enterPlugin(rp.owner.manifest.name, command, {
       entry: getConfig().rendererEntry + '#/plugin/list-view',
+      preload: nodePath.join(rp.owner.path, command.preload),
       webPreferences: {
-        preload: nodePath.join(rp.owner.path, command.preload),
         nodeIntegration: true,
         webSecurity: false,
         allowRunningInsecureContent: false,
@@ -190,8 +189,8 @@ const handleEnter = (command: PluginCommand) => {
     // html entry
     enterPlugin(rp.owner.manifest.name, command, {
       entry: nodePath.join(rp.owner.path, command.entry),
+      preload: command.preload ? nodePath.join(rp.owner.path, command.preload) : undefined,
       webPreferences: {
-        ...(command.preload ? { preload: nodePath.join(rp.owner.path, command.preload) } : {}),
         nodeIntegration: true,
         webSecurity: false,
         allowRunningInsecureContent: false,
@@ -208,8 +207,12 @@ const handleEnter = (command: PluginCommand) => {
 
 let controlBridge: utils.PortBridge | null = null
 
-const enterPlugin = (name: string, item: PluginCommand, args: any) => {
-  window.dispatchEvent(new CustomEvent('inputBar.enter', { detail: { name, item } }))
+const enterPlugin = (
+  name: string,
+  command: PluginCommand,
+  options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }
+) => {
+  window.dispatchEvent(new CustomEvent('inputBar.enter', { detail: { name, command } }))
 
   // 搞两个 channel, 一个用来做 API 控制层调用，另一个将会插件做通信
   const { port1, port2 } = new MessageChannel()
@@ -221,7 +224,7 @@ const enterPlugin = (name: string, item: PluginCommand, args: any) => {
     })
     controlBridge.once('ready', () => resolve(utils.createBridge(port1)))
     controlPort1.start()
-    ipcRenderer.postMessage('enter', { item, args }, [port2, controlPort2])
+    ipcRenderer.postMessage('enter', { command, options }, [port2, controlPort2])
   })
 }
 

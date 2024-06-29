@@ -12,6 +12,18 @@
   "publicPlugin": {
     "title": "执行终端命令",
     "subtitle": "在终端中执行输入的命令",
-    "icon": "https://img.icons8.com/officel/80/000000/console.png"
+    "icon": "https://img.icons8.com/officel/80/000000/console.png",
+    "entry": "dist/index.js",
+    "commands": [
+      {
+        "name": "exec",
+        "title": "在终端执行此命令",
+        "subtitle": "启动终端 APP 并执行命令",
+        "mode": "none",
+        "matches": [
+          { "type": "trigger", "triggers": [">"] }
+        ]
+      }
+    ]
   }
 }

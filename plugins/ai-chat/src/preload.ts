@@ -147,6 +147,7 @@ const createAnswerAnimation = (chatItem: ChatItem) => {
 
 export default {
   search: (keyword: string, setList) => {
+    console.log('serch', keyword, chatList)
     let results = [...chatList].map(item => ({ ...item, messages: [...item.messages, { query: keyword, answer: '' }]}))
     if (keyword) {
       results = [
@@ -160,6 +161,7 @@ export default {
         ...results
       ]
     }
+    console.log('results', results)
     setList(results)
   },
   async select(item: ChatItem) {

@@ -5,8 +5,6 @@ import { ListItem } from "../../../../shared/types/plugin";
 import ResultItemPreview from "../ResultItemPreview";
 import VirtualList from "../VirtualList";
 
-console.log(styles)
-
 interface Props<D> {
   results: D[],
   onResultEnter: (item: D, itemIndex: number) => void,
@@ -17,6 +15,7 @@ function ResultView<D extends ListItem>(props: Props<D>) {
   const [selectedIndex, setSelectedIndex] = createSignal(0);
   const selectedItem = () => props.results[selectedIndex()]
   const [preview, setPreview] = createSignal<string | HTMLElement>('')
+  const [actionKeyIndexStart, setActionKeyIndexStart] = createSignal(0)
 
   const onResultEnter = (index: number) => {
     const item = props.results[index]
@@ -35,6 +34,11 @@ function ResultView<D extends ListItem>(props: Props<D>) {
     } else if(e.key === 'Enter') {
       onResultEnter(selectedIndex())
       e.stopPropagation()
+    } else if (e.metaKey && /^\d$/.test(e.key)) {
+      const key = parseInt(e.key, 10)
+      setSelectedIndex(actionKeyIndexStart() + key - 1)
+      onResultEnter(selectedIndex())
+      e.stopPropagation()
     }
   }
 
@@ -48,8 +52,20 @@ function ResultView<D extends ListItem>(props: Props<D>) {
   createEffect(on(() => props.results, (v) => { setSelectedIndex(0) }))
 
   // selectedIndex 变化时，滚动到选择位置，调用preview
-  createEffect(on(selectedIndex, (value) => {
-    (document.querySelector<HTMLElement>(`.result-item[data-result-item-index="${value}"]`) as any)?.scrollIntoViewIfNeeded(false)
+  createEffect(on(() => props.results[selectedIndex()], () => {
+    (document.querySelector<HTMLElement>(`.result-item[data-result-item-index="${selectedIndex()}"]`) as any)?.scrollIntoViewIfNeeded(false)
+    const parentRect = document.querySelector('div.virtual-list')!.getBoundingClientRect()
+    const els = document.querySelectorAll<HTMLElement>('.result-item[data-result-item-index]')
+    let visibleIndexList: number[] = []
+    els.forEach(item => {
+      const rect = item.getBoundingClientRect()
+      const visible = rect.top + rect.height / 2 >= parentRect.top && rect.top + rect.height / 2 <= parentRect.bottom
+      if (visible) {
+        visibleIndexList.push(parseInt(item.dataset.resultItemIndex as string, 10))
+      }
+    })
+    setActionKeyIndexStart(visibleIndexList[0])
+    console.log(visibleIndexList)
   }))
 
   createEffect(on(selectedItem, getPreview))
@@ -60,6 +76,12 @@ function ResultView<D extends ListItem>(props: Props<D>) {
   onCleanup(() => {
     document.removeEventListener('keydown', keydownHandler)
   })
+
+  const getActionKey = (index: number, indexStart: number) => {
+    const key = index - indexStart + 1
+    if (key > 0) return String(key)
+    return ''
+  }
 
   return (
     <div class={styles.resultView}>
@@ -78,6 +100,7 @@ function ResultView<D extends ListItem>(props: Props<D>) {
               onEnter={() => onResultEnter(itemProps.index)}
               onSelect={() => setSelectedIndex(itemProps.index)}
               index={itemProps.index}
+              actionKey={getActionKey(itemProps.index, actionKeyIndexStart())}
             />
           )}
         </VirtualList>

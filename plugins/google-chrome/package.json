@@ -1,0 +1,39 @@
+{
+  "name": "google-chrome",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "publicPlugin": {
+    "icon": "https://img.icons8.com/?size=100&id=63785&format=png&color=000000",
+    "title": "Google Chrome",
+    "subtitle": "Search open tabs, bookmarks and history in Google Chrome.",
+    "commands": [
+      {
+        "name": "search-tab",
+        "title": "Search Tabs",
+        "subtitle": "List all tabs and go to the selected.",
+        "mode": "listView",
+        "matches": [
+          { "type": "text", "keywords": ["google chrome tabs", "tabs", "chrome"] }
+        ],
+        "preload": "dist/preload.js"
+      },
+      {
+        "name": "create-window",
+        "title": "打开新的窗口",
+        "subtitle": "打开新的 Google Chrome 窗口",
+        "mode": "none"
+      }
+    ]
+  },
+  "dependencies": {
+    "run-applescript": "^7.0.0",
+    "@public/utils": "workspace:*"
+  }
+}

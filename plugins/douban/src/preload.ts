@@ -14,6 +14,17 @@ const createPreview = (item) => {
     const actor = Array.from(doc.querySelectorAll<HTMLMetaElement>('meta[property="video:actor"]')).map(item => item.content).join('/')
     const releaseDate = doc.querySelector('#info [property="v:initialReleaseDate"]')?.textContent
     const type = Array.from(doc.querySelectorAll<HTMLElement>('#info [property="v:genre"]')).map(item => item.textContent).join('/')
+    const rating = doc.querySelector('#interest_sectl [property="v:average"]')?.textContent ?? ''
+    const ratingCount = doc.querySelector('#interest_sectl [property="v:votes"]')?.textContent ?? ''
+    const ratingText = rating && ratingCount ? `${rating}(${ratingCount}人评价)` : ''
+    const items = {
+      '评分': ratingText,
+      '首播时间': releaseDate,
+      '类型': type,
+      '导演': director,
+      '演员': actor,
+    }
+    const list = Object.keys(items).map(label => items[label] ? `<li style="overflow:hidden;margin-top:10px;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${label}: ${items[label]}</li>` : '').join('\n')
 
     div.innerHTML = `
       <div style="display:flex">
@@ -22,11 +33,8 @@ const createPreview = (item) => {
         </div>
         <div style="margin: 0 20px">
           <h2>${title}</h2>
-          <ul style="margin-top: 20px">
-            <li style="overflow:hidden;margin-top:10px;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">类型: ${type}</li>
-            <li style="overflow:hidden;margin-top:10px;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">导演: ${director}</li>
-            <li style="overflow:hidden;margin-top:10px;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">演员: ${actor}</li>
-            <li style="overflow:hidden;margin-top:10px;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">首播时间: ${releaseDate}</li>
+          <ul style="margin-top: 10px">
+            ${list}
           </ul>
         </div>
       </div>

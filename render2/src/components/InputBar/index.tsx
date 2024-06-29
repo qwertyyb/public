@@ -32,6 +32,8 @@ const InputBar: Component<Props> = (props) => {
         props.setValue('')
       } else if (props.command) {
         props.exit()
+      } else {
+        window.publicApp?.mainWindow?.hide?.()
       }
     }
     window.addEventListener('keydown', handler)

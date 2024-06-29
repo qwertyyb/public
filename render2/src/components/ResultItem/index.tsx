@@ -8,6 +8,7 @@ interface Props {
   selected: boolean,
   index: number,
   action?: 'next',
+  actionKey?: string,
   onEnter: (event: Event) => void,
   onSelect: (event: Event) => void
 }
@@ -30,9 +31,16 @@ const ResultItem: Component<Props> = (props) => {
           <h5 class={styles.itemSubtitle +' color-666 text-sm text-single-line'}>{props.subtitle}</h5>
         </Show>
       </div>
-      <Show when={props.action}>
-        <div class="action-btn">
-          <span class={"material-symbols-outlined " + styles.actionIcon}>arrow_forward_ios</span>
+      <Show when={props.action || true}>
+        <div class={styles.shortcutList}>
+          {/* <span class={"material-symbols-outlined " + styles.actionIcon}>arrow_forward_ios</span> */}
+          <Show when={props.selected}>
+            <div class={styles.shortcutItem}>↵</div>
+          </Show>
+          <Show when={!props.selected && props.actionKey}>
+            <div class={styles.shortcutItem}>⌘</div>
+            <div class={styles.shortcutItem}>{props.actionKey}</div>
+          </Show>
         </div>
       </Show>
     </div>

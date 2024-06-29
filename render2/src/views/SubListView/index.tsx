@@ -11,7 +11,6 @@ declare global {
     'plugin:setList': CustomEvent<{ name: string, list: ListItem[] }>;
     'inputBar.setValue': CustomEvent<{ value: string }>;
     'listchanged': CustomEvent<{ list: ListItem[] }>;
-    'previewchanged': CustomEvent<{ preview?: string | HTMLElement }>
   }
   interface Window {
     plugin?: {
@@ -58,7 +57,7 @@ const MainView: Component = () => {
 
   onMount(() => {
     // @ts-ignore
-    setResults(window.pluginData?.list || [])
+    window.pluginData.list && setResults(window.pluginData?.list || [])
     window.addEventListener('inputBar.setValue', setInputValue)
     window.addEventListener('listchanged', setPluginResults)
   })
