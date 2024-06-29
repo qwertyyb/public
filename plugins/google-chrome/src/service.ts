@@ -58,35 +58,38 @@ export async function createNewWindow(): Promise<void> {
   `);
 }
 
-export async function getOpenTabs({ favicon = true, separator = '~~~!!!~~~' } = {}): Promise<Tab[]> {
+export async function getOpenTabs({ favicon = false, separator = '~~~' } = {}): Promise<Tab[]> {
+  console.log('aaaaa')
   const faviconFormula = favicon
     ? `execute t javascript "document.head.querySelector('link[rel~=icon]')?.href || \`https://www.google.com/s2/favicons?domain=\${encodeURIComponent(location.href)}&sz=128\`;"`
     : '""';
 
-  const openTabs = await runAppleScript(`
-    set _output to ""
-    tell application "Google Chrome"
-      repeat with w in windows
-        set _w_id to get id of w as inches as string
-        set _tab_index to 1
-        repeat with t in tabs of w
-          set _title to get title of t
-          set _url to get URL of t
-          set _favicon to ${faviconFormula}
-          set _output to (_output & _title & "${separator}" & _url & "${separator}" & _favicon & "${separator}" & _w_id & "${separator}" & _tab_index & "\\n")
-          set _tab_index to _tab_index + 1
-        end repeat
+  const script = `
+  set _output to ""
+  tell application "Google Chrome"
+    repeat with w in windows
+      set _w_id to get id of w as inches as string
+      set _tab_index to 1
+      repeat with t in tabs of w
+        set _title to get title of t
+        set _url to get URL of t
+        set _favicon to ${faviconFormula}
+        set _output to (_output & _title & "${separator}" & _url & "${separator}" & _favicon & "${separator}" & _w_id & "${separator}" & _tab_index & "\\n")
+        set _tab_index to _tab_index + 1
       end repeat
-    end tell
-    return _output
-`);
+    end repeat
+  end tell
+  return _output
+`
+
+  const openTabs = await runAppleScript(script);
 
   return openTabs
     .split("\n")
     .filter((line) => line.length !== 0)
     .map((line) => {
       const [title, url, icon, windowId, tabIndex ] = line.split(separator)
-      return { title, subtitle: url, url, icon, windowId, tabIndex }
+      return { title, subtitle: url, url, icon: `https://www.google.com/s2/favicons?domain=${encodeURIComponent(url)}&sz=128`, windowId, tabIndex }
     });
 }
 
@@ -120,20 +123,13 @@ const getHistoryQuery = (table: string, date_field: string, terms: string[]) =>
      WHERE ${whereClauses(table, terms)}
      ORDER BY ${date_field} DESC LIMIT 30;`
 
-const searchHistory = (profile: string, query?: string) => {
+export const searchHistory = async (query?: string) => {
   const terms = query ? query.trim().split(" ") : [""];
-  const queries = getHistoryQuery("urls", "last_visit_time", terms);
-  const dbPath = getHistoryDbPath(profile);
+  const sql = getHistoryQuery("urls", "last_visit_time", terms);
+  const dbPath = getHistoryDbPath(DEFAULT_CHROME_PROFILE_ID);
 
   if (!fs.existsSync(dbPath)) {
     throw new Error('google chrome is not installed');
   }
-
-  // const { data, isLoading, permissionView, revalidate } = useSQL<HistoryEntry>(dbPath, queries);
-  // return {
-  //   data,
-  //   isLoading,
-  //   errorView: permissionView,
-  //   revalidate,
-  // };
+  return window.publicApp.sqlite.run(dbPath, sql, {})
 }

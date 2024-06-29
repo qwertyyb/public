@@ -8,7 +8,7 @@ import initIpc from './ipc'
 import initTray from './controller/trayController'
 import db from './controller/storageController'
 import { getConfig } from './config';
-require('@electron/remote/main').initialize()
+require('@electron/remote/main').initialize();
 
 const config = getConfig()
 
@@ -132,7 +132,7 @@ export class CoreApp {
         ArrowDown: 'Down'
       }
       // @ts-ignore
-      this.pluginView?.webContents.sendInputEvent({ type: inputEvent.type, keyCode: keys[inputEvent.key] || inputEvent.key })
+      this.pluginView?.webContents.sendInputEvent({ type: inputEvent.type, keyCode: keys[inputEvent.key] || inputEvent.key, modifiers: inputEvent.modifiers })
     })
     win.on('hide', () => {
       mainView.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.hide'))`)

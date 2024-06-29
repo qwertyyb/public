@@ -1,4 +1,4 @@
-import { Component, createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
+import { Component, Show, createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
 import InputBar from "../../components/InputBar";
 import ResultView from "../../components/ResultView";
 import { PluginCommand } from "../../../../shared/types/plugin";
@@ -10,7 +10,7 @@ declare global {
     'publicApp.mainWindow.show': CustomEvent<{}>;
     'plugin:showCommands': CustomEvent<{ name: string, commands: PluginCommand[] }>;
     'inputBar.setValue': CustomEvent<{ value: string }>;
-    'inputBar.enter': CustomEvent<{ name: string, command: PluginCommand }>,
+    'inputBar.enter': CustomEvent<{ name: string, query?: string, command: PluginCommand }>,
     'inputBar.disable': CustomEvent<{ disable: boolean }>
   }
 }
@@ -65,9 +65,9 @@ const MainView: Component = () => {
   }
   
   let preKeyword = ''
-  const enterSubInput = (e: CustomEvent<{ name: string, command: PluginCommand }>) => {
+  const enterSubInput = (e: CustomEvent<{ name: string, query?: string, command: PluginCommand }>) => {
     preKeyword = keyword()
-    setKeyword('')
+    setKeyword(e.detail.query ?? '')
     setCommand(e.detail.command)
   }
 
@@ -106,9 +106,11 @@ const MainView: Component = () => {
         exit={exitCommand}
         disable={inputDisable()}
       />
-      <ResultView results={list()}
-        onResultSelected={onResultSelected}
-        onResultEnter={onResultEnter}></ResultView>
+      <Show when={!command()}>
+        <ResultView results={list()}
+          onResultSelected={onResultSelected}
+          onResultEnter={onResultEnter}></ResultView>
+      </Show>
     </div>
   )
 }

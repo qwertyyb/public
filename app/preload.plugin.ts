@@ -1,20 +1,34 @@
 import { ipcRenderer } from "electron"
-import EventEmitter from "events"
 import createAPI from './preload/preload.api'
-import { ListItem } from "shared/types/plugin"
-import { createBridge } from "./utils"
+import type { ListItem, PluginCommand } from "shared/types/plugin"
+import { createBridge } from "./utils/index"
 
 declare global {
   interface PublicApp {
     setList?: (list: ListItem[]) => void,
   }
 
-  interface PluginData {
-    list: ListItem[]
+  interface Window {
+    bridge: typeof pluginBridge,
+    pluginData: { list: ListItem[] | null },
+    launchParameter: {
+      command: PluginCommand,
+      query?: string,
+      options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }
+    },
+    command: PluginCommand,
+    plugin?: any,
   }
-
-  var pluginData: PluginData
 }
+
+const parameters: {
+  command: PluginCommand,
+  query?: string,
+  options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }
+} = JSON.parse(process.argv[process.argv.length - 1])
+
+window.command = parameters.command
+window.launchParameter = parameters
 
 const initBridge = () => {
   const controlBridge = createBridge()
@@ -27,62 +41,15 @@ const initBridge = () => {
   return { controlBridge, pluginBridge }
 }
 
-// const createPortHandle = () => {
-//   const callbackMap = new Map()
-//   let queue = []
-//   let controlPort2: MessagePort | null = null
-//   const eventBus = new EventEmitter()
-//   ipcRenderer.on('port', event => {
-//     controlPort2 = event.ports[1]
-//     const port2 = event.ports[1]
-//     controlPort2?.addEventListener('message', (event: MessageEvent) => {
-//       const { type } = event.data
-//       if (type === 'event') {
-//         const { eventName, payload } = event.data
-//         eventBus.emit(eventName, payload)
-//         return
-//       }
-//       if (type === 'callback') {
-//         const { callbackName, returnValue, error } = event.data
-//         const { resolve, reject } = callbackMap.get(callbackName)
-//         if (error) {
-//           reject?.(new Error(error))
-//         } else {
-//           resolve?.(returnValue)
-//         }
-//         callbackMap.delete(callbackName)
-//       }
-//     })
-//     controlPort2.start()
-//     queue.slice().forEach(item => controlPort2?.postMessage(item))
-//     queue = []
-//   })
-//   return {
-//     invoke(methodName: string, args?: any) {
-//       return new Promise((resolve, reject) => {
-//         const callbackName = `${methodName}_${Math.random()}`
-//         callbackMap.set(callbackName, { resolve, reject })
-//         const item = {
-//           type: 'method',
-//           methodName,
-//           args,
-//           callbackName
-//         }
-//         if (controlPort2) {
-//           controlPort2.postMessage(item)
-//         } else {
-//           queue.push(item)
-//         }
-//       })
-//     },
-//     on: eventBus.on.bind(eventBus)
-//   }
-// }
 
 const { controlBridge, pluginBridge } = initBridge()
 
+controlBridge.handle('setInputValue', async (data: { value: string }) => {
+  window.dispatchEvent(new CustomEvent('inputBar.setValue', { detail: data }))
+})
+
 window.pluginData = {
-  list: []
+  list: null
 }
 window.publicApp = {
   ...createAPI(),
@@ -92,14 +59,7 @@ window.publicApp = {
   }
 }
 
-declare global {
-  interface Window {
-    bridge: typeof pluginBridge,
-    plugin?: any,
-  }
-}
-
-const preload = new URL(location.href).searchParams.get('preload')
+const preload = parameters.options.preload
 if (preload) {
   const plugin = __non_webpack_require__(preload)
 
@@ -107,13 +67,8 @@ if (preload) {
   
   if (!window.plugin?.search) {
     // 没有 search 函数，禁用输入框
-    console.log('disable input')
     controlBridge.invoke('inputBar.disable', { disable: true })
   }
 }
-
-controlBridge.on('inputValueChanged', async (value: string) => {
-  window.dispatchEvent(new CustomEvent('inputBar.setValue', { detail: { value } }))
-})
 
 window.bridge = pluginBridge

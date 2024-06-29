@@ -19,21 +19,24 @@ const InputBar: Component<Props> = (props) => {
   const focusInput = () => {
     inputEl!.focus()
   }
-
-  const onKeyDown = (event: KeyboardEvent) => {
-    if (!inputEl!.value && event.key === 'Backspace') {
-      props.exit()
-    }
-  }
   onMount(() => {
     const handler = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return
-      if (props.value) {
-        props.setValue('')
-      } else if (props.command) {
-        props.exit()
-      } else {
-        window.publicApp?.mainWindow?.hide?.()
+      if (event.key === 'Escape') {
+        if (props.value) {
+          event.preventDefault()
+          props.setValue('')
+        } else if (props.command) {
+          event.preventDefault()
+          props.exit()
+        } else {
+          event.preventDefault()
+          window.publicApp?.mainWindow?.hide?.()
+        }
+      } else if (event.key === 'Backspace' && !props.value) {
+        if (props.command) {
+          event.preventDefault()
+          props.exit()
+        }
       }
     }
     window.addEventListener('keydown', handler)
@@ -43,7 +46,7 @@ const InputBar: Component<Props> = (props) => {
   })
 
   return (
-    <div class={styles.inputBar} onClick={focusInput}>
+    <div class={styles.inputBar} onClick={focusInput} tabindex="0">
       <div class={styles.inputBarWrapper}>
         <Show when={props.command}>
           <div class={styles.navBack + ' material-symbols-outlined'} onPointerDown={props.exit}>
@@ -56,7 +59,6 @@ const InputBar: Component<Props> = (props) => {
             ref={inputEl!}
             placeholder="请搜索"
             onInput={event => props.setValue(event.target.value)}
-            onKeyDown={onKeyDown}
             value={props.value}
             size={props.value.length}
             id="main-input"/>

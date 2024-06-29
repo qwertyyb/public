@@ -50,13 +50,20 @@ export interface TriggerPluginCommandMatch {
   type: 'trigger' // text | regexp
   triggers: string[]
   title?: string
+  subtitle?: string
 }
 export interface TextPluginCommandMatch {
   type: 'text'
   keywords: string[]
 }
 
-export type PluginCommandMatch = TextPluginCommandMatch | TriggerPluginCommandMatch
+export interface FullPluginCommandMatch {
+  type: 'full'
+  title?: string
+  subtitle?: string
+}
+
+export type PluginCommandMatch = TextPluginCommandMatch | TriggerPluginCommandMatch | FullPluginCommandMatch
 
 export interface PluginCommand extends ListItem {
   name: string

@@ -16,12 +16,19 @@
     "commands": [
       {
         "name": "search-tab",
-        "title": "Search Tabs",
+        "title": "Search Google Chrome Tabs",
         "subtitle": "List all tabs and go to the selected.",
         "mode": "listView",
         "matches": [
           { "type": "text", "keywords": ["google chrome tabs", "tabs", "chrome"] }
         ],
+        "preload": "dist/preload.js"
+      },
+      {
+        "name": "search-chrome-history",
+        "title": "Search Google Chrome History",
+        "subtitle": "Search Google Chrome History",
+        "mode": "listView",
         "preload": "dist/preload.js"
       },
       {

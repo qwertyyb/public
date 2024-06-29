@@ -3,7 +3,7 @@ import * as path from 'path'
 
 const names = [
   'launcher', 'command', 'calculator', 'qrcode', 'search', 'translate', 'clipboard',
-  'douban', 'magic', 'ai-chat', 'v2ex', 'terminal', 'find'
+  'douban', 'magic', 'ai-chat', 'v2ex', 'terminal', 'find', 'google-chrome'
 ]
 
 const getDefaultSettings = () => {

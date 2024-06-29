@@ -96,6 +96,7 @@
     "@electron/rebuild": "^3.6.0",
     "@electron/remote": "^2.1.2",
     "@nut-tree-fork/nut-js": "^4.2.1",
+    "@types/better-sqlite3": "^7.6.10",
     "@types/mathjs": "^6.0.11",
     "@types/node": "^12.20.55",
     "@types/webpack": "^5.28.5",
@@ -126,7 +127,7 @@
   },
   "dependencies": {
     "@public/osx-fileicon": "workspace:*",
-    "sqlite3": "^5.0.2",
+    "better-sqlite3": "^11.1.1",
     "uiohook-napi": "^1.5.4"
   }
 }

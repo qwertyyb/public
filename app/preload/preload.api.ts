@@ -17,6 +17,9 @@ export default () => ({
     all: (sql: string, params?: Object) => ipcRenderer.invoke('db.all', sql, params),
     get: (sql: string, params?: Object) => ipcRenderer.invoke('db.get', sql, params),
   },
+  sqlite: {
+    run: (dbPath: string, sql: string, params?: Object) => ipcRenderer.invoke('sqlite.run', dbPath, sql, params),
+  },
   mainWindow: {
     show: () => ipcRenderer.invoke('mainWindow.show'),
     hide: () => ipcRenderer.invoke('mainWindow.hide'),

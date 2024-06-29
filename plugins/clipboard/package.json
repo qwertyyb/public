@@ -18,7 +18,8 @@
       {
         "name": "clipboard",
         "matches": [
-          { "type": "text", "keywords": ["剪切板", "clipboard", "cp"] }
+          { "type": "text", "keywords": ["剪切板", "clipboard", "cp"] },
+          { "type": "trigger", "triggers": ["cp"], "title": "搜索剪切板“$query”..." }
         ],
         "mode": "listView",
         "preload": "./dist/preload.js"

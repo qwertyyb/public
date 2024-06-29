@@ -1,22 +1,21 @@
 import * as pinyin from 'tiny-pinyin'
 import EventEmitter from 'events'
 
-
-const pinyinMatch = (hanzi: string, keyword: string) => {
+export const pinyinMatch = (hanzi: string, keyword: string) => {
   const pyword = pinyin.convertToPinyin(hanzi, '-', true)
   // @ts-ignore
   return pyword.replaceAll('-', '').includes(keyword) // 全拼音匹配
     || pyword.split('-').map(a => a[0]).filter(b => b).join('').includes(keyword)
 }
 
-const match = (candidate: string[] | string, keyword: string) => {
+export const match = (candidate: string[] | string, keyword: string) => {
   if (!keyword) return false;
   const arr = Array.isArray(candidate) ? candidate : [candidate]
   const k = keyword.toLowerCase()
   return arr.some(element => element?.toLowerCase().includes(k) || pinyinMatch(element, k))
 }
 
-const createBridge = (messagePort?: MessagePort) => {
+export const createBridge = (messagePort?: MessagePort) => {
   let queue = []
   let port: MessagePort | null = messagePort
   const eventBus = new EventEmitter()
@@ -111,10 +110,3 @@ const createBridge = (messagePort?: MessagePort) => {
 }
 
 export type PortBridge = ReturnType<typeof createBridge>
-
-export {
-  pinyinMatch,
-  match,
-
-  createBridge
-}

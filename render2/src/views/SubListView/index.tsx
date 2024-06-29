@@ -24,7 +24,8 @@ declare global {
 const MainView: Component = () => {
   const [results, setResults] = createSignal<ListItem[]>([])
   const [loading, setLoading] = createSignal(false)
-  const [keyword, setKeyword] = createSignal('')
+  // @ts-ignore
+  const [keyword, setKeyword] = createSignal(window.launchParameter?.query ?? '')
 
   createEffect(on(keyword, (value) => {
     setLoading(true)

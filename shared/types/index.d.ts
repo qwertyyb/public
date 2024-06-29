@@ -9,6 +9,9 @@ declare global {
       all: (sql, params?) => Promise<Array>,
       get: (sql, params?) => Promise<Any>
     },
+    sqlite: {
+      run: (dbPath: string, sql: string, params: Object) => Promise<any>,
+    }
     mainWindow: {
       show: () => Promise<void>,
       hide: () => Promise<void>,

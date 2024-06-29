@@ -43,23 +43,24 @@ const createDatabase = async (app: PublicApp) => {
 const insertRecord = async (app: PublicApp, record: { contentType: number, text: string }) => {
   const sql = `INSERT INTO clipboardHistory(contentType, text, createdAt, lastUseAt) values ($contentType, $text, $createdAt, $lastUseAt)`
   return app.db.run(sql, {
-    $contentType: record.contentType || ContentType.text,
-    $text: record.text,
-    $createdAt: formatDate(new Date()),
-    $lastUseAt: formatDate(new Date())
+    contentType: record.contentType || ContentType.text,
+    text: record.text,
+    createdAt: formatDate(new Date()),
+    lastUseAt: formatDate(new Date())
   })
 }
 
 const queryRecordList = async (app: PublicApp, { keyword = '' } = {}, { strict = false } = {}) => {
   const sql = `SELECT * FROM clipboardHistory where text like $keyword order by lastUseAt DESC`
   const query = strict ? keyword : `%${keyword}%`
-  return app.db.all(sql, { $keyword: query })
+  const result = app.db.all(sql, { keyword: query })
+  return result
 }
 
 const updateRecord = async (app: PublicApp, id: number, params: Object) => {
   // @ts-ignore
   const sql = `UPDATE clipboardHistory set ${Object.keys(params).map(key => `${key} = '${params[key]}'`).join(',')} where id = $id`
-  return app.db.run(sql, { $id: id })
+  return app.db.run(sql, { id: id })
 }
 
 

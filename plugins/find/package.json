@@ -29,7 +29,11 @@
           },
           {
             "type": "trigger",
-            "triggers": ["fs"],
+            "triggers": ["fs", ""],
+            "title": "搜索文件“$query”..."
+          },
+          {
+            "type": "full",
             "title": "搜索文件“$query”..."
           }
         ],

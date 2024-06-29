@@ -4,7 +4,10 @@ import type { CommonListItem, PublicApp } from "shared/types/plugin"
 const queryRecordList = async ({ keyword = '' } = {}, { strict = false } = {}) => {
   const sql = `SELECT * FROM clipboardHistory where text like $keyword order by lastUseAt DESC`
   const query = strict ? keyword : `%${keyword}%`
-  return window.publicApp.db.all(sql, { $keyword: query })
+  console.time('query')
+  const results = await window.publicApp.db.all(sql, { keyword: query })
+  console.timeEnd('query')
+  return results
 }
 
 export default {

@@ -6,6 +6,9 @@
   z-index: 100;
   /* border-bottom: 1px solid #ddd; */
 }
+.inputBar:focus-within .searchSpace {
+  -webkit-app-region: drag;
+}
 .inputBarWrapper {
   position: fixed;
   height: 48px;
@@ -61,7 +64,6 @@
 }
 .searchSpace {
   flex: 1;
-  -webkit-app-region: drag;
   height: 100%;
 }
 .appLogo {

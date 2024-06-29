@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron'
-import type { CommonListItem, PluginCommand, PluginCommandMatch, PluginManifest, PublicPlugin, TextPluginCommandMatch, TriggerPluginCommandMatch } from "shared/types/plugin";
+import type { CommonListItem, FullPluginCommandMatch, PluginCommand, PluginCommandMatch, PluginManifest, PublicPlugin, TextPluginCommandMatch, TriggerPluginCommandMatch } from "shared/types/plugin";
 import * as nodePath from 'path'
 import * as fs from 'fs'
 import * as utils from '../utils'
@@ -136,6 +136,7 @@ const handleQuery = (keyword: string) => {
           const result = {
             ...command,
             title: (query && triggerMatch.title) ? triggerMatch.title.replaceAll('$query', query) : command.title,
+            subtitle: (query && triggerMatch.subtitle) ? triggerMatch.subtitle.replaceAll('$query', query) : command.subtitle
           }
           results.push(result)
           resultsMap.set(result, { query, score: 1, owner: plugin })
@@ -151,7 +152,18 @@ const handleQuery = (keyword: string) => {
       if (score > 0) {
         const result = { ...command }
         results.push(result)
-        resultsMap.set(result, { query: keyword, score, owner: plugin })
+        resultsMap.set(result, { query: '', score, owner: plugin })
+        return
+      }
+      const fullMatch = matches.find(item => item.type === 'full') as FullPluginCommandMatch | null
+      if (fullMatch) {
+        const result = {
+          ...command,
+          title: (keyword && fullMatch.title) ? fullMatch.title.replaceAll('$query', keyword) : command.title,
+          subtitle: (keyword && fullMatch.subtitle) ? fullMatch.subtitle.replaceAll('$query', keyword) : command.subtitle
+        }
+        results.push(result)
+        resultsMap.set(result, { query: keyword, score: 0.0001, owner: plugin })
       }
     })
   })
@@ -184,7 +196,7 @@ const handleEnter = (command: PluginCommand) => {
         enablePreferredSizeMode: true,
         sandbox: false,
       }
-    })
+    }, rp.query)
   } else if (command.mode === 'view') {
     // html entry
     enterPlugin(rp.owner.manifest.name, command, {
@@ -201,7 +213,7 @@ const handleEnter = (command: PluginCommand) => {
         enablePreferredSizeMode: true,
         sandbox: false,
       }
-    })
+    }, rp.query)
   }
 }
 
@@ -210,9 +222,10 @@ let controlBridge: utils.PortBridge | null = null
 const enterPlugin = (
   name: string,
   command: PluginCommand,
-  options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }
+  options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string },
+  query?: string
 ) => {
-  window.dispatchEvent(new CustomEvent('inputBar.enter', { detail: { name, command } }))
+  window.dispatchEvent(new CustomEvent('inputBar.enter', { detail: { name, command, query } }))
 
   // 搞两个 channel, 一个用来做 API 控制层调用，另一个将会插件做通信
   const { port1, port2 } = new MessageChannel()
@@ -224,7 +237,7 @@ const enterPlugin = (
     })
     controlBridge.once('ready', () => resolve(utils.createBridge(port1)))
     controlPort1.start()
-    ipcRenderer.postMessage('enter', { command, options }, [port2, controlPort2])
+    ipcRenderer.postMessage('enter', { command, options, query }, [port2, controlPort2])
   })
 }
 
