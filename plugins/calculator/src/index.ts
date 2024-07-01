@@ -89,7 +89,7 @@ class CalculatorPlugin implements PublicPlugin {
         }
       ])
     } else {
-      this.app.setList([])
+      this.app.updateCommands([])
     }
   }
 

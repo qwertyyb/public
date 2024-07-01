@@ -32,8 +32,6 @@
     ]
   },
   "dependencies": {
-    "github-markdown-css": "^5.6.1",
-    "marked": "^13.0.1",
     "sse.js": "^2.5.0"
   }
 }

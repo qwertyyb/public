@@ -1,11 +1,5 @@
 import { SSE } from 'sse.js'
-import { marked } from 'marked'
 import { BOTID, TOKEN } from './const'
-
-window.addEventListener('load', () => {
-  // @ts-ignore
-  import('github-markdown-css')
-})
 
 interface ChatItem {
   id: string,
@@ -87,17 +81,17 @@ const createPreviewContent = async (chatItem: ChatItem) => {
 
   const div = document.createElement('div')
   div.style.cssText = 'position:relative;height:100%;background:none;padding-bottom:60px;box-sizing:border-box;overflow:auto;padding-right:12px'
-  div.classList.add('markdown-body')
+  div.classList.add('messages')
 
   chatItem.messages.forEach(async (message) => {
     const h3 = document.createElement('h3')
     h3.textContent = message.query
-    const section = document.createElement('section')
-    section.classList.add('answer')
-    section.innerHTML = await marked.parse(message.answer)
+    const render = document.createElement('markdown-render')
+    render.classList.add('answer')
+    render.setAttribute('content', message.answer)
 
     div.appendChild(h3)
-    div.appendChild(section)
+    div.appendChild(render)
   })
 
   const loading = document.createElement('div')
@@ -121,8 +115,8 @@ const createAnswerAnimation = (chatItem: ChatItem) => {
     if (!preview) return;
     const answers = preview.querySelectorAll('.answer')
     const answerEl = answers[answers.length - 1]
-    answerEl.innerHTML = await marked.parse(answer)
-    preview.querySelector('.markdown-body')?.scrollTo({ left: 0, top: 9999, behavior: 'smooth' })
+    answerEl.setAttribute('content', answer)
+    preview.querySelector('.messages')?.scrollTo({ left: 0, top: 9999, behavior: 'smooth' })
   }
 
   return async (answer: string, done: boolean) => {
@@ -167,7 +161,7 @@ export default {
   async select(item: ChatItem) {
     const preview = await createPreviewContent(item)
     setTimeout(() => {
-      preview.querySelector('.markdown-body').scrollTo({ left: 0, top: 99999 })
+      preview.querySelector('.messages').scrollTo({ left: 0, top: 99999 })
     }, 0)
     return preview
   },

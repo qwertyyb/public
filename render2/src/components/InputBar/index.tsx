@@ -63,7 +63,7 @@ const InputBar: Component<Props> = (props) => {
             size={props.value.length}
             id="main-input"/>
         </Show>
-        <div class={styles.searchSpace}></div>
+        {/* <div class={styles.searchSpace}></div> */}
         <img src={props.command?.icon ?? Logo} alt="" class={styles.appLogo} draggable="false" />
       </div>
     </div>

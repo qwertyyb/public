@@ -87,9 +87,9 @@
       "node-gyp": "^10.0.0"
     },
     "patchedDependencies": {
-      "sqlite3@5.1.7": "patches/sqlite3@5.1.7.patch",
       "@nut-tree-fork/node-mac-permissions@2.2.1": "patches/@nut-tree-fork__node-mac-permissions@2.2.1.patch",
-      "@nut-tree-fork/libnut-darwin@2.7.2": "patches/@nut-tree-fork__libnut-darwin@2.7.2.patch"
+      "@nut-tree-fork/libnut-darwin@2.7.2": "patches/@nut-tree-fork__libnut-darwin@2.7.2.patch",
+      "better-sqlite3@11.1.1": "patches/better-sqlite3@11.1.1.patch"
     }
   },
   "devDependencies": {

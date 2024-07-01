@@ -1,0 +1,13 @@
+diff --git a/lib/database.js b/lib/database.js
+index 14e057392903e1a0d85eef499ba65ff8b82d3b16..54892a6437d6b6be70a4cf0e335dd53a27e486be 100644
+--- a/lib/database.js
++++ b/lib/database.js
+@@ -45,7 +45,7 @@ function Database(filenameGiven, options) {
+ 	// Load the native addon
+ 	let addon;
+ 	if (nativeBinding == null) {
+-		addon = DEFAULT_ADDON || (DEFAULT_ADDON = require('bindings')('better_sqlite3.node'));
++		addon = DEFAULT_ADDON || (DEFAULT_ADDON = require('../build/Release/better_sqlite3.node'));
+ 	} else if (typeof nativeBinding === 'string') {
+ 		// See <https://webpack.js.org/api/module-variables/#__non_webpack_require__-webpack-specific>
+ 		const requireFunc = typeof __non_webpack_require__ === 'function' ? __non_webpack_require__ : require;

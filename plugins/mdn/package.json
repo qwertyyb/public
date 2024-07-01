@@ -1,0 +1,45 @@
+{
+  "name": "mdn",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "publicPlugin": {
+    "title": "MDN文档",
+    "subtitle": "搜索 MDN 文档",
+    "icon": "https://developer.mozilla.org/apple-touch-icon.6803c6f0.png",
+    "commands": [
+      {
+        "name": "search-mdn",
+        "title": "搜索 MDN 文档",
+        "subtitle": "搜索 MDN 文档",
+        "mode": "listView",
+        "matches": [
+          {
+            "type": "text",
+            "keywords": [
+              "MDN",
+              "docs",
+              "mdn docs"
+            ]
+          },
+          {
+            "type": "trigger",
+            "triggers": [
+              "mdn"
+            ],
+            "title": "搜索 MDN 文档“$query”..."
+          }
+        ],
+        "preload": "./dist/preload.js"
+      }
+    ]
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3"
+  }
+}
