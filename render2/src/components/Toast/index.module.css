@@ -1,0 +1,25 @@
+.toast {
+  width: 120px;
+  height: 120px;
+  position: fixed;
+  top: calc(50% - 60px);
+  left: calc(50% - 60px);
+  background: rgba(0, 0, 0, .6);
+  color: #fff;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+.icon {
+  width: 50px;
+  height: 50px;
+  font-size: 50px;
+  text-align: center;
+  line-height: 50px;
+}
+.title {
+  font-size: 14px;
+  margin-top: 10px;
+}

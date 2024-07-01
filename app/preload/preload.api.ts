@@ -51,5 +51,26 @@ export default () => ({
 
   utils: {
     debounce
-  }
+  },
+  showToast(options: {
+    title?: string,
+    icon?: 'success' | 'error' | 'loading' | 'none',
+    image?: string,
+    duration: number
+  }) {
+    window.dispatchEvent(new CustomEvent('toast:show', { detail: { options }}))
+  },
+  showModal(options: Partial<{
+    title: string,
+    content: string,
+    showCancel: boolean,
+    cancelText: string,
+    confirmText: string,
+    cancelColor: string,
+    confirmColor: string,
+  }>) {
+    
+  },
+  showLoading() {},
+  hideLoading() {}
 })

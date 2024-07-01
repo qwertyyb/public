@@ -3,6 +3,7 @@ import InputBar from "../../components/InputBar";
 import ResultView from "../../components/ResultView";
 import { PluginCommand } from "../../../../shared/types/plugin";
 import styles from './index.module.css'
+import Toast from "../../components/Toast";
 
 declare global {
   interface WindowEventMap {
@@ -111,6 +112,7 @@ const MainView: Component = () => {
           onResultSelected={onResultSelected}
           onResultEnter={onResultEnter}></ResultView>
       </Show>
+      <Toast></Toast>
     </div>
   )
 }
