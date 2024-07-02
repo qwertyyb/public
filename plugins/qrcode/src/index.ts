@@ -66,11 +66,10 @@ export default (app: any): PublicPlugin => {
     app.showCommands(list)
   })
   return {
-    async onSelect(command: PluginCommand, keyword: string) {
+    async onSelect(command: PluginCommand, param: string) {
+      console.log(command, param)
       if(command.name === 'generate') {
         const QRCode = require('qrcode')
-        const [_, ...rest] = keyword.split(' ')
-        const param = rest.join(' ')
         if (!param) return;
         // 生成二维码
         const res: { html: string, url: string } = await new Promise(resolve => QRCode.toDataURL(param).then((url: string) => {

@@ -172,12 +172,11 @@ const handleQuery = (keyword: string) => {
 
 const handleSelect = (command: PluginCommand, keyword: string) => {
   const rp = resultsMap.get(command)
-  return rp?.owner.plugin?.onSelect?.(command, keyword)
+  return rp?.owner.plugin?.onSelect?.(command, rp.query)
 }
 
 const handleEnter = (command: PluginCommand) => {
   const rp = resultsMap.get(command)
-  console.log(command, rp)
   if (command.mode === 'none') {
     rp?.owner.plugin?.onEnter?.(command, rp.query)
   } else if (command.mode === 'listView') {

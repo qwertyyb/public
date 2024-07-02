@@ -82,7 +82,7 @@ const getContent = async (item) => {
   const div = document.createElement('markdown-render')
   div.style.paddingRight = '12px'
   // @ts-ignore
-  div.setAttribute('content', cleanupContent(content || '获取详情信息失败'))
+  div.setAttribute('content', cleanupContent(content || '获取详情信息失败', item))
   return div
 } 
  

@@ -2,10 +2,7 @@ import { Marked } from "marked";
 import { markedHighlight } from "marked-highlight";
 import hljs from 'highlight.js';
 import hljsCss from 'highlight.js/styles/atom-one-dark.css?inline'
-// @ts-ignore
 import githubMarkdownCss from 'github-markdown-css/github-markdown.css?inline'
-
-console.log('githubMarkdownCss', githubMarkdownCss)
 
 class MarkdownRender extends HTMLElement {
   static observedAttributes = ["content"];

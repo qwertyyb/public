@@ -1,0 +1,88 @@
+<script setup lang="ts">
+import { RouterView } from 'vue-router'
+</script>
+
+<template>
+  <RouterView />
+</template>
+
+<style>
+:root {
+  color-scheme: light dark;
+}
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* background-color: blue; */
+  background-repeat: no-repeat;
+  background-size: cover;
+	color: light-dark(#444, #ccc);
+  background-color: light-dark(#d7d7d7, #161616);
+}
+/* body::after {
+  content: " ";
+  display: block;
+  position: fixed;
+  inset: 0;
+  backdrop-filter: blur(40px);
+} */
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+body {
+	margin: 0;
+	box-sizing: border-box;
+}
+
+* {
+	padding: 0;
+	margin: 0;
+  outline: none;
+}
+
+.flex {
+  display: flex;
+}
+.flex-col {
+  flex-direction: column;
+}
+.items-center {
+  align-items: center;
+}
+.items-stretch {
+  align-items: stretch;
+}
+.justify-center {
+  justify-content: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.flex-1 {
+  flex: 1;
+}
+
+.text-single-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+::-webkit-scrollbar {
+  width: 0;
+}
+
+/* @media (prefers-color-scheme: dark) {
+  body {
+    background: #000;
+    color: #fff;
+  }
+} */
+</style>
