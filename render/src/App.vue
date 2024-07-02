@@ -32,6 +32,10 @@ body {
   backdrop-filter: blur(40px);
 } */
 
+#app {
+  height: calc(48px + 54px * 9);
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;

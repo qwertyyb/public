@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 const props = withDefaults(defineProps<{
   itemHeight: number,
@@ -27,19 +27,25 @@ const props = withDefaults(defineProps<{
   list: () => []
 })
 
+const emit = defineEmits<{
+  updated: []
+}>()
+
 const listWrapper = ref<HTMLElement>()
 
 const startOffset = ref(0)
 
 const totalHeight = computed(() => props.itemHeight * props.list.length)
 
-const start = computed(() => startOffset.value / props.itemHeight)
+const start = computed(() => Math.floor(startOffset.value / props.itemHeight))
 
 const visibleList = computed(() => props.list.slice(start.value, start.value + props.keeps))
 
 watch(() => props.list, () => {
   startOffset.value = 0
 })
+
+watch(visibleList, () => { nextTick(() => emit('updated')) }, { flush: 'post' })
 
 const scrollHandler = () => {
   const prevCount = 10;
@@ -63,7 +69,7 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .virtual-list {
   overflow: auto;
-  max-height: calc(54px * 9);
+  height: calc(54px * 9);
 }
 .virtual-list-inner {
   box-sizing: border-box;

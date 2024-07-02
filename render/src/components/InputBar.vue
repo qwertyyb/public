@@ -3,7 +3,7 @@
     <div class="inputBarWrapper">
       <div class="navBack material-symbols-outlined"
         v-if="command"
-        onPointerDown="$emit('exit')">
+        @pointerdown="$emit('exit')">
         arrow_back
       </div>
       <input type="text"
@@ -20,11 +20,11 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { type ListItem } from "../../../shared/types/plugin";
+import { type PluginCommand } from "../../../shared/types/plugin";
 
 const modelValue = defineModel({ default: '' })
 const props = defineProps<{
-  command?: any,
+  command?: PluginCommand | null,
   disabled?: boolean,
 }>()
 const emit = defineEmits<{ exit: [] }>()

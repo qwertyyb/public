@@ -42,7 +42,9 @@ onMounted(() => {
   overflow: auto;
 }
 .previewWrapper {
+  --preview-height: 462px;
   padding: 12px;
   box-sizing: border-box;
+  min-height: 100%;
 }
 </style>

@@ -26,7 +26,6 @@ const preview = ref<string | HTMLElement | undefined>('')
 const inputDisable = ref(false)
 const keyword = ref('')
 const command = ref<PluginCommand | null>(null)
-// const list = () => results().map(item => ({ ...item, action: item.mode && ['listView', 'view'].includes(item.mode) ? 'next' : false }))
 
 watch(keyword, (value) => {
   if (command.value) {

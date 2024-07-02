@@ -14,8 +14,9 @@
           :subtitle="item.subtitle"
           :selected="selectedIndex === index"
           :actionKey="getActionKey(index, actionKeyStartIndex)"
-          @select="$emit('select', item, index)"
-          @enter="$emit('enter', item, index)"
+          :actionsVisible="visibleActionIndex === index"
+          @select="selectedIndex = index;$emit('select', item, index)"
+          @enter="selectedIndex = index;$emit('enter', item, index)"
         ></ResultItem>
       </VirtualList>
     </div>
@@ -41,6 +42,7 @@ const emit = defineEmits<{
 }>()
 
 const selectedIndex = ref(0)
+const visibleActionIndex = ref(-1)
 const actionKeyStartIndex = ref(0)
 
 const selectedItem = computed(() => props.results[selectedIndex.value])
@@ -84,6 +86,10 @@ const keydownHandler = (e: KeyboardEvent) => {
     selectedIndex.value = (Math.min(selectedIndex.value + 1, props.results.length - 1))
     e.stopPropagation()
     e.preventDefault()
+  } else if (e.key === 'Enter' && e.shiftKey || e.key === 'ArrowRight') {
+    e.stopPropagation()
+    e.preventDefault()
+    visibleActionIndex.value = selectedIndex.value
   } else if(e.key === 'Enter') {
     onResultEnter(selectedIndex.value)
     e.stopPropagation()
@@ -97,7 +103,7 @@ const keydownHandler = (e: KeyboardEvent) => {
 
 const getActionKey = (index: number, indexStart: number) => {
   const key = index - indexStart + 1
-  if (key > 0) return String(key)
+  if (key > 0 && key <= 9) return String(key)
   return ''
 }
 

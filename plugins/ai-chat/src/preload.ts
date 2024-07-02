@@ -5,6 +5,7 @@ interface ChatItem {
   id: string,
   messages: { query: string, answer: string }[],
   title: string,
+  subtitle?: string,
 
   isTemp?: boolean,
 }
@@ -12,7 +13,7 @@ interface ChatItem {
 const updateStore = (data: ChatItem[]) => window.localStorage.setItem('store', JSON.stringify(data))
 const getStore = (): ChatItem[] => {
   try {
-    return JSON.parse(window.localStorage.getItem('store')).reverse() || []
+    return JSON.parse(window.localStorage.getItem('store')) || []
   } catch(err) {
     return []
   }
@@ -110,6 +111,15 @@ const createAnswerAnimation = (chatItem: ChatItem) => {
   let pos = 0
   let interval: ReturnType<typeof setTimeout>
 
+  const toggleLoading = (showLoading = true) => {
+    const preview = document.getElementById(chatItem.id);
+    if (!preview) return;
+    const loadingBtn = preview.querySelector<HTMLElement>('.loading-btn')
+    if (loadingBtn) {
+      loadingBtn.style.display = showLoading ? 'block' : 'none'
+    }
+  }
+
   const renderAnswer = async (answer: string) => {
     const preview = document.getElementById(chatItem.id);
     if (!preview) return;
@@ -119,12 +129,17 @@ const createAnswerAnimation = (chatItem: ChatItem) => {
     preview.querySelector('.messages')?.scrollTo({ left: 0, top: 9999, behavior: 'smooth' })
   }
 
+  toggleLoading(true)
+
   return async (answer: string, done: boolean) => {
     if (done) {
       clearInterval(interval)
       renderAnswer(answer)
+      toggleLoading(false)
       return
     }
+
+    toggleLoading(true)
 
     // 有新的数据返回，之前未显示完的数据直接上屏，不再逐个显示
     interval && clearInterval(interval)
@@ -141,13 +156,13 @@ const createAnswerAnimation = (chatItem: ChatItem) => {
 
 export default {
   search: (keyword: string, setList) => {
-    console.log('serch', keyword, chatList)
     let results = [...chatList].map(item => ({ ...item, messages: [...item.messages, { query: keyword, answer: '' }]}))
     if (keyword) {
       results = [
         {
           id: 'chat-' + Date.now(),
           title: keyword,
+          subtitle: "新建会话",
           messages: [{ query: keyword, answer: '...' }],
 
           isTemp: true,
@@ -155,7 +170,6 @@ export default {
         ...results
       ]
     }
-    console.log('results', results)
     setList(results)
   },
   async select(item: ChatItem) {
@@ -166,7 +180,7 @@ export default {
     return preview
   },
   async enter(item, index, query: string) {
-    const { isTemp, ...rest } = item
+    const { isTemp, subtitle, ...rest } = item
     let chatItem = { ...rest }
     if (isTemp) {
       // 新创建会话，保存本地
@@ -174,7 +188,6 @@ export default {
     }
     const answerCallback = createAnswerAnimation(chatItem)
     askWithStore(chatItem, (answer, done) => {
-      console.log(answer, done)
       answerCallback(answer, done)
     })
   }

@@ -101,7 +101,7 @@ export default {
       content = await getWords(item.data.filePath)
     }
     return `
-      <div style="display:flex;flex-direction:column;height:100%;padding-right:12px">
+      <div style="display:flex;flex-direction:column;height:462px;">
         <div style="flex:1;overflow:hidden;font-size:14px;background:#dedede;box-sizing:border-box;padding:8px;border-radius:6px;display:flex">
           ${
             isBinary

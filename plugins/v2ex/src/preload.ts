@@ -11,7 +11,7 @@ const withCache = <F extends (...args: any[]) => any>(fn: F) => {
 }
 
 const getData = withCache(async (type: 'hot' | 'latest' = 'hot') => {
-  const url = type === 'hot' ? 'https://www.v2ex.com/api/topics/hot.json' : 'https://www.v2ex.com/api/topics/latest.json'
+  const url = type === 'hot' ? 'https://www.v2ex.com/api/topics/hot.json?' + Date.now() : 'https://www.v2ex.com/api/topics/latest.json?' + Date.now()
   const response = await window.publicApp.fetch(url)
   const list: { id: string, title: string, subtitle: string, icon: string }[] = JSON.parse(response.text).map(item => ({
     id: item.id,
