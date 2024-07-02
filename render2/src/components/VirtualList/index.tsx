@@ -1,4 +1,4 @@
-import { createSignal, createEffect, onCleanup, on, JSXElement } from 'solid-js';
+import { createSignal, createEffect, onCleanup, on, JSXElement, For } from 'solid-js';
 import styles from './index.module.css'
 
 interface VirtualListProps<D> {
@@ -14,7 +14,10 @@ function VirtualList<D extends any>(props: VirtualListProps<D>) {
 
   const totalHeight = () => props.list.length * props.itemHeight
   const start = () => Math.floor(startOffset() / props.itemHeight)
-  const visibleList = () => props.list.slice(start(), start() + props.keeps)
+  const visibleList = () => {
+    return [1,2,3,4]
+    // return props.list.slice(start(), start() + props.keeps)
+  }
 
   createEffect(on(() => props.list, () => {
     setStartOffset(0);
@@ -49,9 +52,13 @@ function VirtualList<D extends any>(props: VirtualListProps<D>) {
           'min-height': `${totalHeight()}px`,
         }}
       >
-        {visibleList().map((item, index) => (
-          <props.children item={item} index={start() + index} />
-        ))}
+        <For each={visibleList()}>
+          {(item, index) => {
+            return (
+              <div>{index()}</div>
+            )
+          }}
+        </For>
       </div>
     </div>
   );

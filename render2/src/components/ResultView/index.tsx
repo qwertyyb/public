@@ -52,21 +52,21 @@ function ResultView<D extends ListItem>(props: Props<D>) {
   createEffect(on(() => props.results, (v) => { setSelectedIndex(0) }))
 
   // selectedIndex 变化时，滚动到选择位置，调用preview
-  createEffect(on(() => props.results[selectedIndex()], () => {
-    (document.querySelector<HTMLElement>(`.result-item[data-result-item-index="${selectedIndex()}"]`) as any)?.scrollIntoViewIfNeeded(false)
-    const parentRect = document.querySelector('div.virtual-list')!.getBoundingClientRect()
-    const els = document.querySelectorAll<HTMLElement>('.result-item[data-result-item-index]')
-    let visibleIndexList: number[] = []
-    els.forEach(item => {
-      const rect = item.getBoundingClientRect()
-      const visible = rect.top + rect.height / 2 >= parentRect.top && rect.top + rect.height / 2 <= parentRect.bottom
-      if (visible) {
-        visibleIndexList.push(parseInt(item.dataset.resultItemIndex as string, 10))
-      }
-    })
-    setActionKeyIndexStart(visibleIndexList[0])
-    console.log(visibleIndexList)
-  }))
+  // createEffect(on(() => props.results[selectedIndex()], () => {
+  //   (document.querySelector<HTMLElement>(`.result-item[data-result-item-index="${selectedIndex()}"]`) as any)?.scrollIntoViewIfNeeded(false)
+  //   const parentRect = document.querySelector('div.virtual-list')!.getBoundingClientRect()
+  //   const els = document.querySelectorAll<HTMLElement>('.result-item[data-result-item-index]')
+  //   let visibleIndexList: number[] = []
+  //   els.forEach(item => {
+  //     const rect = item.getBoundingClientRect()
+  //     const visible = rect.top + rect.height / 2 >= parentRect.top && rect.top + rect.height / 2 <= parentRect.bottom
+  //     if (visible) {
+  //       visibleIndexList.push(parseInt(item.dataset.resultItemIndex as string, 10))
+  //     }
+  //   })
+  //   setActionKeyIndexStart(visibleIndexList[0])
+  //   console.log(visibleIndexList)
+  // }))
 
   createEffect(on(selectedItem, getPreview))
 
