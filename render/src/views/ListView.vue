@@ -6,6 +6,7 @@
         :preview="preview"
         @select="onResultSelected"
         @enter="onResultEnter"
+        @action="onResultAction"
       ></ResultView>
     </div>
   </main>
@@ -16,6 +17,7 @@ import ResultView from '@/components/ResultView.vue';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import type { ListItem } from '../../../shared/types/plugin';
 import LoadingBar from '@/components/LoadingBar.vue';
+import type { IActionItem } from '@/components/ActionList.vue';
 
 declare global {
   interface WindowEventMap {
@@ -25,8 +27,9 @@ declare global {
   interface Window {
     plugin?: {
       search: (keyword: string, setList: (list: ListItem[]) => void) => void,
-      select: (item: ListItem, itemIndex: number, keyword: string) => Promise<string>,
-      enter: (item: ListItem, itemIndex: number, keyword: string) => void
+      select?: (item: ListItem, itemIndex: number, keyword: string) => Promise<string>,
+      enter?: (item: ListItem, itemIndex: number, keyword: string) => void,
+      action?: (item: ListItem, action: IActionItem, keyword: string) => void,
     },
     pluginData?: { list: ListItem[] },
     launchParameter?: { query: string }
@@ -53,7 +56,7 @@ watch(keyword, (value) => {
 }, { immediate: true})
 
 const onResultEnter = (item: ListItem, itemIndex: number) => {
-  window.plugin?.enter(item, itemIndex, keyword.value)
+  window.plugin?.enter?.(item, itemIndex, keyword.value)
 }
 
 const onResultSelected = async (item: ListItem | null, itemIndex: number) => {
@@ -62,6 +65,10 @@ const onResultSelected = async (item: ListItem | null, itemIndex: number) => {
     return
   }
   preview.value = await window.plugin?.select?.(item, itemIndex, keyword.value)
+}
+
+const onResultAction = (item: ListItem, itemIndex: number, action: IActionItem) => {
+  window.plugin?.action?.(item, action, keyword.value)
 }
 
 const setInputValue = (event: CustomEvent<{ value: string }>) => {

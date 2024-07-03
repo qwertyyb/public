@@ -9,11 +9,14 @@ const props = defineProps<{ value: string }>()
 
 const keyValue = computed(() => {
   const keyMap: Record<string, string | undefined> = {
-    command: '⌘',
-    enter: '↵',
-    option: '⌥',
-    shift: '⇧',
-    control: '^'
+    Command: '⌘',
+    Meta: '⌘',
+    Enter: '↵',
+    Option: '⌥',
+    Alt: '⌥',
+    Shift: '⇧',
+    Control: '^',
+    Backspace: '←'
   }
   return keyMap[props.value] || props.value
 })

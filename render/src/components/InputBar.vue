@@ -21,6 +21,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { type PluginCommand } from "../../../shared/types/plugin";
+import { curry } from 'ramda';
+import { isKeyPressed } from '@/utils/keyboard';
 
 const modelValue = defineModel({ default: '' })
 const props = defineProps<{
@@ -32,7 +34,8 @@ const emit = defineEmits<{ exit: [] }>()
 const inputEl = ref<HTMLInputElement>()
 
 const handler = (event: KeyboardEvent) => {
-  if (event.key === 'Escape') {
+  const checkKey = curry(isKeyPressed)(event)
+  if (checkKey('Escape')) {
     if (modelValue.value) {
       event.preventDefault()
       modelValue.value = ''
@@ -43,7 +46,7 @@ const handler = (event: KeyboardEvent) => {
       event.preventDefault()
       window.publicApp?.mainWindow?.hide?.()
     }
-  } else if (event.key === 'Backspace' && !modelValue.value) {
+  } else if (checkKey('Backspace') && !modelValue.value) {
     if (props.command) {
       event.preventDefault()
       emit('exit')

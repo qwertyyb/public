@@ -1,13 +1,35 @@
 import { SSE } from 'sse.js'
 import { BOTID, TOKEN } from './const'
 
+const crel = <K extends keyof HTMLElementTagNameMap>(tagName: K, attrs?: Partial<Omit<HTMLElementTagNameMap[K], 'style'>> & { style?: Partial<CSSStyleDeclaration> }, ...children: (string | HTMLElement)[]): HTMLElementTagNameMap[K] => {
+  const el = document.createElement(tagName)
+  const { style = {}, ...rest } = attrs;
+  Object.keys(style).forEach(key => {
+    el.style[key] = style[key]
+  })
+  Object.keys(rest).forEach(key => {
+    el[key] = attrs[key]
+  })
+  children.forEach(child => el.append(child))
+  return el
+}
+
+type ProxyTarget<K extends keyof HTMLElementTagNameMap = keyof HTMLElementTagNameMap> = {
+  [tagName in K]: (attrs?: Partial<HTMLElementTagNameMap[K]>, ...children: (string | HTMLElement)[]) => HTMLElementTagNameMap[tagName]
+}
+
+const el = new Proxy<ProxyTarget>({} as any, {
+  get: (target, key) => {
+    return crel.bind(null, key)
+  }
+})
+
 interface ChatItem {
   id: string,
   messages: { query: string, answer: string }[],
   title: string,
   subtitle?: string,
-
-  isTemp?: boolean,
+  prompt?: string,
 }
 
 const updateStore = (data: ChatItem[]) => window.localStorage.setItem('store', JSON.stringify(data))
@@ -36,20 +58,23 @@ const ask = (chatItem: ChatItem, callback: (answer: string, done: boolean) => vo
     headers: {
       Authorization: `Bearer ${TOKEN}`,
       'Content-Type': 'application/json',
-      Connection: 'keep-alive',
       Accept: '*/*'
     },
     payload: JSON.stringify({
       bot_id: BOTID,
+      chat_history: chatHistory,
       user: 'mine',
       conversation_id: chatItem.id,
-      chat_history: chatHistory,
       query,
       stream: true,
+      custom_variables: {
+        prompt: chatItem.prompt || ''
+      }
     })
   })
   let answer = ''
   const handler = (ev) => {
+    console.log(ev.data)
     const json = JSON.parse(ev.data)
     const { event, message } = json;
     if (event === 'message' && message.role === 'assistant' && message.type === 'answer') {
@@ -81,7 +106,7 @@ const createPreviewContent = async (chatItem: ChatItem) => {
   wrapper.setAttribute('id', chatItem.id)
 
   const div = document.createElement('div')
-  div.style.cssText = 'position:relative;height:100%;background:none;padding-bottom:60px;box-sizing:border-box;overflow:auto;padding-right:12px'
+  div.style.cssText = 'position:relative;height:var(--preview-height);background:none;padding-bottom:60px;box-sizing:border-box;overflow:auto;padding-right:12px'
   div.classList.add('messages')
 
   chatItem.messages.forEach(async (message) => {
@@ -104,6 +129,57 @@ const createPreviewContent = async (chatItem: ChatItem) => {
 
   wrapper.appendChild(loading)
   return wrapper
+}
+
+const createSettingsDialog = (chat: ChatItem, options: {
+  confirm: (values: { title: string, prompt: string }) => void,
+  close: () => void,
+}) => {
+  let values = {
+    title: chat.title,
+    prompt: chat.prompt || ''
+  }
+  const dialog = crel('dialog',
+    {
+      id: 'setting-dialog',
+      onclose() {
+        options.close()
+      },
+    },
+    crel('form', { method: 'dialog' }, 
+      crel('div', { className: 'form-item', style: { display: 'flex', flexDirection: 'column' } },
+        crel('label', { htmlFor: 'chat-title', style: { width: '100%' } }, '标题'),
+        crel('input', {
+          id: 'chat-title',
+          value: chat.title,
+          style: { width: '100%', },
+          onchange: (ev) => {
+            values.title = (ev.target as HTMLInputElement).value
+          }
+        })
+      ),
+      crel('div', { className: 'form-item', style: { display: 'flex', flexDirection: 'column', marginTop: '12px' } },
+        crel('label', { htmlFor: 'chat-prompt', style: { width: '100%' } }, 'prompt'),
+        crel('textarea', {
+          id: 'chat-prompt',
+          style: { width: '360px', height: '200px' },
+          onchange: ev => {
+            values.prompt = (ev.target as HTMLTextAreaElement).value
+          }
+        }, chat.prompt || '')
+      ),
+      crel('div', { className: 'form-item', style: { display: 'flex', justifyContent: 'center', marginTop: '12px' } },
+        crel('button', {}, '取消'),
+        crel('button', {
+          style: {
+            marginLeft: '12px'
+          },
+          onclick() { options.confirm(values) }
+        }, '确定')
+      )
+    )
+  )
+  return dialog
 }
 
 const createAnswerAnimation = (chatItem: ChatItem) => {
@@ -154,23 +230,50 @@ const createAnswerAnimation = (chatItem: ChatItem) => {
   }
 }
 
+const addActions = (item: ChatItem) => {
+  return {
+    ...item,
+    actions: [
+      {
+        name: 'use',
+        icon: 'list',
+        title: '使用此会话',
+        shortcuts: 'Enter'
+      },
+      {
+        name: 'add',
+        icon: 'add_box',
+        title: '新建会话',
+        shortcuts: 'Meta+Enter'
+      },
+      {
+        name: 'settings',
+        icon: 'settings',
+        title: '设置此会话',
+        shortcuts: 'Meta+i'
+      },
+      {
+        name: 'remove',
+        icon: 'cancel',
+        title: '删除会话',
+        shortcuts: 'Meta+Backspace'
+      }
+    ]
+  }
+}
+
+const getList = (chatList: ChatItem[], query: string) => {
+  return [...chatList]
+  .map(item => ({
+    ...addActions(item),
+    messages: [...item.messages, { query, answer: '' }],
+  }))
+}
+
 export default {
   search: (keyword: string, setList) => {
-    let results = [...chatList].map(item => ({ ...item, messages: [...item.messages, { query: keyword, answer: '' }]}))
-    if (keyword) {
-      results = [
-        {
-          id: 'chat-' + Date.now(),
-          title: keyword,
-          subtitle: "新建会话",
-          messages: [{ query: keyword, answer: '...' }],
-
-          isTemp: true,
-        },
-        ...results
-      ]
-    }
-    setList(results)
+    console.log('keyword change', keyword, keyword.length)
+    setList(getList(chatList, keyword))
   },
   async select(item: ChatItem) {
     const preview = await createPreviewContent(item)
@@ -180,15 +283,52 @@ export default {
     return preview
   },
   async enter(item, index, query: string) {
-    const { isTemp, subtitle, ...rest } = item
-    let chatItem = { ...rest }
-    if (isTemp) {
-      // 新创建会话，保存本地
-      chatList.unshift(chatItem)
-    }
-    const answerCallback = createAnswerAnimation(chatItem)
-    askWithStore(chatItem, (answer, done) => {
+    const answerCallback = createAnswerAnimation(item)
+    askWithStore(item, (answer, done) => {
       answerCallback(answer, done)
     })
+  },
+  action(chatItem, action, query: string) {
+    if (action.name === 'remove') {
+      chatList = chatList.filter(i => i.id !== chatItem.id)
+      updateStore(chatList)
+      window.publicApp.setList(getList(chatList, query))
+    } else if (action.name === 'add') {
+      const newChatItem = {
+        id: 'chat-' + Date.now(),
+        messages: [{ query, answer: '' }],
+        title: query,
+      }
+      chatList.unshift(newChatItem)
+      window.publicApp.setList([addActions(newChatItem), ...getList(chatList, query)])
+      const answerCallback = createAnswerAnimation(newChatItem)
+      askWithStore(newChatItem, (answer, done) => {
+        answerCallback(answer, done)
+      })
+    } else if (action.name === 'settings') {
+      const dialog = createSettingsDialog(chatItem, {
+        confirm: (values) => {
+          chatList = chatList.map(item => {
+            if (item.id === chatItem.id) {
+              return { ...item, ...values }
+            }
+            return item
+          })
+          updateStore(chatList)
+          window.publicApp.setList(getList(chatList, query))
+        },
+        close: () => {
+          dialog.remove()
+        }
+      })
+      document.body.appendChild(dialog)
+      dialog.showModal()
+    } else if (action.name === 'use') {
+      const answerCallback = createAnswerAnimation(chatItem)
+      askWithStore(chatItem, (answer, done) => {
+        answerCallback(answer, done)
+      })
+    }
+    console.log(chatItem, action)
   }
 }

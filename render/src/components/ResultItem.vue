@@ -13,35 +13,24 @@
       <h5 class="itemSubtitle color-666 text-sm text-single-line" v-if="subtitle">{{ subtitle }}</h5>
     </div>
     <div class="actions">
-      <ShortcutsKey shortcuts="enter" v-if="selected"></ShortcutsKey>
-      <ShortcutsKey :shortcuts="['command', actionKey]" v-else-if="actionKey"></ShortcutsKey>
-      <span class="material-symbols-outlined more-icon" ref="moreEl" v-if="(actions?.length || 1) > 1">more_vert</span>
+      <ShortcutsKey shortcuts="Enter" v-if="selected"></ShortcutsKey>
+      <ShortcutsKey :shortcuts="['Meta', actionKey]" v-else-if="actionKey"></ShortcutsKey>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import ShortcutsKey from '@/components/ShortcutsKey.vue';
-import { ref } from 'vue';
-
-interface Action {
-  icon: string
-  title: string
-  shortcuts?: string
-}
-
 interface IResultItem {
   icon?: string,
   title: string,
   subtitle?: string,
-  actions?: Action[]
 }
 
 interface IResultItemProps extends IResultItem {
   index?: number,
   selected?: boolean,
   actionKey?: string,
-  actionsVisible?: boolean,
 }
 
 defineProps<IResultItemProps>()
@@ -51,8 +40,6 @@ defineEmits<{
   enter: []
 }>()
 
-const moreEl = ref<HTMLElement>()
- 
 </script>
 
 <style lang="scss" scoped>
@@ -109,10 +96,5 @@ const moreEl = ref<HTMLElement>()
 .actions {
   display: flex;
   align-items: center;
-}
-.more-icon {
-  font-size: 20px;
-  margin-left: 4px;
-  color: #5a5a5a;
 }
 </style>

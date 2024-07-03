@@ -32,10 +32,6 @@ body {
   backdrop-filter: blur(40px);
 } */
 
-#app {
-  height: calc(48px + 54px * 9);
-}
-
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
@@ -46,7 +42,7 @@ body {
 	box-sizing: border-box;
 }
 
-* {
+*:not(dialog) {
 	padding: 0;
 	margin: 0;
   outline: none;
@@ -89,4 +85,14 @@ body {
     color: #fff;
   }
 } */
+
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, .85);
+}
+dialog {
+  border-radius: 6px;
+  background-color: light-dark(#f4f4f4, #373737);
+  border-color: light-dark(#ececec, #464646);
+}
 </style>

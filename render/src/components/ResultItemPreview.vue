@@ -34,7 +34,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 .resultItemPreview {
   box-sizing: border-box;
-  flex: 4;
+  flex: 5;
   border-left: 1px solid light-dark(#c0c0c0, #333);
   height: 486px;
   min-height: 486px;

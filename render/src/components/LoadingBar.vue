@@ -23,7 +23,7 @@
   position: absolute;
   top: 0;
   left: -100%;
-  animation: loading 2s infinite;
+  animation: loading 1.5s infinite;
 }
 
 @keyframes loading {

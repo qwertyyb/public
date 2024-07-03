@@ -10,11 +10,11 @@
         :subtitle="item.subtitle"
         :selected="selectedIndex === index"
         :actionKey="getActionKey(index, actionKeyStartIndex)"
-        :actionsVisible="visibleActionIndex === index"
         @select="selectedIndex = index;$emit('select', item, index)"
         @enter="selectedIndex = index;$emit('enter', item, index)"
       ></ResultItem>
     </div>
+    <ActionList :actions="selectedItem.actions" v-if="selectedItem?.actions"></ActionList>
     <ResultItemPreview :html="preview" v-if="preview"></ResultItemPreview>
   </div>
 </template>
@@ -22,8 +22,11 @@
 <script setup lang="ts" generic="T extends ListItem">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import ResultItem from '@/components/ResultItem.vue';
+import ActionList, { type IActionItem } from '@/components/ActionList.vue';
 import ResultItemPreview from '@/components/ResultItemPreview.vue';
+import { curry } from 'ramda';
 import type { ListItem } from '../../../shared/types/plugin';
+import { isKeyPressed } from '@/utils/keyboard';
 
 const props = withDefaults(defineProps<{
   results: T[],
@@ -32,7 +35,8 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits<{
   enter: [item: T, index: number],
-  select: [item: T | null, index: number]
+  select: [item: T | null, index: number],
+  action: [item: T, index: number, action: IActionItem]
 }>()
 
 const selectedIndex = ref(0)
@@ -62,7 +66,7 @@ const calcActionKeyStartIndex = () => {
   actionKeyStartIndex.value = visibleIndexList[0]
 }
 
-watch(selectedItem, getPreview)
+watch(selectedItem, getPreview, { immediate: true })
 watch(selectedItem, calcActionKeyStartIndex, { flush: 'post' })
 
 watch(() => props.results, () => { selectedIndex.value = 0 })
@@ -72,19 +76,21 @@ const onResultEnter = (index: number) => {
 }
 
 const keydownHandler = (e: KeyboardEvent) => {
-  if (e.key === 'ArrowUp') {
+  const checkKey = curry(isKeyPressed)(e)
+
+  if (checkKey('ArrowUp')) {
     selectedIndex.value = (Math.max(0, selectedIndex.value - 1))
     e.stopPropagation()
     e.preventDefault()
-  } else if(e.key === 'ArrowDown') {
+  } else if(checkKey('ArrowDown')) {
     selectedIndex.value = (Math.min(selectedIndex.value + 1, props.results.length - 1))
     e.stopPropagation()
     e.preventDefault()
-  } else if (e.key === 'Enter' && e.shiftKey || e.key === 'ArrowRight') {
+  } else if (checkKey('Shift+Enter') || checkKey('ArrowRight')) {
     e.stopPropagation()
     e.preventDefault()
     visibleActionIndex.value = selectedIndex.value
-  } else if(e.key === 'Enter') {
+  } else if(checkKey('Enter')) {
     onResultEnter(selectedIndex.value)
     e.stopPropagation()
   } else if (e.metaKey && /^\d$/.test(e.key)) {
@@ -92,6 +98,10 @@ const keydownHandler = (e: KeyboardEvent) => {
     selectedIndex.value = actionKeyStartIndex.value + key - 1
     onResultEnter(selectedIndex.value)
     e.stopPropagation()
+  } else if (selectedItem.value?.actions) {
+    const actions = [...selectedItem.value?.actions ?? []]
+    const action = actions.find(action => checkKey(action.shortcuts))
+    action && emit('action', selectedItem.value, selectedIndex.value, action)
   }
 }
 
@@ -116,7 +126,7 @@ onBeforeUnmount(() => {
   --container-height: calc(54px * 9);
 }
 .result-list {
-  flex: 2;
+  flex: 3;
   max-height: var(--container-height);
   overflow: auto;
 }
