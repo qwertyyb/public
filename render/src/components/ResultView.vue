@@ -1,24 +1,19 @@
 <template>
   <div class="resultView">
-    <div class="resultsListContainer">
-      <VirtualList
-        :list="results"
-        :keeps="30"
-        :item-height="54"
-        v-slot="{ item, index }"
-      >
-        <ResultItem
-          :index="index"
-          :icon="item.icon"
-          :title="item.title"
-          :subtitle="item.subtitle"
-          :selected="selectedIndex === index"
-          :actionKey="getActionKey(index, actionKeyStartIndex)"
-          :actionsVisible="visibleActionIndex === index"
-          @select="selectedIndex = index;$emit('select', item, index)"
-          @enter="selectedIndex = index;$emit('enter', item, index)"
-        ></ResultItem>
-      </VirtualList>
+    <div class="result-list">
+      <ResultItem
+        v-for="(item, index) in results"
+        :key="index"
+        :index="index"
+        :icon="item.icon"
+        :title="item.title"
+        :subtitle="item.subtitle"
+        :selected="selectedIndex === index"
+        :actionKey="getActionKey(index, actionKeyStartIndex)"
+        :actionsVisible="visibleActionIndex === index"
+        @select="selectedIndex = index;$emit('select', item, index)"
+        @enter="selectedIndex = index;$emit('enter', item, index)"
+      ></ResultItem>
     </div>
     <ResultItemPreview :html="preview" v-if="preview"></ResultItemPreview>
   </div>
@@ -26,7 +21,6 @@
 
 <script setup lang="ts" generic="T extends ListItem">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import VirtualList from '@/components/VirtualList.vue';
 import ResultItem from '@/components/ResultItem.vue';
 import ResultItemPreview from '@/components/ResultItemPreview.vue';
 import type { ListItem } from '../../../shared/types/plugin';
@@ -55,7 +49,7 @@ const getPreview = async (item: T) => {
 // selectedIndex 变化时，滚动到选择位置，调用preview
 const calcActionKeyStartIndex = () => {
   (document.querySelector<HTMLElement>(`.result-item[data-result-item-index="${selectedIndex.value}"]`) as any)?.scrollIntoViewIfNeeded(false)
-  const parentRect = document.querySelector('div.virtual-list')!.getBoundingClientRect()
+  const parentRect = document.querySelector('div.result-list')!.getBoundingClientRect()
   const els = document.querySelectorAll<HTMLElement>('.result-item[data-result-item-index]')
   let visibleIndexList: number[] = []
   els.forEach(item => {
@@ -119,9 +113,11 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .resultView {
   display: flex;
+  --container-height: calc(54px * 9);
 }
-.resultsListContainer {
+.result-list {
   flex: 2;
+  max-height: var(--container-height);
   overflow: auto;
 }
 

@@ -1,7 +1,0 @@
-.virtualList {
-  overflow: auto;
-  max-height: calc(54px * 9);
-}
-.virtualListInner {
-  box-sizing: border-box;
-}
