@@ -1,32 +1,14 @@
-import { queryRecord, updateRecord, insertRecord, createDatabase } from './storage'
+import { updateRecord } from './storage'
 import * as path from 'path'
 
 const names = [
   'launcher', 'command', 'calculator', 'qrcode', 'search', 'translate', 'clipboard',
-  'douban', 'magic', 'ai-chat', 'v2ex', 'terminal', 'find', 'google-chrome', 'mdn'
+  'douban', 'magic', 'ai-chat', 'v2ex', 'terminal', 'find', 'google-chrome', 'mdn', 'shortcuts'
 ]
 
 const getDefaultSettings = () => {
   const getDefaultPluginPaths = () => {
     return names.map(name => ({ path: path.join(__dirname, '../../', name) }))
-    // const paths = [
-    //   path.resolve(__dirname, '../../launcher'),
-    //   path.resolve(__dirname, '../../command'),
-    //   path.resolve(__dirname, '../../calculator'),
-    //   path.resolve(__dirname, '../../qrcode'),
-    //   path.resolve(__dirname, '../../search'),
-    //   path.resolve(__dirname, '../../translate'),
-    //   path.resolve(__dirname, '../../clipboard'),
-    //   path.resolve(__dirname, '../../douban'),
-    //   path.resolve(__dirname, '../../magic'),
-    //   path.resolve(__dirname, '../../ai-chat'),
-    //   path.resolve(__dirname, '../../v2ex'),
-    //   path.resolve(__dirname, '../../terminal'),
-    //   // path.resolve(__dirname, '../../favorite'),
-    //   path.resolve(__dirname, '../../find')
-    // ]
-    // console.log('default plugins', paths)
-    // return paths.map(pathstr => ({ path: pathstr }))
   }
 
   return {
@@ -81,7 +63,7 @@ const initPlugins = async (settings: any) => {
   console.log(settings)
   return plugins.map((p: any) => {
     try {
-      window.PluginManager.addPlugin(p.path)
+      window.pluginManager.addPlugin(p.path)
     } catch(err) {
       console.warn(err);
     }
@@ -98,7 +80,7 @@ const initSettings = async () => {
 }
 
 const updatePluginsSettings = async () => {
-  const pluginConfigs = JSON.parse(JSON.stringify(window.PluginManager.getPlugins()))
+  const pluginConfigs = JSON.parse(JSON.stringify(window.pluginManager.getPlugins()))
   const settings = await getSettings();
 
   settings.plugins = pluginConfigs
@@ -116,15 +98,15 @@ const handlers = {
     registerLaunchAtLogin(args.settings)
   },
   async removePlugin(args) {
-    window.PluginManager.removePlugin(args.name);
+    window.pluginManager.removePlugin(args.name);
     await updatePluginsSettings()
   },
   async registerPlugin(args) {
-    window.PluginManager.addPlugin(args.path)
+    window.pluginManager.addPlugin(args.path)
     await updatePluginsSettings()
   },
   getPlugins() {
-    return JSON.parse(JSON.stringify(Array.from(window.PluginManager.getPlugins().values())))
+    return JSON.parse(JSON.stringify(Array.from(window.pluginManager.getPlugins().values())))
   },
   getSettings() {
     return getSettings()

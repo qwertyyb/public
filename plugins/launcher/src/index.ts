@@ -1,12 +1,11 @@
-import { CommonListItem, PluginCommand, PublicPlugin } from 'shared/types/plugin'
 import getAppList from './loadApplications'
 
-interface AppListItem extends CommonListItem{
+interface AppListItem extends IListItem {
   path: string,
   icon: string,
 }
 
-class LauncherPlugin implements PublicPlugin {
+class LauncherPlugin {
   app: any
 
   constructor(app: any) {
@@ -37,7 +36,7 @@ class LauncherPlugin implements PublicPlugin {
     })))
   }
 
-  onEnter (app: PluginCommand) {
+  onEnter (app: IPluginCommand) {
     const { exec } = require('child_process')
     exec(`open -a "${app.path}"`)
   }

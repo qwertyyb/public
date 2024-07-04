@@ -1,7 +1,6 @@
 
 import { clipboard } from 'electron';
 import { create, all } from "mathjs";
-import { PluginCommand, PublicPlugin } from 'shared/types/plugin';
 
 const DECIMAL_SEPARATOR = '.'
 const ARG_SEPARATOR = ','
@@ -58,44 +57,33 @@ export class Calculator {
   }
 }
 
-const COMMAND = 'calculator'
-
-class CalculatorPlugin implements PublicPlugin {
-  app: any
-
-  icon = 'https://img.icons8.com/plasticine/100/000000/apple-calculator.png'
-  title = '计算器'
-  subtitle = '快捷计算表达式'
-
-  constructor(app: any) {
-    this.app = app
-  }
-
-  onInput(
-    keyword: string
-  ) {
-    if (Calculator.isValidInput(keyword)) {
-      const result = Calculator.calculate(keyword)
-      this.app.updateCommands([
-        {
-          name: "calculator",
-          title: `= ${result}`,
-          subtitle: '点击复制到剪切板',
-          icon: 'https://img.icons8.com/plasticine/100/000000/apple-calculator.png',
-          text: `${result}`,
-          matches: [
-            { type: 'text', keywords: [keyword] }
-          ]
-        }
-      ])
-    } else {
-      this.app.updateCommands([])
+const calculatorPlugin: IPlugin = (utils) => {
+  return {
+    onInput(
+      keyword: string
+    ) {
+      if (Calculator.isValidInput(keyword)) {
+        const result = Calculator.calculate(keyword)
+        utils.updateCommands([
+          {
+            name: "calculator",
+            title: `= ${result}`,
+            subtitle: '点击复制到剪切板',
+            icon: 'https://img.icons8.com/plasticine/100/000000/apple-calculator.png',
+            text: `${result}`,
+            matches: [
+              { type: 'text', keywords: [keyword] }
+            ]
+          }
+        ])
+      } else {
+        utils.updateCommands([])
+      }
+    },
+    onEnter (item: IPluginCommand) {
+      clipboard.writeText(String(item.text))
     }
-  }
-
-  onEnter (item: PluginCommand) {
-    clipboard.writeText(String(item.text))
   }
 }
 
-export default (app: any) => new CalculatorPlugin(app)
+export default calculatorPlugin

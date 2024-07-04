@@ -1,7 +1,6 @@
-import { PublicApp, PublicPlugin } from "shared/types/plugin";
 import { translate } from './youdao'
 
-export default {
+const listView: IPluginCommandListView = {
   search: window.publicApp.utils.debounce(async (keyword: string, setList: (list: any[]) => void) => {
     if (!keyword) return setList([])
     const result = JSON.parse(await translate(keyword))
@@ -30,3 +29,5 @@ export default {
     setList(results)
   })
 }
+
+export default listView

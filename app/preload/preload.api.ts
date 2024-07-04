@@ -1,5 +1,4 @@
 import { ipcRenderer } from 'electron'
-import type { CommonListItem } from 'shared/types/plugin'
 
 const debounce = <F extends (...args: any[]) => any>(fn: F) => {
   let timeout = null
@@ -10,8 +9,7 @@ const debounce = <F extends (...args: any[]) => any>(fn: F) => {
     timeout = setTimeout(() => fn(...args), 200)
   }
 }
-
-export default () => ({
+const createAPI = () => ({
   db: {
     run: (sql: string, params?: Object) => ipcRenderer.invoke('db.run', sql, params),
     all: (sql: string, params?: Object) => ipcRenderer.invoke('db.all', sql, params),
@@ -45,9 +43,8 @@ export default () => ({
   },
   fetch: (...args: Parameters<typeof fetch>) => ipcRenderer.invoke('fetch', ...args),
 
-  // @ts-ignore
-  enter: (name: string, item: CommonListItem, args: any) => window.PluginManager.enterPlugin(name, item, args),
-  exit: (name: string) => window.PluginManager.exitPlugin(name),
+  enter: (name: string, item: IPluginCommand, args: any) => window.pluginManager?.enterPlugin(name, item, args),
+  exit: () => window.pluginManager?.exitPlugin(),
 
   utils: {
     debounce
@@ -74,3 +71,7 @@ export default () => ({
   showLoading() {},
   hideLoading() {}
 })
+
+export type IPublicApp = ReturnType<typeof createAPI>
+
+export default createAPI

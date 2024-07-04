@@ -2,7 +2,6 @@
   "name": "translate",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,6 +15,7 @@
     "commands": [
       {
         "name": "youdao",
+        "title": "有道翻译",
         "matches": [
           { "type": "text", "keywords": ["翻译", "translate", "yd"] },
           { "type": "trigger", "triggers": ["yd"] }

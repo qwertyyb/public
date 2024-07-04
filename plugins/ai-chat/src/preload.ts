@@ -292,7 +292,7 @@ export default {
     if (action.name === 'remove') {
       chatList = chatList.filter(i => i.id !== chatItem.id)
       updateStore(chatList)
-      window.publicApp.setList(getList(chatList, query))
+      window.pluginService.setList(getList(chatList, query))
     } else if (action.name === 'add') {
       const newChatItem = {
         id: 'chat-' + Date.now(),
@@ -300,7 +300,7 @@ export default {
         title: query,
       }
       chatList.unshift(newChatItem)
-      window.publicApp.setList([addActions(newChatItem), ...getList(chatList, query)])
+      window.pluginService.setList([addActions(newChatItem), ...getList(chatList, query)])
       const answerCallback = createAnswerAnimation(newChatItem)
       askWithStore(newChatItem, (answer, done) => {
         answerCallback(answer, done)
@@ -315,7 +315,7 @@ export default {
             return item
           })
           updateStore(chatList)
-          window.publicApp.setList(getList(chatList, query))
+          window.pluginService.setList(getList(chatList, query))
         },
         close: () => {
           dialog.remove()

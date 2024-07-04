@@ -10,7 +10,9 @@
         v-if="!command"
         :preview="preview"
         @select="onResultSelected"
-        @enter="onResultEnter"></ResultView>
+        @enter="onResultEnter"
+        @action="onResultAction"
+      ></ResultView>
     </div>
   </main>
 </template>
@@ -29,11 +31,11 @@ const command = ref<PluginCommand | null>(null)
 
 watch(keyword, (value) => {
   if (command.value) {
-    window.PluginManager?.setSubInputValue(value)
+    window.pluginManager?.setSubInputValue(value)
     return
   }
   if (value) {
-    results.value = window.PluginManager?.handleQuery(value) || []
+    results.value = window.pluginManager?.handleQuery(value) || []
   } else {
     results.value = []
   }
@@ -46,12 +48,16 @@ const focusInput = () => {
 
 const onResultEnter = (item: PluginCommand | null, itemIndex: number) => {
   if (command.value) return
-  window.PluginManager?.handleEnter(toRaw(results.value[itemIndex]))
+  window.pluginManager?.handleEnter(toRaw(results.value[itemIndex]))
 }
 
 const onResultSelected = async (item: PluginCommand | null, itemIndex: number) => {
   if (command.value) return
-  preview.value = await window.PluginManager?.handleSelect(toRaw(results.value[itemIndex]), keyword.value)
+  preview.value = await window.pluginManager?.handleSelect(toRaw(results.value[itemIndex]), keyword.value)
+}
+
+const onResultAction = async (item: PluginCommand, itemIndex: number, action: IActionItem) => {
+  window.pluginManager?.handleAction(toRaw(item), toRaw(action), keyword.value)
 }
 
 const setInputBarValue = (event: CustomEvent<{ value: string }>) => {
@@ -78,7 +84,7 @@ const enterSubInput = (e: CustomEvent<{ name: string, query?: string, command: P
 const exitCommand = () => {
   if (!command.value) return
   command.value = null
-  window.PluginManager?.exitPlugin('xxx')
+  window.pluginManager?.exitPlugin()
   inputDisable.value = false
   keyword.value = preKeyword
   setTimeout(() => {
@@ -120,7 +126,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   height: 100%;
 }
-.home-view::v-deep > * {
+.home-view > :deep(*) {
   width: 100%;
 }
 </style>

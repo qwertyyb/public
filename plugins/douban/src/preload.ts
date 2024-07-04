@@ -45,7 +45,7 @@ const createPreview = (item) => {
 }
 
 
-export default {
+const listView: IPluginCommandListView = {
   search: window.publicApp.utils.debounce(
     async (keyword: string, setList) => {
       if (!keyword) return setList([])
@@ -73,3 +73,5 @@ export default {
     require('electron').shell.openExternal(item.url)
   }
 }
+
+export default listView

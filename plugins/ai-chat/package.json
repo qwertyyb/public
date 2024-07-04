@@ -15,6 +15,7 @@
     "commands": [
       {
         "name": "ai-chat",
+        "title": "AI助手",
         "mode": "listView",
         "matches": [
           {

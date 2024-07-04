@@ -1,5 +1,3 @@
-import { PublicApp, PublicPlugin } from "shared/types/plugin";
-
 const scripts = {
   lock: `
     tell application "System Events" to keystroke "q" using {control down, command down}
@@ -26,7 +24,7 @@ const scripts = {
   `
 }
 
-export default (app: PublicApp): PublicPlugin => {
+const commandPlugin: IPlugin = (utils) => {
   return {
     onEnter: (item) => {
       if (!scripts[item.name]) return;
@@ -35,3 +33,5 @@ export default (app: PublicApp): PublicPlugin => {
     }
   }
 }
+
+export default commandPlugin

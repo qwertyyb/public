@@ -100,7 +100,6 @@ export class CoreApp {
         preload: path.join(__dirname, './preload.js'),
         contextIsolation: false,
         backgroundThrottling: false,
-        enablePreferredSizeMode: true,
         sandbox: false,
         transparent: true
       }
@@ -110,20 +109,6 @@ export class CoreApp {
     mainView.setBounds({ x: 0, y: 0, width: 780, height: 600 })
     require("@electron/remote/main").enable(mainView.webContents)
 
-    // mainView.webContents.on('preferred-size-changed', (() => {
-    //   let timeout = null
-    //   return (event, size) => {
-    //     // timeout && clearTimeout(timeout)
-    //     // if (this.pluginView) {
-    //     //   win.setSize(780, 48 + 54 * 9)
-    //     // } else {
-    //     //   setTimeout(() => {
-    //     //     mainView.setBounds({ ...mainView.getBounds(), height: size.height })
-    //     //     win.setSize(780, size.height)
-    //     //   }, 10)
-    //     // }
-    //   }
-    // })())
     mainView.webContents.on('before-input-event', (event, inputEvent) => {
       const keys = {
         ArrowUp: 'Up',

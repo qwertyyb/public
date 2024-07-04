@@ -23,8 +23,8 @@ const getData = withCache(async (type: 'hot' | 'latest' = 'hot') => {
   return list
 })
 
-getData(window.command.name as 'hot' | 'latest').then(list => {
-  window.publicApp.setList(list)
+getData(window.launchParameter.command.name as 'hot' | 'latest').then(list => {
+  window.pluginService.setList(list)
 })
 
 export default {

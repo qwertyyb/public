@@ -1,82 +1,85 @@
-import { BrowserWindow } from "electron";
-import { CoreApp } from "index"
-import type { CommonListItem, PublicPlugin } from ".";
-import { PortBridge } from "app/utils";
+type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
 
-
-interface SetResult {
-  (list: CommonListItem[]): void
+interface IActionItem {
+  name: string
+  icon: string
+  title: string
+  shortcuts?: string
 }
 
-interface ListItem {
+interface IListItem {
   title: string,
   icon?: string,
-  subtitle?: string,
-  [propName: string]: any
+  subtitle?: string
 }
 
-interface CommonListItem extends ListItem {
-  code?: string,
-  preview?: string,
-  key: string | number,
-  onSelect?: () => void,
-  onEnter?: (item: CommonListItem, index: number, list: CommonListItem[]) => void,
-  [propName: string]: any;
-}
-
-export interface PublicPlugin {
+type IPluginReturn = {
   onInput?: (keyword: string) => void,
-  onSelect?: (command: PluginCommand, keyword: string) => string | HTMLElement | Promise<string> | Promise<HTMLElement>,
-  onEnter?: (item: PluginCommand, keyword: string) => void
-}
+  onSelect?: (command: IPluginCommand, keyword: string) => string | HTMLElement | Promise<string> | Promise<HTMLElement>,
+  onEnter?: (command: IPluginCommand, keyword: string) => void,
+  onAction?: (command: IPluginCommand, action: IActionItem, keyword: string) => void,
+} | undefined | null
 
-export interface PublicApp {
-    getApp: () => CoreApp,
-    getMainWindow: () => BrowserWindow,
-    getUtils: () => Utils,
-    setList: (list: CommonListItem[]) => void,
-    robot: any,
-    db: {
-      run: (sql, params?) => Promise<any>,
-      all: (sql, params?) => Promise<Array>,
-      get: (sql, params?) => Promise<Any>
-    },
+type IPlugin = (utils: {
+  updateCommands: (commands: IPluginCommandConfig[]) => void,
+  showCommands: (commands: IPluginCommandConfig[]) => void,
+  enter: (command: IPluginCommand, options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }) => void,
+}) => IPluginReturn
 
-    enter: (item: CommonListItem, args: any) => Promise<PortBridge>,
-    exit: () => Promise<void>
-}
-
-export interface TriggerPluginCommandMatch {
-  type: 'trigger' // text | regexp
+interface ITriggerPluginCommandMatch {
+  type: 'trigger'
   triggers: string[]
   title?: string
   subtitle?: string
 }
-export interface TextPluginCommandMatch {
+interface ITextPluginCommandMatch {
   type: 'text'
   keywords: string[]
 }
 
-export interface FullPluginCommandMatch {
+interface IFullPluginCommandMatch {
   type: 'full'
   title?: string
   subtitle?: string
 }
 
-export type PluginCommandMatch = TextPluginCommandMatch | TriggerPluginCommandMatch | FullPluginCommandMatch
+type IPluginCommandMatch = ITextPluginCommandMatch | ITriggerPluginCommandMatch | IFullPluginCommandMatch
 
-export interface PluginCommand extends ListItem {
+interface IPluginCommandConfig extends IListItem, Record<string, any> {
   name: string
-  mode?: 'listView' | 'none' | 'view',
-  matches: PluginCommandMatch[],
-  entry?: string,
-
-  [index: string]: any
+  mode?: 'listView' | 'none' | 'view'
+  matches: IPluginCommandMatch[]
+  entry?: string
+  preload?: string
 }
 
-export interface PluginManifest extends Required<ListItem> {
+type IPluginCommand = WithRequired<IPluginCommandConfig, 'name' | 'icon' | 'title' | 'mode' | 'matches'>
+
+interface IPluginManifestConfig extends Required<IListItem> {
   name: string
   descript?: string,
-  commands?: PluginCommand[]
-  entry?: string
+  commands?: IPluginCommandConfig[]
+  entry?: string,
+}
+
+type IPluginManifest = WithRequired<IPluginCommandConfig, 'name' | 'icon' | 'title'> & {
+  commands: IPluginCommand[]
+}
+
+interface IRunningPlugin {
+  plugin?: IPluginReturn
+  path: string
+  manifest: Omit<IPluginManifest, 'commands'>,
+  commands: IPluginCommand[]
+}
+
+interface IResultItem extends IListItem, Record<string, any> {
+  actions?: IActionItem[]
+}
+
+interface IPluginCommandListView {
+  search?: (keyword: string, setList: (list: IResultItem[]) => void) => void,
+  select?: (result: IResultItem, index: number, query: string) => string | HTMLElement | Promise<string> | Promise<HTMLElement>,
+  enter?: (result: IResultItem, index: number, query: string) => void,
+  action?: (result: IResultItem, index: number, action: IActionItem) => void
 }

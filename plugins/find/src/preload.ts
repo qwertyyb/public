@@ -51,7 +51,7 @@ const attrsLabel = {
   kMDItemFSSize: '大小'
 }
 
-export default {
+const listView: IPluginCommandListView = {
   search: debounce((value: string, setList: (list: any[]) => void) => {
     if (!value) {
       setList([])
@@ -124,3 +124,5 @@ export default {
     spawn('open', [item.data.filePath])
   }
 }
+
+export default listView

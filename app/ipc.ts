@@ -3,7 +3,6 @@ import { MouseClass, straightTo } from '@nut-tree-fork/nut-js';
 import { CoreApp } from './index';
 import { BrowserWindow, IpcMainEvent, Menu, WebContentsView, ipcMain, net } from 'electron';
 import { getConfig } from './config';
-import { PluginCommand } from 'shared/types/plugin';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 
@@ -20,7 +19,7 @@ const setPluginView = (
   coreApp: CoreApp,
   event: IpcMainEvent,
   args: {
-    command: PluginCommand,
+    command: IPluginCommand,
     query?: string,
     options?: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }
   }
@@ -121,7 +120,7 @@ export default (coreApp: CoreApp) => {
     return result
   })
 
-  ipcMain.on('enter', (event, args: { command: PluginCommand, query?: string, options?: Electron.WebContentsViewConstructorOptions & { entry?: string } }) => {
+  ipcMain.on('enter', (event, args: { command: IPluginCommand, query?: string, options?: Electron.WebContentsViewConstructorOptions & { entry?: string } }) => {
     setPluginView(coreApp, event, args)
   })
   ipcMain.handle('exit', () => {

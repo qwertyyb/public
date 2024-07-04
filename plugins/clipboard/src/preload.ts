@@ -1,5 +1,4 @@
 import { clipboard } from "electron"
-import type { CommonListItem, PublicApp } from "shared/types/plugin"
 
 const queryRecordList = async ({ keyword = '' } = {}, { strict = false } = {}) => {
   const sql = `SELECT * FROM clipboardHistory where text like $keyword order by lastUseAt DESC`
@@ -10,10 +9,10 @@ const queryRecordList = async ({ keyword = '' } = {}, { strict = false } = {}) =
   return results
 }
 
-export default {
+const listView: IPluginCommandListView = {
   search: async (value: string, setList: (list: any[]) => void) => {
     let list = await queryRecordList({ keyword: value })
-    list = list.map((item: any): CommonListItem => {
+    list = list.map((item: any) => {
       const subtitle = `最后使用: ${item.lastUseAt}     创建于: ${item.createdAt}`
       return {
         key: `plugin:clipboard:${item.text}`,
@@ -38,3 +37,5 @@ export default {
     console.log('item', item)
   }
 }
+
+export default listView

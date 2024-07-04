@@ -1,33 +1,29 @@
 import { ipcRenderer } from "electron"
 import createAPI from './preload/preload.api'
-import type { ListItem, PluginCommand } from "shared/types/plugin"
-import { createBridge } from "./utils/index"
+import { type PortBridge, createBridge } from "./utils/index"
 
 declare global {
-  interface PublicApp {
-    setList?: (list: ListItem[]) => void,
-  }
-
   interface Window {
-    bridge: typeof pluginBridge,
-    pluginData: { list: ListItem[] | null },
+    bridge?: PortBridge
     launchParameter: {
-      command: PluginCommand,
-      query?: string,
+      command: IPluginCommand
+      query?: string
       options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }
-    },
-    command: PluginCommand,
-    plugin?: any,
+    }
+    pluginData: { list: IResultItem[] | null }
+    plugin?: IPluginCommandListView
+    pluginService?: {
+      setList: (list: IResultItem[]) => void
+    }
   }
 }
 
 const parameters: {
-  command: PluginCommand,
+  command: IPluginCommand,
   query?: string,
   options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }
 } = JSON.parse(process.argv[process.argv.length - 1])
 
-window.command = parameters.command
 window.launchParameter = parameters
 
 const initBridge = () => {
@@ -48,11 +44,9 @@ controlBridge.handle('setInputValue', async (data: { value: string }) => {
   window.dispatchEvent(new CustomEvent('inputBar.setValue', { detail: data }))
 })
 
-window.pluginData = {
-  list: null
-}
-window.publicApp = {
-  ...createAPI(),
+window.pluginData = { list: null }
+window.publicApp = createAPI()
+window.pluginService = {
   setList: (list) => {
     window.dispatchEvent(new CustomEvent('listchanged', { detail: { list } }))
     window.pluginData.list = list

@@ -1,6 +1,3 @@
-import { string } from "mathjs";
-import { PublicApp, PublicPlugin } from "shared/types/plugin";
-
 const formatDate = function(date: Date, fmt: string = 'yyyy-MM-dd hh:mm:ss') { 
   var o = { 
      "M+" : date.getMonth()+1,                 //月份 
@@ -76,43 +73,43 @@ const createOrUpdateRecord = async ({ remark, text }: { remark: string, text: st
   }
 }
 
-export default (app: PublicApp): PublicPlugin => {
+const favoritePlugin: IPlugin = () => {
   createDatabase()
   return {
-    onInput: async (query: string) => {
-      const [command, remark = '', ...textArr] = query.split(' ')
-      if ((['收藏', 'favorite', 'fa', 'faa', 'fas'].includes(command))) {
-        const text = textArr.join(' ')
-        if (command === 'faa') {
-          app.setList([{
-            key: `plugin:favorite:add:${query}`,
-            title: text,
-            subtitle: `点击收藏为"${remark}"`,
-            icon: 'https://img.icons8.com/nolan/64/add-to-favorites.png',
-            onEnter: () => {
-              createOrUpdateRecord({ remark, text })
-            }
-          }])
-        } else {
-          const [_, ...queryArr] = query.split(' ')
-          const list = await queryRecordList({ keyword: queryArr.join(' ')})
-          app.setList(list.map((item: any) => ({
-            key: `plugin:favorite:query:${item.remark}`,
-            title: item.text,
-            subtitle: item.remark,
-            icon: 'https://img.icons8.com/cute-clipart/64/000000/likes-folder.png',
-            onEnter: () => {
-              require('electron').clipboard.writeText(item.text)
-              setTimeout(() => {
-                const robot = app.getApp().robot
-                robot.keyboard.pressKey(robot.Key.LeftCmd, robot.Key.V)
-              }, 16)
-            }
-          })))
-        }
-      } else {
-        app.setList([])
-      }
-    }
+    // onInput: async (query: string) => {
+    //   const [command, remark = '', ...textArr] = query.split(' ')
+    //   if ((['收藏', 'favorite', 'fa', 'faa', 'fas'].includes(command))) {
+    //     const text = textArr.join(' ')
+    //     if (command === 'faa') {
+    //       app.setList([{
+    //         key: `plugin:favorite:add:${query}`,
+    //         title: text,
+    //         subtitle: `点击收藏为"${remark}"`,
+    //         icon: 'https://img.icons8.com/nolan/64/add-to-favorites.png',
+    //         onEnter: () => {
+    //           createOrUpdateRecord({ remark, text })
+    //         }
+    //       }])
+    //     } else {
+    //       const [_, ...queryArr] = query.split(' ')
+    //       const list = await queryRecordList({ keyword: queryArr.join(' ')})
+    //       app.setList(list.map((item: any) => ({
+    //         key: `plugin:favorite:query:${item.remark}`,
+    //         title: item.text,
+    //         subtitle: item.remark,
+    //         icon: 'https://img.icons8.com/cute-clipart/64/000000/likes-folder.png',
+    //         onEnter: () => {
+    //           require('electron').clipboard.writeText(item.text)
+    //           setTimeout(() => {
+    //             const robot = app.getApp().robot
+    //             robot.keyboard.pressKey(robot.Key.LeftCmd, robot.Key.V)
+    //           }, 16)
+    //         }
+    //       })))
+    //     }
+    //   } else {
+    //     app.setList([])
+    //   }
+    // }
   }
 }

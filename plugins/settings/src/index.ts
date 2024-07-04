@@ -1,18 +1,16 @@
 import * as path from 'path'
-import type { PublicApp, PublicPlugin } from "../../../shared/types/plugin"
 
 import { initSettings, initHandler } from './handler'
 
-export default (app: PublicApp): PublicPlugin => {
+const settingsPlugin: IPlugin = (utils) => {
 
-  // @ts-ignore 注册快捷键
   window.requestIdleCallback(() => {
     initSettings()
   })
 
   return {
     onEnter: async (item) => {
-      const bridge = await app.enter(item, {
+      const bridge = await utils.enter(item, {
         entry: path.join(__dirname, '../public/settings.html'),
         webPreferences: {
           nodeIntegration: true,
@@ -30,3 +28,5 @@ export default (app: PublicApp): PublicPlugin => {
     }
   }
 }
+
+export default settingsPlugin

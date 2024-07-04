@@ -1,0 +1,18 @@
+{
+  "name": "shortcuts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "publicPlugin": {
+    "title": "快捷指令",
+    "subtitle": "查找，执行快捷指令",
+    "icon": "https://img.icons8.com/?size=100&id=MuVeuTIe4EXx&format=png&color=000000",
+    "entry": "dist/index.js"
+  }
+}

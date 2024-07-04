@@ -1,4 +1,3 @@
-import { PublicApp, PublicPlugin } from "shared/types/plugin";
 import { clipboard } from 'electron'
 
 const formatDate = function(date: Date, fmt: string = 'yyyy-MM-dd hh:mm:ss') { 
@@ -28,7 +27,7 @@ const ContentType = {
   image: 1
 }
 
-const createDatabase = async (app: PublicApp) => {
+const createDatabase = async () => {
   const sql = `CREATE TABLE IF NOT EXISTS clipboardHistory (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     contentType INTEGER NOT NULL,
@@ -36,13 +35,13 @@ const createDatabase = async (app: PublicApp) => {
     createdAt TEXT NOT NULL,
     lastUseAt TEXT NOT NULL
   );`
-  await app.db.run(sql)
-  return app.db.run(`CREATE INDEX IF NOT EXISTS textIndex on clipboardHistory(text)`)
+  await window.publicApp.db.run(sql)
+  return window.publicApp.db.run(`CREATE INDEX IF NOT EXISTS textIndex on clipboardHistory(text)`)
 }
 
-const insertRecord = async (app: PublicApp, record: { contentType: number, text: string }) => {
+const insertRecord = async (record: { contentType: number, text: string }) => {
   const sql = `INSERT INTO clipboardHistory(contentType, text, createdAt, lastUseAt) values ($contentType, $text, $createdAt, $lastUseAt)`
-  return app.db.run(sql, {
+  return window.publicApp.db.run(sql, {
     contentType: record.contentType || ContentType.text,
     text: record.text,
     createdAt: formatDate(new Date()),
@@ -50,22 +49,21 @@ const insertRecord = async (app: PublicApp, record: { contentType: number, text:
   })
 }
 
-const queryRecordList = async (app: PublicApp, { keyword = '' } = {}, { strict = false } = {}) => {
+const queryRecordList = async ({ keyword = '' } = {}, { strict = false } = {}) => {
   const sql = `SELECT * FROM clipboardHistory where text like $keyword order by lastUseAt DESC`
   const query = strict ? keyword : `%${keyword}%`
-  const result = app.db.all(sql, { keyword: query })
+  const result = window.publicApp?.db.all(sql, { keyword: query })
   return result
 }
 
-const updateRecord = async (app: PublicApp, id: number, params: Object) => {
+const updateRecord = async (id: number, params: Object) => {
   // @ts-ignore
   const sql = `UPDATE clipboardHistory set ${Object.keys(params).map(key => `${key} = '${params[key]}'`).join(',')} where id = $id`
-  return app.db.run(sql, { id: id })
+  return window.publicApp.db.run(sql, { id: id })
 }
 
 
-export default (app: PublicApp): PublicPlugin => {
-  const { match } = app.getUtils()
+const clipboardPlugin: IPlugin = (utils) => {
   const startListener = (handler: (arg: any) => void) => {
     let lastText: string = '';
     const checkClipboard = () => {
@@ -82,18 +80,20 @@ export default (app: PublicApp): PublicPlugin => {
   }
 
   const newItemHandler = async (data: { contentType: number, contentValue: string, text: string }) => {
-    const existsItems = await queryRecordList(app, { keyword: data.text }, { strict: true })
+    const existsItems = await queryRecordList({ keyword: data.text }, { strict: true })
     console.log('new Data existsItem', existsItems)
     if (!existsItems.length) {
-      return insertRecord(app, { contentType: data.contentType, text: data.text })
+      return insertRecord({ contentType: data.contentType, text: data.text })
     } else {
       existsItems[0].updatedAt = Date.now()
-      return updateRecord(app, existsItems[0].id, { lastUseAt: formatDate(new Date()) })
+      return updateRecord(existsItems[0].id, { lastUseAt: formatDate(new Date()) })
     }
   }
-  createDatabase(app).then(_ => {
+  createDatabase().then(_ => {
     startListener(newItemHandler)
   })
 
   return {}
 }
+
+export default clipboardPlugin

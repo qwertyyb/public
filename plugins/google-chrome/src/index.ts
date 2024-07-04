@@ -1,7 +1,6 @@
-import { PublicPlugin } from "shared/types/plugin"
 import { createNewWindow } from "./service"
 
-export default (): PublicPlugin => {
+export default (): IPluginReturn => {
   return {
     onEnter(item, keyword) {
       if (item.name === 'create-window') {

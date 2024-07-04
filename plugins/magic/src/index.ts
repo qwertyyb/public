@@ -1,7 +1,6 @@
 import { shell } from "electron"
-import { PublicPlugin } from "shared/types/plugin"
 
-export default (): PublicPlugin => ({
+export default (): IPluginReturn => ({
   onEnter (command, query) {
     console.log(command)
     if (command.name === 'act' && Number(query)) {

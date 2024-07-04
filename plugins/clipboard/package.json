@@ -17,6 +17,7 @@
     "commands": [
       {
         "name": "clipboard",
+        "title": "剪切板",
         "matches": [
           { "type": "text", "keywords": ["剪切板", "clipboard", "cp"] },
           { "type": "trigger", "triggers": ["cp"], "title": "搜索剪切板“$query”..." }

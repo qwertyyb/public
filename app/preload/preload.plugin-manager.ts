@@ -1,22 +1,13 @@
 import { ipcRenderer } from 'electron'
-import type { CommonListItem, FullPluginCommandMatch, PluginCommand, PluginCommandMatch, PluginManifest, PublicPlugin, TextPluginCommandMatch, TriggerPluginCommandMatch } from "shared/types/plugin";
 import * as nodePath from 'path'
 import * as fs from 'fs'
 import * as utils from '../utils'
 import { getConfig } from '../config';
 import { hanziToPinyin } from '@public/osx-fileicon';
 
-interface RunningPublicPlugin {
-  plugin?: PublicPlugin
-  path: string
-  pkg: any,
-  manifest: Omit<PluginManifest, 'commands'>,
-  commands: PluginCommand[]
-}
+const plugins: Map<string, IRunningPlugin> = new Map();
 
-const plugins: Map<string, RunningPublicPlugin> = new Map();
-
-const resultsMap = new WeakMap<PluginCommand, { score: number, query: string, owner: RunningPublicPlugin }>()
+const resultsMap = new WeakMap<IPluginCommand, { score: number, query: string, owner: IRunningPlugin }>()
 
 const calcScore = (query: string, target: string) => {
   if (query && target.includes(query)) {
@@ -38,7 +29,23 @@ const pinyin = (text: string) => {
   return []
 }
 
-const formatCommand = (command: PluginCommand, manifest: PluginManifest) => {
+const checkCommand = (command: Partial<IPluginCommandConfig>) => {
+  const requireFields = ['name', 'title']
+  requireFields.forEach(name => {
+    if (!command[name]) {
+      throw new Error(`${name} is required: ` + JSON.stringify(command))
+    }
+  })
+  if (command.mode === 'listView' && !command.preload) {
+    throw new Error('listView mode command need preload property')
+  }
+  if (command.mode === 'view' && !command.entry) {
+    throw new Error('view mode command need entry property')
+  }
+}
+
+const formatCommand = (command: IPluginCommandConfig, manifest: IPluginManifest): IPluginCommand => {
+  checkCommand(command)
   const item = {
     ...command,
     name: command.name,
@@ -46,7 +53,8 @@ const formatCommand = (command: PluginCommand, manifest: PluginManifest) => {
     subtitle: command.subtitle ?? manifest.subtitle,
     icon: command.icon ?? manifest.icon,
     mode: command.mode ?? 'none',
-    entry: command.entry
+    entry: command.entry,
+    preload: command.preload
   }
   const keywords: string[] = [item.name, item.title, item.subtitle, ...pinyin(item.title), ...pinyin(item.subtitle)]
   const matches = (command.matches || []).map(match => {
@@ -60,12 +68,21 @@ const formatCommand = (command: PluginCommand, manifest: PluginManifest) => {
   })
   return {
     ...item,
-    matches: [...matches, { type: 'text', keywords } as TextPluginCommandMatch]
+    matches: [...matches, { type: 'text', keywords } as ITextPluginCommandMatch]
   }
 }
 
 const checkPluginsRegistered = (path: string) => {
   return Array.from(plugins.values()).some(item => item.path === path)
+}
+
+const checkManifest = (manifest: Partial<IPluginManifestConfig>) => {
+  const requireFields = ['name', 'title', 'icon']
+  requireFields.forEach(name => {
+    if (!manifest[name]) {
+      throw new Error(`${name} is required: ` + JSON.stringify(manifest))
+    }
+  })
 }
 
 
@@ -76,15 +93,14 @@ const addPlugin = async (pluginPath: string) => {
   }
   try {
     const pkg = JSON.parse(await fs.promises.readFile(nodePath.join(pluginPath, './package.json'), { encoding: 'utf-8' }))
-    const { commands: _, ...rest } = pkg.publicPlugin;
-    const manifest: PluginManifest = {
-      name: pkg.name,
-      ...rest
-    }
-    const commands: PluginCommand[] = (pkg.publicPlugin.commands || []).map(item => formatCommand(item, manifest))
-    const entry = manifest.entry || pkg.main
-    const pluginInstance: RunningPublicPlugin = {
-      pkg,
+    const publicPlugin = pkg.publicPlugin
+    const { commands: _, ...rest } = publicPlugin;
+    const entry = rest.entry || pkg.main
+    const name = rest.name || pkg.name
+    const manifest: IPluginManifest = { name, ...rest, entry }
+    checkManifest(manifest)
+    const commands: IPluginCommand[] = (publicPlugin.commands || []).map(item => formatCommand(item, manifest))
+    const pluginInstance: IRunningPlugin = {
       manifest,
       path: pluginPath,
       commands
@@ -93,20 +109,14 @@ const addPlugin = async (pluginPath: string) => {
       const entryPath = nodePath.join(pluginPath, entry)
       const createPlugin = __non_webpack_require__(entryPath).default || __non_webpack_require__(entryPath)
       const plugin = createPlugin({
-        db: window.publicApp.db,
-        getUtils: () => utils,
-        setList: (list: CommonListItem[]) => {
-        },
-        enter: (item: CommonListItem, args: any) => window.publicApp.enter(pkg.name, item, args),
-        exit: () => window.publicApp.exit(pkg.name),
-        updateCommands: (commands: PluginCommand[]) => {
+        updateCommands: (commands: IPluginCommandConfig[]) => {
           pluginInstance.commands = commands.map(item => formatCommand(item, manifest))
         },
-        showCommands: (commands: PluginCommand[]) => {
-          commands.forEach(command => resultsMap.set(command, { score: 1, query: '', owner: pluginInstance }))
+        showCommands: (commands: IPluginCommandConfig[]) => {
+          commands.forEach(command => resultsMap.set(formatCommand(command, manifest), { score: 1, query: '', owner: pluginInstance }))
           window.dispatchEvent(new CustomEvent('plugin:showCommands', { detail: { name: manifest.name, commands }}))
         }
-      }) as PublicPlugin
+      }) as IPluginReturn
       pluginInstance.plugin = plugin
     }
     plugins.set(pkg.name, pluginInstance)
@@ -122,13 +132,19 @@ const removePlugin = (name: string) => {
 }
 
 const handleQuery = (keyword: string) => {
-  plugins.forEach(plugin => plugin.plugin?.onInput?.(keyword))
-  let results: PluginCommand[] = []
+  plugins.forEach(plugin => {
+    try {
+      plugin.plugin?.onInput?.(keyword)
+    } catch (err) {
+      console.error(err)
+    }
+  })
+  let results: IPluginCommand[] = []
   plugins.forEach((plugin, name) => {
     const { commands = [] } = plugins.get(name)
     commands.forEach(command => {
       const { matches } = command
-      const triggerMatch = matches.find(match => match.type === 'trigger') as TriggerPluginCommandMatch | null
+      const triggerMatch = matches.find(match => match.type === 'trigger') as ITriggerPluginCommandMatch | undefined
       if (triggerMatch) {
         const triggerIndex = triggerMatch.triggers.findIndex(trigger => keyword.startsWith(trigger + ' '))
         if (triggerIndex >= 0) {
@@ -144,7 +160,7 @@ const handleQuery = (keyword: string) => {
         }
       }
       let score = -1
-      matches.forEach((match: PluginCommandMatch) => {
+      matches.forEach((match: IPluginCommandMatch) => {
         if (match.type === 'text') {
           score = Math.max(score, ...match.keywords.map(word => calcScore(keyword, word)))
         }
@@ -155,7 +171,7 @@ const handleQuery = (keyword: string) => {
         resultsMap.set(result, { query: '', score, owner: plugin })
         return
       }
-      const fullMatch = matches.find(item => item.type === 'full') as FullPluginCommandMatch | null
+      const fullMatch = matches.find(item => item.type === 'full') as IFullPluginCommandMatch | undefined
       if (fullMatch) {
         const result = {
           ...command,
@@ -170,12 +186,12 @@ const handleQuery = (keyword: string) => {
   return results.sort((prev, next) => resultsMap.get(next).score - resultsMap.get(prev).score)
 }
 
-const handleSelect = (command: PluginCommand, keyword: string) => {
+const handleSelect = (command: IPluginCommand, keyword: string) => {
   const rp = resultsMap.get(command)
   return rp?.owner.plugin?.onSelect?.(command, rp.query)
 }
 
-const handleEnter = (command: PluginCommand) => {
+const handleEnter = (command: IPluginCommand) => {
   const rp = resultsMap.get(command)
   if (command.mode === 'none') {
     rp?.owner.plugin?.onEnter?.(command, rp.query)
@@ -216,11 +232,17 @@ const handleEnter = (command: PluginCommand) => {
   }
 }
 
+const handleAction = (command: IPluginCommand, action: any, keyword: string) => {
+  const rp = resultsMap.get(command)
+  if (!rp) return
+  rp.owner.plugin?.onAction?.(command, action, keyword)
+}
+
 let controlBridge: utils.PortBridge | null = null
 
 const enterPlugin = (
   name: string,
-  command: PluginCommand,
+  command: IPluginCommand,
   options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string },
   query?: string
 ) => {
@@ -241,7 +263,7 @@ const enterPlugin = (
 }
 
 
-const exitPlugin = (name: string) => {
+const exitPlugin = () => {
   controlBridge = null
   return ipcRenderer.invoke('exit')
 }
@@ -250,14 +272,19 @@ const setSubInputValue = (value: string) => controlBridge.invoke('setInputValue'
 
 const getPlugins = () => plugins
 
-export {
+const PluginManager = {
   getPlugins,
   addPlugin,
   removePlugin,
   handleQuery,
   handleSelect,
   handleEnter,
+  handleAction,
   enterPlugin,
   exitPlugin,
   setSubInputValue,
 }
+
+export type IPluginManager = typeof PluginManager
+
+export default PluginManager

@@ -64,8 +64,8 @@
 
     /* Advanced Options */
     "skipLibCheck": true,                     /* Skip type checking of declaration files. */
-    "forceConsistentCasingInFileNames": true  /* Disallow inconsistently-cased references to the same file. */
+    "forceConsistentCasingInFileNames": true,  /* Disallow inconsistently-cased references to the same file. */
   },
-  "include": ["app/**/*.ts", "plugins/**/*.ts", "utils/**/*.ts"],
+  "include": ["app/**/*.ts", "plugins/**/*.ts", "utils/**/*.ts", "./shared/types/**/*"],
   "exclude": ["render/"]
 }

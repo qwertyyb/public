@@ -1,6 +1,5 @@
 import { clipboard, NativeImage } from "electron"
 import * as path from 'path'
-import { PluginCommand, PublicPlugin } from "shared/types/plugin";
 
 let opencv: any;
 
@@ -38,7 +37,7 @@ const detectWithOpencv = (() => {
 window.filePath = path.resolve(__dirname, 'lib/wechat_qrcode_files.data')
 
 const createClipboardItem = (text: string) => {
-  const item: PluginCommand = {
+  const item: IPluginCommandConfig = {
     name: 'detect',
     title: `二维码内容: ${text}`,
     subtitle: '来自剪切板,点击复制',
@@ -51,7 +50,7 @@ const createClipboardItem = (text: string) => {
   return item
 }
 
-export default (app: any): PublicPlugin => {
+const qrcodePlugin: IPlugin = (utils) => {
   // @ts-ignore
   window.requestIdleCallback(async () => {
     opencv = await __non_webpack_require__('../lib/ready_opencv.js')
@@ -63,10 +62,10 @@ export default (app: any): PublicPlugin => {
     const texts = detectWithOpencv(image)
     if (!texts?.length) return
     const list = texts.map(text => createClipboardItem(text))
-    app.showCommands(list)
+    utils.showCommands(list)
   })
   return {
-    async onSelect(command: PluginCommand, param: string) {
+    async onSelect(command: IPluginCommand, param: string) {
       console.log(command, param)
       if(command.name === 'generate') {
         const QRCode = require('qrcode')
@@ -91,3 +90,5 @@ export default (app: any): PublicPlugin => {
     },
   }
 }
+
+export default qrcodePlugin
