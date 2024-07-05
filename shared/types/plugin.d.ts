@@ -10,7 +10,8 @@ interface IActionItem {
 interface IListItem {
   title: string,
   icon?: string,
-  subtitle?: string
+  subtitle?: string,
+  actions?: IActionItem[]
 }
 
 type IPluginReturn = {
@@ -73,9 +74,7 @@ interface IRunningPlugin {
   commands: IPluginCommand[]
 }
 
-interface IResultItem extends IListItem, Record<string, any> {
-  actions?: IActionItem[]
-}
+interface IResultItem extends IListItem, Record<string, any> { }
 
 interface IPluginCommandListView {
   search?: (keyword: string, setList: (list: IResultItem[]) => void) => void,

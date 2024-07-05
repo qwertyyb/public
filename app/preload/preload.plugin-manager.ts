@@ -107,7 +107,7 @@ const addPlugin = async (pluginPath: string) => {
     }
     if (entry) {
       const entryPath = nodePath.join(pluginPath, entry)
-      const createPlugin = __non_webpack_require__(entryPath).default || __non_webpack_require__(entryPath)
+      const createPlugin = (__non_webpack_require__(entryPath).default || __non_webpack_require__(entryPath)) as IPlugin
       const plugin = createPlugin({
         updateCommands: (commands: IPluginCommandConfig[]) => {
           pluginInstance.commands = commands.map(item => formatCommand(item, manifest))
@@ -115,6 +115,9 @@ const addPlugin = async (pluginPath: string) => {
         showCommands: (commands: IPluginCommandConfig[]) => {
           commands.forEach(command => resultsMap.set(formatCommand(command, manifest), { score: 1, query: '', owner: pluginInstance }))
           window.dispatchEvent(new CustomEvent('plugin:showCommands', { detail: { name: manifest.name, commands }}))
+        },
+        enter: (command, options) => {
+          return enterPlugin(name, command, options)
         }
       }) as IPluginReturn
       pluginInstance.plugin = plugin

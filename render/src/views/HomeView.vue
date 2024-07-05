@@ -1,20 +1,18 @@
 <template>
-  <main>
-    <div class="home-view">
-      <InputBar v-model="keyword"
-        :command="command"
-        @exit="exitCommand"
-        :disable="inputDisable"
-      />
-      <ResultView :results="results"
-        v-if="!command"
-        :preview="preview"
-        @select="onResultSelected"
-        @enter="onResultEnter"
-        @action="onResultAction"
-      ></ResultView>
-    </div>
-  </main>
+  <div class="home-view">
+    <InputBar v-model="keyword"
+      :command="command"
+      @exit="exitCommand"
+      :disable="inputDisable"
+    />
+    <ResultView :results="results"
+      v-if="!command"
+      :preview="preview"
+      @select="onResultSelected"
+      @enter="onResultEnter"
+      @action="onResultAction"
+    ></ResultView>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -125,6 +123,8 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   height: 100%;
+	color: light-dark(#444, #ccc);
+  background-color: light-dark(#d7d7d7, #161616);
 }
 .home-view > :deep(*) {
   width: 100%;

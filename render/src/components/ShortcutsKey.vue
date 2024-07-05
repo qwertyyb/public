@@ -14,7 +14,7 @@ const keys = computed(() => {
   if (typeof props.shortcuts === 'string') {
     return props.shortcuts.split('+')
   }
-  return props.shortcuts
+  return props.shortcuts || ['', '']
 })
 
 </script>
@@ -24,6 +24,5 @@ const keys = computed(() => {
   display: flex;
   flex-shrink: 0;
   justify-content: flex-end;
-  margin-left: 12px;
 }
 </style>

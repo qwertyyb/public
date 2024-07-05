@@ -13,10 +13,7 @@ const createKeyEventHandler = (onChange, done) => {
     event.preventDefault()
     const detectKeys = ['Meta', 'Control', 'Alt', 'Shift']
     // 键名windows和mac不一样，需要转换
-    const macLabels = ['Command', 'Control', 'Option', 'Shift']
-    const winLabels = ['Windows', 'Control', 'Alt', 'Shift']
-    const isWindows = () => /windows|win32/i.test(navigator.userAgent)
-    const labels = isWindows() ? winLabels : macLabels
+    const labels = ['⌘', '^', '⌥', '⇧']
     // 获取修饰按键的状态
     const activeState = detectKeys.map(key => event.getModifierState(key))
     // 根据修饰按键的状态获取平台对应的键名
@@ -31,11 +28,55 @@ const createKeyEventHandler = (onChange, done) => {
     if (event.type === 'keydown' && (/^[a-zA-Z]$/.test(event.key) || event.code === 'Space')) {
       const keyLabel = event.code === 'Space' ? 'Space' : event.key
       key.key = keyLabel
-      done(key)
+      done({ key, labels: activeLabels })
     }
-    onChange(key)
+    onChange({ key, labels: activeLabels })
   }
 }
+
+Vue.component('shortcuts-with-record', {
+  template: `
+    <div tabindex="0" class="shortcuts-with-record flex items-center">
+      
+    </div>
+  `,
+  props: {
+    shortcuts: {
+      type: Array,
+      default: () => []
+    }
+  },
+  data() {
+    return {
+      value: []
+    }
+  },
+  methods: {
+    startRecord() {
+      this.stopRecord()
+
+      const keyEventHandler = createKeyEventHandler(({ key, labels }) => {
+        console.log(key, labels)
+        keyObj.shortcut = [...key.modifiers, key.key].filter(i => i).join('+')
+      }, ({ key, labels }) => {
+        this.stopRecord()
+        console.log('done', key, labels)
+      })
+      this.stopKeyboardEventListener = () => {
+        document.removeEventListener('keydown', keyEventHandler)
+        document.removeEventListener('keyup', keyEventHandler)
+      }
+      document.addEventListener('keydown', keyEventHandler)
+      document.addEventListener('keyup', keyEventHandler)
+    },
+    stopRecord() {
+      if (this.stopKeyboardEventListener) {
+        this.stopKeyboardEventListener()
+        this.stopKeyboardEventListener = null
+      }
+    }
+  }
+})
 
 const clearKeyEventHandler = (keyEventHandler) => {
   document.removeEventListener('keydown', keyEventHandler)
@@ -54,6 +95,7 @@ var app = new Vue({
     curView: 'common',
     plugins: [],
     settings: {},
+    expand: {}
   },
   created() {
     this.refreshSettings()
@@ -96,6 +138,12 @@ var app = new Vue({
         settings: this.settings
       })
       this.refreshSettings()
+    },
+    onExpandPluginClick(plugin) {
+      this.expand = {
+        ...this.expand,
+        [plugin.manifest.name]: !this.expand[plugin.manifest.name]
+      }
     },
     async onAddPluginClick () {
       const file = await new Promise((resolve, reject) => {

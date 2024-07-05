@@ -10,8 +10,10 @@ const settingsPlugin: IPlugin = (utils) => {
 
   return {
     onEnter: async (item) => {
+      const url = new URL(location.href)
+      url.hash = '#/settings'
       const bridge = await utils.enter(item, {
-        entry: path.join(__dirname, '../public/settings.html'),
+        entry: url.href,
         webPreferences: {
           nodeIntegration: true,
           webSecurity: false,

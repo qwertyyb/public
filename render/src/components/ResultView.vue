@@ -14,18 +14,21 @@
         @enter="selectedIndex = index;$emit('enter', item, index)"
       ></ResultItem>
     </div>
-    <ActionList :actions="selectedItem.actions" v-if="selectedItem?.actions"></ActionList>
+    <ActionList
+      :actions="selectedItem.actions!"
+      v-if="(selectedItem?.actions?.length || 0) > 1"
+      @action="onResultAction"
+    ></ActionList>
     <ResultItemPreview :html="preview" v-if="preview"></ResultItemPreview>
   </div>
 </template>
 
-<script setup lang="ts" generic="T extends ListItem">
+<script setup lang="ts" generic="T extends IListItem">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import ResultItem from '@/components/ResultItem.vue';
 import ActionList, { type IActionItem } from '@/components/ActionList.vue';
 import ResultItemPreview from '@/components/ResultItemPreview.vue';
 import { curry } from 'ramda';
-import type { ListItem } from '../../../shared/types/plugin';
 import { isKeyPressed } from '@/utils/keyboard';
 
 const props = withDefaults(defineProps<{
@@ -75,6 +78,20 @@ const onResultEnter = (index: number) => {
   emit('enter', props.results[index], index)
 }
 
+const highlightAction = (actionName: string) => {
+  const actionEl = document.querySelector(`[data-action-name=${JSON.stringify(actionName)}]`)
+  if (!actionEl) return;
+  actionEl.classList.add('flash')
+  setTimeout(() => {
+    actionEl.classList.remove('flash')
+  }, 400)
+}
+
+const onResultAction = (action: IActionItem) => {
+  emit('action', selectedItem.value, selectedIndex.value, action)
+  highlightAction(action.name)
+}
+
 const keydownHandler = (e: KeyboardEvent) => {
   const checkKey = curry(isKeyPressed)(e)
 
@@ -101,7 +118,8 @@ const keydownHandler = (e: KeyboardEvent) => {
   } else if (selectedItem.value?.actions) {
     const actions = [...selectedItem.value?.actions ?? []]
     const action = actions.find(action => checkKey(action.shortcuts))
-    action && emit('action', selectedItem.value, selectedIndex.value, action)
+    if (!action) return
+    onResultAction(action)
   }
 }
 
@@ -123,11 +141,12 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .resultView {
   display: flex;
-  --container-height: calc(54px * 9);
+  --container-height: 486px;
 }
 .result-list {
   flex: 3;
   max-height: var(--container-height);
+  min-height: var(--container-height);
   overflow: auto;
 }
 

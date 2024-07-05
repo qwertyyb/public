@@ -21,8 +21,6 @@ body {
   /* background-color: blue; */
   background-repeat: no-repeat;
   background-size: cover;
-	color: light-dark(#444, #ccc);
-  background-color: light-dark(#d7d7d7, #161616);
 }
 /* body::after {
   content: " ";

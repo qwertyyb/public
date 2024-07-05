@@ -1,6 +1,10 @@
 <template>
   <ul class="action-list">
-    <li class="action-item" v-for="(action, index) in actions" :key="index">
+    <li class="action-item"
+      v-for="(action, index) in actions"
+      @click="$emit('action', action)"
+      :key="index"
+      :data-action-name="action.name">
       <div class="material-symbols-outlined action-icon">{{ action.icon }}</div>
       <div class="action-title">{{ action.title }}</div>
       <ShortcutsKey :shortcuts="action.shortcuts" v-if="action.shortcuts"></ShortcutsKey>
@@ -20,6 +24,8 @@ export interface IActionItem {
 
 defineProps<{ actions: IActionItem[] }>()
 
+defineEmits<{ action: [action: IActionItem] }>()
+
 </script>
 
 <style lang="scss" scoped>
@@ -29,6 +35,12 @@ defineProps<{ actions: IActionItem[] }>()
   overflow: hidden;
   width: 200px;
 }
+
+@keyframes flash {
+  0% { background: #e4e4e4 }
+  50% { background: none; }
+  100% { background: #e4e4e4 }
+}
 .action-item {
   display: flex;
   align-items: center;
@@ -36,6 +48,9 @@ defineProps<{ actions: IActionItem[] }>()
   position: relative;
   padding: 6px 8px;
   cursor: pointer;
+  &.flash {
+    animation: flash 0.2s infinite;
+  }
 }
 .action-item:hover {
   background: #e4e4e4;
