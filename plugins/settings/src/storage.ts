@@ -34,16 +34,16 @@ const createDatabase = async () => {
 const insertRecord = async (record: { key: string, value: {} }) => {
   const sql = `INSERT INTO settings(key, value, createdAt, updatedAt) values ($key, $value, $createdAt, $updatedAt)`
   return window.publicApp.db.run(sql, {
-    $key: record.key,
-    $value: JSON.stringify(record.value),
-    $createdAt: formatDate(new Date()),
-    $updatedAt: formatDate(new Date())
+    key: record.key,
+    value: JSON.stringify(record.value),
+    createdAt: formatDate(new Date()),
+    updatedAt: formatDate(new Date())
   })
 }
 
 const queryRecord = async ({ key = '' } = {}) => {
   const sql = `SELECT * FROM settings where key = $key`
-  const record = await window.publicApp.db.get(sql, { $key: key  })
+  const record = await window.publicApp.db.get(sql, { key: key  })
   if (record) {
     record.value = JSON.parse(record.value)
   }
@@ -53,9 +53,9 @@ const queryRecord = async ({ key = '' } = {}) => {
 const updateRecord = async ({ key = '', value = {} } = {}) => {
   const sql = `UPDATE settings SET value = $value, updatedAt = $updatedAt where key = $key`
   return window.publicApp.db.run(sql, {
-    $value: JSON.stringify(value),
-    $updatedAt: formatDate(new Date()),
-    $key: key
+    value: JSON.stringify(value),
+    updatedAt: formatDate(new Date()),
+    key: key
   })
 }
 

@@ -1,4 +1,4 @@
-import { updateRecord } from './storage'
+import { queryRecord, updateRecord, createDatabase } from './storage'
 import * as path from 'path'
 
 const names = [
@@ -13,29 +13,47 @@ const getDefaultSettings = () => {
 
   return {
     launchAtLogin: true,
-    shortcut: 'CommandOrControl+Space',
-    shortcuts: [
-      { keyword: 'cp ', shortcut: 'Command+Shift+V' }
-    ],
-    plugins: getDefaultPluginPaths()
+    shortcuts: 'Meta+Space',
+    clearTimeout: 90,
+    pluginsPathList: getDefaultPluginPaths(),
+    pluginsSettings: {} as IPluginsSettings
   }
 }
 
-const registerShortcuts = (settings: any) => {
-  const { shortcut, shortcuts } = settings;
-  const list = [
-    { shortcut, keyword: '' },
-    ...shortcuts
-  ]
-  const remote = require('@electron/remote')
-  const globalShortcut = remote.globalShortcut
-  globalShortcut.unregisterAll()
-  list.forEach(({ keyword, shortcut, temp }) => {
-    shortcut && !temp && globalShortcut.register(shortcut, () => {
-      window.publicApp.mainWindow.show()
-      window.publicApp.inputBar.setValue(keyword)
+type Settings = ReturnType<typeof getDefaultSettings>
+
+let shortcutsData: Record<string, { pluginName?: string, commandName?: string }> = {}
+
+window.addEventListener('publicApp.shortcuts', (event: CustomEvent<{ shortcuts: string }>) => {
+  const { shortcuts } = event.detail;
+  const target = shortcutsData[shortcuts]
+  if (!target) return
+  window.publicApp.mainWindow.show()
+  if (!target.pluginName) return
+  const plugin = window.pluginManager.getPlugins().get(target.pluginName)
+  const command = plugin?.commands.find(item => item.name === target.commandName)
+  if (command) {
+    window.pluginManager.enterPluginCommand(plugin, command)
+  }
+})
+
+const registerShortcuts = (settings: Settings) => {
+  // 主快捷键
+  const { shortcuts } = settings;
+  shortcutsData = {}
+  shortcutsData[shortcuts.split('+').sort().join('+')] = {}
+  // 命令快捷键
+  Object.entries(settings.pluginsSettings).forEach(([pluginName, pluginSetting]) => {
+    if (pluginSetting?.disabled) return
+    Object.entries(pluginSetting?.commands || {}).forEach(([commandName, commandSettings]) => {
+      if (commandSettings?.disabled) return
+      const shortcuts = commandSettings?.shortcuts
+      if (shortcuts) {
+        shortcutsData[shortcuts.split('+').sort().join('+')] = { pluginName, commandName }
+      }
     })
   })
+  console.log('shortcuts', shortcutsData)
 }
 
 const registerLaunchAtLogin =(settings: any) => {
@@ -45,22 +63,24 @@ const registerLaunchAtLogin =(settings: any) => {
   })
 }
 
-const getSettings = async () => {
-  // let value = await createDatabase().then(() => queryRecord({ key: 'config' })).then(res => res?.value)
-  // if (!value) {
+const getSettings = async (): Promise<Settings> => {
+  let value = await createDatabase().then(() => queryRecord({ key: 'config' })).then(res => res?.value)
+  if (!value) {
     const value = getDefaultSettings()
-    // updateRecord({ key: 'config', value })
-  // }
+    updateRecord({ key: 'config', value })
+  }
+  // only for dev
+  value.pluginsPathList = getDefaultSettings().pluginsPathList
   return value
 }
 
-const updateSettings = async (settings: any) => {
+const updateSettings = async (settings: Settings) => {
+  console.log('updateSettings', settings)
   return updateRecord({ key: 'config', value: settings })
 }
 
-const initPlugins = async (settings: any) => {
-  const plugins = settings.plugins || []
-  console.log(settings)
+const initPlugins = async (settings: Settings) => {
+  const plugins = settings.pluginsPathList || []
   return plugins.map((p: any) => {
     try {
       window.pluginManager.addPlugin(p.path)
@@ -70,40 +90,45 @@ const initPlugins = async (settings: any) => {
   })
 }
 
+const initPluginsSettings = async (pluginsSettings: IPluginsSettings) => {
+  window.pluginManager.updatePluginsSettings(pluginsSettings)
+}
+
 const initSettings = async () => {
   console.log('initSettings')
   const settings = await getSettings()
   registerLaunchAtLogin(settings)
   registerShortcuts(settings)
-
   initPlugins(settings)
+  initPluginsSettings(settings.pluginsSettings)
 }
 
-const updatePluginsSettings = async () => {
-  const pluginConfigs = JSON.parse(JSON.stringify(window.pluginManager.getPlugins()))
-  const settings = await getSettings();
+// const updatePluginsSettings = async () => {
+//   const pluginConfigs = JSON.parse(JSON.stringify(window.pluginManager.getPlugins()))
+//   const settings = await getSettings();
 
-  settings.plugins = pluginConfigs
+//   settings.plugins = pluginConfigs
 
-  return updateSettings(settings)
-}
+//   return updateSettings(settings)
+// }
 
 const handlers = {
   async registerShortcuts(args) {
+    console.log('register shortcuts', args)
     await updateSettings(args.settings)
-    registerShortcuts(args.shortcuts)
+    registerShortcuts(args.settings)
   },
   async registerLaunchAtLogin(args) {
     await updateSettings(args.settings)
     registerLaunchAtLogin(args.settings)
   },
-  async removePlugin(args) {
+  async removePlugin(args: { path: string, name: string }) {
     window.pluginManager.removePlugin(args.name);
-    await updatePluginsSettings()
+    // await updatePluginsSettings()
   },
   async registerPlugin(args) {
     window.pluginManager.addPlugin(args.path)
-    await updatePluginsSettings()
+    // await updatePluginsSettings()
   },
   getPlugins() {
     return JSON.parse(JSON.stringify(Array.from(window.pluginManager.getPlugins().values())))
@@ -111,6 +136,11 @@ const handlers = {
   getSettings() {
     return getSettings()
   },
+  async updateSettings(args: { settings: Settings }) {
+    console.log('updateSettings', args.settings)
+    await updateSettings(args.settings)
+    await initSettings()
+  }
 }
 
 const initHandler = (bridge) => {

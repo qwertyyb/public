@@ -32,6 +32,5 @@ const keyValue = computed(() => {
   line-height: 20px;
   border-radius: 4px;
   font-size: 12px;
-  margin-left: 2px;
 }
 </style>

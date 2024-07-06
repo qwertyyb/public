@@ -3,11 +3,11 @@ import { getFileIcon } from '@public/osx-fileicon'
 import { app, BaseWindow, protocol, WebContentsView, type Tray } from "electron";
 import { autoUpdater } from "electron-updater"
 import * as robotjs from '@nut-tree-fork/nut-js'
-import { uIOhook, UiohookKey } from 'uiohook-napi'
 import initIpc from './ipc'
 import initTray from './controller/trayController'
 import db from './controller/storageController'
 import { getConfig } from './config';
+import * as shortcuts from './shortcuts';
 require('@electron/remote/main').initialize();
 
 const config = getConfig()
@@ -56,24 +56,9 @@ export class CoreApp {
       this.electronApp.quit();
     });
 
-    uIOhook.on('keydown', (() => {
-      let lastCalledTime = 0
-      return (e) => {
-        if (e.keycode === UiohookKey.Meta) {
-          if (Date.now() - lastCalledTime < 200) {
-            this.mainWindow?.show()
-            lastCalledTime = 0
-            return
-          } else {
-            lastCalledTime = Date.now()
-          }
-        } else {
-          lastCalledTime = 0
-        }
-      }
-    })())
-    
-    uIOhook.start()
+    shortcuts.on('shortcuts', (event: { shortcuts: string }) => {
+      this.mainView.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.shortcuts', { detail: ${JSON.stringify(event)} }))`)
+    })
   }
 
   private createMainWindow() {

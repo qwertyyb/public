@@ -1,5 +1,5 @@
 <template>
-  <div class="shortcuts">
+  <div class="shortcuts-key p-2 rounded">
     <KeyboardKey v-for="(item, index) in keys" :key="index" :value="item"></KeyboardKey>
   </div>
 </template>
@@ -20,9 +20,14 @@ const keys = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-.shortcuts {
+.shortcuts-key {
   display: flex;
   flex-shrink: 0;
-  justify-content: flex-end;
+  &:hover {
+    background: rgba(0, 0, 0, .1);
+  }
+}
+.shortcuts-key :deep(.keyboard-key) + .keyboard-key {
+  margin-left: 2px;
 }
 </style>

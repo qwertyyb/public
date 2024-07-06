@@ -70,8 +70,9 @@ type IPluginManifest = WithRequired<IPluginCommandConfig, 'name' | 'icon' | 'tit
 interface IRunningPlugin {
   plugin?: IPluginReturn
   path: string
-  manifest: Omit<IPluginManifest, 'commands'>,
+  manifest: Omit<IPluginManifest, 'commands'>
   commands: IPluginCommand[]
+  settings?: IPluginSettings
 }
 
 interface IResultItem extends IListItem, Record<string, any> { }
@@ -82,3 +83,16 @@ interface IPluginCommandListView {
   enter?: (result: IResultItem, index: number, query: string) => void,
   action?: (result: IResultItem, index: number, action: IActionItem) => void
 }
+
+interface ICommandSettings {
+  alias?: string
+  shortcuts?: string
+  disabled?: boolean
+}
+
+interface IPluginSettings {
+  disabled?: boolean,
+  commands: Record<string, ICommandSettings | undefined>
+}
+
+type IPluginsSettings = Record<string, IPluginSettings | undefined>

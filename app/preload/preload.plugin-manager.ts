@@ -5,7 +5,8 @@ import * as utils from '../utils'
 import { getConfig } from '../config';
 import { hanziToPinyin } from '@public/osx-fileicon';
 
-const plugins: Map<string, IRunningPlugin> = new Map();
+const plugins: Map<string, IRunningPlugin> = new Map()
+let pluginsSettings: Record<string, IPluginSettings> = {}
 
 const resultsMap = new WeakMap<IPluginCommand, { score: number, query: string, owner: IRunningPlugin }>()
 
@@ -85,11 +86,11 @@ const checkManifest = (manifest: Partial<IPluginManifestConfig>) => {
   })
 }
 
-
 const addPlugin = async (pluginPath: string) => {
   console.log('addPlugin', pluginPath)
   if (checkPluginsRegistered(pluginPath)) {
-    throw new Error('插件已注册,请勿重复注册: ' + pluginPath)
+    console.warn('插件已注册,请勿重复注册: ' + pluginPath)
+    return
   }
   try {
     const pkg = JSON.parse(await fs.promises.readFile(nodePath.join(pluginPath, './package.json'), { encoding: 'utf-8' }))
@@ -129,24 +130,43 @@ const addPlugin = async (pluginPath: string) => {
   }
 }
 
-
 const removePlugin = (name: string) => {
   plugins.delete(name)
 }
 
+
 const handleQuery = (keyword: string) => {
   plugins.forEach(plugin => {
     try {
-      plugin.plugin?.onInput?.(keyword)
+      const disabled = plugin.settings?.disabled
+      !disabled && plugin.plugin?.onInput?.(keyword)
     } catch (err) {
       console.error(err)
     }
   })
   let results: IPluginCommand[] = []
   plugins.forEach((plugin, name) => {
+    const pluginSettings = pluginsSettings[name]
+    console.log(name, pluginSettings, pluginSettings?.disabled)
+    if (pluginSettings?.disabled) {
+      return
+    }
+
     const { commands = [] } = plugins.get(name)
     commands.forEach(command => {
       const { matches } = command
+      const settings = pluginSettings?.commands?.[command.name]
+      const disabled = settings?.disabled
+      if (disabled) return;
+      const alias = settings?.alias
+      if (alias && alias.includes(keyword)) {
+        const result = { ...command }
+        const score = 10 + calcScore(keyword, alias)
+        results.push(result)
+        resultsMap.set(result, { query: keyword, score, owner: plugin })
+        return
+      }
+
       const triggerMatch = matches.find(match => match.type === 'trigger') as ITriggerPluginCommandMatch | undefined
       if (triggerMatch) {
         const triggerIndex = triggerMatch.triggers.findIndex(trigger => keyword.startsWith(trigger + ' '))
@@ -194,15 +214,15 @@ const handleSelect = (command: IPluginCommand, keyword: string) => {
   return rp?.owner.plugin?.onSelect?.(command, rp.query)
 }
 
-const handleEnter = (command: IPluginCommand) => {
-  const rp = resultsMap.get(command)
+const enterPluginCommand = (owner: IRunningPlugin, command: IPluginCommand, options?: { query: string }) => {
+  const query = options?.query || ''
   if (command.mode === 'none') {
-    rp?.owner.plugin?.onEnter?.(command, rp.query)
+    owner.plugin?.onEnter?.(command, query)
   } else if (command.mode === 'listView') {
     // js entry
-    enterPlugin(rp.owner.manifest.name, command, {
+    enterPlugin(owner.manifest.name, command, {
       entry: getConfig().rendererEntry + '#/plugin/list-view',
-      preload: nodePath.join(rp.owner.path, command.preload),
+      preload: nodePath.join(owner.path, command.preload),
       webPreferences: {
         nodeIntegration: true,
         webSecurity: false,
@@ -214,12 +234,12 @@ const handleEnter = (command: IPluginCommand) => {
         enablePreferredSizeMode: true,
         sandbox: false,
       }
-    }, rp.query)
+    }, query)
   } else if (command.mode === 'view') {
     // html entry
-    enterPlugin(rp.owner.manifest.name, command, {
-      entry: nodePath.join(rp.owner.path, command.entry),
-      preload: command.preload ? nodePath.join(rp.owner.path, command.preload) : undefined,
+    enterPlugin(owner.manifest.name, command, {
+      entry: nodePath.join(owner.path, command.entry),
+      preload: command.preload ? nodePath.join(owner.path, command.preload) : undefined,
       webPreferences: {
         nodeIntegration: true,
         webSecurity: false,
@@ -231,8 +251,14 @@ const handleEnter = (command: IPluginCommand) => {
         enablePreferredSizeMode: true,
         sandbox: false,
       }
-    }, rp.query)
+    }, query)
   }
+}
+
+const handleEnter = (command: IPluginCommand) => {
+  const rp = resultsMap.get(command)
+  if (!rp) return
+  enterPluginCommand(rp.owner, command, { query: rp.query })
 }
 
 const handleAction = (command: IPluginCommand, action: any, keyword: string) => {
@@ -271,6 +297,11 @@ const exitPlugin = () => {
   return ipcRenderer.invoke('exit')
 }
 
+const updatePluginsSettings = (value: IPluginsSettings) => {
+  console.log('updatePluginsSettings', value)
+  pluginsSettings = value
+}
+
 const setSubInputValue = (value: string) => controlBridge.invoke('setInputValue', { value })
 
 const getPlugins = () => plugins
@@ -279,13 +310,18 @@ const PluginManager = {
   getPlugins,
   addPlugin,
   removePlugin,
+
   handleQuery,
   handleSelect,
   handleEnter,
   handleAction,
+
   enterPlugin,
   exitPlugin,
+  enterPluginCommand,
+
   setSubInputValue,
+  updatePluginsSettings
 }
 
 export type IPluginManager = typeof PluginManager

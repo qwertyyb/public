@@ -13,8 +13,8 @@
       <h5 class="itemSubtitle color-666 text-sm text-single-line" v-if="subtitle">{{ subtitle }}</h5>
     </div>
     <div class="actions">
-      <ShortcutsKey shortcuts="Enter" v-if="selected"></ShortcutsKey>
-      <ShortcutsKey :shortcuts="['Meta', actionKey]" v-else-if="actionKey"></ShortcutsKey>
+      <ShortcutsKey shortcuts="Enter" v-if="selected" @click="$emit('enter')"></ShortcutsKey>
+      <ShortcutsKey :shortcuts="['Meta', actionKey]" v-else-if="actionKey" @click="$emit('enter')"></ShortcutsKey>
     </div>
   </div>
 </template>

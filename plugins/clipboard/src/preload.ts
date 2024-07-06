@@ -1,7 +1,7 @@
 import { clipboard } from "electron"
 
 const queryRecordList = async ({ keyword = '' } = {}, { strict = false } = {}) => {
-  const sql = `SELECT * FROM clipboardHistory where text like $keyword order by lastUseAt DESC`
+  const sql = `SELECT * FROM clipboardHistory where text like $keyword order by lastUseAt DESC limit 30`
   const query = strict ? keyword : `%${keyword}%`
   console.time('query')
   const results = await window.publicApp.db.all(sql, { keyword: query })
