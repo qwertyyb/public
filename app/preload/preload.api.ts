@@ -44,7 +44,10 @@ const createAPI = () => ({
   fetch: (...args: Parameters<typeof fetch>) => ipcRenderer.invoke('fetch', ...args),
 
   enter: (name: string, item: IPluginCommand, args: any) => window.pluginManager?.enterPlugin(name, item, args),
-  exit: () => window.pluginManager?.exitPlugin(),
+  exit: () => {
+    window.dispatchEvent(new CustomEvent('command.exit'))
+    window.pluginManager?.exitPlugin()
+  },
 
   utils: {
     debounce

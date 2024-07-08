@@ -32,7 +32,9 @@
           <li class="my-4 flex items-center">
             <div class="w-48 text-right mr-6">清除超时</div>
             <div class="w-64">
-              <el-select v-model="settings.clearTimeout" class="flex-1">
+              <el-select v-model="settings.clearTimeout"
+                @change="onClearTimeoutChange"
+                class="flex-1">
                 <el-option :value="0" label="即时"></el-option>
                 <el-option :value="5" label="5 秒后"></el-option>
                 <el-option :value="30" label="30 秒后"></el-option>
@@ -69,7 +71,7 @@
                   :model-value="!settings.pluginsSettings[plugin.manifest.name]?.disabled"
                   @update:model-value="onPluginDisabledChange($event as boolean, plugin)"
                 ></el-switch>
-                <el-button type="danger" icon="el-icon-delete"
+                <el-button type="danger" :icon="Delete"
                   size="small"
                   @click="onRemovePluginClick(index, plugin)"
                   circle></el-button>
@@ -116,7 +118,7 @@
 <script lang="ts" setup>
 import { ref, toRaw } from 'vue';
 import { ElMessage, ElButton, ElSelect, ElSwitch, ElOption, ElInput } from 'element-plus';
-import { ArrowRightBold, Plus } from '@element-plus/icons-vue';
+import { ArrowRightBold, Plus, Delete } from '@element-plus/icons-vue';
 import ShortcutsRecorder from '@/components/ShortcutsRecorder.vue';
 
 declare global {
@@ -170,6 +172,12 @@ const onLaunchAtLoginChange = async (launchAtLogin: any) => {
 const onShortcutsChange = async (shortcuts: string) => {
   settings.value.shortcuts = shortcuts
   await window.bridge.invoke('registerShortcuts', {
+    settings: toRaw(settings.value)
+  })
+  refreshSettings()
+}
+const onClearTimeoutChange = async () => {
+  await window.bridge.invoke('updateSettings', {
     settings: toRaw(settings.value)
   })
   refreshSettings()

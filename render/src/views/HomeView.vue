@@ -20,14 +20,16 @@ import InputBar from '@/components/InputBar.vue';
 import ResultView from '@/components/ResultView.vue';
 import { onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue';
 import type { PluginCommand } from '../../../shared/types/plugin';
+import { computed } from 'vue';
 
 const results = ref<PluginCommand[]>([])
 const preview = ref<string | HTMLElement | undefined>('')
 const inputDisable = ref(false)
 const keyword = ref('')
 const command = ref<PluginCommand | null>(null)
+const commandAndKeyword = computed(() => ({ command: command.value, keyword: keyword.value }))
 
-watch(keyword, (value) => {
+watch(commandAndKeyword, ({ keyword: value }) => {
   if (command.value) {
     window.pluginManager?.setSubInputValue(value)
     return
@@ -107,6 +109,7 @@ onMounted(() => {
   window.addEventListener('inputBar.setValue', setInputBarValue)
   window.addEventListener('inputBar.enter', enterSubInput)
   window.addEventListener('inputBar.disable', setInputBarDisable)
+  window.addEventListener('command.exit', exitCommand)
 })
 
 onBeforeUnmount(() => {
@@ -115,6 +118,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('inputBar.setValue', setInputBarValue)
   window.removeEventListener('inputBar.enter', enterSubInput)
   window.removeEventListener('inputBar.disable', setInputBarDisable)
+  window.removeEventListener('command.exit', exitCommand)
 })
 </script>
 

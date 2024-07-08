@@ -43,11 +43,26 @@ const createKeyEventHandler = (onChange: (value: Key) => void, done: (value: Key
     modifiers: [],
     key: ''
   }
+  let lastModifierKeydownTime = 0
+  let lastKey = ''
+  const repeatKeydownInterval = 200
+  const ModifierKeys = ['Meta', 'Control', 'Alt', 'Shift']
   return (event: KeyboardEvent) => {
     event.preventDefault()
-    const detectKeys = ['Meta', 'Control', 'Alt', 'Shift']
+
+    if (ModifierKeys.includes(event.key)) {
+      // 按下的修饰键，首先判断是否是连续第二次按下同样的键
+      if (Date.now() - lastModifierKeydownTime < repeatKeydownInterval && lastKey === event.key) {
+        const key = { modifiers: [lastKey, event.key], key: '' }
+        onChange(key)
+        done(key)
+      }
+      lastModifierKeydownTime = Date.now()
+    }
+    lastKey = event.key
+
     // 根据修饰按键的状态获取平台对应的键名
-    const activeModifiers = detectKeys.filter(key => event.getModifierState(key))
+    const activeModifiers = ModifierKeys.filter(key => event.getModifierState(key))
     // 排下序，已经按下过的放在前面
     // 先去掉已经抬起的键
     let modifiers = key.modifiers.filter(label => activeModifiers.includes(label))
@@ -76,10 +91,10 @@ const startRecord = () => {
   stopRecord()
 
   const keyEventHandler = createKeyEventHandler(key => {
-    recordedKeys.value = [...key.modifiers, key.key].join('+')
+    recordedKeys.value = [...key.modifiers, key.key].filter(i => i).join('+')
   }, key => {
     stopRecord()
-    const value = [...key.modifiers, key.key].join('+')
+    const value = [...key.modifiers, key.key].filter(i => i).join('+')
     modelValue.value = value
   })
   clearListener = () => {

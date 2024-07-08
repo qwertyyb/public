@@ -56,6 +56,34 @@ const registerShortcuts = (settings: Settings) => {
   console.log('shortcuts', shortcutsData)
 }
 
+let clearIntervalTime: number = 0
+let timeout: ReturnType<typeof setTimeout> | null = null
+window.addEventListener('publicApp.mainWindow.hide', (event) => {
+  if (timeout) {
+    clearTimeout(timeout)
+    timeout = null
+  }
+  console.log('clearIntervalTime', clearIntervalTime)
+  if (clearIntervalTime < 0) return
+  timeout = setTimeout(() => {
+    window.publicApp.exit()
+    window.publicApp.inputBar.setValue('')
+  }, clearIntervalTime * 1000)
+})
+window.addEventListener('publicApp.mainWindow.show', () => {
+  if (timeout) {
+    clearTimeout(timeout)
+    timeout = null
+  }
+})
+const registerClearInterval = (settings: Settings) => {
+  if (timeout) {
+    clearTimeout(timeout)
+    timeout = null
+  }
+  clearIntervalTime = settings.clearTimeout
+}
+
 const registerLaunchAtLogin =(settings: any) => {
   // 启动项
   require('@electron/remote').app.setLoginItemSettings({
@@ -69,9 +97,10 @@ const getSettings = async (): Promise<Settings> => {
     const value = getDefaultSettings()
     updateRecord({ key: 'config', value })
   }
-  // only for dev
-  value.pluginsPathList = getDefaultSettings().pluginsPathList
-  return value
+  return {
+    ...value,
+    pluginsPathList: getDefaultSettings().pluginsPathList
+  }
 }
 
 const updateSettings = async (settings: Settings) => {
@@ -99,6 +128,7 @@ const initSettings = async () => {
   const settings = await getSettings()
   registerLaunchAtLogin(settings)
   registerShortcuts(settings)
+  registerClearInterval(settings)
   initPlugins(settings)
   initPluginsSettings(settings.pluginsSettings)
 }

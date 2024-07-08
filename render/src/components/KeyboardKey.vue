@@ -27,10 +27,11 @@ const keyValue = computed(() => {
 .keyboard-key {
   background: light-dark(#e0e0e0, #3e3e3e);
   height: 20px;
-  width: 20px;
+  min-width: 20px;
   text-align: center;
   line-height: 20px;
   border-radius: 4px;
   font-size: 12px;
+  padding: 0 4px;
 }
 </style>
