@@ -46,7 +46,7 @@ const createAPI = () => ({
   enter: (name: string, item: IPluginCommand, args: any) => window.pluginManager?.enterPlugin(name, item, args),
   exit: () => {
     window.dispatchEvent(new CustomEvent('command.exit'))
-    window.pluginManager?.exitPlugin()
+    return window.pluginManager?.exitPlugin()
   },
 
   utils: {

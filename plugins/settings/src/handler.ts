@@ -3,7 +3,7 @@ import * as path from 'path'
 
 const names = [
   'launcher', 'command', 'calculator', 'qrcode', 'search', 'translate', 'clipboard',
-  'douban', 'magic', 'ai-chat', 'v2ex', 'terminal', 'find', 'google-chrome', 'mdn', 'shortcuts'
+  'douban', 'magic', 'ai-chat', 'v2ex', 'terminal', 'find', 'google-chrome', 'mdn', 'shortcuts', 'transform',
 ]
 
 const getDefaultSettings = () => {
@@ -75,6 +75,9 @@ window.addEventListener('publicApp.mainWindow.show', () => {
     clearTimeout(timeout)
     timeout = null
   }
+})
+window.addEventListener('publicApp.mainWindow.blur', () => {
+  window.publicApp.mainWindow.hide()
 })
 const registerClearInterval = (settings: Settings) => {
   if (timeout) {

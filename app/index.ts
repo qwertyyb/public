@@ -1,13 +1,13 @@
 import * as path from 'path';
-import { getFileIcon } from '@public/osx-fileicon'
-import { app, BaseWindow, protocol, WebContentsView, type Tray } from "electron";
+import { app, BaseWindow, WebContentsView, type Tray } from "electron";
 import { autoUpdater } from "electron-updater"
-import * as robotjs from '@nut-tree-fork/nut-js'
 import initIpc from './ipc'
 import initTray from './controller/trayController'
 import db from './controller/storageController'
 import { getConfig } from './config';
 import * as shortcuts from './shortcuts';
+import { dispatchShortcutsEvent, injectWindowEventsToWebContents, sendInputEventToPluginView } from './events';
+import { registerIPublicProtocol } from './protocol';
 require('@electron/remote/main').initialize();
 
 const config = getConfig()
@@ -17,7 +17,6 @@ app.setActivationPolicy('accessory')
 export class CoreApp {
   readonly electronApp = app;
   readonly db = db;
-  readonly robot = robotjs;
   tray: Tray;
   mainWindow?: BaseWindow;
   mainView?: WebContentsView;
@@ -34,22 +33,9 @@ export class CoreApp {
 
       this.tray = initTray(this)
 
-      protocol.handle('ipublic', async (request) => {
-        const { host, pathname, searchParams } = new URL(request.url)
-        if (request.method === 'GET' && host === 'public.qwertyyb.com' && pathname === '/file-icon') {
-          const buffer = await getFileIcon(searchParams.get('path'), Number(searchParams.get('size')) || 100)
-          const maxAge = Number(searchParams.get('max-age')) || 0
-          return new Response(buffer, {
-            headers: {
-              'Content-Type': 'image/png',
-              'Content-Length': `${buffer.byteLength}`,
-              'Cache-Control': `max-age=${maxAge}`,
-              Date: new Date().toUTCString(),
-            }
-          })
-        }
-      })
       initIpc(this)
+
+      registerIPublicProtocol()
     })
     
     this.electronApp.on('window-all-closed', () => {
@@ -57,7 +43,7 @@ export class CoreApp {
     });
 
     shortcuts.on('shortcuts', (event: { shortcuts: string }) => {
-      this.mainView.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.shortcuts', { detail: ${JSON.stringify(event)} }))`)
+      dispatchShortcutsEvent(this.mainView.webContents, event)
     })
   }
 
@@ -77,7 +63,7 @@ export class CoreApp {
       // vibrancy: 'under-window',
       hiddenInMissionControl: true,
       skipTaskbar: true,
-      roundedCorners: true
+      roundedCorners: true,
     })
     const mainView = new WebContentsView({
       webPreferences: {
@@ -97,23 +83,8 @@ export class CoreApp {
     mainView.setBounds({ x: 0, y: 0, width: 780, height: 600 })
     require("@electron/remote/main").enable(mainView.webContents)
 
-    mainView.webContents.on('before-input-event', (event, inputEvent) => {
-      const keys = {
-        ArrowUp: 'Up',
-        ArrowLeft: 'Left',
-        ArrowRight: 'Right',
-        ArrowDown: 'Down'
-      }
-      // @ts-ignore
-      this.pluginView?.webContents.sendInputEvent({ type: inputEvent.type, keyCode: keys[inputEvent.key] || inputEvent.key, modifiers: inputEvent.modifiers })
-    })
-    win.on('hide', () => {
-      mainView.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.hide'))`)
-    })
-    win.on('show', () => {
-      mainView.webContents.focus()
-      mainView.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.show'))`)
-    })
+    sendInputEventToPluginView(this)
+    injectWindowEventsToWebContents(win, mainView.webContents)
     mainView.webContents.loadURL(config.rendererEntry)
 
     mainView.webContents.on('context-menu', () => {
@@ -126,4 +97,3 @@ export class CoreApp {
 
 // @ts-ignore
 global.coreApp = new CoreApp();
-

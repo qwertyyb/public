@@ -19,7 +19,6 @@
 import InputBar from '@/components/InputBar.vue';
 import ResultView from '@/components/ResultView.vue';
 import { onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue';
-import type { PluginCommand } from '../../../shared/types/plugin';
 import { computed } from 'vue';
 
 const results = ref<PluginCommand[]>([])

@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { MouseClass, straightTo } from '@nut-tree-fork/nut-js';
+import * as robot from '@nut-tree-fork/nut-js';
 import { CoreApp } from './index';
 import { BrowserWindow, IpcMainEvent, Menu, WebContentsView, ipcMain, net } from 'electron';
 import { getConfig } from './config';
@@ -75,34 +75,34 @@ export default (coreApp: CoreApp) => {
   ipcMain.handle('mainWindow.hide', () => coreApp.electronApp.hide())
 
   ipcMain.handle('keyboard.type', async (event, ...keys: string[]) => {
-    await coreApp.robot.keyboard.type(...keys.map(key => coreApp.robot.Key[key]))
+    await robot.keyboard.type(...keys.map(key => robot.Key[key]))
   })
   ipcMain.handle('keyboard.holdKey', async (event, ...keys: string[]) => {
-    await coreApp.robot.keyboard.pressKey(...keys.map(key => coreApp.robot.Key[key]))
+    await robot.keyboard.pressKey(...keys.map(key => robot.Key[key]))
   })
   ipcMain.handle('keyboard.releaseKey', async (event, ...keys: string[]) => {
-    await coreApp.robot.keyboard.releaseKey(...keys.map(key => coreApp.robot.Key[key]))
+    await robot.keyboard.releaseKey(...keys.map(key => robot.Key[key]))
   })
 
-  ipcMain.handle('mouse.getPosition', () => coreApp.robot.mouse.getPosition())
-  ipcMain.handle('mouse.setPosition', async (event, { x, y }) => { await coreApp.robot.mouse.setPosition({ x, y }) })
-  ipcMain.handle('mouse.move', async (event, { x, y }) => { await coreApp.robot.mouse.move(straightTo({ x, y })) })
-  ipcMain.handle('mouse.click', async (event, button: string) => { await coreApp.robot.mouse.click(coreApp.robot.Button[button]) })
-  ipcMain.handle('mouse.doubleClick', async (event, button: string) => { await coreApp.robot.mouse.doubleClick(coreApp.robot.Button[button]) })
-  ipcMain.handle('mouse.hold', async (event, button: string) => { await coreApp.robot.mouse.pressButton(coreApp.robot.Button[button]) })
-  ipcMain.handle('mouse.relase', async (event, button: string) => { await coreApp.robot.mouse.releaseButton(coreApp.robot.Button[button]) })
-  ipcMain.handle('mouse.drag', async (event, { x, y }) => { await coreApp.robot.mouse.drag(straightTo({ x, y })) })
+  ipcMain.handle('mouse.getPosition', () => robot.mouse.getPosition())
+  ipcMain.handle('mouse.setPosition', async (event, { x, y }) => { await robot.mouse.setPosition({ x, y }) })
+  ipcMain.handle('mouse.move', async (event, { x, y }) => { await robot.mouse.move(robot.straightTo({ x, y })) })
+  ipcMain.handle('mouse.click', async (event, button: string) => { await robot.mouse.click(robot.Button[button]) })
+  ipcMain.handle('mouse.doubleClick', async (event, button: string) => { await robot.mouse.doubleClick(robot.Button[button]) })
+  ipcMain.handle('mouse.hold', async (event, button: string) => { await robot.mouse.pressButton(robot.Button[button]) })
+  ipcMain.handle('mouse.relase', async (event, button: string) => { await robot.mouse.releaseButton(robot.Button[button]) })
+  ipcMain.handle('mouse.drag', async (event, { x, y }) => { await robot.mouse.drag(robot.straightTo({ x, y })) })
   ipcMain.handle('mouse.scroll', async (event, { x, y }) => {
-    const ps: Promise<MouseClass>[] =[]
+    const ps: Promise<robot.MouseClass>[] =[]
     if (x > 0) {
-      ps.push(coreApp.robot.mouse.scrollRight(x))
+      ps.push(robot.mouse.scrollRight(x))
     } else if (x < 0) {
-      ps.push(coreApp.robot.mouse.scrollLeft(-x))
+      ps.push(robot.mouse.scrollLeft(-x))
     }
     if (y > 0) {
-      ps.push(coreApp.robot.mouse.scrollDown(y))
+      ps.push(robot.mouse.scrollDown(y))
     } else if (y < 0) {
-      ps.push(coreApp.robot.mouse.scrollUp(-y))
+      ps.push(robot.mouse.scrollUp(-y))
     }
     await Promise.all(ps)
   })
