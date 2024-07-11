@@ -16,7 +16,7 @@
     </div>
     <ActionList
       :actions="selectedItem.actions!"
-      v-if="(selectedItem?.actions?.length || 0) > 1"
+      v-if="visibleActionIndex === selectedIndex && (selectedItem?.actions?.length || 0) > 0"
       @action="onResultAction"
     ></ActionList>
     <ResultItemPreview :html="preview" v-if="preview"></ResultItemPreview>
@@ -69,7 +69,10 @@ const calcActionKeyStartIndex = () => {
   actionKeyStartIndex.value = visibleIndexList[0]
 }
 
-watch(selectedItem, getPreview, { immediate: true })
+watch(selectedItem, (value) => {
+  visibleActionIndex.value = -1
+  getPreview(value)
+}, { immediate: true })
 watch(selectedItem, calcActionKeyStartIndex, { flush: 'post' })
 
 watch(() => props.results, () => { selectedIndex.value = 0 })

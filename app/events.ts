@@ -1,5 +1,6 @@
 import type { CoreApp } from "app"
 import type { BaseWindow, WebContents } from "electron"
+import { getConfig } from "./config"
 
 export const injectWindowEventsToWebContents = (win: BaseWindow, webContents: WebContents) => {
   win.on('hide', () => {
@@ -9,9 +10,11 @@ export const injectWindowEventsToWebContents = (win: BaseWindow, webContents: We
     webContents.focus()
     webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.show'))`)
   })
-  win.on('blur', () => {
-    webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.blur'))`)
-  })
+  if (!getConfig().isDev) {
+    win.on('blur', () => {
+      webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.blur'))`)
+    })
+  }
 }
 
 export const dispatchShortcutsEvent = (webContents: WebContents, event: { shortcuts: string }) => {

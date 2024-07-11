@@ -235,12 +235,6 @@ const addActions = (item: ChatItem) => {
     ...item,
     actions: [
       {
-        name: 'use',
-        icon: 'list',
-        title: '使用此会话',
-        shortcuts: 'Enter'
-      },
-      {
         name: 'add',
         icon: 'add_box',
         title: '新建会话',

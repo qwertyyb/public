@@ -1,8 +1,21 @@
 import getAppList from './loadApplications'
+import * as os from 'os'
+import * as path from 'path'
 
 interface AppListItem extends IListItem {
   path: string,
   icon: string,
+}
+
+const canUninstall = (filePath: string) => {
+  const canUninstallPathList = [
+    '/Applications',
+    path.join(os.homedir(), 'Applications')
+  ]
+  const basename = path.basename(filePath)
+  return canUninstallPathList.some(fullPathDir => {
+    return path.join(fullPathDir, basename) === filePath
+  })
 }
 
 class LauncherPlugin {
@@ -16,11 +29,9 @@ class LauncherPlugin {
     })
   }
 
-  private apps: AppListItem[] = []
 
   private getAppList = async () => {
     const apps = await getAppList()
-    this.apps = apps
     this.app.updateCommands(apps.map(item => ({
       name: `app:${item.path}`,
       icon: item.icon,
@@ -32,7 +43,15 @@ class LauncherPlugin {
           type: 'text',
           keywords: [item.title.toLowerCase()]
         }
-      ]
+      ],
+      actions: canUninstall(item.path) ? [
+        {
+          name: 'uninstall',
+          icon: 'cancel',
+          title: '卸载应用',
+          shortcuts: 'Meta+Backspace'
+        }
+      ] : []
     })))
   }
 

@@ -69,6 +69,7 @@ export default function mdfind({
   interpret = false,
   limit = 1024,
 } = {}) {
+  console.log('aaaa')
   const dirArgs = makeArgs(directories, '-onlyin')
   const nameArgs = makeArgs(names, '-name')
   const attrArgs = makeArgs(attributes, '-attr')
@@ -83,6 +84,8 @@ export default function mdfind({
     live ? ['-live', '-reprint'] : [],
     queryArgs
   ).flat().join(' ')
+
+  console.log('search apps', args)
 
   const process = mfindAsync(`${args}`)
   // @ts-ignore

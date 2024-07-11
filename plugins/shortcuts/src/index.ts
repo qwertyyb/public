@@ -15,12 +15,6 @@ const getList = async () => {
     ],
     actions: [
       {
-        name: 'run',
-        icon: 'rocket_launch',
-        title: '运行',
-        shortcuts: 'Enter',
-      },
-      {
         name: 'view',
         icon: 'visibility',
         title: '查看',

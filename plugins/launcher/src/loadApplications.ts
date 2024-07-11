@@ -1,4 +1,5 @@
-import * as fs from 'fs'
+import os from 'os'
+import * as path from 'path'
 import mdfind from './mdfind'
 
 interface App {
@@ -7,20 +8,20 @@ interface App {
   icon: string,
 }
 
+const homePaths = ['Applications', 'Library/PreferencePanes'].map(pathname => path.join(os.homedir(), pathname))
+
 const macosAppPaths = [
-  '/System/Applications', // 系统应用
   '/Applications',  // 安装的应用
-  '/System/Library/CoreServices/Applications', // 系统工具，如屏幕共享等
+  '/System/Applications', // 系统应用
+  '/System/Library/PreferencePanes',
+  '/System/Library/CoreServices', // 系统工具，如屏幕共享等
+  '/Library/PreferencePanes',
+  ...homePaths,
 ]
 
-
-/**
- * List of supported files
- * @type {Array}
- */
 const supportedTypes = [
   'com.apple.application-bundle',
-  'com.apple.systempreference.prefpane'
+  'com.apple.systempreference.prefpane',
 ]
 
 /**
@@ -34,7 +35,7 @@ const buildQuery = () => (
 
 const getAppList = async () => {
   const { stdout, terminate } = mdfind({
-    query: buildQuery(),
+    query: JSON.stringify(buildQuery()),
     directories: macosAppPaths,
   })
   let list: any = await stdout

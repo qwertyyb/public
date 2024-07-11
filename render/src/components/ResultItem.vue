@@ -6,7 +6,7 @@
     @dblclick="$emit('enter')"
   >
     <div class="itemImageWrapper flex-h-v" v-if="icon">
-      <img :src="icon" alt=""/>
+      <img :src="icon" alt="" loading="lazy" />
     </div>
     <div class="itemInfo flex-1 flex-col-center">
       <h3 class="itemTitle text-single-line">{{ title }}</h3>
