@@ -10,7 +10,7 @@ export const getConfig = () => {
   }
   return {
     isDev: false,
-    rendererEntry: 'file://' + path.join(__dirname, '../render2/dist/index.html'),
+    rendererEntry: 'file://' + path.join(__dirname, '../render/dist/index.html'),
     pluginBasePath: path.join(__dirname, '../plugins')
   }
 }

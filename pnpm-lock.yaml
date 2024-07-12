@@ -8,6 +8,9 @@ overrides:
   node-gyp: ^10.0.0
 
 patchedDependencies:
+  '@electron/rebuild@3.6.0':
+    hash: zucx6aewzc5vcs64nr2vin3nue
+    path: patches/@electron__rebuild@3.6.0.patch
   '@nut-tree-fork/libnut-darwin@2.7.2':
     hash: bmltdhyafsvrynhrqvvyedo72y
     path: patches/@nut-tree-fork__libnut-darwin@2.7.2.patch
@@ -17,6 +20,9 @@ patchedDependencies:
   better-sqlite3@11.1.1:
     hash: xlpwlohu3a5qqcardcepzo5u3i
     path: patches/better-sqlite3@11.1.1.patch
+  uiohook-napi@1.5.4:
+    hash: 6wc4uph3lvsmlgjmvvlia37mdi
+    path: patches/uiohook-napi@1.5.4.patch
 
 importers:
 
@@ -30,11 +36,11 @@ importers:
         version: 11.1.1(patch_hash=xlpwlohu3a5qqcardcepzo5u3i)
       uiohook-napi:
         specifier: ^1.5.4
-        version: 1.5.4
+        version: 1.5.4(patch_hash=6wc4uph3lvsmlgjmvvlia37mdi)
     devDependencies:
       '@electron/rebuild':
         specifier: ^3.6.0
-        version: 3.6.0
+        version: 3.6.0(patch_hash=zucx6aewzc5vcs64nr2vin3nue)
       '@electron/remote':
         specifier: ^2.1.2
         version: 2.1.2(electron@31.0.2)
@@ -182,6 +188,8 @@ importers:
   plugins/shortcuts: {}
 
   plugins/terminal: {}
+
+  plugins/transform: {}
 
   plugins/translate: {}
 
@@ -4894,7 +4902,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@electron/rebuild@3.6.0':
+  '@electron/rebuild@3.6.0(patch_hash=zucx6aewzc5vcs64nr2vin3nue)':
     dependencies:
       '@malept/cross-spawn-promise': 2.0.0
       chalk: 4.1.2
@@ -8894,7 +8902,7 @@ snapshots:
 
   ufo@1.5.3: {}
 
-  uiohook-napi@1.5.4:
+  uiohook-napi@1.5.4(patch_hash=6wc4uph3lvsmlgjmvvlia37mdi):
     dependencies:
       node-gyp-build: 4.8.1
 

@@ -1,0 +1,22 @@
+diff --git a/dist/index.js b/dist/index.js
+index 6e7aac74d1613bee22945d79034845c8fe2d6cbc..bfb4b4270e10247366ef02e5baccad4db60350a6 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.uIOhook = exports.UiohookKey = exports.WheelDirection = exports.EventType = void 0;
+ const events_1 = require("events");
+ const path_1 = require("path");
+-const lib = require('node-gyp-build')((0, path_1.join)(__dirname, '..'));
++const lib = require('../build/Release/uiohook_napi.node');
+ var KeyToggle;
+ (function (KeyToggle) {
+     KeyToggle[KeyToggle["Tap"] = 0] = "Tap";
+diff --git a/libuiohook/COPYING.LESSER.md b/libuiohook/COPYING.LESSER.md
+deleted file mode 100644
+index a80ce0e7c697cb3ccf8480f73333efaa5ada38eb..0000000000000000000000000000000000000000
+diff --git a/libuiohook/COPYING.md b/libuiohook/COPYING.md
+deleted file mode 100644
+index d3e691f8c8987817268fdf0cb28cda9e8594e8a1..0000000000000000000000000000000000000000
+diff --git a/libuiohook/README.md b/libuiohook/README.md
+deleted file mode 100644
+index 220dbcaf6f7a01feae8cc2edd5041309e0c1ea3c..0000000000000000000000000000000000000000
