@@ -29,14 +29,14 @@
 			]
 		},
 		{
-			"target_name": "foreground_app",
+			"target_name": "frontmostApplication",
 			"include_dirs": ["<!(node -e \"require('nan')\")"],
 			"conditions": [[
 				'OS=="mac"',
 				{
-					"sources": ["lib/foreground_app.mm"],
+					"sources": ["lib/frontmostApplication.mm"],
 					"link_settings": {
-						"libraries": ["-framework AppKit"]
+						"libraries": ["-framework AppKit", "-framework Cocoa"]
 					}
 				}
 			]

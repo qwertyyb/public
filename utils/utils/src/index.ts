@@ -9,3 +9,6 @@ export const withCache = <F extends (...args: any[]) => any>(fn: F) => {
     return result
   }
 }
+
+export const getFrontmostApplication = () => {
+}
