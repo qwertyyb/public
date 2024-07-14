@@ -23,7 +23,7 @@
     "build": "concurrently --names \"main,preload,plugin,render\" -c \"bgBlue.bold,bgGreen.bold,bgMagenta.bold,bgYellow.bold\" \"npm run build:main\" \"npm run build:preload\" \"npm run build:plugin\" \"npm run build:render\"",
     "pack": "electron-builder -c.mac.identity=null --dir",
     "release": "NODE_ENV=production && npm run build:render && npm run tsc && electron-builder --publish=always",
-    "rebuild": "electron-rebuild -f -w ./utils/osx-fileicon,./node_modules/better-sqlite3",
+    "rebuild": "electron-rebuild -f -w ./utils/osx-utils,./node_modules/better-sqlite3",
     "rebuild:uiohook-napi": "electron-rebuild --build-from-source -f -m ./node_modules/uiohook-napi"
   },
   "nodemonConfig": {
@@ -130,7 +130,7 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "@public/osx-fileicon": "workspace:*",
+    "@public/osx-utils": "workspace:*",
     "better-sqlite3": "^11.1.1",
     "uiohook-napi": "^1.5.4"
   }

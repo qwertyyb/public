@@ -21,8 +21,34 @@
         "subtitle": "生成二维码",
         "mode": "none",
         "matches": [
-          { "type": "text", "keywords": ["qrcode", "生成二维码"] },
-          { "type": "trigger", "triggers": ["qr"], "title": "生成二维码“$query”" }
+          {
+            "type": "text",
+            "keywords": [
+              "qrcode",
+              "生成二维码"
+            ]
+          },
+          {
+            "type": "trigger",
+            "triggers": [
+              "qr"
+            ],
+            "title": "生成二维码“$query”"
+          }
+        ]
+      },
+      {
+        "name": "generate-for-current-url",
+        "title": "分享当前页面",
+        "subtitle": "生成当前页面的分享二维码",
+        "mode": "none",
+        "matches": [
+          {
+            "type": "text",
+            "keywords": [
+              "qrcu"
+            ]
+          }
         ]
       },
       {
@@ -31,9 +57,18 @@
         "subtitle": "解析二维码",
         "mode": "none",
         "matches": [
-          { "type": "text", "keywords": ["detect qrcode", "解析二维码"] }
+          {
+            "type": "text",
+            "keywords": [
+              "detect qrcode",
+              "解析二维码"
+            ]
+          }
         ]
       }
     ]
+  },
+  "dependencies": {
+    "@public/osx-utils": "workspace:^"
   }
 }

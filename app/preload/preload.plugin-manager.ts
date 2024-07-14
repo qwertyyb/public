@@ -3,7 +3,7 @@ import * as nodePath from 'path'
 import * as fs from 'fs'
 import * as utils from '../utils'
 import { getConfig } from '../config';
-import { hanziToPinyin } from '@public/osx-fileicon';
+import { hanziToPinyin, getFrontmostApplication, getSelectedPath, getCurrentPath } from '@public/osx-utils';
 
 const plugins: Map<string, IRunningPlugin> = new Map()
 let pluginsSettings: Record<string, IPluginSettings> = {}
@@ -327,3 +327,14 @@ const PluginManager = {
 export type IPluginManager = typeof PluginManager
 
 export default PluginManager
+
+window.addEventListener('publicApp.mainWindow.show', () => {
+  console.log('mainWindowShow', getFrontmostApplication())
+})
+
+// @ts-ignore
+window.getFrontmostApplication = getFrontmostApplication
+// @ts-ignore
+window.getSelectedPath = getSelectedPath
+// @ts-ignore
+window.getCurrentPath = getCurrentPath

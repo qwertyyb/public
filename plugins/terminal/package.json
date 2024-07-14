@@ -18,12 +18,21 @@
       {
         "name": "exec",
         "title": "在终端执行此命令",
-        "subtitle": "启动终端 APP 并执行命令",
+        "subtitle": "在当前目录启动终端 APP 并执行命令",
         "mode": "none",
         "matches": [
-          { "type": "trigger", "triggers": [">"] }
+          {
+            "type": "trigger",
+            "triggers": [
+              ">"
+            ]
+          }
         ]
       }
     ]
+  },
+  "dependencies": {
+    "@public/osx-utils": "workspace:^",
+    "run-applescript": "^7.0.0"
   }
 }

@@ -1,5 +1,6 @@
 import { clipboard, NativeImage } from "electron"
 import * as path from 'path'
+import { getChromeCurrentUrl, getSafariCurrentUrl } from "@public/osx-utils/utils";
 
 let opencv: any;
 
@@ -67,15 +68,19 @@ const qrcodePlugin: IPlugin = (utils) => {
   return {
     async onSelect(command: IPluginCommand, param: string) {
       console.log(command, param)
-      if(command.name === 'generate') {
+      let text = param
+      if (command.name === 'generate-for-current-url') {
+        text = await getChromeCurrentUrl() || await getSafariCurrentUrl() || '未获取到当前页面地址'
+      }
+      if(command.name === 'generate' || command.name === 'generate-for-current-url') {
         const QRCode = require('qrcode')
-        if (!param) return;
+        if (!text) return;
         // 生成二维码
-        const res: { html: string, url: string } = await new Promise(resolve => QRCode.toDataURL(param).then((url: string) => {
+        const res: { html: string, url: string } = await new Promise(resolve => QRCode.toDataURL(text).then((url: string) => {
           const html = `
             <div class="flex flex-col justify-center items-center w-full h-full">
               <img src="${url}" class="w-full" />
-              <div class="text-single-line mt-2" style="max-width:100%" title=${JSON.stringify(param)}>${param}</div>
+              <div class="text-single-line mt-2" style="max-width:100%" title=${JSON.stringify(text)}>${text}</div>
             </div>
           `
           resolve({ html, url })

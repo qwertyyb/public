@@ -7,6 +7,8 @@ NAN_METHOD(GetFrontmostAppInfo) {
     NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
     NSRunningApplication *frontApp = [workspace frontmostApplication];
 
+    printf("frontmost");
+
     if (frontApp) {
         NSString *appName = [frontApp localizedName] ?: @"Unknown";
         NSString *bundleIdentifier = [frontApp bundleIdentifier] ?: @"Unknown";

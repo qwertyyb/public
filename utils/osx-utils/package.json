@@ -1,10 +1,14 @@
 {
-  "name": "@public/osx-fileicon",
+  "name": "@public/osx-utils",
   "version": "0.0.2",
   "description": "Get the Finder icon for a file path",
   "main": "index.ts",
-  "scripts": {
+  "sideEffects": false,
+  "exports": {
+    ".": "./index.ts",
+    "./utils": "./utils.ts"
   },
+  "scripts": {},
   "keywords": [
     "Finder",
     "Preview",
@@ -22,7 +26,8 @@
   "os": "darwin",
   "repository": "https://github.com/bengsquared/osx-fileicon",
   "dependencies": {
-    "nan": "^2.14.0"
+    "nan": "^2.14.0",
+    "run-applescript": "^7.0.0"
   },
   "devDependencies": {
     "node-gyp": "^10.0.0"

@@ -28,9 +28,9 @@ importers:
 
   .:
     dependencies:
-      '@public/osx-fileicon':
+      '@public/osx-utils':
         specifier: workspace:*
-        version: link:utils/osx-fileicon
+        version: link:utils/osx-utils
       better-sqlite3:
         specifier: ^11.1.1
         version: 11.1.1(patch_hash=xlpwlohu3a5qqcardcepzo5u3i)
@@ -179,7 +179,11 @@ importers:
         specifier: ^4.0.3
         version: 4.0.3
 
-  plugins/qrcode: {}
+  plugins/qrcode:
+    dependencies:
+      '@public/osx-utils':
+        specifier: workspace:^
+        version: link:../../utils/osx-utils
 
   plugins/search: {}
 
@@ -187,7 +191,14 @@ importers:
 
   plugins/shortcuts: {}
 
-  plugins/terminal: {}
+  plugins/terminal:
+    dependencies:
+      '@public/osx-utils':
+        specifier: workspace:^
+        version: link:../../utils/osx-utils
+      run-applescript:
+        specifier: ^7.0.0
+        version: 7.0.0
 
   plugins/transform: {}
 
@@ -303,11 +314,14 @@ importers:
 
   utils/mdfind: {}
 
-  utils/osx-fileicon:
+  utils/osx-utils:
     dependencies:
       nan:
         specifier: ^2.14.0
         version: 2.20.0
+      run-applescript:
+        specifier: ^7.0.0
+        version: 7.0.0
     devDependencies:
       node-gyp:
         specifier: ^10.0.0

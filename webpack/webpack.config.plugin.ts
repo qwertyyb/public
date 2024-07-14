@@ -84,6 +84,9 @@ const indexConfig: (env: Record<string, string>, argv: Record<string, any>) => P
     resolve: {
       extensions: ['.tsx', '.ts', '.js'],
     },
+    optimization: {
+      usedExports: true,
+    },
     module: {
       rules: [
         {
@@ -94,6 +97,23 @@ const indexConfig: (env: Record<string, string>, argv: Record<string, any>) => P
         {
           test: /\.css$/i,
           use: ['style-loader', 'css-loader']
+        },
+        // node 原生模块
+        {
+          test: /\.node$/,
+          loader: 'node-loader',
+          options: {
+            name(resourcePath, resourceQuery) {
+              // `resourcePath` - `/absolute/path/to/file.js`
+              // `resourceQuery` - `?foo=bar`
+  
+              if (process.env.NODE_ENV === "development") {
+                return "native_modules/[path][name].[ext]";
+              }
+  
+              return "native_modules/[contenthash].[ext]";
+            },
+          }
         },
       ],
     }

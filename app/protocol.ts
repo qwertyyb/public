@@ -1,5 +1,5 @@
 import { protocol } from "electron"
-import { getFileIcon } from '@public/osx-fileicon'
+import { getFileIcon } from '@public/osx-utils'
 
 export const registerIPublicProtocol = () => {
   protocol.handle('ipublic', async (request) => {
