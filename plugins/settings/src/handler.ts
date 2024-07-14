@@ -13,7 +13,7 @@ const getDefaultSettings = () => {
 
   return {
     launchAtLogin: true,
-    shortcuts: 'Meta+Space',
+    shortcuts: 'Meta+Meta',
     clearTimeout: 90,
     pluginsPathList: getDefaultPluginPaths(),
     pluginsSettings: {} as IPluginsSettings
