@@ -24,6 +24,17 @@ const supportedTypes = [
   'com.apple.systempreference.prefpane',
 ]
 
+export const canUninstall = (filePath: string) => {
+  const canUninstallPathList = [
+    '/Applications',
+    path.join(os.homedir(), 'Applications')
+  ]
+  const basename = path.basename(filePath)
+  return canUninstallPathList.some(fullPathDir => {
+    return path.join(fullPathDir, basename) === filePath
+  })
+}
+
 /**
  * Build mdfind query
  *
@@ -33,24 +44,37 @@ const buildQuery = () => (
   supportedTypes.map(type => `kMDItemContentType=${type}`).join('||')
 )
 
-const getAppList = async () => {
+const searchAppList = async () => {
   const { stdout, terminate } = mdfind({
     query: JSON.stringify(buildQuery()),
     directories: macosAppPaths,
   })
   let list: any = await stdout
   return list.map((app: App) => {
-    const enName = app.path.split('/').pop()?.replace(/\.app$/, '') || ''
+    const title = app.name.replace(/\.app$/, '')
     return {
-      code: enName,
+      name: `app:${app.path}`,
       subtitle: app.path,
-      title: app.name.replace(/\.app$/, ''),
+      title,
       icon: `ipublic://public.qwertyyb.com/file-icon?path=${encodeURIComponent(app.path)}&size=48`,
       path: app.path,
-      key: app.path,
+      matches: [
+        {
+          type: 'text',
+          keywords: [title.toLowerCase()]
+        }
+      ],
+      actions: [
+        {
+          name: 'uninstall',
+          icon: 'cancel',
+          title: '卸载应用',
+          shortcuts: 'Meta+Backspace'
+        }
+      ]
     }
   })
 }
 
 
-export default getAppList
+export default searchAppList

@@ -108,7 +108,9 @@ export default (coreApp: CoreApp) => {
   })
 
   ipcMain.handle('fetch', async (event, url: string, init: RequestInit) => {
+    console.log('fetch', url, init)
     const response = await net.fetch(url, init)
+    console.log('fetch response', response)
     const headers = [...response.headers.entries()].reduce((acc, [name, value]) => ({ ...acc, [name]: value }), {} as Record<string, string>)
     const result = {
       status: response.status,
