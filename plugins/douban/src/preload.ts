@@ -1,5 +1,5 @@
 
-const createPreview = (item) => {
+const createPreview = (item: { icon: string, title: string, subtitle: string, url: string }) => {
   const div = document.createElement('div')
   div.classList.add('movie-preview');
   div.textContent = 'loading';
@@ -8,7 +8,7 @@ const createPreview = (item) => {
     const domParser = new DOMParser()
     const doc = domParser.parseFromString(response.text, 'text/html')
     const poster = doc.querySelector<HTMLImageElement>('#mainpic img')?.src
-    const title = doc.querySelector('h1 [property="v:itemreviewed"]').textContent
+    const title = doc.querySelector('h1 [property="v:itemreviewed"]')?.textContent
     const description = doc.querySelector('#link-report-intra [property="v:summary"]')?.innerHTML
     const director = Array.from(doc.querySelectorAll<HTMLMetaElement>('meta[property="video:director"]')).map(item => item.content).join('/')
     const actor = Array.from(doc.querySelectorAll<HTMLMetaElement>('meta[property="video:actor"]')).map(item => item.content).join('/')
@@ -24,12 +24,12 @@ const createPreview = (item) => {
       '导演': director,
       '演员': actor,
     }
-    const list = Object.keys(items).map(label => items[label] ? `<li style="overflow:hidden;margin-top:10px;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${label}: ${items[label]}</li>` : '').join('\n')
+    const list = Object.keys(items).map(label => items[label as keyof typeof items] ? `<li style="overflow:hidden;margin-top:10px;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${label}: ${items[label as keyof typeof items]}</li>` : '').join('\n')
 
     div.innerHTML = `
       <div style="display:flex">
         <div>
-          <img style="width:160px;height: auto" src="${'https://wsrv.nl/?url=' + encodeURIComponent(poster)}" />
+          <img style="width:160px;height:auto;min-width:160px" src="${'https://wsrv.nl/?url=' + encodeURIComponent(poster as string)}" />
         </div>
         <div style="margin: 0 20px">
           <h2>${title}</h2>
@@ -53,9 +53,9 @@ const listView: IPluginCommandListView = {
       const response = await window.publicApp.fetch(`https://search.douban.com/movie/subject_search?search_text=${encodeURIComponent(keyword)}&cat=1002`)
       const domParser = new DOMParser()
       const doc = domParser.parseFromString(response.text, 'text/html')
-      const exec = new Function('const window = {};' + doc.querySelector('#wrapper + script[src] + script').innerHTML + 'return window')
+      const exec = new Function('const window = {};' + doc?.querySelector('#wrapper + script[src] + script')?.innerHTML + 'return window')
       const resp = exec();
-      const list = resp.__DATA__.items.filter(item => item.tpl_name === 'search_subject').map(item => {
+      const list = resp.__DATA__.items.filter((item: any) => item.tpl_name === 'search_subject').map((item: any) => {
         return {
           icon: 'https://wsrv.nl/?url=' + encodeURIComponent(item.cover_url),
           title: item.title,
@@ -67,7 +67,7 @@ const listView: IPluginCommandListView = {
     }
   ),
   select(item, index, keyword) {
-    return createPreview(item)
+    return createPreview(item as any)
   },
   enter(item) {
     require('electron').shell.openExternal(item.url)

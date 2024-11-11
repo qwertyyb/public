@@ -81,7 +81,7 @@ const clipboardPlugin: IPlugin = (utils) => {
 
   const newItemHandler = async (data: { contentType: number, contentValue: string, text: string }) => {
     const existsItems = await queryRecordList({ keyword: data.text }, { strict: true })
-    console.log('new Data existsItem', existsItems)
+    console.log('new Data existsitem', existsItems)
     if (!existsItems.length) {
       return insertRecord({ contentType: data.contentType, text: data.text })
     } else {

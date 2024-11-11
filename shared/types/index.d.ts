@@ -61,4 +61,8 @@ declare global {
 
 
   var publicApp: PublicApp
+
+  interface WindowEventMap {
+    'publicApp.shortcuts': CustomEvent<{ shortcuts: string }>
+  }
 }

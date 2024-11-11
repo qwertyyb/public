@@ -20,13 +20,12 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { type PluginCommand } from "../../../shared/types/plugin";
 import { curry } from 'ramda';
 import { isKeyPressed } from '@/utils/keyboard';
 
 const modelValue = defineModel({ default: '' })
 const props = defineProps<{
-  command?: PluginCommand | null,
+  command?: IPluginCommand | null,
   disabled?: boolean,
 }>()
 const emit = defineEmits<{ exit: [] }>()
@@ -46,7 +45,7 @@ const handler = (event: KeyboardEvent) => {
       event.preventDefault()
       window.publicApp?.mainWindow?.hide?.()
     }
-  } else if (checkKey('Backspace') && !modelValue.value) {
+  } else if (checkKey('Backspace') && !modelValue.value && !event.isComposing) {
     if (props.command) {
       event.preventDefault()
       emit('exit')

@@ -15,9 +15,9 @@ export const match = (candidate: string[] | string, keyword: string) => {
   return arr.some(element => element?.toLowerCase().includes(k) || pinyinMatch(element, k))
 }
 
-export const createBridge = (messagePort?: MessagePort) => {
-  let queue = []
-  let port: MessagePort | null = messagePort
+export const createBridge = (messagePort?: MessagePort): PortBridge => {
+  let queue: { type: string, methodName: string, args: any[], callbackName: string }[] = []
+  let port: MessagePort | null | undefined = messagePort
   const eventBus = new EventEmitter()
   const callbackMap = new Map<string, { resolve: Function, reject: Function }>()
   const handlerMap = new Map<string, (...args: any[]) => any>()
@@ -40,7 +40,7 @@ export const createBridge = (messagePort?: MessagePort) => {
       }
       if (type === 'callback') {
         const { callbackName, returnValue, error } = event.data
-        const { resolve, reject } = callbackMap.get(callbackName)
+        const { resolve, reject } = callbackMap.get(callbackName)!
         if (error) {
           reject?.(new Error(error))
         } else {
@@ -50,7 +50,7 @@ export const createBridge = (messagePort?: MessagePort) => {
       }
     })
     port.start()
-    queue.forEach(item => port.postMessage(item))
+    queue.forEach(item => port!.postMessage(item))
     queue = []
   }
   init()
@@ -108,5 +108,3 @@ export const createBridge = (messagePort?: MessagePort) => {
     }
   }
 }
-
-export type PortBridge = ReturnType<typeof createBridge>

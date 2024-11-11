@@ -5,7 +5,7 @@ import { getChromeCurrentUrl, getSafariCurrentUrl } from "@public/osx-utils/util
 let opencv: any;
 
 const detectWithOpencv = (() => {
-  let wr = null
+  let wr: any = null
   return (image: NativeImage) => {
     const data = image.toBitmap();
     const size = image.getSize();
@@ -89,6 +89,7 @@ const qrcodePlugin: IPlugin = (utils) => {
       }
     },
     onEnter: (command) => {
+      console.log(command)
       if (command.name === 'detect' && command.text) {
         clipboard.writeText(command.text)
       }

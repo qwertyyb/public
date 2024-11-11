@@ -37,7 +37,7 @@ const createTray = (coreApp: CoreApp) => {
     {
       label: '切换开发者工具',
       click: () => {
-        const webContents = coreApp.mainView.webContents
+        const webContents = coreApp.mainView?.webContents
         const isOpened = webContents?.isDevToolsOpened()
         console.log('devtools opened', isOpened)
         if (isOpened) {

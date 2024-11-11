@@ -57,7 +57,7 @@ const formatCommand = (command: IPluginCommandConfig, manifest: IPluginManifest)
     entry: command.entry,
     preload: command.preload
   }
-  const keywords: string[] = [item.name, item.title, item.subtitle, ...pinyin(item.title), ...pinyin(item.subtitle)]
+  const keywords: string[] = [item.name, item.title, item.subtitle || '', ...pinyin(item.title), ...pinyin(item.subtitle || '')].filter(Boolean)
   const matches = (command.matches || []).map(match => {
     if (match.type === 'text') {
       const keywords = (match.keywords || []).reduce<string[]>((acc, keyword) => {
@@ -80,7 +80,7 @@ const checkPluginsRegistered = (path: string) => {
 const checkManifest = (manifest: Partial<IPluginManifestConfig>) => {
   const requireFields = ['name', 'title', 'icon']
   requireFields.forEach(name => {
-    if (!manifest[name]) {
+    if (!manifest[name as keyof IPluginManifestConfig]) {
       throw new Error(`${name} is required: ` + JSON.stringify(manifest))
     }
   })
@@ -100,7 +100,7 @@ const addPlugin = async (pluginPath: string) => {
     const name = rest.name || pkg.name
     const manifest: IPluginManifest = { name, ...rest, entry }
     checkManifest(manifest)
-    const commands: IPluginCommand[] = (publicPlugin.commands || []).map(item => formatCommand(item, manifest))
+    const commands: IPluginCommand[] = (publicPlugin.commands || []).map((item: any) => formatCommand(item, manifest))
     const pluginInstance: IRunningPlugin = {
       manifest,
       path: pluginPath,
@@ -118,7 +118,7 @@ const addPlugin = async (pluginPath: string) => {
           window.dispatchEvent(new CustomEvent('plugin:showCommands', { detail: { name: manifest.name, commands }}))
         },
         enter: (command, options) => {
-          return enterPlugin(name, command, options)
+          return window.publicApp?.enter(name, command, options)
         }
       }) as IPluginReturn
       pluginInstance.plugin = plugin
@@ -126,7 +126,7 @@ const addPlugin = async (pluginPath: string) => {
     plugins.set(pkg.name, pluginInstance)
     return pluginInstance
   } catch (err) {
-    throw new Error(`引入插件 ${pluginPath} 失败: ${err.message}`)
+    throw new Error(`引入插件 ${pluginPath} 失败: ${(err as any).message}`)
   }
 }
 
@@ -152,7 +152,7 @@ const handleQuery = (keyword: string) => {
       return
     }
 
-    const { commands = [] } = plugins.get(name)
+    const { commands = [] } = plugins.get(name)!
     commands.forEach(command => {
       const { matches } = command
       const settings = pluginSettings?.commands?.[command.name]
@@ -206,7 +206,7 @@ const handleQuery = (keyword: string) => {
       }
     })
   })
-  return results.sort((prev, next) => resultsMap.get(next).score - resultsMap.get(prev).score)
+  return results.sort((prev, next) => resultsMap.get(next)!.score - resultsMap.get(prev)!.score)
 }
 
 const handleSelect = (command: IPluginCommand, keyword: string) => {
@@ -220,9 +220,9 @@ const enterPluginCommand = (owner: IRunningPlugin, command: IPluginCommand, opti
     owner.plugin?.onEnter?.(command, query)
   } else if (command.mode === 'listView') {
     // js entry
-    enterPlugin(owner.manifest.name, command, {
+    window.publicApp.enter(owner.manifest.name, command, {
       entry: getConfig().rendererEntry + '#/plugin/list-view',
-      preload: nodePath.join(owner.path, command.preload),
+      preload: nodePath.join(owner.path, command.preload!),
       webPreferences: {
         nodeIntegration: true,
         webSecurity: false,
@@ -237,8 +237,8 @@ const enterPluginCommand = (owner: IRunningPlugin, command: IPluginCommand, opti
     }, query)
   } else if (command.mode === 'view') {
     // html entry
-    enterPlugin(owner.manifest.name, command, {
-      entry: nodePath.join(owner.path, command.entry),
+    window.publicApp.enter(owner.manifest.name, command, {
+      entry: nodePath.join(owner.path, command.entry!),
       preload: command.preload ? nodePath.join(owner.path, command.preload) : undefined,
       webPreferences: {
         nodeIntegration: true,
@@ -267,42 +267,10 @@ const handleAction = (command: IPluginCommand, action: any, keyword: string) => 
   rp.owner.plugin?.onAction?.(command, action, keyword)
 }
 
-let controlBridge: utils.PortBridge | null = null
-
-const enterPlugin = (
-  name: string,
-  command: IPluginCommand,
-  options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string },
-  query?: string
-) => {
-  window.dispatchEvent(new CustomEvent('inputBar.enter', { detail: { name, command, query } }))
-
-  // 搞两个 channel, 一个用来做 API 控制层调用，另一个将会插件做通信
-  const { port1, port2 } = new MessageChannel()
-  const { port1: controlPort1, port2: controlPort2 } = new MessageChannel()
-  return new Promise<utils.PortBridge>(resolve => {
-    controlBridge = utils.createBridge(controlPort1)
-    controlBridge.handle('inputBar.disable', ({ disable }) => {
-      window.dispatchEvent(new CustomEvent('inputBar.disable', { detail: { disable } }))
-    })
-    controlBridge.once('ready', () => resolve(utils.createBridge(port1)))
-    controlPort1.start()
-    ipcRenderer.postMessage('enter', { command, options, query }, [port2, controlPort2])
-  })
-}
-
-
-const exitPlugin = () => {
-  controlBridge = null
-  return ipcRenderer.invoke('exit')
-}
-
 const updatePluginsSettings = (value: IPluginsSettings) => {
-  console.log('updatePluginsSettings', value)
+  // @ts-ignore
   pluginsSettings = value
 }
-
-const setSubInputValue = (value: string) => controlBridge.invoke('setInputValue', { value })
 
 const getPlugins = () => plugins
 
@@ -316,11 +284,8 @@ const PluginManager = {
   handleEnter,
   handleAction,
 
-  enterPlugin,
-  exitPlugin,
   enterPluginCommand,
 
-  setSubInputValue,
   updatePluginsSettings
 }
 

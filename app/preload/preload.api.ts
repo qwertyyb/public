@@ -1,7 +1,8 @@
 import { ipcRenderer } from 'electron'
+import * as utils from '../utils'
 
 const debounce = <F extends (...args: any[]) => any>(fn: F) => {
-  let timeout = null
+  let timeout: ReturnType<typeof setTimeout> | null = null
   return (...args: Parameters<F>) => {
     if (timeout) {
       clearTimeout(timeout)
@@ -9,6 +10,36 @@ const debounce = <F extends (...args: any[]) => any>(fn: F) => {
     timeout = setTimeout(() => fn(...args), 200)
   }
 }
+
+let controlBridge: PortBridge | null = null
+const enterPlugin = (
+  name: string,
+  command: IPluginCommand,
+  options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string },
+  query?: string
+) => {
+  console.log(name, command, query)
+  window.dispatchEvent(new CustomEvent('inputBar.enter', { detail: { name, command, query } }))
+
+  // 搞两个 channel, 一个用来做 API 控制层调用，另一个将会插件做通信
+  const { port1, port2 } = new MessageChannel()
+  const { port1: controlPort1, port2: controlPort2 } = new MessageChannel()
+  return new Promise<PortBridge>(resolve => {
+    controlBridge = utils.createBridge(controlPort1)
+    controlBridge?.handle('inputBar.disable', ({ disable }) => {
+      window.dispatchEvent(new CustomEvent('inputBar.disable', { detail: { disable } }))
+    })
+    controlBridge?.once('ready', () => resolve(utils.createBridge(port1)))
+    controlPort1.start()
+    ipcRenderer.postMessage('enter', { command, options, query }, [port2, controlPort2])
+  })
+}
+
+const exitPlugin = () => {
+  controlBridge = null
+  return ipcRenderer.invoke('exit')
+}
+
 const createAPI = () => ({
   db: {
     run: (sql: string, params?: Object) => ipcRenderer.invoke('db.run', sql, params),
@@ -23,7 +54,7 @@ const createAPI = () => ({
     hide: () => ipcRenderer.invoke('mainWindow.hide'),
   },
   inputBar: {
-    setValue: (value: string) => { window.dispatchEvent(new CustomEvent('inputBar.setValue', { detail: { value } })) },
+    setValue: (value: string) => { controlBridge?.invoke('setInputValue', { value }) },
   },
   keyboard: {
     type: (...keys: string[]) => ipcRenderer.invoke('keyboard.type', ...keys),
@@ -43,10 +74,10 @@ const createAPI = () => ({
   },
   fetch: (...args: Parameters<typeof fetch>) => ipcRenderer.invoke('fetch', ...args),
 
-  enter: (name: string, item: IPluginCommand, args: any) => window.pluginManager?.enterPlugin(name, item, args),
+  enter: (name: string, item: IPluginCommand, options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }, query?: string) => enterPlugin(name, item, options, query),
   exit: () => {
     window.dispatchEvent(new CustomEvent('command.exit'))
-    return window.pluginManager?.exitPlugin()
+    return exitPlugin()
   },
 
   utils: {

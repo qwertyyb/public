@@ -11,8 +11,10 @@ const config = getConfig()
 const removePluginView = (coreApp: CoreApp) => {
   if (!coreApp.pluginView) return;
   coreApp.pluginView.webContents.close()
-  coreApp.mainWindow.contentView.removeChildView(coreApp.pluginView)
-  coreApp.pluginView = null
+  coreApp.mainWindow?.contentView.removeChildView(coreApp.pluginView)
+  if (coreApp.pluginView) {
+    coreApp.pluginView = undefined
+  }
 }
 
 const setPluginView = (
@@ -28,7 +30,7 @@ const setPluginView = (
     removePluginView(coreApp)
   }
   const { command, options } = args
-  let entry = command.mode === 'listView' ? config.rendererEntry + '#/plugin/list-view' : options.entry
+  let entry = command.mode === 'listView' ? config.rendererEntry + '#/plugin/list-view' : options?.entry
   if (!entry) return;
   const view = new WebContentsView({
     webPreferences: {
@@ -39,7 +41,7 @@ const setPluginView = (
       additionalArguments: [JSON.stringify(args)]
     },
   })
-  coreApp.mainWindow.contentView.addChildView(view)
+  coreApp.mainWindow?.contentView.addChildView(view)
   view.setBounds({ x: 0, y: 48, width: 780, height: 54 * 9 })
   const [port2, controlPort2] = event.ports
   view.webContents.on('dom-ready', () => {
@@ -75,22 +77,22 @@ export default (coreApp: CoreApp) => {
   ipcMain.handle('mainWindow.hide', () => coreApp.electronApp.hide())
 
   ipcMain.handle('keyboard.type', async (event, ...keys: string[]) => {
-    await robot.keyboard.type(...keys.map(key => robot.Key[key]))
+    await robot.keyboard.type(...keys.map(key => robot.Key[key as keyof typeof robot.Key]))
   })
   ipcMain.handle('keyboard.holdKey', async (event, ...keys: string[]) => {
-    await robot.keyboard.pressKey(...keys.map(key => robot.Key[key]))
+    await robot.keyboard.pressKey(...keys.map(key => robot.Key[key as keyof typeof robot.Key]))
   })
   ipcMain.handle('keyboard.releaseKey', async (event, ...keys: string[]) => {
-    await robot.keyboard.releaseKey(...keys.map(key => robot.Key[key]))
+    await robot.keyboard.releaseKey(...keys.map(key => robot.Key[key as keyof typeof robot.Key]))
   })
 
   ipcMain.handle('mouse.getPosition', () => robot.mouse.getPosition())
   ipcMain.handle('mouse.setPosition', async (event, { x, y }) => { await robot.mouse.setPosition({ x, y }) })
   ipcMain.handle('mouse.move', async (event, { x, y }) => { await robot.mouse.move(robot.straightTo({ x, y })) })
-  ipcMain.handle('mouse.click', async (event, button: string) => { await robot.mouse.click(robot.Button[button]) })
-  ipcMain.handle('mouse.doubleClick', async (event, button: string) => { await robot.mouse.doubleClick(robot.Button[button]) })
-  ipcMain.handle('mouse.hold', async (event, button: string) => { await robot.mouse.pressButton(robot.Button[button]) })
-  ipcMain.handle('mouse.relase', async (event, button: string) => { await robot.mouse.releaseButton(robot.Button[button]) })
+  ipcMain.handle('mouse.click', async (event, button: string) => { await robot.mouse.click(robot.Button[button as keyof typeof robot.Button]) })
+  ipcMain.handle('mouse.doubleClick', async (event, button: string) => { await robot.mouse.doubleClick(robot.Button[button as keyof typeof robot.Button]) })
+  ipcMain.handle('mouse.hold', async (event, button: string) => { await robot.mouse.pressButton(robot.Button[button as keyof typeof robot.Button]) })
+  ipcMain.handle('mouse.relase', async (event, button: string) => { await robot.mouse.releaseButton(robot.Button[button as keyof typeof robot.Button]) })
   ipcMain.handle('mouse.drag', async (event, { x, y }) => { await robot.mouse.drag(robot.straightTo({ x, y })) })
   ipcMain.handle('mouse.scroll', async (event, { x, y }) => {
     const ps: Promise<robot.MouseClass>[] =[]
@@ -133,8 +135,11 @@ export default (coreApp: CoreApp) => {
     const menu = Menu.buildFromTemplate([
       { label: '打开开发者工具', role: 'toggleDevTools' }
     ])
-    menu.popup({
-      window: BrowserWindow.getFocusedWindow()
-    })
+    let focusedWindow = BrowserWindow.getFocusedWindow()
+    if (focusedWindow) {
+      menu.popup({
+        window: focusedWindow
+      })
+    }
   })
 }

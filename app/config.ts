@@ -4,7 +4,7 @@ export const getConfig = () => {
   if (process.env.NODE_ENV === 'development') {
     return {
       isDev: true,
-      rendererEntry: 'http://localhost:5173/',
+      rendererEntry: 'http://localhost:4000/',
       pluginBasePath: path.join(__dirname, '../plugins')
     }
   }

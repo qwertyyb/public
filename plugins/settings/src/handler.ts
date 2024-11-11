@@ -30,10 +30,10 @@ window.addEventListener('publicApp.shortcuts', (event: CustomEvent<{ shortcuts: 
   if (!target) return
   window.publicApp.mainWindow.show()
   if (!target.pluginName) return
-  const plugin = window.pluginManager.getPlugins().get(target.pluginName)
+  const plugin = window.pluginManager?.getPlugins().get(target.pluginName)
   const command = plugin?.commands.find(item => item.name === target.commandName)
-  if (command) {
-    window.pluginManager.enterPluginCommand(plugin, command)
+  if (plugin && command) {
+    window.pluginManager?.enterPluginCommand(plugin, command)
   }
 })
 
@@ -115,7 +115,7 @@ const initPlugins = async (settings: Settings) => {
   const plugins = settings.pluginsPathList || []
   return plugins.map((p: any) => {
     try {
-      window.pluginManager.addPlugin(p.path)
+      window.pluginManager?.addPlugin(p.path)
     } catch(err) {
       console.warn(err);
     }
@@ -123,7 +123,7 @@ const initPlugins = async (settings: Settings) => {
 }
 
 const initPluginsSettings = async (pluginsSettings: IPluginsSettings) => {
-  window.pluginManager.updatePluginsSettings(pluginsSettings)
+  window.pluginManager?.updatePluginsSettings(pluginsSettings)
 }
 
 const initSettings = async () => {
@@ -146,39 +146,38 @@ const initSettings = async () => {
 // }
 
 const handlers = {
-  async registerShortcuts(args) {
+  async registerShortcuts(args: any) {
     console.log('register shortcuts', args)
     await updateSettings(args.settings)
     registerShortcuts(args.settings)
   },
-  async registerLaunchAtLogin(args) {
+  async registerLaunchAtLogin(args: any) {
     await updateSettings(args.settings)
     registerLaunchAtLogin(args.settings)
   },
   async removePlugin(args: { path: string, name: string }) {
-    window.pluginManager.removePlugin(args.name);
+    window.pluginManager?.removePlugin(args.name);
     // await updatePluginsSettings()
   },
-  async registerPlugin(args) {
-    window.pluginManager.addPlugin(args.path)
+  async registerPlugin(args: { path: string }) {
+    window.pluginManager?.addPlugin(args.path)
     // await updatePluginsSettings()
   },
   getPlugins() {
-    return JSON.parse(JSON.stringify(Array.from(window.pluginManager.getPlugins().values())))
+    return JSON.parse(JSON.stringify(Array.from(window.pluginManager!.getPlugins().values())))
   },
   getSettings() {
     return getSettings()
   },
   async updateSettings(args: { settings: Settings }) {
-    console.log('updateSettings', args.settings)
     await updateSettings(args.settings)
     await initSettings()
   }
 }
 
-const initHandler = (bridge) => {
+const initHandler = (bridge: PortBridge) => {
   Object.keys(handlers).forEach(name => {
-    bridge.handle(name, handlers[name])
+    bridge.handle(name, handlers[name as keyof typeof handlers])
   })
 }
 

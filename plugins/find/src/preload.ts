@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import mdfind from './mdfind'
 import { homedir } from 'os'
 import * as fs from 'fs'
@@ -19,7 +21,7 @@ getDirs().then(dirs => {
 let childProcess: ChildProcess | null = null
 
 const debounce = <F extends (...args: any[]) => any>(fn: F) => {
-  let timeout = null
+  let timeout: ReturnType<typeof setTimeout> | null = null
   return (...args: Parameters<F>) => {
     if (timeout) {
       clearTimeout(timeout)
@@ -37,6 +39,7 @@ const escapeHtml = (str: string) => {
 const getWords = async (filePath: string, length = 800) => {
   const fd = await fs.promises.open(filePath)
   const buffer = Buffer.alloc(length)
+  // @ts-ignore
   await fd.read(buffer)
   fd.close()
   return buffer.toString('utf-8')

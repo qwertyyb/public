@@ -2,7 +2,7 @@ import EventEmitter from 'events'
 import { uIOhook, UiohookKey, UiohookKeyboardEvent } from 'uiohook-napi'
 
 const keycodeNames = Object.keys(UiohookKey).reduce<Record<number, string>>((acc, name) => {
-  return { ...acc, [UiohookKey[name]]: name }
+  return { ...acc, [UiohookKey[name as keyof typeof UiohookKey]]: name }
 }, {})
 
 const eventBus = new EventEmitter()
@@ -18,7 +18,7 @@ export const register = (shortcuts: string, callback: () => void) => {
   eventBus.on(eventName, callback)
 }
 export const unregister = (shortcuts: string, callback?: () => void) => {
-  eventBus.off(shortcuts, callback)
+  eventBus.off(shortcuts, callback as any)
 }
 export const unregisterAll = () => {
   eventBus.removeAllListeners()

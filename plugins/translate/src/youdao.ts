@@ -19,9 +19,11 @@ console.log(await youDaoTranslate("秋风不燥，时光不老，岁月静好，
 */
 
 export const translate = async (text: string) => {
+  // @ts-ignore
   const getMd5YD = function (e) {
     return crypto.createHash("md5").update(e.toString()).digest("hex")
   }
+  // @ts-ignore
   const getSignYD = function (o, e) {
     return getMd5YD(`client=fanyideskweb&mysticTime=${o}&product=webfanyi&key=${e}`);
   }
@@ -60,6 +62,7 @@ export const translate = async (text: string) => {
   const resBase64 = res.text;
   const key = Buffer.from("08149da73c59ce62555b01e92f34e838", "hex")
   const iv = Buffer.from("d2bb1bfde83b38c344366357b79cae1c", "hex");
+  // @ts-ignore
   const r = crypto.createDecipheriv("aes-128-cbc", key, iv);
   let s = r.update(resBase64, "base64", "utf8") as string;
   return s += r.final("utf-8")

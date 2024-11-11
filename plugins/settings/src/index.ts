@@ -1,5 +1,3 @@
-import * as path from 'path'
-
 import { initSettings, initHandler } from './handler'
 
 const settingsPlugin: IPlugin = (utils) => {

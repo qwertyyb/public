@@ -43,7 +43,7 @@ const parseLine = (line: string) => {
   }
   attrs.forEach(attr => {
     const [key, value] = attr.split(' = ')
-    result[REAL_KEYS[key] || key] = getValue(value)
+    result[REAL_KEYS[key as keyof typeof REAL_KEYS] || key] = getValue(value)
   })
   return result
 }

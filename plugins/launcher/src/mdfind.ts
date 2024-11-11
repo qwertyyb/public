@@ -63,8 +63,8 @@ const makeArgs = (array: string[], argName: string) => (
 export default function mdfind({
   query = '',
   attributes = Object.keys(REAL_KEYS),
-  names = [],
-  directories = [],
+  names = [] as string[],
+  directories = [] as string[],
   live = false,
   interpret = false,
   limit = 1024,

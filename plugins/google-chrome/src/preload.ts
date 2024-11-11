@@ -6,13 +6,13 @@ const getOpenTabsWithCache = withCache(getOpenTabs)
 searchHistory()
 
 export default {
-  async search(keyword: string, setList) {
+  async search(keyword: string, setList: any) {
     if (window.launchParameter.command.name === 'search-tab') {
       const tabs = await getOpenTabsWithCache()
       setList(tabs.filter(item => item.title.includes(keyword) || item.subtitle.includes(keyword)))
     } else {
       const history = await searchHistory(keyword)
-      setList(history.map(item => ({ ...item, subtitle: `${item.lastVisited} - ${item.url}`})))
+      setList(history.map((item: any) => ({ ...item, subtitle: `${item.lastVisited} - ${item.url}`})))
     }
   },
   enter(item: any) {

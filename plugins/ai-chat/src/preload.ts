@@ -3,11 +3,14 @@ import { BOTID, TOKEN } from './const'
 
 const crel = <K extends keyof HTMLElementTagNameMap>(tagName: K, attrs?: Partial<Omit<HTMLElementTagNameMap[K], 'style'>> & { style?: Partial<CSSStyleDeclaration> }, ...children: (string | HTMLElement)[]): HTMLElementTagNameMap[K] => {
   const el = document.createElement(tagName)
+  // @ts-ignore
   const { style = {}, ...rest } = attrs;
   Object.keys(style).forEach(key => {
+    // @ts-ignore
     el.style[key] = style[key]
   })
   Object.keys(rest).forEach(key => {
+    // @ts-ignore
     el[key] = attrs[key]
   })
   children.forEach(child => el.append(child))
@@ -20,6 +23,7 @@ type ProxyTarget<K extends keyof HTMLElementTagNameMap = keyof HTMLElementTagNam
 
 const el = new Proxy<ProxyTarget>({} as any, {
   get: (target, key) => {
+    // @ts-ignore
     return crel.bind(null, key)
   }
 })
@@ -35,7 +39,7 @@ interface ChatItem {
 const updateStore = (data: ChatItem[]) => window.localStorage.setItem('store', JSON.stringify(data))
 const getStore = (): ChatItem[] => {
   try {
-    return JSON.parse(window.localStorage.getItem('store')) || []
+    return JSON.parse(window.localStorage.getItem('store') || '[]') || []
   } catch(err) {
     return []
   }
@@ -73,7 +77,7 @@ const ask = (chatItem: ChatItem, callback: (answer: string, done: boolean) => vo
     })
   })
   let answer = ''
-  const handler = (ev) => {
+  const handler = (ev: { data: string }) => {
     console.log(ev.data)
     const json = JSON.parse(ev.data)
     const { event, message } = json;
@@ -265,28 +269,28 @@ const getList = (chatList: ChatItem[], query: string) => {
 }
 
 export default {
-  search: (keyword: string, setList) => {
+  search: (keyword: string, setList: any) => {
     console.log('keyword change', keyword, keyword.length)
     setList(getList(chatList, keyword))
   },
   async select(item: ChatItem) {
     const preview = await createPreviewContent(item)
     setTimeout(() => {
-      preview.querySelector('.messages').scrollTo({ left: 0, top: 99999 })
+      preview.querySelector('.messages')?.scrollTo({ left: 0, top: 99999 })
     }, 0)
     return preview
   },
-  async enter(item, index, query: string) {
+  async enter(item: any, index: number, query: string) {
     const answerCallback = createAnswerAnimation(item)
     askWithStore(item, (answer, done) => {
       answerCallback(answer, done)
     })
   },
-  action(chatItem, action, query: string) {
+  action(chatItem: any, action: any, query: string) {
     if (action.name === 'remove') {
       chatList = chatList.filter(i => i.id !== chatItem.id)
       updateStore(chatList)
-      window.pluginService.setList(getList(chatList, query))
+      window.pluginService?.setList(getList(chatList, query))
     } else if (action.name === 'add') {
       const newChatItem = {
         id: 'chat-' + Date.now(),
@@ -294,7 +298,7 @@ export default {
         title: query,
       }
       chatList.unshift(newChatItem)
-      window.pluginService.setList([addActions(newChatItem), ...getList(chatList, query)])
+      window.pluginService?.setList([addActions(newChatItem), ...getList(chatList, query)])
       const answerCallback = createAnswerAnimation(newChatItem)
       askWithStore(newChatItem, (answer, done) => {
         answerCallback(answer, done)
@@ -309,7 +313,7 @@ export default {
             return item
           })
           updateStore(chatList)
-          window.pluginService.setList(getList(chatList, query))
+          window.pluginService?.setList(getList(chatList, query))
         },
         close: () => {
           dialog.remove()

@@ -17,7 +17,7 @@ app.setActivationPolicy('accessory')
 export class CoreApp {
   readonly electronApp = app;
   readonly db = db;
-  tray: Tray;
+  tray: Tray | null = null;
   mainWindow?: BaseWindow;
   mainView?: WebContentsView;
   pluginView?: WebContentsView;
@@ -43,7 +43,9 @@ export class CoreApp {
     });
 
     shortcuts.on('shortcuts', (event: { shortcuts: string }) => {
-      dispatchShortcutsEvent(this.mainView.webContents, event)
+      if (this.mainView) {
+        dispatchShortcutsEvent(this.mainView.webContents, event)
+      }
     })
   }
 

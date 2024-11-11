@@ -30,7 +30,7 @@ const config: webpack.Configuration = {
         test: /\.node$/,
         loader: 'node-loader',
         options: {
-          name(resourcePath, resourceQuery) {
+          name() {
             // `resourcePath` - `/absolute/path/to/file.js`
             // `resourceQuery` - `?foo=bar`
 

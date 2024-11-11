@@ -22,7 +22,7 @@ export const dispatchShortcutsEvent = (webContents: WebContents, event: { shortc
 }
 
 export const sendInputEventToPluginView = (coreApp: CoreApp) => {
-  coreApp.mainView.webContents.on('before-input-event', (event, inputEvent) => {
+  coreApp.mainView?.webContents.on('before-input-event', (event, inputEvent) => {
     const keys = {
       ArrowUp: 'Up',
       ArrowLeft: 'Left',
@@ -31,7 +31,7 @@ export const sendInputEventToPluginView = (coreApp: CoreApp) => {
     }
     coreApp.pluginView?.webContents.sendInputEvent({
       type: inputEvent.type as 'keyDown' | 'keyUp',
-      keyCode: keys[inputEvent.key] || inputEvent.key,
+      keyCode: keys[inputEvent.key as keyof typeof keys] || inputEvent.key,
       modifiers: inputEvent.modifiers as Electron.InputEvent['modifiers']
     })
   })

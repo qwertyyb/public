@@ -103,7 +103,7 @@ const indexConfig: (env: Record<string, string>, argv: Record<string, any>) => P
           test: /\.node$/,
           loader: 'node-loader',
           options: {
-            name(resourcePath, resourceQuery) {
+            name() {
               // `resourcePath` - `/absolute/path/to/file.js`
               // `resourceQuery` - `?foo=bar`
   
@@ -120,6 +120,6 @@ const indexConfig: (env: Record<string, string>, argv: Record<string, any>) => P
   }
 };
 
-export default (env, argv) => {
+export default (env: Record<string, string>, argv: Record<string, any>) => {
   return Promise.all([indexConfig(env, argv), preloadConfig(env, argv)])
 }

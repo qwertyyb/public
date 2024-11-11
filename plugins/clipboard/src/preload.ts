@@ -27,7 +27,7 @@ const listView: IPluginCommandListView = {
   async select(item) {
     const pre = document.createElement('pre')
     pre.textContent = item.contentValue
-    pre.style.cssText = 'background:#dedede;border-radius:6px;height:var(--preview-height);overflow:auto;box-sizing:border-box;padding:12px;'
+    pre.style.cssText = 'border-radius:6px;height:var(--preview-height);overflow:auto;box-sizing:border-box;padding:12px;'
     return pre
   },
   async enter(item) {

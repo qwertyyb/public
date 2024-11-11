@@ -16,7 +16,7 @@ interface IListItem {
 
 type IPluginReturn = {
   onInput?: (keyword: string) => void,
-  onSelect?: (command: IPluginCommand, keyword: string) => string | HTMLElement | Promise<string> | Promise<HTMLElement>,
+  onSelect?: (command: IPluginCommand, keyword: string) => string | undefined | HTMLElement | Promise<string | HTMLElement | undefined>,
   onEnter?: (command: IPluginCommand, keyword: string) => void,
   onAction?: (command: IPluginCommand, action: IActionItem, keyword: string) => void,
 } | undefined | null
@@ -24,7 +24,7 @@ type IPluginReturn = {
 type IPlugin = (utils: {
   updateCommands: (commands: IPluginCommandConfig[]) => void,
   showCommands: (commands: IPluginCommandConfig[]) => void,
-  enter: (command: IPluginCommand, options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }) => void,
+  enter: (command: IPluginCommand, options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }) => Promise<PortBridge>,
 }) => IPluginReturn
 
 interface ITriggerPluginCommandMatch {

@@ -28,7 +28,7 @@ export const getFrontmostApplication = async (): Promise<Application | undefined
           if (!name) return acc;
           let label = name
           try {
-            label = labels[JSON.parse(name)]
+            label = labels[JSON.parse(name) as keyof typeof labels]
           } catch (err) {
             console.log(err)
           }

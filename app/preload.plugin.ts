@@ -1,6 +1,6 @@
 import { ipcRenderer } from "electron"
 import createAPI from './preload/preload.api'
-import { type PortBridge, createBridge } from "./utils/index"
+import { createBridge } from "./utils/index"
 
 declare global {
   interface Window {

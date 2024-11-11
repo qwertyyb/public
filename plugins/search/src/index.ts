@@ -9,7 +9,7 @@ const urls = {
 export default (): IPluginReturn => {
   return {
     onEnter(item, keyword) {
-      const url = urls[item.name]
+      const url = urls[item.name as keyof typeof urls]
       if (!url) return;
       const target = url.replaceAll('${keyword}', encodeURIComponent(keyword))
       shell.openExternal(target)

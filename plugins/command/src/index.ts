@@ -27,8 +27,8 @@ const scripts = {
 const commandPlugin: IPlugin = (utils) => {
   return {
     onEnter: (item) => {
-      if (!scripts[item.name]) return;
-      const str = `osascript -e '${scripts[item.name]}'`
+      if (!scripts[item.name as keyof typeof scripts]) return;
+      const str = `osascript -e '${scripts[item.name as keyof typeof scripts]}'`
       require('child_process').exec(str)
     }
   }

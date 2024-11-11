@@ -9,7 +9,7 @@ const mdls = (filePath: string, args?: { attrs: string[] }) => {
       const [key, value] = line.split(' = ')
       return {
         ...acc,
-        [key.trim()]: value === '(null)' ? null : value?.trim().replace(/^"(.*)"$/, '$1')
+        [key.trim()]: value === '(null)' ? '' : value?.trim().replace(/^"(.*)"$/, '$1')
       }
     }, {})
 }

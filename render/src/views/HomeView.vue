@@ -21,16 +21,16 @@ import ResultView from '@/components/ResultView.vue';
 import { onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue';
 import { computed } from 'vue';
 
-const results = ref<PluginCommand[]>([])
+const results = ref<IPluginCommand[]>([])
 const preview = ref<string | HTMLElement | undefined>('')
 const inputDisable = ref(false)
 const keyword = ref('')
-const command = ref<PluginCommand | null>(null)
+const command = ref<IPluginCommand | null>(null)
 const commandAndKeyword = computed(() => ({ command: command.value, keyword: keyword.value }))
 
 watch(commandAndKeyword, ({ keyword: value }) => {
   if (command.value) {
-    window.pluginManager?.setSubInputValue(value)
+    window.publicApp.inputBar.setValue(value)
     return
   }
   if (value) {
@@ -45,17 +45,17 @@ const focusInput = () => {
   el?.focus()
 }
 
-const onResultEnter = (item: PluginCommand | null, itemIndex: number) => {
+const onResultEnter = (item: IPluginCommand | null, itemIndex: number) => {
   if (command.value) return
   window.pluginManager?.handleEnter(toRaw(results.value[itemIndex]))
 }
 
-const onResultSelected = async (item: PluginCommand | null, itemIndex: number) => {
+const onResultSelected = async (item: IPluginCommand | null, itemIndex: number) => {
   if (command.value) return
   preview.value = await window.pluginManager?.handleSelect(toRaw(results.value[itemIndex]), keyword.value)
 }
 
-const onResultAction = async (item: PluginCommand, itemIndex: number, action: IActionItem) => {
+const onResultAction = async (item: IPluginCommand, itemIndex: number, action: IActionItem) => {
   window.pluginManager?.handleAction(toRaw(item), toRaw(action), keyword.value)
 }
 
@@ -64,7 +64,7 @@ const setInputBarValue = (event: CustomEvent<{ value: string }>) => {
   keyword.value = value
 }
 
-const setPluginResults = (e: CustomEvent<{ commands: PluginCommand[] }>) => {
+const setPluginResults = (e: CustomEvent<{ commands: IPluginCommand[] }>) => {
   const { commands } = e.detail || {}
   results.value = commands
 }
@@ -74,7 +74,7 @@ const setInputBarDisable = (e: CustomEvent<{ disable: boolean }>) => {
 }
 
 let preKeyword = ''
-const enterSubInput = (e: CustomEvent<{ name: string, query?: string, command: PluginCommand }>) => {
+const enterSubInput = (e: CustomEvent<{ name: string, query?: string, command: IPluginCommand }>) => {
   preKeyword = keyword.value
   keyword.value = e.detail.query ?? ''
   command.value = e.detail.command
@@ -83,7 +83,7 @@ const enterSubInput = (e: CustomEvent<{ name: string, query?: string, command: P
 const exitCommand = () => {
   if (!command.value) return
   command.value = null
-  window.pluginManager?.exitPlugin()
+  window.publicApp?.exit()
   inputDisable.value = false
   keyword.value = preKeyword
   setTimeout(() => {
@@ -95,9 +95,9 @@ const exitCommand = () => {
 declare global {
   interface WindowEventMap {
     'publicApp.mainWindow.show': CustomEvent<{}>;
-    'plugin:showCommands': CustomEvent<{ name: string, commands: PluginCommand[] }>;
+    'plugin:showCommands': CustomEvent<{ name: string, commands: IPluginCommand[] }>;
     'inputBar.setValue': CustomEvent<{ value: string }>;
-    'inputBar.enter': CustomEvent<{ name: string, query?: string, command: PluginCommand }>,
+    'inputBar.enter': CustomEvent<{ name: string, query?: string, command: IPluginCommand }>,
     'inputBar.disable': CustomEvent<{ disable: boolean }>
   }
 }
