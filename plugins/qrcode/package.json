@@ -55,7 +55,8 @@
         "name": "detect",
         "title": "解析二维码",
         "subtitle": "解析二维码",
-        "mode": "none",
+        "mode": "listView",
+        "preload": "./dist/preload.js",
         "matches": [
           {
             "type": "text",
@@ -69,6 +70,7 @@
     ]
   },
   "dependencies": {
-    "@public/osx-utils": "workspace:^"
+    "@public/osx-utils": "workspace:^",
+    "@public/shared": "workspace:^"
   }
 }

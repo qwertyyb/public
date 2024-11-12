@@ -6,4 +6,4 @@ export const getFileIcon = (filePath: string, size = 32): Promise<Buffer> => new
   getIconForFile(filePath, size, resolve)
 })
 
-export const hanziToPinyin = (hanzi: string) => pinyin.hanziToPinyin(hanzi)
+export const hanziToPinyin = (hanzi: string) => pinyin.hanziToPinyin(hanzi) as string

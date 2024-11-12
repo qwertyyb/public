@@ -22,6 +22,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { curry } from 'ramda';
 import { isKeyPressed } from '@/utils/keyboard';
+import type { IPluginCommand } from '@public/shared';
 
 const modelValue = defineModel({ default: '' })
 const props = defineProps<{
@@ -103,6 +104,7 @@ onBeforeUnmount(() => {
   justify-content: center;
   cursor: pointer;
   font-size: 22px;
+  margin-right: auto;
 }
 .backIcon {
   width: 20px;

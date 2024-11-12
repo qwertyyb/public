@@ -45,5 +45,8 @@
         "icon": "https://img.icons8.com/nolan/128/restart.png"
       }
     ]
+  },
+  "dependencies": {
+    "@public/shared": "workspace:^"
   }
 }

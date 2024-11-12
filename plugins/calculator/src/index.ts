@@ -1,5 +1,6 @@
 
 import { clipboard } from 'electron';
+import { IPlugin, IPluginCommand } from '@public/shared'
 import { create, all } from "mathjs";
 
 const DECIMAL_SEPARATOR = '.'

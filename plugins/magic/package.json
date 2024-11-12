@@ -20,10 +20,24 @@
         "subtitle": "打开魔方活动编辑页",
         "mode": "none",
         "matches": [
-          { "type": "text", "keywords": ["magic"] },
-          { "type": "trigger", "triggers": ["magic"] }
+          {
+            "type": "text",
+            "keywords": [
+              "magic"
+            ]
+          },
+          {
+            "type": "trigger",
+            "triggers": [
+              "magic"
+            ],
+            "title": "打开魔方活动编辑页“$query”"
+          }
         ]
       }
     ]
+  },
+  "dependencies": {
+    "@public/shared": "workspace:^"
   }
 }

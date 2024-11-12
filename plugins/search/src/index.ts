@@ -1,4 +1,5 @@
 import { shell } from 'electron'
+import { IPluginReturn } from '@public/shared'
 
 const urls = {
   google: 'https://www.google.com/search?q=${keyword}',

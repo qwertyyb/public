@@ -1,3 +1,4 @@
+import { type IPluginReturn } from "@public/shared"
 import { createNewWindow } from "./service"
 
 export default (): IPluginReturn => {

@@ -1,3 +1,4 @@
+import { ITextPluginCommandMatch, IPlugin } from "@public/shared"
 import { execFile } from "child_process"
 import { promisify } from "util"
 

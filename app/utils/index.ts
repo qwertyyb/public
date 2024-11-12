@@ -1,5 +1,6 @@
 import * as pinyin from 'tiny-pinyin'
 import EventEmitter from 'events'
+import { PortBridge } from '@public/shared'
 
 export const pinyinMatch = (hanzi: string, keyword: string) => {
   const pyword = pinyin.convertToPinyin(hanzi, '-', true)

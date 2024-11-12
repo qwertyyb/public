@@ -17,12 +17,27 @@
         "name": "youdao",
         "title": "有道翻译",
         "matches": [
-          { "type": "text", "keywords": ["翻译", "translate", "yd"] },
-          { "type": "trigger", "triggers": ["yd"] }
+          {
+            "type": "text",
+            "keywords": [
+              "翻译",
+              "translate",
+              "yd"
+            ]
+          },
+          {
+            "type": "trigger",
+            "triggers": [
+              "yd"
+            ]
+          }
         ],
         "mode": "listView",
         "preload": "./dist/preload.js"
       }
     ]
+  },
+  "dependencies": {
+    "@public/shared": "workspace:^"
   }
 }

@@ -1,4 +1,5 @@
 import { clipboard } from "electron"
+import { IPluginCommandListView } from "packages/shared/types"
 
 const queryRecordList = async ({ keyword = '' } = {}, { strict = false } = {}) => {
   const sql = `SELECT * FROM clipboardHistory where text like $keyword order by lastUseAt DESC limit 30`

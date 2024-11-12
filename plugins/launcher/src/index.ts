@@ -1,3 +1,4 @@
+import { IPlugin, IPluginCommand } from '@public/shared'
 import searchAppList, { canUninstall } from './loadApplications'
 
 

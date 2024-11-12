@@ -20,7 +20,14 @@
         "subtitle": "List all tabs and go to the selected.",
         "mode": "listView",
         "matches": [
-          { "type": "text", "keywords": ["google chrome tabs", "tabs", "chrome"] }
+          {
+            "type": "text",
+            "keywords": [
+              "google chrome tabs",
+              "tabs",
+              "chrome"
+            ]
+          }
         ],
         "preload": "dist/preload.js"
       },
@@ -40,7 +47,8 @@
     ]
   },
   "dependencies": {
-    "run-applescript": "^7.0.0",
-    "@public/utils": "workspace:*"
+    "@public/shared": "workspace:^",
+    "@public/utils": "workspace:*",
+    "run-applescript": "^7.0.0"
   }
 }

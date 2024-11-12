@@ -21,5 +21,8 @@
         "preload": "./dist/preload.js"
       }
     ]
+  },
+  "dependencies": {
+    "@public/shared": "workspace:^"
   }
 }

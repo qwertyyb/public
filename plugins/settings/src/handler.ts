@@ -1,3 +1,4 @@
+import { IPluginsSettings, PortBridge } from '@public/shared'
 import { queryRecord, updateRecord, createDatabase } from './storage'
 import * as path from 'path'
 

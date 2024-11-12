@@ -31,6 +31,9 @@ importers:
       '@public/osx-utils':
         specifier: workspace:*
         version: link:utils/osx-utils
+      '@public/shared':
+        specifier: workspace:*
+        version: link:packages/shared
       better-sqlite3:
         specifier: ^11.1.1
         version: 11.1.1(patch_hash=xlpwlohu3a5qqcardcepzo5u3i)
@@ -132,6 +135,8 @@ importers:
         specifier: ^5.1.4
         version: 5.1.4(webpack@5.92.1)
 
+  packages/shared: {}
+
   plugins/ai-chat:
     dependencies:
       crel:
@@ -141,15 +146,35 @@ importers:
         specifier: ^2.5.0
         version: 2.5.0
 
-  plugins/calculator: {}
+  plugins/calculator:
+    dependencies:
+      '@public/shared':
+        specifier: workspace:^
+        version: link:../../packages/shared
 
-  plugins/clipboard: {}
+  plugins/clipboard:
+    dependencies:
+      '@public/shared':
+        specifier: workspace:^
+        version: link:../../packages/shared
 
-  plugins/command: {}
+  plugins/command:
+    dependencies:
+      '@public/shared':
+        specifier: workspace:^
+        version: link:../../packages/shared
 
-  plugins/douban: {}
+  plugins/douban:
+    dependencies:
+      '@public/shared':
+        specifier: workspace:^
+        version: link:../../packages/shared
 
-  plugins/favorite: {}
+  plugins/favorite:
+    dependencies:
+      '@public/shared':
+        specifier: workspace:^
+        version: link:../../packages/shared
 
   plugins/find:
     dependencies:
@@ -162,6 +187,9 @@ importers:
 
   plugins/google-chrome:
     dependencies:
+      '@public/shared':
+        specifier: workspace:^
+        version: link:../../packages/shared
       '@public/utils':
         specifier: workspace:*
         version: link:../../utils/utils
@@ -169,9 +197,17 @@ importers:
         specifier: ^7.0.0
         version: 7.0.0
 
-  plugins/launcher: {}
+  plugins/launcher:
+    dependencies:
+      '@public/shared':
+        specifier: workspace:^
+        version: link:../../packages/shared
 
-  plugins/magic: {}
+  plugins/magic:
+    dependencies:
+      '@public/shared':
+        specifier: workspace:^
+        version: link:../../packages/shared
 
   plugins/mdn:
     dependencies:
@@ -184,25 +220,51 @@ importers:
       '@public/osx-utils':
         specifier: workspace:^
         version: link:../../utils/osx-utils
+      '@public/shared':
+        specifier: workspace:^
+        version: link:../../packages/shared
 
-  plugins/search: {}
+  plugins/search:
+    dependencies:
+      '@public/shared':
+        specifier: workspace:^
+        version: link:../../packages/shared
 
-  plugins/settings: {}
+  plugins/settings:
+    dependencies:
+      '@public/shared':
+        specifier: workspace:^
+        version: link:../../packages/shared
 
-  plugins/shortcuts: {}
+  plugins/shortcuts:
+    dependencies:
+      '@public/shared':
+        specifier: workspace:^
+        version: link:../../packages/shared
 
   plugins/terminal:
     dependencies:
       '@public/osx-utils':
         specifier: workspace:^
         version: link:../../utils/osx-utils
+      '@public/shared':
+        specifier: workspace:^
+        version: link:../../packages/shared
       run-applescript:
         specifier: ^7.0.0
         version: 7.0.0
 
-  plugins/transform: {}
+  plugins/transform:
+    dependencies:
+      '@public/shared':
+        specifier: workspace:^
+        version: link:../../packages/shared
 
-  plugins/translate: {}
+  plugins/translate:
+    dependencies:
+      '@public/shared':
+        specifier: workspace:^
+        version: link:../../packages/shared
 
   plugins/v2ex: {}
 
@@ -211,6 +273,9 @@ importers:
       '@floating-ui/vue':
         specifier: ^1.1.0
         version: 1.1.0(vue@3.4.31(typescript@5.4.5))
+      '@public/shared':
+        specifier: workspace:*
+        version: link:../packages/shared
       element-plus:
         specifier: ^2.7.6
         version: 2.7.6(vue@3.4.31(typescript@5.4.5))
@@ -1037,55 +1102,46 @@ packages:
     resolution: {integrity: sha512-C/zbRYRXFjWvz9Z4haRxcTdnkPt1BtCkz+7RtBSuNmKzMzp3ZxdM28Mpccn6pt28/UWUCTXa+b0Mx1k3g6NOMA==}
     cpu: [arm]
     os: [linux]
-    libc: [glibc]
 
   '@rollup/rollup-linux-arm-musleabihf@4.18.0':
     resolution: {integrity: sha512-l3m9ewPgjQSXrUMHg93vt0hYCGnrMOcUpTz6FLtbwljo2HluS4zTXFy2571YQbisTnfTKPZ01u/ukJdQTLGh9A==}
     cpu: [arm]
     os: [linux]
-    libc: [musl]
 
   '@rollup/rollup-linux-arm64-gnu@4.18.0':
     resolution: {integrity: sha512-rJ5D47d8WD7J+7STKdCUAgmQk49xuFrRi9pZkWoRD1UeSMakbcepWXPF8ycChBoAqs1pb2wzvbY6Q33WmN2ftw==}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   '@rollup/rollup-linux-arm64-musl@4.18.0':
     resolution: {integrity: sha512-be6Yx37b24ZwxQ+wOQXXLZqpq4jTckJhtGlWGZs68TgdKXJgw54lUUoFYrg6Zs/kjzAQwEwYbp8JxZVzZLRepQ==}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   '@rollup/rollup-linux-powerpc64le-gnu@4.18.0':
     resolution: {integrity: sha512-hNVMQK+qrA9Todu9+wqrXOHxFiD5YmdEi3paj6vP02Kx1hjd2LLYR2eaN7DsEshg09+9uzWi2W18MJDlG0cxJA==}
     cpu: [ppc64]
     os: [linux]
-    libc: [glibc]
 
   '@rollup/rollup-linux-riscv64-gnu@4.18.0':
     resolution: {integrity: sha512-ROCM7i+m1NfdrsmvwSzoxp9HFtmKGHEqu5NNDiZWQtXLA8S5HBCkVvKAxJ8U+CVctHwV2Gb5VUaK7UAkzhDjlg==}
     cpu: [riscv64]
     os: [linux]
-    libc: [glibc]
 
   '@rollup/rollup-linux-s390x-gnu@4.18.0':
     resolution: {integrity: sha512-0UyyRHyDN42QL+NbqevXIIUnKA47A+45WyasO+y2bGJ1mhQrfrtXUpTxCOrfxCR4esV3/RLYyucGVPiUsO8xjg==}
     cpu: [s390x]
     os: [linux]
-    libc: [glibc]
 
   '@rollup/rollup-linux-x64-gnu@4.18.0':
     resolution: {integrity: sha512-xuglR2rBVHA5UsI8h8UbX4VJ470PtGCf5Vpswh7p2ukaqBGFTnsfzxUBetoWBWymHMxbIG0Cmx7Y9qDZzr648w==}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@rollup/rollup-linux-x64-musl@4.18.0':
     resolution: {integrity: sha512-LKaqQL9osY/ir2geuLVvRRs+utWUNilzdE90TpyoX0eNqPzWjRm14oMEE+YLve4k/NAqCdPkGYDaDF5Sw+xBfg==}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   '@rollup/rollup-win32-arm64-msvc@4.18.0':
     resolution: {integrity: sha512-7J6TkZQFGo9qBKH0pk2cEVSRhJbL6MtfWxth7Y5YmZs57Pi+4x6c2dStAUvaQkHQLnEQv1jzBUW43GvZW8OFqA==}

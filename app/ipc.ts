@@ -5,6 +5,7 @@ import { BrowserWindow, IpcMainEvent, Menu, WebContentsView, ipcMain, net } from
 import { getConfig } from './config';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
+import { type IPluginCommand } from '@public/shared'
 
 const config = getConfig()
 

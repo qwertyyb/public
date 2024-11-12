@@ -1,4 +1,5 @@
 import { ipcRenderer } from "electron"
+import { type PortBridge, IPluginCommand, IResultItem, IPluginCommandListView } from '@public/shared'
 import createAPI from './preload/preload.api'
 import { createBridge } from "./utils/index"
 
@@ -48,8 +49,8 @@ window.pluginData = { list: null }
 window.publicApp = createAPI()
 window.pluginService = {
   setList: (list) => {
-    window.dispatchEvent(new CustomEvent('listchanged', { detail: { list } }))
     window.pluginData.list = list
+    window.dispatchEvent(new CustomEvent('listchanged', { detail: { list } }))
   }
 }
 

@@ -1,4 +1,5 @@
 import { shell } from "electron"
+import { IPluginReturn } from '@public/shared'
 
 export default (): IPluginReturn => ({
   onEnter (command, query) {

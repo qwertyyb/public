@@ -1,4 +1,5 @@
 import { clipboard, NativeImage } from "electron"
+import { IPlugin, IPluginCommandConfig, IPluginCommand } from '@public/shared'
 import * as path from 'path'
 import { getChromeCurrentUrl, getSafariCurrentUrl } from "@public/osx-utils/utils";
 
@@ -52,7 +53,6 @@ const createClipboardItem = (text: string) => {
 }
 
 const qrcodePlugin: IPlugin = (utils) => {
-  // @ts-ignore
   window.requestIdleCallback(async () => {
     opencv = await __non_webpack_require__('../lib/ready_opencv.js')
   })

@@ -1,5 +1,8 @@
 import { ipcRenderer } from 'electron'
+import { IPluginCommand, type PortBridge, IPublicApp } from '@public/shared'
 import * as utils from '../utils'
+
+import { hanziToPinyin, getFrontmostApplication, getSelectedPath, getCurrentPath } from '@public/osx-utils';
 
 const debounce = <F extends (...args: any[]) => any>(fn: F) => {
   let timeout: ReturnType<typeof setTimeout> | null = null
@@ -40,7 +43,7 @@ const exitPlugin = () => {
   return ipcRenderer.invoke('exit')
 }
 
-const createAPI = () => ({
+const createAPI = (): IPublicApp => ({
   db: {
     run: (sql: string, params?: Object) => ipcRenderer.invoke('db.run', sql, params),
     all: (sql: string, params?: Object) => ipcRenderer.invoke('db.all', sql, params),
@@ -81,31 +84,47 @@ const createAPI = () => ({
   },
 
   utils: {
-    debounce
+    debounce,
+    getFrontmostApplication,
+    getSelectedPath,
+    getCurrentPath,
+    hanziToPinyin,
   },
   showToast(options: {
     title?: string,
     icon?: 'success' | 'error' | 'loading' | 'none',
     image?: string,
-    duration: number
+    duration?: number
   }) {
-    window.dispatchEvent(new CustomEvent('toast:show', { detail: { options }}))
+    window.dispatchEvent(new CustomEvent('publicApp.showToast', { detail: { options }}))
   },
-  showModal(options: Partial<{
-    title: string,
-    content: string,
-    showCancel: boolean,
-    cancelText: string,
-    confirmText: string,
-    cancelColor: string,
-    confirmColor: string,
-  }>) {
+  // showModal(options: Partial<{
+  //   title: string,
+  //   content: string,
+  //   showCancel: boolean,
+  //   cancelText: string,
+  //   confirmText: string,
+  //   cancelColor: string,
+  //   confirmColor: string,
+  // }>) {
     
-  },
-  showLoading() {},
-  hideLoading() {}
+  // },
+  // showLoading() {},
+  // hideLoading() {}
 })
 
-export type IPublicApp = ReturnType<typeof createAPI>
+window.addEventListener('publicApp.showToast', async (event) => {
+  const data = event.detail
+  console.log('showToast', data)
+  const toast = document.createElement('div')
+  toast.classList.add('toast')
+  toast.textContent = data.options.title || ''
+  toast.style.cssText = 'position:fixed;left:50%;bottom:10vh;transform:translateX(-50%);background:rgba(0,0,0,8);color:#fff;padding:6px 12px;border-radius:4px;z-index:999';
+  document.body.appendChild(toast)
+
+  setTimeout(() => {
+    toast.remove()
+  }, data.options.duration || 2500)
+})
 
 export default createAPI

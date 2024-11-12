@@ -1,3 +1,5 @@
+import { IPlugin } from '@public/shared'
+
 const scripts = {
   lock: `
     tell application "System Events" to keystroke "q" using {control down, command down}

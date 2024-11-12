@@ -19,10 +19,19 @@
         "name": "settings",
         "title": "Public应用设置",
         "matches": [
-          { "type": "text", "keywords": ["public settings", "Public设置"] }
+          {
+            "type": "text",
+            "keywords": [
+              "public settings",
+              "Public设置"
+            ]
+          }
         ],
         "mode": "none"
       }
     ]
+  },
+  "dependencies": {
+    "@public/shared": "workspace:^"
   }
 }

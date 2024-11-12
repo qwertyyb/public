@@ -58,10 +58,10 @@ defineEmits<{
   cursor: pointer;
 }
 .resultItem:hover {
-  background-color: light-dark(#c4c4c4, #393939);
+  background-color: light-dark(#d6d6d6, #393939);
 }
 .resultItem.selected {
-  background-color: light-dark(#b4b4b4, #2a2a2a);
+  background-color: light-dark(#d1d1d1, #2a2a2a);
 }
 .itemImageWrapper {
   width: 36px;

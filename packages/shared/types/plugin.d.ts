@@ -1,52 +1,52 @@
 type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
 
-interface IActionItem {
+export interface IActionItem {
   name: string
   icon: string
   title: string
   shortcuts?: string
 }
 
-interface IListItem {
+export interface IListItem {
   title: string,
   icon?: string,
   subtitle?: string,
   actions?: IActionItem[]
 }
 
-type IPluginReturn = {
+export type IPluginReturn = {
   onInput?: (keyword: string) => void,
   onSelect?: (command: IPluginCommand, keyword: string) => string | undefined | HTMLElement | Promise<string | HTMLElement | undefined>,
   onEnter?: (command: IPluginCommand, keyword: string) => void,
   onAction?: (command: IPluginCommand, action: IActionItem, keyword: string) => void,
 } | undefined | null
 
-type IPlugin = (utils: {
+export type IPlugin = (utils: {
   updateCommands: (commands: IPluginCommandConfig[]) => void,
   showCommands: (commands: IPluginCommandConfig[]) => void,
   enter: (command: IPluginCommand, options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }) => Promise<PortBridge>,
 }) => IPluginReturn
 
-interface ITriggerPluginCommandMatch {
+export interface ITriggerPluginCommandMatch {
   type: 'trigger'
   triggers: string[]
   title?: string
   subtitle?: string
 }
-interface ITextPluginCommandMatch {
+export interface ITextPluginCommandMatch {
   type: 'text'
   keywords: string[]
 }
 
-interface IFullPluginCommandMatch {
+export interface IFullPluginCommandMatch {
   type: 'full'
   title?: string
   subtitle?: string
 }
 
-type IPluginCommandMatch = ITextPluginCommandMatch | ITriggerPluginCommandMatch | IFullPluginCommandMatch
+export type IPluginCommandMatch = ITextPluginCommandMatch | ITriggerPluginCommandMatch | IFullPluginCommandMatch
 
-interface IPluginCommandConfig extends IListItem, Record<string, any> {
+export interface IPluginCommandConfig extends IListItem, Record<string, any> {
   name: string
   mode?: 'listView' | 'none' | 'view'
   matches: IPluginCommandMatch[]
@@ -54,20 +54,20 @@ interface IPluginCommandConfig extends IListItem, Record<string, any> {
   preload?: string
 }
 
-type IPluginCommand = WithRequired<IPluginCommandConfig, 'name' | 'icon' | 'title' | 'mode' | 'matches'>
+export type IPluginCommand = WithRequired<IPluginCommandConfig, 'name' | 'icon' | 'title' | 'mode' | 'matches'>
 
-interface IPluginManifestConfig extends Required<IListItem> {
+export interface IPluginManifestConfig extends Required<IListItem> {
   name: string
   descript?: string,
   commands?: IPluginCommandConfig[]
   entry?: string,
 }
 
-type IPluginManifest = WithRequired<IPluginCommandConfig, 'name' | 'icon' | 'title'> & {
+export type IPluginManifest = WithRequired<IPluginCommandConfig, 'name' | 'icon' | 'title'> & {
   commands: IPluginCommand[]
 }
 
-interface IRunningPlugin {
+export interface IRunningPlugin {
   plugin?: IPluginReturn
   path: string
   manifest: Omit<IPluginManifest, 'commands'>
@@ -75,24 +75,24 @@ interface IRunningPlugin {
   settings?: IPluginSettings
 }
 
-interface IResultItem extends IListItem, Record<string, any> { }
+export interface IResultItem extends IListItem, Record<string, any> { }
 
-interface IPluginCommandListView {
+export interface IPluginCommandListView {
   search?: (keyword: string, setList: (list: IResultItem[]) => void) => void,
   select?: (result: IResultItem, index: number, query: string) => string | HTMLElement | Promise<string> | Promise<HTMLElement>,
   enter?: (result: IResultItem, index: number, query: string) => void,
   action?: (result: IResultItem, index: number, action: IActionItem) => void
 }
 
-interface ICommandSettings {
+export interface ICommandSettings {
   alias?: string
   shortcuts?: string
   disabled?: boolean
 }
 
-interface IPluginSettings {
+export interface IPluginSettings {
   disabled?: boolean,
   commands: Record<string, ICommandSettings | undefined>
 }
 
-type IPluginsSettings = Record<string, IPluginSettings | undefined>
+export type IPluginsSettings = Record<string, IPluginSettings | undefined>

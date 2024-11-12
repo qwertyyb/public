@@ -30,6 +30,7 @@ import ActionList, { type IActionItem } from '@/components/ActionList.vue';
 import ResultItemPreview from '@/components/ResultItemPreview.vue';
 import { curry } from 'ramda';
 import { isKeyPressed } from '@/utils/keyboard';
+import type { IListItem } from '@public/shared';
 
 const props = withDefaults(defineProps<{
   results: T[],

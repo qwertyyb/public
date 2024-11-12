@@ -1,3 +1,4 @@
+import { IPlugin } from '@public/shared'
 import { initSettings, initHandler } from './handler'
 
 const settingsPlugin: IPlugin = (utils) => {

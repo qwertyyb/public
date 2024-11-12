@@ -1,7 +1,6 @@
-import { ipcRenderer } from 'electron'
 import * as nodePath from 'path'
 import * as fs from 'fs'
-import * as utils from '../utils'
+import { IActionItem, IFullPluginCommandMatch, IPlugin, IPluginCommand, IPluginCommandConfig, IPluginCommandMatch, IPluginManager, IPluginManifest, IPluginManifestConfig, IPluginReturn, IPluginSettings, IPluginsSettings, IRunningPlugin, ITextPluginCommandMatch, ITriggerPluginCommandMatch } from '@public/shared'
 import { getConfig } from '../config';
 import { hanziToPinyin, getFrontmostApplication, getSelectedPath, getCurrentPath } from '@public/osx-utils';
 
@@ -118,7 +117,7 @@ const addPlugin = async (pluginPath: string) => {
           window.dispatchEvent(new CustomEvent('plugin:showCommands', { detail: { name: manifest.name, commands }}))
         },
         enter: (command, options) => {
-          return window.publicApp?.enter(name, command, options)
+          return window.publicApp!.enter(name, command, options)
         }
       }) as IPluginReturn
       pluginInstance.plugin = plugin
@@ -220,7 +219,7 @@ const enterPluginCommand = (owner: IRunningPlugin, command: IPluginCommand, opti
     owner.plugin?.onEnter?.(command, query)
   } else if (command.mode === 'listView') {
     // js entry
-    window.publicApp.enter(owner.manifest.name, command, {
+    window.publicApp?.enter(owner.manifest.name, command, {
       entry: getConfig().rendererEntry + '#/plugin/list-view',
       preload: nodePath.join(owner.path, command.preload!),
       webPreferences: {
@@ -237,7 +236,7 @@ const enterPluginCommand = (owner: IRunningPlugin, command: IPluginCommand, opti
     }, query)
   } else if (command.mode === 'view') {
     // html entry
-    window.publicApp.enter(owner.manifest.name, command, {
+    window.publicApp?.enter(owner.manifest.name, command, {
       entry: nodePath.join(owner.path, command.entry!),
       preload: command.preload ? nodePath.join(owner.path, command.preload) : undefined,
       webPreferences: {
@@ -261,7 +260,7 @@ const handleEnter = (command: IPluginCommand) => {
   enterPluginCommand(rp.owner, command, { query: rp.query })
 }
 
-const handleAction = (command: IPluginCommand, action: any, keyword: string) => {
+const handleAction = (command: IPluginCommand, action: IActionItem, keyword: string) => {
   const rp = resultsMap.get(command)
   if (!rp) return
   rp.owner.plugin?.onAction?.(command, action, keyword)
@@ -274,7 +273,7 @@ const updatePluginsSettings = (value: IPluginsSettings) => {
 
 const getPlugins = () => plugins
 
-const PluginManager = {
+const PluginManager: IPluginManager = {
   getPlugins,
   addPlugin,
   removePlugin,
@@ -288,8 +287,6 @@ const PluginManager = {
 
   updatePluginsSettings
 }
-
-export type IPluginManager = typeof PluginManager
 
 export default PluginManager
 

@@ -3,7 +3,7 @@
     <InputBar v-model="keyword"
       :command="command"
       @exit="exitCommand"
-      :disable="inputDisable"
+      :disabled="inputDisable"
     />
     <ResultView :results="results"
       v-if="!command"
@@ -18,6 +18,7 @@
 <script setup lang="ts">
 import InputBar from '@/components/InputBar.vue';
 import ResultView from '@/components/ResultView.vue';
+import { type IActionItem, type IPluginCommand } from '@public/shared';
 import { onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue';
 import { computed } from 'vue';
 
@@ -30,7 +31,7 @@ const commandAndKeyword = computed(() => ({ command: command.value, keyword: key
 
 watch(commandAndKeyword, ({ keyword: value }) => {
   if (command.value) {
-    window.publicApp.inputBar.setValue(value)
+    window.publicApp?.inputBar.setValue(value)
     return
   }
   if (value) {
@@ -82,8 +83,8 @@ const enterSubInput = (e: CustomEvent<{ name: string, query?: string, command: I
 
 const exitCommand = () => {
   if (!command.value) return
+  window.publicApp?.exit(command.value.name)
   command.value = null
-  window.publicApp?.exit()
   inputDisable.value = false
   keyword.value = preKeyword
   setTimeout(() => {
@@ -127,7 +128,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   height: 100%;
 	color: light-dark(#444, #ccc);
-  background-color: light-dark(#d7d7d7, #161616);
+  background-color: light-dark(#e5e8e8, #161616);
 }
 .home-view > :deep(*) {
   width: 100%;

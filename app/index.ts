@@ -66,6 +66,7 @@ export class CoreApp {
       hiddenInMissionControl: true,
       skipTaskbar: true,
       roundedCorners: true,
+      backgroundColor: '#e5e8e8'
     })
     const mainView = new WebContentsView({
       webPreferences: {

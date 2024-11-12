@@ -15,28 +15,28 @@
 <script setup lang="ts">
 import ResultView from '@/components/ResultView.vue';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import type { ListItem } from '../../../shared/types/plugin';
+import { type IListItem } from '@public/shared';
 import LoadingBar from '@/components/LoadingBar.vue';
 import type { IActionItem } from '@/components/ActionList.vue';
 
 declare global {
   interface WindowEventMap {
     'inputBar.setValue': CustomEvent<{ value: string }>;
-    'listchanged': CustomEvent<{ list: ListItem[] }>;
+    'listchanged': CustomEvent<{ list: IListItem[] }>;
   }
   interface Window {
     plugin?: {
-      search: (keyword: string, setList: (list: ListItem[]) => void) => void,
-      select?: (item: ListItem, itemIndex: number, keyword: string) => Promise<string>,
-      enter?: (item: ListItem, itemIndex: number, keyword: string) => void,
-      action?: (item: ListItem, action: IActionItem, keyword: string) => void,
+      search: (keyword: string, setList: (list: IListItem[]) => void) => void,
+      select?: (item: IListItem, itemIndex: number, keyword: string) => Promise<string>,
+      enter?: (item: IListItem, itemIndex: number, keyword: string) => void,
+      action?: (item: IListItem, action: IActionItem, keyword: string) => void,
     },
-    pluginData?: { list: ListItem[] },
+    pluginData?: { list: IListItem[] },
     launchParameter?: { query: string }
   }
 }
 
-const results = ref<ListItem[]>([])
+const results = ref<IListItem[]>([])
 const preview = ref<string | HTMLElement | undefined>('')
 const keyword = ref(window.launchParameter?.query ?? '')
 
@@ -55,11 +55,11 @@ watch(keyword, (value) => {
   }
 }, { immediate: true})
 
-const onResultEnter = (item: ListItem, itemIndex: number) => {
+const onResultEnter = (item: IListItem, itemIndex: number) => {
   window.plugin?.enter?.(item, itemIndex, keyword.value)
 }
 
-const onResultSelected = async (item: ListItem | null, itemIndex: number) => {
+const onResultSelected = async (item: IListItem | null, itemIndex: number) => {
   if (!item) {
     preview.value = ''
     return
@@ -67,7 +67,7 @@ const onResultSelected = async (item: ListItem | null, itemIndex: number) => {
   preview.value = await window.plugin?.select?.(item, itemIndex, keyword.value)
 }
 
-const onResultAction = (item: ListItem, itemIndex: number, action: IActionItem) => {
+const onResultAction = (item: IListItem, itemIndex: number, action: IActionItem) => {
   window.plugin?.action?.(item, action, keyword.value)
 }
 
@@ -75,7 +75,7 @@ const setInputValue = (event: CustomEvent<{ value: string }>) => {
   keyword.value = event.detail.value
 }
 
-const setPluginResults = (event: CustomEvent<{ list: ListItem[] }>) => {
+const setPluginResults = (event: CustomEvent<{ list: IListItem[] }>) => {
   results.value = event.detail.list || []
 }
 
@@ -97,7 +97,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   height: 100%;
 	color: light-dark(#444, #ccc);
-  background-color: light-dark(#d7d7d7, #161616);
+  background-color: light-dark(#e5e8e8, #161616);
 }
 .list-view > :v-deep(*) {
   width: 100%;

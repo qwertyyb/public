@@ -1,4 +1,5 @@
 import { clipboard } from 'electron'
+import { IPlugin } from '@public/shared'
 
 const formatDate = function(date: Date, fmt: string = 'yyyy-MM-dd hh:mm:ss') { 
   var o = { 

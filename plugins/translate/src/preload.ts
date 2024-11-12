@@ -1,3 +1,4 @@
+import { type IPluginCommandListView } from '@public/shared'
 import { translate } from './youdao'
 
 const listView: IPluginCommandListView = {

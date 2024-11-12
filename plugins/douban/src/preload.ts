@@ -1,4 +1,6 @@
 
+import { IPluginCommandListView } from "@public/shared";
+
 const createPreview = (item: { icon: string, title: string, subtitle: string, url: string }) => {
   const div = document.createElement('div')
   div.classList.add('movie-preview');

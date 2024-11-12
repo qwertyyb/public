@@ -132,6 +132,7 @@
   "dependencies": {
     "@public/osx-utils": "workspace:*",
     "better-sqlite3": "^11.1.1",
-    "uiohook-napi": "^1.5.4"
+    "uiohook-napi": "^1.5.4",
+    "@public/shared": "workspace:*"
   }
 }

@@ -24,7 +24,8 @@
     "vue": "^3.4.29",
     "vue-router": "^4.3.3",
     "vue-virtual-scroller": "2.0.0-beta.8",
-    "vue3-virtual-scroll-list": "^0.2.1"
+    "vue3-virtual-scroll-list": "^0.2.1",
+    "@public/shared": "workspace:*"
   },
   "devDependencies": {
     "@element-plus/icons-vue": "^2.3.1",
