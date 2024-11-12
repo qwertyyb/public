@@ -105,7 +105,7 @@ const listView: IPluginCommandListView = {
     }
     return `
       <div style="display:flex;flex-direction:column;height:462px;">
-        <div style="flex:1;overflow:hidden;font-size:14px;background:#dedede;box-sizing:border-box;padding:8px;border-radius:6px;display:flex">
+        <div style="flex:1;overflow:hidden;font-size:14px;background:light-dark(#dedede,#212121);box-sizing:border-box;padding:8px;border-radius:6px;display:flex">
           ${
             isBinary
             ? `<div style="width:100%;height:100%;background-size:contain;background-repeat:no-repeat;background-position:center center;background-image:url(ipublic://public.qwertyyb.com/file-icon?path=${encodeURIComponent(item.data.filePath)}&size=400)"></div>`
