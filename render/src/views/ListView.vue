@@ -97,7 +97,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   height: 100%;
 	color: light-dark(#444, #ccc);
-  background-color: light-dark(#e5e8e8, #161616);
+  // background-color: light-dark(#e5e8e8, #161616);
 }
 .list-view > :v-deep(*) {
   width: 100%;

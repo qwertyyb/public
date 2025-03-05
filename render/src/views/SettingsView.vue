@@ -264,7 +264,7 @@ refreshSettings()
 <style lang="scss" scoped>
 .settings-view {
   color-scheme: light dark;
-  background-color: light-dark(#fff, #000);
+  // background-color: light-dark(#fff, #000);
   height: 486px;
 }
 </style>
