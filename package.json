@@ -94,7 +94,8 @@
     "patchedDependencies": {
       "@nut-tree-fork/node-mac-permissions@2.2.1": "patches/@nut-tree-fork__node-mac-permissions@2.2.1.patch",
       "@nut-tree-fork/libnut-darwin@2.7.2": "patches/@nut-tree-fork__libnut-darwin@2.7.2.patch",
-      "uiohook-napi@1.5.4": "patches/uiohook-napi@1.5.4.patch"
+      "uiohook-napi@1.5.4": "patches/uiohook-napi@1.5.4.patch",
+      "better-sqlite3@11.8.1": "patches/better-sqlite3@11.8.1.patch"
     }
   },
   "devDependencies": {
