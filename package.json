@@ -6,6 +6,9 @@
     "type": "git",
     "url": "https://github.com/qwertyyb/public.git"
   },
+  "engines": {
+    "node": ">=22.14.0"
+  },
   "scripts": {
     "electron": "cross-env NODE_ENV=development electron dist/index.js --remote-debugging-port=8222",
     "start:electron": "nodemon --exec 'npm run electron || exit 1'",
@@ -86,18 +89,16 @@
   },
   "pnpm": {
     "overrides": {
-      "node-gyp": "^10.0.0"
+      "node-abi@^3.45.0": "^4.0.0"
     },
     "patchedDependencies": {
       "@nut-tree-fork/node-mac-permissions@2.2.1": "patches/@nut-tree-fork__node-mac-permissions@2.2.1.patch",
       "@nut-tree-fork/libnut-darwin@2.7.2": "patches/@nut-tree-fork__libnut-darwin@2.7.2.patch",
-      "better-sqlite3@11.1.1": "patches/better-sqlite3@11.1.1.patch",
-      "@electron/rebuild@3.6.0": "patches/@electron__rebuild@3.6.0.patch",
       "uiohook-napi@1.5.4": "patches/uiohook-napi@1.5.4.patch"
     }
   },
   "devDependencies": {
-    "@electron/rebuild": "^3.6.0",
+    "@electron/rebuild": "^3.7.1",
     "@electron/remote": "^2.1.2",
     "@nut-tree-fork/nut-js": "^4.2.1",
     "@types/better-sqlite3": "^7.6.10",
@@ -108,7 +109,7 @@
     "concurrently": "^6.0.0",
     "cross-env": "^7.0.3",
     "css-loader": "^7.1.2",
-    "electron": "^31.0.0",
+    "electron": "^35.0.1",
     "electron-builder": "^24.13.3",
     "electron-devtools-installer": "^3.1.1",
     "electron-notarize": "^1.0.0",
@@ -131,8 +132,8 @@
   },
   "dependencies": {
     "@public/osx-utils": "workspace:*",
-    "better-sqlite3": "^11.1.1",
-    "uiohook-napi": "^1.5.4",
-    "@public/shared": "workspace:*"
+    "@public/shared": "workspace:*",
+    "better-sqlite3": "^11.8.1",
+    "uiohook-napi": "^1.5.4"
   }
 }
