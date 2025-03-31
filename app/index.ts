@@ -6,7 +6,6 @@ import initTray from './controller/trayController'
 import db from './controller/storageController'
 import { getConfig } from './config';
 import * as shortcuts from './shortcuts';
-import { dispatchShortcutsEvent, injectWindowEventsToWebContents, sendInputEventToPluginView } from './events';
 import { registerIPublicProtocol } from './protocol';
 require('@electron/remote/main').initialize();
 
@@ -43,9 +42,7 @@ export class CoreApp {
     });
 
     shortcuts.on('shortcuts', (event: { shortcuts: string }) => {
-      if (this.mainView) {
-        dispatchShortcutsEvent(this.mainView.webContents, event)
-      }
+      this.dispatchShortcutsEvent(event)
     })
   }
 
@@ -88,8 +85,8 @@ export class CoreApp {
     mainView.setBounds({ x: 0, y: 0, width: 780, height: 600 })
     require("@electron/remote/main").enable(mainView.webContents)
 
-    sendInputEventToPluginView(this)
-    injectWindowEventsToWebContents(win, mainView.webContents)
+    this.sendInputEventToPluginView()
+    this.sendWindowEventsToMainView()
     mainView.webContents.loadURL(config.rendererEntry)
 
     mainView.webContents.on('context-menu', () => {
@@ -97,6 +94,42 @@ export class CoreApp {
     })
 
     return win
+  }
+
+  private sendInputEventToPluginView() {
+    this.mainView?.webContents.on('before-input-event', (event, inputEvent) => {
+      const keys = {
+        ArrowUp: 'Up',
+        ArrowLeft: 'Left',
+        ArrowRight: 'Right',
+        ArrowDown: 'Down'
+      }
+      this.pluginView?.webContents.sendInputEvent({
+        type: inputEvent.type as 'keyDown' | 'keyUp',
+        keyCode: keys[inputEvent.key as keyof typeof keys] || inputEvent.key,
+        modifiers: inputEvent.modifiers as Electron.InputEvent['modifiers']
+      })
+    })
+  }
+
+  private sendWindowEventsToMainView() {
+    if (!this.mainWindow || !this.mainView) return
+    this.mainWindow.on('hide', () => {
+      this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.hide'))`)
+    })
+    this.mainWindow.on('show', () => {
+      this.mainView?.webContents.focus()
+      this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.show'))`)
+    })
+    if (!getConfig().isDev) {
+      this.mainWindow.on('blur', () => {
+        this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.blur'))`)
+      })
+    }
+  }
+
+  private dispatchShortcutsEvent = (event: { shortcuts: string }) => {
+    this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.shortcuts', { detail: ${JSON.stringify(event)} }))`)
   }
 }
 
