@@ -1,6 +1,6 @@
 import { ipcRenderer } from "electron"
 import { type PortBridge, IPluginCommand, IResultItem, IPluginCommandListView } from '@public/shared'
-import createAPI from './preload/preload.api'
+import createCommonAPI from './preload/preload.common'
 import { createBridge } from "./utils/index"
 
 declare global {
@@ -46,7 +46,7 @@ controlBridge.handle('setInputValue', async (data: { value: string }) => {
 })
 
 window.pluginData = { list: null }
-window.publicApp = createAPI()
+window.publicApp = createCommonAPI()
 window.pluginService = {
   setList: (list) => {
     window.pluginData.list = list

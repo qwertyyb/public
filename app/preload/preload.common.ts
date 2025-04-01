@@ -43,7 +43,7 @@ const exitPlugin = () => {
   return ipcRenderer.invoke('exit')
 }
 
-const createAPI = (): IPublicApp => ({
+const createCommonAPI = (): IPublicApp => ({
   db: {
     run: (sql: string, params?: Object) => ipcRenderer.invoke('db.run', sql, params),
     all: (sql: string, params?: Object) => ipcRenderer.invoke('db.all', sql, params),
@@ -127,4 +127,4 @@ window.addEventListener('publicApp.showToast', async (event) => {
   }, data.options.duration || 2500)
 })
 
-export default createAPI
+export default createCommonAPI

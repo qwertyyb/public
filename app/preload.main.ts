@@ -1,13 +1,13 @@
-import * as path from 'path'
-import createAPI from './preload/preload.api'
+import { join as pathJoin } from 'path'
+import createCommonAPI from './preload/preload.common'
 import pluginManager from './preload/preload.plugin-manager'
 import { getConfig } from './config'
 
 const config = getConfig()
 
-window.publicApp = createAPI()
+window.publicApp = createCommonAPI()
 window.pluginManager = pluginManager
 
-const basicPlugin = path.join(config.pluginBasePath, './settings')
+const basicPlugin = pathJoin(config.pluginBasePath, './settings')
 pluginManager.addPlugin(basicPlugin)
 

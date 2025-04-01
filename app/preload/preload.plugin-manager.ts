@@ -2,13 +2,14 @@ import * as nodePath from 'path'
 import * as fs from 'fs'
 import { IActionItem, IFullPluginCommandMatch, IPlugin, IPluginCommand, IPluginCommandConfig, IPluginCommandMatch, IPluginManager, IPluginManifest, IPluginManifestConfig, IPluginReturn, IPluginSettings, IPluginsSettings, IRunningPlugin, ITextPluginCommandMatch, ITriggerPluginCommandMatch } from '@public/shared'
 import { getConfig } from '../config';
-import { hanziToPinyin, getFrontmostApplication, getSelectedPath, getCurrentPath } from '@public/osx-utils';
+import { hanziToPinyin, getFrontmostApplication } from '@public/osx-utils';
 
 const plugins: Map<string, IRunningPlugin> = new Map()
 let pluginsSettings: Record<string, IPluginSettings> = {}
 
 const resultsMap = new WeakMap<IPluginCommand, { score: number, query: string, owner: IRunningPlugin }>()
 
+// 计算匹配分数，越大表示匹配度越高，最大为1
 const calcScore = (query: string, target: string) => {
   if (query && target.includes(query)) {
     return query.length / target.length
@@ -290,13 +291,6 @@ const PluginManager: IPluginManager = {
 
 export default PluginManager
 
-window.addEventListener('publicApp.mainWindow.show', () => {
-  console.log('mainWindowShow', getFrontmostApplication())
+window.addEventListener('publicApp.mainWindow.show', async () => {
+  console.log('mainWindowShow', await getFrontmostApplication())
 })
-
-// @ts-ignore
-window.getFrontmostApplication = getFrontmostApplication
-// @ts-ignore
-window.getSelectedPath = getSelectedPath
-// @ts-ignore
-window.getCurrentPath = getCurrentPath

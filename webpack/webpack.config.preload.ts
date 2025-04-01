@@ -4,7 +4,7 @@ import * as webpack from 'webpack';
 const config: webpack.Configuration = {
   mode: 'development',
   entry: {
-    preload: './app/preload.ts',
+    'preload.main': './app/preload.main.ts',
     'preload.plugin': './app/preload.plugin.ts',
   },
   target: 'electron-preload',

@@ -24,7 +24,7 @@ export class CoreApp {
 
   constructor() {
     this.electronApp.whenReady().then(() => {
-      this.mainWindow = this.createMainWindow();
+      this.createMainWindow();
       
       this.electronApp.setAccessibilitySupportEnabled(true)
     
@@ -48,10 +48,10 @@ export class CoreApp {
 
   private createMainWindow() {
     const win = new BaseWindow({
-      height: 48 + 54 * 9,
+      height: config.windowHeight,
       useContentSize: false,
-      minWidth: 780,
-      width: 780,
+      minWidth: config.windowWidth,
+      width: config.windowWidth,
       y: 120,
       center: true,
       show: true,
@@ -67,13 +67,14 @@ export class CoreApp {
       vibrancy: 'popover',
       visualEffectState: 'followWindow',
     })
+    this.mainWindow = win
     const mainView = new WebContentsView({
       webPreferences: {
         webSecurity: false,
         allowRunningInsecureContent: false,
         spellcheck: false,
         devTools: true,
-        preload: path.join(__dirname, './preload.js'),
+        preload: path.join(__dirname, './preload.main.js'),
         contextIsolation: false,
         backgroundThrottling: false,
         sandbox: false,
@@ -82,12 +83,12 @@ export class CoreApp {
     })
     this.mainView = mainView
     win.contentView.addChildView(mainView)
-    mainView.setBounds({ x: 0, y: 0, width: 780, height: 600 })
+    mainView.setBounds({ x: 0, y: 0, width: config.windowWidth, height: 600 })
     require("@electron/remote/main").enable(mainView.webContents)
-
-    this.sendInputEventToPluginView()
     this.sendWindowEventsToMainView()
     mainView.webContents.loadURL(config.rendererEntry)
+
+    this.sendInputEventToPluginView()
 
     mainView.webContents.on('context-menu', () => {
       mainView.webContents.openDevTools({ mode: 'detach' })
@@ -118,6 +119,7 @@ export class CoreApp {
       this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.hide'))`)
     })
     this.mainWindow.on('show', () => {
+      console.log('mainWindow show')
       this.mainView?.webContents.focus()
       this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.show'))`)
     })
