@@ -61,7 +61,7 @@ defineEmits<{
   background-color: light-dark(#d6d6d6, #393939);
 }
 .resultItem.selected {
-  background-color: light-dark(#d1d1d1, #2a2a2a);
+  background-color: light-dark(#d1d1d1, #757373);
 }
 .itemImageWrapper {
   width: 36px;

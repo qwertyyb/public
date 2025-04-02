@@ -1,8 +1,12 @@
 <template>
   <div class="resultView">
-    <div class="result-list">
+    <virtual-list class="result-list"
+      :list="results"
+      :keeps="30"
+      :item-height="54"
+      v-slot="{ item, index }"
+    >
       <ResultItem
-        v-for="(item, index) in results"
         :key="index"
         :index="index"
         :icon="item.icon"
@@ -13,7 +17,7 @@
         @select="selectedIndex = index;$emit('select', item, index)"
         @enter="selectedIndex = index;$emit('enter', item, index)"
       ></ResultItem>
-    </div>
+    </virtual-list>
     <ActionList
       :actions="selectedItem.actions!"
       v-if="visibleActionIndex === selectedIndex && (selectedItem?.actions?.length || 0) > 0"
@@ -27,6 +31,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import ResultItem from '@/components/ResultItem.vue';
 import ActionList, { type IActionItem } from '@/components/ActionList.vue';
+import VirtualList from '@/components/VirtualList.vue';
 import ResultItemPreview from '@/components/ResultItemPreview.vue';
 import { curry } from 'ramda';
 import { isKeyPressed } from '@/utils/keyboard';
