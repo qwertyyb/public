@@ -66,7 +66,7 @@ export interface IPluginManager {
 
   updatePluginsSettings: (value: IPluginsSettings) => void
 
-  handleQuery: (keyword: string) => IPluginCommand[],
+  handleQuery: (keyword: string) => Promise<IPluginCommand[]>,
   handleEnter: (command: IPluginCommand) => void,
   handleAction: (command: IPluginCommand, action: IActionItem, keyword: string) => void,
   handleSelect: (command: IPluginCommand, keyword: string) => string | HTMLElement | Promise<string | HTMLElement | undefined> | undefined,
@@ -85,11 +85,5 @@ declare global {
 
   interface WindowEventMap {
     'publicApp.shortcuts': CustomEvent<{ shortcuts: string }>,
-    'publicApp.showToast': CustomEvent<{ options: {
-      title?: string;
-      icon?: "success" | "error" | "loading" | "none";
-      image?: string;
-      duration?: number;
-    } }>
   }
 }

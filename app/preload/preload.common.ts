@@ -79,7 +79,6 @@ const createCommonAPI = (): IPublicApp => ({
 
   enter: (name: string, item: IPluginCommand, options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }, query?: string) => enterPlugin(name, item, options, query),
   exit: () => {
-    window.dispatchEvent(new CustomEvent('command.exit'))
     return exitPlugin()
   },
 
@@ -96,7 +95,15 @@ const createCommonAPI = (): IPublicApp => ({
     image?: string,
     duration?: number
   }) {
-    window.dispatchEvent(new CustomEvent('publicApp.showToast', { detail: { options }}))
+    const toast = document.createElement('div')
+    toast.classList.add('toast')
+    toast.textContent = options.title || ''
+    toast.style.cssText = 'position:fixed;left:50%;bottom:10vh;transform:translateX(-50%);background:rgba(0,0,0,8);color:#fff;padding:6px 12px;border-radius:4px;z-index:999';
+    document.body.appendChild(toast)
+
+    setTimeout(() => {
+      toast.remove()
+    }, options.duration || 2500)
   },
   // showModal(options: Partial<{
   //   title: string,
@@ -111,20 +118,6 @@ const createCommonAPI = (): IPublicApp => ({
   // },
   // showLoading() {},
   // hideLoading() {}
-})
-
-window.addEventListener('publicApp.showToast', async (event) => {
-  const data = event.detail
-  console.log('showToast', data)
-  const toast = document.createElement('div')
-  toast.classList.add('toast')
-  toast.textContent = data.options.title || ''
-  toast.style.cssText = 'position:fixed;left:50%;bottom:10vh;transform:translateX(-50%);background:rgba(0,0,0,8);color:#fff;padding:6px 12px;border-radius:4px;z-index:999';
-  document.body.appendChild(toast)
-
-  setTimeout(() => {
-    toast.remove()
-  }, data.options.duration || 2500)
 })
 
 export default createCommonAPI

@@ -1,4 +1,5 @@
-import { protocol } from "electron"
+import { net, protocol } from "electron"
+import { pathToFileURL } from "url"
 import { getFileIcon } from '@public/osx-utils'
 
 export const registerIPublicProtocol = () => {
@@ -15,6 +16,10 @@ export const registerIPublicProtocol = () => {
           Date: new Date().toUTCString(),
         }
       })
+    }
+    if (request.method === 'GET' && host === 'public.qwertyyb.com' && pathname === '/local-file') {
+      const path = searchParams.get('path') || ''
+      return net.fetch(pathToFileURL(path).toString())
     }
     return new Response(null, {
       status: 400

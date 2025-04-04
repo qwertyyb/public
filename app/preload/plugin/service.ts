@@ -3,8 +3,6 @@ import { IActionItem, IFullPluginCommandMatch, IPluginCommand, IPluginCommandMat
 import { getConfig } from '../../config';
 import { getPlugins } from './manager';
 
-let pluginsSettings: Record<string, IPluginSettings> = {}
-
 const resultsMap = new WeakMap<IPluginCommand, { score: number, query: string, owner: IRunningPlugin }>()
 
 // 计算匹配分数，越大表示匹配度越高，最大为1
@@ -15,38 +13,27 @@ const calcScore = (query: string, target: string) => {
   return -1
 }
 
-export const handleQuery = (keyword: string) => {
-  const plugins = getPlugins()
-  plugins.forEach(plugin => {
-    try {
-      const disabled = plugin.settings?.disabled
-      !disabled && plugin.plugin?.onInput?.(keyword)
-    } catch (err) {
-      console.error(err)
-    }
-  })
+export const handleQuery = async (keyword: string) => {
+  let plugins = getPlugins()
+  await Promise.all(
+    [...plugins.values()].map(plugin => plugin.plugin?.onInput?.(keyword))
+  )
+  // 执行 onInput 后，可能会更新 commands，所以需要重新获取一下
+  plugins = getPlugins()
   let results: IPluginCommand[] = []
   plugins.forEach((plugin, name) => {
-    const pluginSettings = pluginsSettings[name]
-    console.log(name, pluginSettings, pluginSettings?.disabled)
-    if (pluginSettings?.disabled) {
-      return
-    }
-
     const { commands = [] } = plugins.get(name)!
     commands.forEach(command => {
       const { matches } = command
-      const settings = pluginSettings?.commands?.[command.name]
-      const disabled = settings?.disabled
-      if (disabled) return;
-      const alias = settings?.alias
-      if (alias && alias.includes(keyword)) {
-        const result = { ...command }
-        const score = 10 + calcScore(keyword, alias)
-        results.push(result)
-        resultsMap.set(result, { query: keyword, score, owner: plugin })
-        return
-      }
+      // const settings = pluginSettings?.commands?.[command.name]
+      // const alias = settings?.alias
+      // if (alias && alias.includes(keyword)) {
+      //   const result = { ...command }
+      //   const score = 10 + calcScore(keyword, alias)
+      //   results.push(result)
+      //   resultsMap.set(result, { query: keyword, score, owner: plugin })
+      //   return
+      // }
 
       const triggerMatch = matches.find(match => match.type === 'trigger') as ITriggerPluginCommandMatch | undefined
       if (triggerMatch) {

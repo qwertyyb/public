@@ -65,6 +65,7 @@ const calculatorPlugin: IPlugin = (utils) => {
     ) {
       if (Calculator.isValidInput(keyword)) {
         const result = Calculator.calculate(keyword)
+        console.log('keyword', result)
         utils.updateCommands([
           {
             name: "calculator",

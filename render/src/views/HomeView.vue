@@ -29,13 +29,13 @@ const keyword = ref('')
 const command = ref<IPluginCommand | null>(null)
 const commandAndKeyword = computed(() => ({ command: command.value, keyword: keyword.value }))
 
-watch(commandAndKeyword, ({ keyword: value }) => {
+watch(commandAndKeyword, async ({ keyword: value }) => {
   if (command.value) {
     window.publicApp?.inputBar.setValue(value)
     return
   }
   if (value) {
-    results.value = window.pluginManager?.handleQuery(value) || []
+    results.value = await window.pluginManager?.handleQuery(value) || []
   } else {
     results.value = []
   }
@@ -109,7 +109,6 @@ onMounted(() => {
   window.addEventListener('inputBar.setValue', setInputBarValue)
   window.addEventListener('inputBar.enter', enterSubInput)
   window.addEventListener('inputBar.disable', setInputBarDisable)
-  window.addEventListener('command.exit', exitCommand)
 })
 
 onBeforeUnmount(() => {
@@ -118,7 +117,6 @@ onBeforeUnmount(() => {
   window.removeEventListener('inputBar.setValue', setInputBarValue)
   window.removeEventListener('inputBar.enter', enterSubInput)
   window.removeEventListener('inputBar.disable', setInputBarDisable)
-  window.removeEventListener('command.exit', exitCommand)
 })
 </script>
 

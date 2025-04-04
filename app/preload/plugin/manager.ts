@@ -26,7 +26,7 @@ const joinPath = (relativePath: string, path: string) => {
   if (/^\w+:\/\//.test(relativePath)) {
     return relativePath
   }
-  return 'file://' + nodePath.join(path, relativePath)
+  return 'ipublic://public.qwertyyb.com/local-file?path=' + encodeURIComponent(nodePath.join(path, relativePath))
 }
 
 const checkCommand = (command: Partial<IPluginCommandConfig>) => {
@@ -53,7 +53,7 @@ const formatCommand = (command: IPluginCommandConfig, manifest: IPluginManifest,
     subtitle: command.subtitle ?? manifest.subtitle,
     icon: joinPath(command.icon ?? manifest.icon, pluginPath),
     mode: command.mode ?? 'none',
-    entry: command.entry ? joinPath(command.entry, pluginPath) : command.entry,
+    entry: command.entry ? nodePath.join(command.entry, pluginPath) : command.entry,
     preload: command.preload ? nodePath.join(pluginPath, command.preload) : command.preload,
   }
   const keywords: string[] = [item.name, item.title, item.subtitle || '', ...pinyin(item.title), ...pinyin(item.subtitle || '')].filter(Boolean)

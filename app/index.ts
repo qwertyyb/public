@@ -70,8 +70,8 @@ export class CoreApp {
     this.mainWindow = win
     const mainView = new WebContentsView({
       webPreferences: {
-        webSecurity: false,
-        allowRunningInsecureContent: false,
+        // webSecurity: false,
+        // allowRunningInsecureContent: false,
         spellcheck: false,
         devTools: true,
         preload: path.join(__dirname, './preload.main.js'),
