@@ -57,9 +57,14 @@ export interface IPublicApp {
 }
 
 export interface IPluginManager {
-  getPlugins: () => Map<string, IRunningPlugin>,
-  removePlugin: (name: string) => void,
-  addPlugin: (path: string) => void,
+  getPlugins: (options?: { includeDisabledPlugins?: boolean, includeDisabledCommand?: boolean }) => Map<string, IRunningPlugin>,
+  unregisterPlugin: (name: string) => void,
+  registerPlugin: (path: string) => void,
+
+  disablePlugin: (name: string, disabled: boolean) => void,
+  disablePluginCommand: (name: string, commandName: string, disabled: boolean) => void,
+
+  updatePluginsSettings: (value: IPluginsSettings) => void
 
   handleQuery: (keyword: string) => IPluginCommand[],
   handleEnter: (command: IPluginCommand) => void,
@@ -69,7 +74,6 @@ export interface IPluginManager {
   enterPluginCommand: (owner: IRunningPlugin, command: IPluginCommand, options?: {
     query: string;
   }) => void
-  updatePluginsSettings: (value: IPluginsSettings) => void
 }
 
 declare global {

@@ -57,11 +57,8 @@ defineEmits<{
   position: relative;
   cursor: pointer;
 }
-.resultItem:hover {
-  background-color: light-dark(#d6d6d6, #393939);
-}
-.resultItem.selected {
-  background-color: light-dark(#d1d1d1, #757373);
+.resultItem:hover, .resultItem.selected {
+  background-color: light-dark(rgba(0, 0, 0, 0.15), rgba(184, 184, 184, 0.3));
 }
 .itemImageWrapper {
   width: 36px;

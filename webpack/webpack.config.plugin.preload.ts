@@ -46,6 +46,15 @@ const config: (env: Record<string, string>, argv: Record<string, any>) => Promis
           test: /\.css$/i,
           use: ['style-loader', 'css-loader'],
         },
+        {
+          test: /\.(png|svg|jpg|jpeg|gif)$/i,
+          type: 'asset/resource',
+          generator: {
+            outputPath: (pathData: webpack.PathData, assetInfo: webpack.AssetInfo) => {
+              return pathData.runtime + '/dist/'
+            }
+          },
+        },
       ],
     }
   }

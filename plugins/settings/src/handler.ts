@@ -116,7 +116,7 @@ const initPlugins = async (settings: Settings) => {
   const plugins = settings.pluginsPathList || []
   return plugins.map((p: any) => {
     try {
-      window.pluginManager?.addPlugin(p.path)
+      window.pluginManager?.registerPlugin(p.path)
     } catch(err) {
       console.warn(err);
     }
@@ -157,11 +157,11 @@ const handlers = {
     registerLaunchAtLogin(args.settings)
   },
   async removePlugin(args: { path: string, name: string }) {
-    window.pluginManager?.removePlugin(args.name);
+    window.pluginManager?.unregisterPlugin(args.name);
     // await updatePluginsSettings()
   },
   async registerPlugin(args: { path: string }) {
-    window.pluginManager?.addPlugin(args.path)
+    window.pluginManager?.registerPlugin(args.path)
     // await updatePluginsSettings()
   },
   getPlugins() {

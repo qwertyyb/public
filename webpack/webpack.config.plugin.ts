@@ -46,6 +46,15 @@ const preloadConfig: (env: Record<string, string>, argv: Record<string, any>) =>
           test: /\.css$/i,
           use: ['style-loader', 'css-loader'],
         },
+        {
+          test: /\.(png|svg|jpg|jpeg|gif)$/i,
+          type: 'asset/resource',
+          generator: {
+            outputPath: (pathData: webpack.PathData, assetInfo: webpack.AssetInfo) => {
+              return pathData.runtime + '/dist/'
+            }
+          },
+        },
       ],
     }
   }
@@ -97,6 +106,10 @@ const indexConfig: (env: Record<string, string>, argv: Record<string, any>) => P
         {
           test: /\.css$/i,
           use: ['style-loader', 'css-loader']
+        },
+        {
+          test: /\.(png|svg|jpg|jpeg|gif)$/i,
+          type: 'asset/resource',
         },
         // node 原生模块
         {

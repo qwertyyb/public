@@ -1,5 +1,7 @@
 import { clipboard } from "electron"
 import { IPluginCommandListView } from "packages/shared/types"
+import textImage from './text.png'
+import { join as pathJoin } from 'path'
 
 const queryRecordList = async ({ keyword = '' } = {}, { strict = false } = {}) => {
   const sql = `SELECT * FROM clipboardHistory where text like $keyword order by lastUseAt DESC limit 30`
@@ -19,7 +21,7 @@ const listView: IPluginCommandListView = {
         key: `plugin:clipboard:${item.text}`,
         title: item.text,
         subtitle,
-        icon: 'https://img.icons8.com/cute-clipart/64/000000/clipboard.png',
+        icon: 'file://' + pathJoin(__dirname, textImage),
         contentValue: item.text
       }
     })

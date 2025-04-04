@@ -1,5 +1,8 @@
 import { SSE } from 'sse.js'
-import { BOTID, TOKEN } from './const'
+// import { BOTID, TOKEN } from './const'
+
+const BOTID = 'chatgpt'
+const TOKEN = ''
 
 const crel = <K extends keyof HTMLElementTagNameMap>(tagName: K, attrs?: Partial<Omit<HTMLElementTagNameMap[K], 'style'>> & { style?: Partial<CSSStyleDeclaration> }, ...children: (string | HTMLElement)[]): HTMLElementTagNameMap[K] => {
   const el = document.createElement(tagName)
