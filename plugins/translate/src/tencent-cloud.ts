@@ -84,16 +84,16 @@ async function request(options: {
       "X-TC-Region": region,
     }
 
-    const curlcmd = 'curl -X POST ' + "https://" + endpoint
-                           + ' -H "Authorization: ' + authorization + '"'
-                           + ' -H "Content-Type: application/json; charset=utf-8"'
-                           + ' -H "Host: ' + endpoint + '"'
-                           + ' -H "X-TC-Action: ' + action + '"'
-                           + ' -H "X-TC-Timestamp: ' + timestamp.toString() + '"'
-                           + ' -H "X-TC-Version: ' + version + '"'
-                           + ' -H "X-TC-Region: ' + region + '"'
-                           + " -d '" + payload + "'"
-    console.log(curlcmd, headers)
+    // const curlcmd = 'curl -X POST ' + "https://" + endpoint
+    //                        + ' -H "Authorization: ' + authorization + '"'
+    //                        + ' -H "Content-Type: application/json; charset=utf-8"'
+    //                        + ' -H "Host: ' + endpoint + '"'
+    //                        + ' -H "X-TC-Action: ' + action + '"'
+    //                        + ' -H "X-TC-Timestamp: ' + timestamp.toString() + '"'
+    //                        + ' -H "X-TC-Version: ' + version + '"'
+    //                        + ' -H "X-TC-Region: ' + region + '"'
+    //                        + " -d '" + payload + "'"
+    // console.log(curlcmd, headers)
 
     const res = await window.publicApp.fetch(`https://${endpoint}`, {
       headers,

@@ -41,7 +41,7 @@ export interface IPublicApp {
   exit: (name?: string) => Promise<void>,
 
   utils: {
-    debounce: <F extends (...args: any[]) => any>(fn: F) => (...args: Parameters<F>) => void,
+    debounce: <F extends (...args: any[]) => any>(fn: F, delay = 200) => (...args: Parameters<F>) => void,
     getFrontmostApplication: () => Promise<Application | undefined | null>,
     getSelectedPath: ({ fallbackCurrent }?: { fallbackCurrent?: boolean | undefined }) => Promise<string[]>,
     getCurrentPath: () => Promise<string | undefined | null>,

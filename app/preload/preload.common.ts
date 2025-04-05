@@ -4,13 +4,13 @@ import * as utils from '../utils'
 
 import { hanziToPinyin, getFrontmostApplication, getSelectedPath, getCurrentPath } from '@public/osx-utils';
 
-const debounce = <F extends (...args: any[]) => any>(fn: F) => {
+const debounce = <F extends (...args: any[]) => any>(fn: F, delay = 200) => {
   let timeout: ReturnType<typeof setTimeout> | null = null
   return (...args: Parameters<F>) => {
     if (timeout) {
       clearTimeout(timeout)
     }
-    timeout = setTimeout(() => fn(...args), 200)
+    timeout = setTimeout(() => fn(...args), delay)
   }
 }
 

@@ -15,7 +15,7 @@
     "commands": [
       {
         "name": "youdao",
-        "title": "有道翻译",
+        "title": "翻译",
         "matches": [
           {
             "type": "text",
@@ -38,6 +38,10 @@
     ]
   },
   "dependencies": {
-    "@public/shared": "workspace:^"
+    "@public/shared": "workspace:^",
+    "md5": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/md5": "^2.3.5"
   }
 }
