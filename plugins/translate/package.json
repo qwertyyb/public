@@ -22,14 +22,16 @@
             "keywords": [
               "翻译",
               "translate",
-              "yd"
+              "ts"
             ]
           },
           {
             "type": "trigger",
             "triggers": [
-              "yd"
-            ]
+              "fy",
+              "ts"
+            ],
+            "title": "翻译“$query”..."
           }
         ],
         "mode": "listView",

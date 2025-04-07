@@ -9,16 +9,7 @@ import { type IPluginCommand } from '@public/shared'
 
 const config = getConfig()
 
-const removePluginView = (coreApp: CoreApp) => {
-  if (!coreApp.pluginView) return;
-  coreApp.pluginView.webContents.close()
-  coreApp.mainWindow?.contentView.removeChildView(coreApp.pluginView)
-  if (coreApp.pluginView) {
-    coreApp.pluginView = undefined
-  }
-}
-
-const setPluginView = (
+const setPluginView = async (
   coreApp: CoreApp,
   event: IpcMainEvent,
   args: {
@@ -28,7 +19,7 @@ const setPluginView = (
   }
 ) => {
   if (coreApp.pluginView) {
-    removePluginView(coreApp)
+    await coreApp.exitPlugin()
   }
   const { command, options } = args
   let entry = command.mode === 'listView' ? config.rendererEntry + '#/plugin/list-view' : options?.entry
@@ -126,11 +117,9 @@ export default (coreApp: CoreApp) => {
   })
 
   ipcMain.on('enter', (event, args: { command: IPluginCommand, query?: string, options?: Electron.WebContentsViewConstructorOptions & { entry?: string } }) => {
-    setPluginView(coreApp, event, args)
+    return setPluginView(coreApp, event, args)
   })
-  ipcMain.handle('exit', () => {
-    removePluginView(coreApp)
-  })
+  ipcMain.handle('exit', (event, options?: { clearMainInputValue: boolean }) => coreApp.exitPlugin(options))
 
   ipcMain.handle('contextmenu', event => {
     const menu = Menu.buildFromTemplate([

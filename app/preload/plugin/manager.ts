@@ -94,10 +94,10 @@ export const registerPlugin = async (pluginPath: string) => {
   try {
     const pkg = JSON.parse(await fs.promises.readFile(nodePath.join(pluginPath, './package.json'), { encoding: 'utf-8' }))
     const publicPlugin = pkg.publicPlugin
-    const { commands: _, ...rest } = publicPlugin;
+    const { commands: _, icon, ...rest } = publicPlugin;
     const entry = rest.entry || pkg.main
     const name = rest.name || pkg.name
-    const manifest: IPluginManifest = { name, ...rest, entry }
+    const manifest: IPluginManifest = { name, ...rest, entry, icon: icon ? joinPath(icon, pluginPath) : icon }
     checkManifest(manifest)
     const commands: IPluginCommand[] = (publicPlugin.commands || []).map((item: any) => formatCommand(item, manifest, pluginPath))
     const pluginInstance: IRunningPlugin = {

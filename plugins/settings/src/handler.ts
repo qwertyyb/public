@@ -60,15 +60,17 @@ const registerShortcuts = (settings: Settings) => {
 let clearIntervalTime: number = 0
 let timeout: ReturnType<typeof setTimeout> | null = null
 window.addEventListener('publicApp.mainWindow.hide', (event) => {
+  console.log('mainWindow hide', event)
   if (timeout) {
     clearTimeout(timeout)
     timeout = null
   }
   console.log('clearIntervalTime', clearIntervalTime)
   if (clearIntervalTime < 0) return
-  timeout = setTimeout(() => {
-    window.publicApp.exit()
-    window.publicApp.inputBar.setValue('')
+  timeout = setTimeout(async () => {
+    await window.publicApp.exit({
+      clearMainInputValue: true
+    })
   }, clearIntervalTime * 1000)
 })
 window.addEventListener('publicApp.mainWindow.show', () => {
@@ -165,7 +167,7 @@ const handlers = {
     // await updatePluginsSettings()
   },
   getPlugins() {
-    return JSON.parse(JSON.stringify(Array.from(window.pluginManager!.getPlugins().values())))
+    return JSON.parse(JSON.stringify(Array.from(window.pluginManager!.getPlugins({ includeDisabledPlugins: true, includeDisabledCommand: true }).values())))
   },
   getSettings() {
     return getSettings()

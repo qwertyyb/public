@@ -39,6 +39,7 @@ watch(commandAndKeyword, async ({ keyword: value }) => {
   } else {
     results.value = []
   }
+  console.log('commandAndKeyword changed', command.value, value, results.value)
 })
 
 const focusInput = () => {
@@ -83,10 +84,13 @@ const enterSubInput = (e: CustomEvent<{ name: string, query?: string, command: I
 
 const exitCommand = () => {
   if (!command.value) return
-  window.publicApp?.exit(command.value.name)
+  window.publicApp?.exit()
+}
+
+const commandExitedHandler = (event: CustomEvent<{ options: { clearMainInputValue?: boolean }}>) => {
   command.value = null
   inputDisable.value = false
-  keyword.value = preKeyword
+  keyword.value = event.detail?.options?.clearMainInputValue ? '' : preKeyword
   setTimeout(() => {
     focusInput()
   })
@@ -99,13 +103,15 @@ declare global {
     'plugin:showCommands': CustomEvent<{ name: string, commands: IPluginCommand[] }>;
     'inputBar.setValue': CustomEvent<{ value: string }>;
     'inputBar.enter': CustomEvent<{ name: string, query?: string, command: IPluginCommand }>,
-    'inputBar.disable': CustomEvent<{ disable: boolean }>
+    'inputBar.disable': CustomEvent<{ disable: boolean }>;
+    'publicApp.plugin.exited': CustomEvent<{ options: { clearMainInputValue?: boolean }}>;
   }
 }
 
 onMounted(() => {
   window.addEventListener('plugin:showCommands', setPluginResults)
   window.addEventListener('publicApp.mainWindow.show', focusInput)
+  window.addEventListener('publicApp.plugin.exited', commandExitedHandler)
   window.addEventListener('inputBar.setValue', setInputBarValue)
   window.addEventListener('inputBar.enter', enterSubInput)
   window.addEventListener('inputBar.disable', setInputBarDisable)
@@ -114,6 +120,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('plugin:showCommands', setPluginResults)
   window.removeEventListener('publicApp.mainWindow.show', focusInput)
+  window.removeEventListener('publicApp.plugin.exited', commandExitedHandler)
   window.removeEventListener('inputBar.setValue', setInputBarValue)
   window.removeEventListener('inputBar.enter', enterSubInput)
   window.removeEventListener('inputBar.disable', setInputBarDisable)

@@ -38,7 +38,7 @@ export interface IPublicApp {
   },
   fetch: (...args: Parameters<typeof fetch>) => Promise<{ status: number, ok: boolean, statusText: string, text: string, headers: Headers }>,
   enter: (name: string, item: IPluginCommand, args: any, query?: string) => Promise<PortBridge>,
-  exit: (name?: string) => Promise<void>,
+  exit: (options?: { clearMainInputValue: true }) => Promise<void>,
 
   utils: {
     debounce: <F extends (...args: any[]) => any>(fn: F, delay = 200) => (...args: Parameters<F>) => void,

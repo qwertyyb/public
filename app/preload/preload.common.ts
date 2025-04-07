@@ -38,9 +38,9 @@ const enterPlugin = (
   })
 }
 
-const exitPlugin = () => {
+const exitPlugin = (options?: { clearMainInputValue: boolean }) => {
   controlBridge = null
-  return ipcRenderer.invoke('exit')
+  return ipcRenderer.invoke('exit', options)
 }
 
 const createCommonAPI = (): IPublicApp => ({
@@ -78,9 +78,7 @@ const createCommonAPI = (): IPublicApp => ({
   fetch: (...args: Parameters<typeof fetch>) => ipcRenderer.invoke('fetch', ...args),
 
   enter: (name: string, item: IPluginCommand, options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }, query?: string) => enterPlugin(name, item, options, query),
-  exit: () => {
-    return exitPlugin()
-  },
+  exit: (options) => exitPlugin(options),
 
   utils: {
     debounce,

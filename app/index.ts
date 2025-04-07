@@ -123,15 +123,21 @@ export class CoreApp {
       this.mainView?.webContents.focus()
       this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.show'))`)
     })
-    if (!getConfig().isDev) {
-      this.mainWindow.on('blur', () => {
-        this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.blur'))`)
-      })
-    }
+    this.mainWindow.on('blur', () => {
+      this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.blur'))`)
+    })
   }
 
   private dispatchShortcutsEvent = (event: { shortcuts: string }) => {
     this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.shortcuts', { detail: ${JSON.stringify(event)} }))`)
+  }
+
+  public async exitPlugin(options?: { clearMainInputValue: boolean }) {
+    if (!this.pluginView) return;
+    this.pluginView.webContents.close()
+    this.mainWindow?.contentView.removeChildView(this.pluginView)
+    this.pluginView = undefined
+    await this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.plugin.exited', { detail: { options: ${JSON.stringify(options || {})} } }))`)
   }
 }
 
