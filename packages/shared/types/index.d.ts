@@ -48,6 +48,11 @@ export interface IPublicApp {
     hanziToPinyin: (hanzi: string) => string,
   },
 
+  shortcuts: {
+    register: (shortcuts: string, callback: () => void) => Promise<void>,
+    unregister: (shortcuts: string, callback: () => void) => Promise<void>
+  }
+
   showToast(options: {
     title?: string;
     icon?: "success" | "error" | "loading" | "none";

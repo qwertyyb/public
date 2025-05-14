@@ -6,6 +6,7 @@ import { getConfig } from './config';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import { type IPluginCommand } from '@public/shared'
+import { register, unregister } from './shortcuts';
 
 const config = getConfig()
 
@@ -114,6 +115,13 @@ export default (coreApp: CoreApp) => {
       headers
     }
     return result
+  })
+
+  ipcMain.handle('shortcuts.register', (event, shortcuts: string) => {
+    return register(shortcuts, () => { event.sender.send(`shortcuts.${shortcuts}`, shortcuts) })
+  })
+  ipcMain.handle('shortcuts.unregister', (event, shortcuts) => {
+    return unregister(shortcuts)
   })
 
   ipcMain.on('enter', (event, args: { command: IPluginCommand, query?: string, options?: Electron.WebContentsViewConstructorOptions & { entry?: string } }) => {

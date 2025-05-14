@@ -14,6 +14,10 @@ const debounce = <F extends (...args: any[]) => any>(fn: F, delay = 200) => {
   }
 }
 
+type EventCallback = (data?: Record<string, any>) => void
+
+const eventHandlers = new Map<string, EventCallback[]>()
+
 let controlBridge: PortBridge | null = null
 const enterPlugin = (
   name: string,
@@ -79,6 +83,19 @@ const createCommonAPI = (): IPublicApp => ({
 
   enter: (name: string, item: IPluginCommand, options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }, query?: string) => enterPlugin(name, item, options, query),
   exit: (options) => exitPlugin(options),
+  shortcuts: {
+    register: async (shortcuts: string, callback: () => void) => {
+      const success = await ipcRenderer.invoke('shortcuts.register', shortcuts)
+      if (!success) {
+        throw new Error('注册失败: ' + shortcuts)
+      }
+      ipcRenderer.on(`shortcuts.${shortcuts}`, callback)
+    },
+    unregister: async (shortcuts: string, callback: () => void) => {
+      ipcRenderer.off(`shortcuts.${shortcuts}`, callback)
+      await ipcRenderer.invoke('shortcuts.unregister', shortcuts)
+    }
+  },
 
   utils: {
     debounce,

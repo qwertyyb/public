@@ -23,38 +23,57 @@ const getDefaultSettings = () => {
 
 type Settings = ReturnType<typeof getDefaultSettings>
 
-let shortcutsData: Record<string, { pluginName?: string, commandName?: string }> = {}
+// let shortcutsData: Record<string, { pluginName?: string, commandName?: string }> = {}
 
-window.addEventListener('publicApp.shortcuts', (event: CustomEvent<{ shortcuts: string }>) => {
-  const { shortcuts } = event.detail;
-  const target = shortcutsData[shortcuts]
-  if (!target) return
-  window.publicApp.mainWindow.show()
-  if (!target.pluginName) return
-  const plugin = window.pluginManager?.getPlugins().get(target.pluginName)
-  const command = plugin?.commands.find(item => item.name === target.commandName)
-  if (plugin && command) {
-    window.pluginManager?.enterPluginCommand(plugin, command)
-  }
-})
+// window.addEventListener('publicApp.shortcuts', (event: CustomEvent<{ shortcuts: string }>) => {
+//   const { shortcuts } = event.detail;
+//   console.log(shortcutsData)
+//   const target = shortcutsData[shortcuts]
+//   if (!target) return
+//   window.publicApp.mainWindow.show()
+//   if (!target.pluginName) return
+//   const plugin = window.pluginManager?.getPlugins().get(target.pluginName)
+//   const command = plugin?.commands.find(item => item.name === target.commandName)
+//   if (plugin && command) {
+//     window.pluginManager?.enterPluginCommand(plugin, command)
+//   }
+// })
 
 const registerShortcuts = (settings: Settings) => {
   // 主快捷键
   const { shortcuts } = settings;
-  shortcutsData = {}
-  shortcutsData[shortcuts.split('+').sort().join('+')] = {}
-  // 命令快捷键
-  Object.entries(settings.pluginsSettings).forEach(([pluginName, pluginSetting]) => {
-    if (pluginSetting?.disabled) return
-    Object.entries(pluginSetting?.commands || {}).forEach(([commandName, commandSettings]) => {
+  window.publicApp.shortcuts.register('Meta+Space', () => window.publicApp.mainWindow.show())
+  Object.entries(settings.pluginsSettings).forEach(([pluginName, pluginSettings]) => {
+    if (pluginSettings?.disabled) return
+    Object.entries(pluginSettings?.commands || {}).forEach(([commandName, commandSettings]) => {
       if (commandSettings?.disabled) return
       const shortcuts = commandSettings?.shortcuts
-      if (shortcuts) {
-        shortcutsData[shortcuts.split('+').sort().join('+')] = { pluginName, commandName }
-      }
+      if (!shortcuts) return
+      window.publicApp.shortcuts.register(shortcuts, () => {
+        const plugin = window.pluginManager?.getPlugins().get(pluginName)
+        const command = plugin?.commands.find(item => item.name === commandName)
+        if (plugin && command) {
+          window.publicApp.mainWindow.show()
+          window.pluginManager?.enterPluginCommand(plugin, command)
+        }
+      })
     })
   })
-  console.log('shortcuts', shortcutsData)
+  
+  // shortcutsData = {}
+  // shortcutsData[shortcuts.split('+').sort().join('+')] = {}
+  // 命令快捷键
+  // Object.entries(settings.pluginsSettings).forEach(([pluginName, pluginSetting]) => {
+  //   if (pluginSetting?.disabled) return
+  //   Object.entries(pluginSetting?.commands || {}).forEach(([commandName, commandSettings]) => {
+  //     if (commandSettings?.disabled) return
+  //     const shortcuts = commandSettings?.shortcuts
+  //     if (shortcuts) {
+  //       shortcutsData[shortcuts.split('+').sort().join('+')] = { pluginName, commandName }
+  //     }
+  //   })
+  // })
+  // console.log('shortcuts', shortcutsData)
 }
 
 let clearIntervalTime: number = 0

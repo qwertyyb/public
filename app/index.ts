@@ -5,7 +5,6 @@ import initIpc from './ipc'
 import initTray from './controller/trayController'
 import db from './controller/storageController'
 import { getConfig } from './config';
-import * as shortcuts from './shortcuts';
 import { registerIPublicProtocol } from './protocol';
 require('@electron/remote/main').initialize();
 
@@ -40,10 +39,6 @@ export class CoreApp {
     this.electronApp.on('window-all-closed', () => {
       this.electronApp.quit();
     });
-
-    shortcuts.on('shortcuts', (event: { shortcuts: string }) => {
-      this.dispatchShortcutsEvent(event)
-    })
   }
 
   private createMainWindow() {
