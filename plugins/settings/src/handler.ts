@@ -42,7 +42,7 @@ type Settings = ReturnType<typeof getDefaultSettings>
 const registerShortcuts = (settings: Settings) => {
   // 主快捷键
   const { shortcuts } = settings;
-  window.publicApp.shortcuts.register('Meta+Space', () => window.publicApp.mainWindow.show())
+  window.publicApp.shortcuts.register(shortcuts, () => window.publicApp.mainWindow.show())
   Object.entries(settings.pluginsSettings).forEach(([pluginName, pluginSettings]) => {
     if (pluginSettings?.disabled) return
     Object.entries(pluginSettings?.commands || {}).forEach(([commandName, commandSettings]) => {

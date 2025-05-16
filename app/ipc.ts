@@ -118,7 +118,9 @@ export default (coreApp: CoreApp) => {
   })
 
   ipcMain.handle('shortcuts.register', (event, shortcuts: string) => {
-    return register(shortcuts, () => { event.sender.send(`shortcuts.${shortcuts}`, shortcuts) })
+    return register(shortcuts, () => {
+      event.sender.send(`shortcuts.${shortcuts}`, shortcuts)
+    })
   })
   ipcMain.handle('shortcuts.unregister', (event, shortcuts) => {
     return unregister(shortcuts)

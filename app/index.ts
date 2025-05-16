@@ -118,9 +118,9 @@ export class CoreApp {
       this.mainView?.webContents.focus()
       this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.show'))`)
     })
-    this.mainWindow.on('blur', () => {
-      this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.blur'))`)
-    })
+    // this.mainWindow.on('blur', () => {
+    //   this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.blur'))`)
+    // })
   }
 
   private dispatchShortcutsEvent = (event: { shortcuts: string }) => {
