@@ -112,7 +112,7 @@ const keydownHandler = (e: KeyboardEvent) => {
     selectedIndex.value = (Math.min(selectedIndex.value + 1, props.results.length - 1))
     e.stopPropagation()
     e.preventDefault()
-  } else if (checkKey('Shift+Enter') || checkKey('ArrowRight')) {
+  } else if (checkKey('Shift+Enter')) {
     e.stopPropagation()
     e.preventDefault()
     visibleActionIndex.value = selectedIndex.value
