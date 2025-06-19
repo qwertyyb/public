@@ -55,7 +55,8 @@ const listView: IPluginCommandListView = {
       const response = await window.publicApp.fetch(`https://search.douban.com/movie/subject_search?search_text=${encodeURIComponent(keyword)}&cat=1002`)
       const domParser = new DOMParser()
       const doc = domParser.parseFromString(response.text, 'text/html')
-      const exec = new Function('const window = {};' + doc?.querySelector('#wrapper + script[src] + script')?.innerHTML + 'return window')
+      const script = Array.from(doc.querySelectorAll('script:not([src])')).find(s => /window\.__DATA__\s*=\s*/.test(s.innerHTML))
+      const exec = new Function('const window = {};' + script?.innerHTML + 'return window')
       const resp = exec();
       const list = resp.__DATA__.items.filter((item: any) => item.tpl_name === 'search_subject').map((item: any) => {
         return {
