@@ -1,5 +1,5 @@
 import * as path from 'path'
-import { app, Tray, nativeImage, Menu } from 'electron'
+import { app, Tray, Menu } from 'electron'
 import { CoreApp } from '../index'
 
 const createTray = (coreApp: CoreApp) => {
@@ -31,19 +31,6 @@ const createTray = (coreApp: CoreApp) => {
       accelerator: 'Command+Q',
       click() {
         app.exit(0)
-      }
-    },
-    { type: 'separator' },
-    {
-      label: '切换开发者工具',
-      click: () => {
-        const webContents = coreApp.mainView?.webContents
-        const isOpened = webContents?.isDevToolsOpened()
-        console.log('devtools opened', isOpened)
-        if (isOpened) {
-          return webContents?.closeDevTools()
-        }
-        webContents?.openDevTools({ mode: 'undocked' })
       }
     },
   ])

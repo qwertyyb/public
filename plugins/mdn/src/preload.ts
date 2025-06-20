@@ -5,7 +5,7 @@ export default {
     url.searchParams.set('sort', 'best')
     url.searchParams.set('locale', 'zh-CN')
     const response = await window.publicApp.fetch(url.href)
-    const docs = (JSON.parse(response.text).documents || []).map((doc: { title: string, summary: string, mdn_url: string }) => ({
+    const docs = ((await response.json()).documents || []).map((doc: { title: string, summary: string, mdn_url: string }) => ({
       title: doc.title,
       subtitle: doc.summary,
       icon: 'https://developer.mozilla.org/apple-touch-icon.6803c6f0.png',

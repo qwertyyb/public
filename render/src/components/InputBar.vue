@@ -1,5 +1,5 @@
 <template>
-  <div class="inputBar" @click="inputEl?.focus()" tabindex="0">
+  <div class="inputBar" @pointerdown.capture="inputEl?.focus()" tabindex="0">
     <div class="inputBarWrapper">
       <div class="navBack material-symbols-outlined"
         v-if="command"
@@ -7,6 +7,7 @@
         arrow_back
       </div>
       <input type="text"
+        autofocus
         v-if="!disabled"
         class="input"
         placeholder="请搜索"

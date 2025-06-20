@@ -100,7 +100,7 @@ async function request(options: {
       "body": payload,
       "method": "POST"
     });
-    return res.text;
+    return res.json();
 }
 
 export const translate = async (text: string) => {

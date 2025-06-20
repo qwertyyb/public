@@ -1,23 +1,27 @@
 <template>
-  <main>
-    <div class="list-view">
-      <LoadingBar v-if="loading" />
-      <ResultView :results="results"
-        :preview="preview"
-        @select="onResultSelected"
-        @enter="onResultEnter"
-        @action="onResultAction"
-      ></ResultView>
-    </div>
-  </main>
+  <div class="list-view">
+    <InputBar v-model="keyword"
+      :command="command"
+      @exit="exitCommand"
+      :disabled="inputDisable"
+    />
+    <LoadingBar v-if="loading" />
+    <ResultView :results="results"
+      :preview="preview"
+      @select="onResultSelected"
+      @enter="onResultEnter"
+      @action="onResultAction"
+    ></ResultView>
+  </div>
 </template>
 
 <script setup lang="ts">
 import ResultView from '@/components/ResultView.vue';
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { type IListItem } from '@public/shared';
+import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
+import { type IListItem, type IPluginCommand } from '@public/shared';
 import LoadingBar from '@/components/LoadingBar.vue';
 import type { IActionItem } from '@/components/ActionList.vue';
+import InputBar from '@/components/InputBar.vue';
 
 declare global {
   interface WindowEventMap {
@@ -26,26 +30,29 @@ declare global {
   }
   interface Window {
     plugin?: {
-      search: (keyword: string, setList: (list: IListItem[]) => void) => void,
+      search?: (keyword: string, setList: (list: IListItem[]) => void) => void,
       select?: (item: IListItem, itemIndex: number, keyword: string) => Promise<string>,
       enter?: (item: IListItem, itemIndex: number, keyword: string) => void,
       action?: (item: IListItem, action: IActionItem, keyword: string) => void,
     },
     pluginData?: { list: IListItem[] },
-    launchParameter?: { query: string }
+    launchParameter?: { query: string, command: IPluginCommand }
   }
 }
 
 const results = ref<IListItem[]>([])
 const preview = ref<string | HTMLElement | undefined>('')
 const keyword = ref(window.launchParameter?.query ?? '')
+const command = shallowRef(window.launchParameter?.command)
+const inputDisable = !window.plugin?.search
 
 const loading = ref(false)
 
 watch(keyword, (value) => {
+  if (!window.plugin?.search) return;
   loading.value = true
   try {
-    window.plugin?.search(value, (list) => {
+    window.plugin?.search?.(value, (list) => {
       if (value !== keyword.value) return
       results.value = list
       loading.value = false
@@ -77,6 +84,10 @@ const setInputValue = (event: CustomEvent<{ value: string }>) => {
 
 const setPluginResults = (event: CustomEvent<{ list: IListItem[] }>) => {
   results.value = event.detail.list || []
+}
+
+const exitCommand = () => {
+  window.publicApp.exit()
 }
 
 onMounted(() => {

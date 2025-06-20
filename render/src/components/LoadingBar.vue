@@ -7,18 +7,12 @@
 <style lang="scss" scoped>
 .loadingBar {
   width: 100%;
-  height: 1px;
-  overflow: hidden;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1;
+  position: relative;
 }
 
 .loadingBarInner {
   width: 100%;
-  height: 100%;
+  height: 1px;
   background: linear-gradient(to right, transparent, #838383, transparent);
   position: absolute;
   top: 0;

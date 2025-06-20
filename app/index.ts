@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { app, BaseWindow, WebContentsView, type Tray } from "electron";
+import { app, BaseWindow, desktopCapturer, session, WebContentsView, type Tray } from "electron";
 import { autoUpdater } from "electron-updater"
 import initIpc from './ipc'
 import initTray from './controller/trayController'
@@ -16,14 +16,26 @@ export class CoreApp {
   readonly electronApp = app;
   readonly db = db;
   tray: Tray | null = null;
-  mainWindow?: BaseWindow;
-  mainView?: WebContentsView;
-  pluginView?: WebContentsView;
+  readonly mainWindow?: BaseWindow;
+  private mainView?: WebContentsView;
+  private pluginView?: WebContentsView;
   readonly updater = autoUpdater;
 
   constructor() {
     this.electronApp.whenReady().then(() => {
       this.createMainWindow();
+
+      session.defaultSession.setDisplayMediaRequestHandler((request, callback) => {
+        desktopCapturer.getSources({ types: ['screen'] }).then((sources) => {
+          console.log(request, sources)
+          // Grant access to the first screen found.
+          callback({ video: sources[0] })
+        })
+        // If true, use the system picker if available.
+        // Note: this is currently experimental. If the system picker
+        // is available, it will be used and the media request handler
+        // will not be invoked.
+      }, { useSystemPicker: true })
       
       this.electronApp.setAccessibilitySupportEnabled(true)
     
@@ -54,7 +66,6 @@ export class CoreApp {
       minimizable: false, 
       maximizable: false,
       frame: false,
-      // vibrancy: 'under-window',
       hiddenInMissionControl: true,
       skipTaskbar: true,
       roundedCorners: true,
@@ -62,18 +73,17 @@ export class CoreApp {
       vibrancy: 'popover',
       visualEffectState: 'followWindow',
     })
+    // @ts-ignore
     this.mainWindow = win
     const mainView = new WebContentsView({
       webPreferences: {
-        // webSecurity: false,
-        // allowRunningInsecureContent: false,
         spellcheck: false,
         devTools: true,
         preload: path.join(__dirname, './preload.main.js'),
         contextIsolation: false,
         backgroundThrottling: false,
         sandbox: false,
-        transparent: true
+        transparent: true,
       }
     })
     this.mainView = mainView
@@ -83,29 +93,11 @@ export class CoreApp {
     this.sendWindowEventsToMainView()
     mainView.webContents.loadURL(config.rendererEntry)
 
-    this.sendInputEventToPluginView()
-
     mainView.webContents.on('context-menu', () => {
       mainView.webContents.openDevTools({ mode: 'detach' })
     })
 
     return win
-  }
-
-  private sendInputEventToPluginView() {
-    this.mainView?.webContents.on('before-input-event', (event, inputEvent) => {
-      const keys = {
-        ArrowUp: 'Up',
-        ArrowLeft: 'Left',
-        ArrowRight: 'Right',
-        ArrowDown: 'Down'
-      }
-      this.pluginView?.webContents.sendInputEvent({
-        type: inputEvent.type as 'keyDown' | 'keyUp',
-        keyCode: keys[inputEvent.key as keyof typeof keys] || inputEvent.key,
-        modifiers: inputEvent.modifiers as Electron.InputEvent['modifiers']
-      })
-    })
   }
 
   private sendWindowEventsToMainView() {
@@ -117,18 +109,36 @@ export class CoreApp {
       console.log('mainWindow show')
       this.mainView?.webContents.focus()
       this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.show'))`)
-    })
+    }) 
     // this.mainWindow.on('blur', () => {
     //   this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.blur'))`)
     // })
   }
 
-  private dispatchShortcutsEvent = (event: { shortcuts: string }) => {
-    this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.shortcuts', { detail: ${JSON.stringify(event)} }))`)
+  public async createPluginView(options: Electron.WebContentsViewConstructorOptions) {
+    if (this.pluginView) {
+      await this.destroyPluginView()
+    }
+    const view = new WebContentsView(options)
+    view.setVisible(false)
+    this.mainWindow?.contentView.addChildView(view)
+    view.setBounds({ x: 0, y: 0, width: config.windowWidth, height: config.windowHeight })
+    view.webContents.once('did-finish-load', () => {
+      this.mainView?.setVisible(false)
+      view.setVisible(true)
+      view.webContents.focus()
+    })
+    view.webContents.on('context-menu', () => {
+      view.webContents.openDevTools({ mode: 'detach' })
+    })
+    this.pluginView = view
+    return view
   }
 
-  public async exitPlugin(options?: { clearMainInputValue: boolean }) {
+  public async destroyPluginView(options?: { clearMainInputValue: boolean }) {
+    this.mainView?.setVisible(true)
     if (!this.pluginView) return;
+    this.mainView?.webContents.focus()
     this.pluginView.webContents.close()
     this.mainWindow?.contentView.removeChildView(this.pluginView)
     this.pluginView = undefined

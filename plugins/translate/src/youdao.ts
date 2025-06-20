@@ -59,7 +59,7 @@ export const translate = async (text: string) => {
     "body": new URLSearchParams(bodyJson).toString(),
     "method": "POST"
   });
-  const resBase64 = res.text;
+  const resBase64 = await res.text();
   const key = Buffer.from("08149da73c59ce62555b01e92f34e838", "hex")
   const iv = Buffer.from("d2bb1bfde83b38c344366357b79cae1c", "hex");
   // @ts-ignore

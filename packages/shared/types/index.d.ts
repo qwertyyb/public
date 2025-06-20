@@ -36,7 +36,7 @@ export interface IPublicApp {
     drag: (point: {x: number, y: number}) => Promise<void>,
     scroll: (point: {x?: number, y?: number}) => Promise<void>
   },
-  fetch: (...args: Parameters<typeof fetch>) => Promise<{ status: number, ok: boolean, statusText: string, text: string, headers: Headers }>,
+  fetch: (...args: Parameters<typeof fetch>) => Promise<Response>,
   enter: (name: string, item: IPluginCommand, args: any, query?: string) => Promise<PortBridge>,
   exit: (options?: { clearMainInputValue: true }) => Promise<void>,
 

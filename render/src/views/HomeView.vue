@@ -1,12 +1,7 @@
 <template>
   <div class="home-view">
-    <InputBar v-model="keyword"
-      :command="command"
-      @exit="exitCommand"
-      :disabled="inputDisable"
-    />
+    <InputBar v-model="keyword" />
     <ResultView :results="results"
-      v-if="!command"
       :preview="preview"
       @select="onResultSelected"
       @enter="onResultEnter"
@@ -19,27 +14,19 @@
 import InputBar from '@/components/InputBar.vue';
 import ResultView from '@/components/ResultView.vue';
 import { type IActionItem, type IPluginCommand } from '@public/shared';
+import * as service from '@/services'
 import { onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue';
-import { computed } from 'vue';
 
 const results = ref<IPluginCommand[]>([])
 const preview = ref<string | HTMLElement | undefined>('')
-const inputDisable = ref(false)
 const keyword = ref('')
-const command = ref<IPluginCommand | null>(null)
-const commandAndKeyword = computed(() => ({ command: command.value, keyword: keyword.value }))
 
-watch(commandAndKeyword, async ({ keyword: value }) => {
-  if (command.value) {
-    window.publicApp?.inputBar.setValue(value)
-    return
-  }
+watch(keyword, async (value) => {
   if (value) {
     results.value = await window.pluginManager?.handleQuery(value) || []
   } else {
     results.value = []
   }
-  console.log('commandAndKeyword changed', command.value, value, results.value)
 })
 
 const focusInput = () => {
@@ -48,22 +35,15 @@ const focusInput = () => {
 }
 
 const onResultEnter = (item: IPluginCommand | null, itemIndex: number) => {
-  if (command.value) return
-  window.pluginManager?.handleEnter(toRaw(results.value[itemIndex]))
+  service.enter(toRaw(results.value[itemIndex]), keyword.value)
 }
 
 const onResultSelected = async (item: IPluginCommand | null, itemIndex: number) => {
-  if (command.value) return
-  preview.value = await window.pluginManager?.handleSelect(toRaw(results.value[itemIndex]), keyword.value)
+  preview.value = await service.select(toRaw(results.value[itemIndex]), keyword.value)
 }
 
 const onResultAction = async (item: IPluginCommand, itemIndex: number, action: IActionItem) => {
-  window.pluginManager?.handleAction(toRaw(item), toRaw(action), keyword.value)
-}
-
-const setInputBarValue = (event: CustomEvent<{ value: string }>) => {
-  const { value } = event.detail;
-  keyword.value = value
+  service.action(toRaw(item), toRaw(action), keyword.value)
 }
 
 const setPluginResults = (e: CustomEvent<{ commands: IPluginCommand[] }>) => {
@@ -71,59 +51,21 @@ const setPluginResults = (e: CustomEvent<{ commands: IPluginCommand[] }>) => {
   results.value = commands
 }
 
-const setInputBarDisable = (e: CustomEvent<{ disable: boolean }>) => {
-  inputDisable.value = e.detail.disable
-}
-
-let preKeyword = ''
-const enterSubInput = (e: CustomEvent<{ name: string, query?: string, command: IPluginCommand }>) => {
-  preKeyword = keyword.value
-  keyword.value = e.detail.query ?? ''
-  command.value = e.detail.command
-}
-
-const exitCommand = () => {
-  if (!command.value) return
-  window.publicApp?.exit()
-}
-
-const commandExitedHandler = (event: CustomEvent<{ options: { clearMainInputValue?: boolean }}>) => {
-  command.value = null
-  inputDisable.value = false
-  keyword.value = event.detail?.options?.clearMainInputValue ? '' : preKeyword
-  setTimeout(() => {
-    focusInput()
-  })
-}
-
-
 declare global {
   interface WindowEventMap {
     'publicApp.mainWindow.show': CustomEvent<{}>;
     'plugin:showCommands': CustomEvent<{ name: string, commands: IPluginCommand[] }>;
-    'inputBar.setValue': CustomEvent<{ value: string }>;
-    'inputBar.enter': CustomEvent<{ name: string, query?: string, command: IPluginCommand }>,
-    'inputBar.disable': CustomEvent<{ disable: boolean }>;
-    'publicApp.plugin.exited': CustomEvent<{ options: { clearMainInputValue?: boolean }}>;
   }
 }
 
 onMounted(() => {
   window.addEventListener('plugin:showCommands', setPluginResults)
   window.addEventListener('publicApp.mainWindow.show', focusInput)
-  window.addEventListener('publicApp.plugin.exited', commandExitedHandler)
-  window.addEventListener('inputBar.setValue', setInputBarValue)
-  window.addEventListener('inputBar.enter', enterSubInput)
-  window.addEventListener('inputBar.disable', setInputBarDisable)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('plugin:showCommands', setPluginResults)
   window.removeEventListener('publicApp.mainWindow.show', focusInput)
-  window.removeEventListener('publicApp.plugin.exited', commandExitedHandler)
-  window.removeEventListener('inputBar.setValue', setInputBarValue)
-  window.removeEventListener('inputBar.enter', enterSubInput)
-  window.removeEventListener('inputBar.disable', setInputBarDisable)
 })
 </script>
 

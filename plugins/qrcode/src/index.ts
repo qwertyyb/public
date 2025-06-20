@@ -20,6 +20,8 @@ const detectWithOpencv = (() => {
       wr = new opencv.wechat_qrcode_WeChatQRCode("wechat_qrcode/detect.prototxt", "wechat_qrcode/detect.caffemodel", "wechat_qrcode/sr.prototxt", "wechat_qrcode/sr.caffemodel")
     }
 
+    console.log(wr, opencv)
+
     const results = wr.detectAndDecode(opencv.matFromImageData(imgdata))
     if (results.size() < 1) {
       throw new Error('未识别到二维码')

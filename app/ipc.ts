@@ -19,13 +19,10 @@ const setPluginView = async (
     options?: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }
   }
 ) => {
-  if (coreApp.pluginView) {
-    await coreApp.exitPlugin()
-  }
   const { command, options } = args
   let entry = command.mode === 'listView' ? config.rendererEntry + '#/plugin/list-view' : options?.entry
   if (!entry) return;
-  const view = new WebContentsView({
+  const pluginViewOptions = {
     webPreferences: {
       transparent: true,
       nodeIntegration: true,
@@ -33,23 +30,18 @@ const setPluginView = async (
       preload: path.join(__dirname, './preload.plugin.js'),
       additionalArguments: [JSON.stringify(args)]
     },
-  })
-  coreApp.mainWindow?.contentView.addChildView(view)
-  view.setBounds({ x: 0, y: 48, width: 780, height: 54 * 9 })
+  }
+  const view = await coreApp.createPluginView(pluginViewOptions)
   const [port2, controlPort2] = event.ports
-  view.webContents.on('dom-ready', () => {
+  view.webContents.once('dom-ready', () => {
     controlPort2.postMessage({ type: 'event', eventName: 'ready' })
     view.webContents.postMessage('port', null, [port2, controlPort2])
-  })
-  view.webContents.on('context-menu', () => {
-    view.webContents.openDevTools({ mode: 'detach' })
   })
   if (entry.startsWith('http://') || entry.startsWith('file://')) {
     view.webContents.loadURL(entry)
   } else {
     view.webContents.loadFile(entry)
   }
-  coreApp.pluginView = view
 }
 
 export default (coreApp: CoreApp) => {
@@ -106,13 +98,15 @@ export default (coreApp: CoreApp) => {
     console.log('fetch', url, init)
     const response = await net.fetch(url, init)
     console.log('fetch response', response)
-    const headers = [...response.headers.entries()].reduce((acc, [name, value]) => ({ ...acc, [name]: value }), {} as Record<string, string>)
     const result = {
       status: response.status,
       ok: response.ok,
+      redirected: response.redirected,
       statusText: response.statusText,
-      text: await response.text(),
-      headers
+      type: response.type,
+      url: response.url,
+      headers: [...response.headers.entries()],
+      arrayBuffer: await response.arrayBuffer()
     }
     return result
   })
@@ -129,7 +123,7 @@ export default (coreApp: CoreApp) => {
   ipcMain.on('enter', (event, args: { command: IPluginCommand, query?: string, options?: Electron.WebContentsViewConstructorOptions & { entry?: string } }) => {
     return setPluginView(coreApp, event, args)
   })
-  ipcMain.handle('exit', (event, options?: { clearMainInputValue: boolean }) => coreApp.exitPlugin(options))
+  ipcMain.handle('exit', (event, options?: { clearMainInputValue: boolean }) => coreApp.destroyPluginView(options))
 
   ipcMain.handle('contextmenu', event => {
     const menu = Menu.buildFromTemplate([

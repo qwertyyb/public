@@ -16,14 +16,7 @@ const loadOpencv = () => {
 
 export const detectWithOpencv = (() => {
   let wr: any = null
-  return async (image: NativeImage) => {
-    const data = image.toBitmap();
-    const size = image.getSize();
-    
-    const imgdata = {
-      ...size,
-      data
-    }
+  return async (imgData: ImageData) => {
 
     let opencv: any
     if (!wr) {
@@ -31,7 +24,8 @@ export const detectWithOpencv = (() => {
       wr = new opencv.wechat_qrcode_WeChatQRCode("wechat_qrcode/detect.prototxt", "wechat_qrcode/detect.caffemodel", "wechat_qrcode/sr.prototxt", "wechat_qrcode/sr.caffemodel")
     }
 
-    const results = wr.detectAndDecode(opencv.matFromImageData(imgdata))
+    console.log(wr)
+    const results = wr.detectAndDecode(opencv.matFromImageData(imgData))
     if (results.size() < 1) {
       throw new Error('未识别到二维码')
     }

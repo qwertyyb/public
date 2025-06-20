@@ -33,9 +33,6 @@ const enterPlugin = (
   const { port1: controlPort1, port2: controlPort2 } = new MessageChannel()
   return new Promise<PortBridge>(resolve => {
     controlBridge = utils.createBridge(controlPort1)
-    controlBridge?.handle('inputBar.disable', ({ disable }) => {
-      window.dispatchEvent(new CustomEvent('inputBar.disable', { detail: { disable } }))
-    })
     controlBridge?.once('ready', () => resolve(utils.createBridge(port1)))
     controlPort1.start()
     ipcRenderer.postMessage('enter', { command, options, query }, [port2, controlPort2])
@@ -78,9 +75,15 @@ const createCommonAPI = (): IPublicApp => ({
     release: (button: 'LEFT' | 'MIDDLE' | 'RIGHT') => ipcRenderer.invoke('mouse.release', button),
     drag: (point: {x: number, y: number}) => ipcRenderer.invoke('mouse.drag', point),
     scroll: (point: {x?: number, y?: number}) => ipcRenderer.invoke('mouse.scroll', point),
+  }, 
+  fetch: async (...args: Parameters<typeof fetch>) => {
+    const result = await ipcRenderer.invoke('fetch', ...args)
+    return new Response(result.arrayBuffer, {
+      status: result.status,
+      statusText: result.statusText,
+      headers: result.headers
+    });
   },
-  fetch: (...args: Parameters<typeof fetch>) => ipcRenderer.invoke('fetch', ...args),
-
   enter: (name: string, item: IPluginCommand, options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }, query?: string) => enterPlugin(name, item, options, query),
   exit: (options) => exitPlugin(options),
   shortcuts: {
@@ -120,19 +123,6 @@ const createCommonAPI = (): IPublicApp => ({
       toast.remove()
     }, options.duration || 2500)
   },
-  // showModal(options: Partial<{
-  //   title: string,
-  //   content: string,
-  //   showCancel: boolean,
-  //   cancelText: string,
-  //   confirmText: string,
-  //   cancelColor: string,
-  //   confirmColor: string,
-  // }>) {
-    
-  // },
-  // showLoading() {},
-  // hideLoading() {}
 })
 
 export default createCommonAPI

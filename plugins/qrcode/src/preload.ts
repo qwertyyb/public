@@ -17,22 +17,48 @@ const createClipboardItem = (text: string) => {
 }
 
 
-const detectClipboard = async () => {
-  const image: NativeImage = clipboard.readImage()
-  if (image.isEmpty()) return
-  const texts = await detectWithOpencv(image)
+// const detectClipboard = async () => {
+//   const image: NativeImage = clipboard.readImage()
+//   if (image.isEmpty()) return
+//   const data = image.toBitmap();
+//   const size = image.getSize();
+  
+//   const imgData: ImageData = {
+//     ...size,
+//     // @ts-ignore
+//     data
+//   }
+//   const texts = await detectWithOpencv(imgData)
+//   if (!texts?.length) return
+//   const list = texts.map(text => createClipboardItem(text))
+//   window.pluginService?.setList(list)
+// }
+
+const detectScreen = async () => {
+  await window.publicApp.mainWindow.hide()
+  const media = await navigator.mediaDevices.getDisplayMedia({ audio: false, video: true })
+  const video = document.createElement('video')
+  video.srcObject = media
+  video.play()
+  await new Promise(resolve => video.ontimeupdate = resolve)
+  const canvas = document.createElement('canvas')
+  canvas.width = video.videoWidth
+  canvas.height = video.videoHeight
+  const ctx = canvas.getContext('2d')!
+  ctx.drawImage(video, 0, 0)
+  media.getTracks().forEach(track => track.stop())
+  const imgData = ctx.getImageData(0, 0, video.videoWidth, video.videoHeight)
+  const texts = await detectWithOpencv(imgData)
   if (!texts?.length) return
   const list = texts.map(text => createClipboardItem(text))
   window.pluginService?.setList(list)
+  await window.publicApp.mainWindow.show()
 }
 
-detectClipboard()
+// detectClipboard()
+detectScreen()
 
 const detectCommand: IPluginCommandListView = {
-  // search: window.publicApp.utils.debounce(async (keyword, setList) => {
-  //   const list = await detectClipboard()
-  //   return setList(list)
-  // }),
   enter(item: any) {
     console.log('detect qrcode enter', item)
     clipboard.writeText(item.text)

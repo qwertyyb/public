@@ -24,7 +24,7 @@ export const translate = async (keyword: string) => {
   const response = await window.publicApp.fetch(apiUrl, {
     method: 'GET',
   })
-  const data = JSON.parse(response.text)
+  const data = await response.json()
   console.log('data', data)
   const { baesInfo: baseInfo } = data.message
   if (!baseInfo) {

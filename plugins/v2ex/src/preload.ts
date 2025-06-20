@@ -14,7 +14,7 @@ const getData = withCache(async (type: 'hot' | 'latest' = 'hot') => {
   const url = type === 'hot' ? 'https://www.v2ex.com/api/topics/hot.json?' + Date.now() : 'https://www.v2ex.com/api/topics/latest.json?' + Date.now()
   const response = await window.publicApp.fetch(url)
   console.log(response)
-  const list: { id: string, title: string, subtitle: string, icon: string }[] = JSON.parse(response.text).map((item: any) => ({
+  const list: { id: string, title: string, subtitle: string, icon: string }[] = (await response.json()).map((item: any) => ({
     id: item.id,
     title: item.title,
     subtitle: `${item.replies}/${item.node.title}/${item.content}`,

@@ -8,7 +8,7 @@ const createPreview = (item: { icon: string, title: string, subtitle: string, ur
   (async () => {
     const response = await window.publicApp.fetch(item.url)
     const domParser = new DOMParser()
-    const doc = domParser.parseFromString(response.text, 'text/html')
+    const doc = domParser.parseFromString(await response.text(), 'text/html')
     const poster = doc.querySelector<HTMLImageElement>('#mainpic img')?.src
     const title = doc.querySelector('h1 [property="v:itemreviewed"]')?.textContent
     const description = doc.querySelector('#link-report-intra [property="v:summary"]')?.innerHTML
@@ -54,7 +54,7 @@ const listView: IPluginCommandListView = {
       // @todo 豆瓣的接口缺少影片首字母查询的能力，为了更好的使用，后续需要使用这个能力
       const response = await window.publicApp.fetch(`https://search.douban.com/movie/subject_search?search_text=${encodeURIComponent(keyword)}&cat=1002`)
       const domParser = new DOMParser()
-      const doc = domParser.parseFromString(response.text, 'text/html')
+      const doc = domParser.parseFromString(await response.text(), 'text/html')
       const script = Array.from(doc.querySelectorAll('script:not([src])')).find(s => /window\.__DATA__\s*=\s*/.test(s.innerHTML))
       const exec = new Function('const window = {};' + script?.innerHTML + 'return window')
       const resp = exec();
