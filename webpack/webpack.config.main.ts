@@ -25,6 +25,24 @@ const config: webpack.Configuration = {
         use: 'ts-loader',
         exclude: /node_modules/,
       },
+      {
+        test: /\.js$/,
+        loader: 'string-replace-loader',
+        options: {
+          multiple: [
+             { search: 'require("bindings")("libnut")', replace: 'require("./build/Release/libnut.node")' },
+             { search: `require('bindings')('permissions.node')`, replace: `require('./build/Release/permissions.node')` },
+             {
+               search: `require('bindings')('better_sqlite3.node')`,
+               replace: `require('../build/Release/better_sqlite3.node')`
+             },
+             {
+               search: `require('node-gyp-build')((0, path_1.join)(__dirname, '..'))`,
+               replace: `require('../build/Release/uiohook_napi.node')`
+             }
+          ]
+        }
+      },
       // node 原生模块
       {
         test: /\.node$/,
