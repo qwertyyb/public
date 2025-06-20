@@ -40,6 +40,7 @@ const enterPlugin = (
 }
 
 const exitPlugin = (options?: { clearMainInputValue: boolean }) => {
+  console.log('exitPlugin')
   controlBridge = null
   return ipcRenderer.invoke('exit', options)
 }

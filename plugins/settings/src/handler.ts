@@ -85,7 +85,7 @@ window.addEventListener('publicApp.mainWindow.hide', (event) => {
     timeout = null
   }
   console.log('clearIntervalTime', clearIntervalTime)
-  if (clearIntervalTime < 0) return
+  if (clearIntervalTime <= 0) return
   timeout = setTimeout(async () => {
     await window.publicApp.exit({
       clearMainInputValue: true
@@ -149,8 +149,8 @@ const initPluginsSettings = async (pluginsSettings: IPluginsSettings) => {
 }
 
 const initSettings = async () => {
-  console.log('initSettings')
   const settings = await getSettings()
+  console.log('initSettings', settings)
   registerLaunchAtLogin(settings)
   registerShortcuts(settings)
   registerClearInterval(settings)

@@ -116,6 +116,7 @@ export class CoreApp {
   }
 
   public async createPluginView(options: Electron.WebContentsViewConstructorOptions) {
+    console.log('createPluginView', options)
     if (this.pluginView) {
       await this.destroyPluginView()
     }
@@ -136,6 +137,7 @@ export class CoreApp {
   }
 
   public async destroyPluginView(options?: { clearMainInputValue: boolean }) {
+    console.log('destroyPluginView', options)
     this.mainView?.setVisible(true)
     if (!this.pluginView) return;
     this.mainView?.webContents.focus()

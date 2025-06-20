@@ -50,6 +50,7 @@ const detectScreen = async (): Promise<string[]> => {
 const detect = async () => {
   await window.publicApp.mainWindow.hide()
   const texts = (await Promise.all([detectClipboard(), detectScreen()])).flat()
+  console.log('detect', texts)
   if (!texts?.length) {
     window.publicApp.showHUD('未检测到二维码')
     return;
