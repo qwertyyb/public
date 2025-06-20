@@ -24,10 +24,9 @@ export const detectWithOpencv = (() => {
       wr = new opencv.wechat_qrcode_WeChatQRCode("wechat_qrcode/detect.prototxt", "wechat_qrcode/detect.caffemodel", "wechat_qrcode/sr.prototxt", "wechat_qrcode/sr.caffemodel")
     }
 
-    console.log(wr)
     const results = wr.detectAndDecode(opencv.matFromImageData(imgData))
     if (results.size() < 1) {
-      throw new Error('未识别到二维码')
+      return []
     }
     let i = 0
     let arr = []
@@ -35,7 +34,6 @@ export const detectWithOpencv = (() => {
       arr.push(results.get(i++))
     }
     results.delete()
-    console.log(arr)
     return arr
   }
 })()

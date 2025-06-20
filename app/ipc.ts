@@ -7,6 +7,7 @@ import { execFile } from 'child_process';
 import { promisify } from 'util';
 import { type IPluginCommand } from '@public/shared'
 import { register, unregister } from './shortcuts';
+import { showHUD } from './hud';
 
 const config = getConfig()
 
@@ -111,6 +112,10 @@ export default (coreApp: CoreApp) => {
     return result
   })
 
+  ipcMain.handle('showHUD', async (event, title: string, options?: { duration: 1500 }) => {
+    return showHUD(title, options)
+  })
+
   ipcMain.handle('shortcuts.register', (event, shortcuts: string) => {
     return register(shortcuts, () => {
       event.sender.send(`shortcuts.${shortcuts}`, shortcuts)
@@ -124,16 +129,4 @@ export default (coreApp: CoreApp) => {
     return setPluginView(coreApp, event, args)
   })
   ipcMain.handle('exit', (event, options?: { clearMainInputValue: boolean }) => coreApp.destroyPluginView(options))
-
-  ipcMain.handle('contextmenu', event => {
-    const menu = Menu.buildFromTemplate([
-      { label: '打开开发者工具', role: 'toggleDevTools' }
-    ])
-    let focusedWindow = BrowserWindow.getFocusedWindow()
-    if (focusedWindow) {
-      menu.popup({
-        window: focusedWindow
-      })
-    }
-  })
 }

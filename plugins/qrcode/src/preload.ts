@@ -17,25 +17,21 @@ const createClipboardItem = (text: string) => {
 }
 
 
-// const detectClipboard = async () => {
-//   const image: NativeImage = clipboard.readImage()
-//   if (image.isEmpty()) return
-//   const data = image.toBitmap();
-//   const size = image.getSize();
+const detectClipboard = (): Promise<string[]> | string[] => {
+  const image: NativeImage = clipboard.readImage()
+  if (image.isEmpty()) return []
+  const data = image.toBitmap();
+  const size = image.getSize();
   
-//   const imgData: ImageData = {
-//     ...size,
-//     // @ts-ignore
-//     data
-//   }
-//   const texts = await detectWithOpencv(imgData)
-//   if (!texts?.length) return
-//   const list = texts.map(text => createClipboardItem(text))
-//   window.pluginService?.setList(list)
-// }
+  const imgData: ImageData = {
+    ...size,
+    // @ts-ignore
+    data
+  }
+  return detectWithOpencv(imgData)
+}
 
-const detectScreen = async () => {
-  await window.publicApp.mainWindow.hide()
+const detectScreen = async (): Promise<string[]> => {
   const media = await navigator.mediaDevices.getDisplayMedia({ audio: false, video: true })
   const video = document.createElement('video')
   video.srcObject = media
@@ -48,15 +44,22 @@ const detectScreen = async () => {
   ctx.drawImage(video, 0, 0)
   media.getTracks().forEach(track => track.stop())
   const imgData = ctx.getImageData(0, 0, video.videoWidth, video.videoHeight)
-  const texts = await detectWithOpencv(imgData)
-  if (!texts?.length) return
+  return detectWithOpencv(imgData)
+}
+
+const detect = async () => {
+  await window.publicApp.mainWindow.hide()
+  const texts = (await Promise.all([detectClipboard(), detectScreen()])).flat()
+  if (!texts?.length) {
+    window.publicApp.showHUD('未检测到二维码')
+    return;
+  }
   const list = texts.map(text => createClipboardItem(text))
   window.pluginService?.setList(list)
   await window.publicApp.mainWindow.show()
 }
 
-// detectClipboard()
-detectScreen()
+detect()
 
 const detectCommand: IPluginCommandListView = {
   enter(item: any) {

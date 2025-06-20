@@ -59,6 +59,8 @@ export interface IPublicApp {
     image?: string;
     duration?: number;
   }): void
+
+  showHUD(title: string, options?: { duration: number }): void
 }
 
 export interface IPluginManager {

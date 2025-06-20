@@ -123,6 +123,10 @@ const createCommonAPI = (): IPublicApp => ({
       toast.remove()
     }, options.duration || 2500)
   },
+
+  showHUD(title, options) {
+    ipcRenderer.invoke('showHUD', title, options)
+  },
 })
 
 export default createCommonAPI
