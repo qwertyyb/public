@@ -1,8 +1,8 @@
-import { net, protocol } from "electron"
+import { net, type Protocol } from "electron"
 import { pathToFileURL } from "url"
 import { getFileIcon } from '@public/osx-utils'
 
-export const registerIPublicProtocol = () => {
+export const registerIPublicProtocol = (protocol: Protocol) => {
   protocol.handle('ipublic', async (request) => {
     const { host, pathname, searchParams } = new URL(request.url)
     if (request.method === 'GET' && host === 'public.qwertyyb.com' && pathname === '/file-icon') {

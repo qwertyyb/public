@@ -1,11 +1,12 @@
 import * as path from 'path';
-import { app, BaseWindow, desktopCapturer, session, WebContentsView, type Tray } from "electron";
+import { app, BaseWindow, BrowserWindow, desktopCapturer, protocol, session, WebContentsView, type Tray } from "electron";
 import { autoUpdater } from "electron-updater"
 import initIpc from './ipc'
 import initTray from './controller/trayController'
 import db from './controller/storageController'
 import { getConfig } from './config';
 import { registerIPublicProtocol } from './protocol';
+import { pathToFileURL } from 'url';
 require('@electron/remote/main').initialize();
 
 const config = getConfig()
@@ -23,7 +24,8 @@ export class CoreApp {
 
   constructor() {
     this.electronApp.whenReady().then(() => {
-      this.createMainWindow();
+      this.initPluginSession()
+      this.createMainWindow()
 
       session.defaultSession.setDisplayMediaRequestHandler((request, callback) => {
         desktopCapturer.getSources({ types: ['screen'] }).then((sources) => {
@@ -45,12 +47,22 @@ export class CoreApp {
 
       initIpc(this)
 
-      registerIPublicProtocol()
+      registerIPublicProtocol(protocol)
     })
     
     this.electronApp.on('window-all-closed', () => {
-      this.electronApp.quit();
-    });
+      this.electronApp.quit()
+    })
+  }
+
+  private initPluginSession() {
+    const ses = session.fromPartition('plugin')
+    ses.registerPreloadScript({ type: 'frame', filePath: path.join(__dirname, './preload.plugin.js'), id: 'API' })
+    ses.protocol.handle('local', (request) => {
+      const filePath = request.url.slice('atom://'.length)
+      return ses.fetch(pathToFileURL(path.resolve(__dirname, filePath)).toString())
+    })
+    registerIPublicProtocol(ses.protocol)
   }
 
   private createMainWindow() {
@@ -69,7 +81,6 @@ export class CoreApp {
       hiddenInMissionControl: true,
       skipTaskbar: true,
       roundedCorners: true,
-      // backgroundColor: '#e5e8e8',
       vibrancy: 'popover',
       visualEffectState: 'followWindow',
     })
@@ -84,16 +95,16 @@ export class CoreApp {
         backgroundThrottling: false,
         sandbox: false,
         transparent: true,
+        webviewTag: true,
       }
     })
     this.mainView = mainView
     win.contentView.addChildView(mainView)
-    mainView.setBounds({ x: 0, y: 0, width: config.windowWidth, height: 600 })
+    mainView.setBounds({ x: 0, y: 0, width: config.windowWidth, height: config.windowHeight })
     require("@electron/remote/main").enable(mainView.webContents)
     this.sendWindowEventsToMainView()
     mainView.webContents.loadURL(config.rendererEntry)
-
-    mainView.webContents.on('context-menu', () => {
+     mainView.webContents.on('context-menu', () => {
       mainView.webContents.openDevTools({ mode: 'detach' })
     })
 

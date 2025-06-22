@@ -8,4 +8,13 @@ const dbPath = path.join(userDataPath, 'db.sqlite')
 console.log('dbPath', dbPath)
 const db = new Database(dbPath)
 
+const init = () => {
+  db.exec(`CREATE TABLE IF NOT EXISTS storage(
+    key TEXT UNIQUE NOT NULL,
+    value TEXT
+  )`)
+}
+
+init()
+
 export default db

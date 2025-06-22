@@ -2,9 +2,10 @@ import * as nodePath from 'path'
 import * as fs from 'fs'
 import { IActionItem, IFullPluginCommandMatch, IPlugin, IPluginCommand, IPluginCommandConfig, IPluginCommandMatch, IPluginManager, IPluginManifest, IPluginManifestConfig, IPluginReturn, IPluginSettings, IPluginsSettings, IRunningPlugin, ITextPluginCommandMatch, ITriggerPluginCommandMatch } from '@public/shared'
 import { hanziToPinyin, getFrontmostApplication } from '@public/osx-utils';
+import { getSettings } from './settings';
 
 const plugins: Map<string, IRunningPlugin> = new Map()
-let pluginsSettings: Record<string, IPluginSettings> = {}
+let pluginsSettings: IPluginsSettings = {}
 
 const resultsMap = new WeakMap<IPluginCommand, { score: number, query: string, owner: IRunningPlugin }>()
 
@@ -53,7 +54,7 @@ const formatCommand = (command: IPluginCommandConfig, manifest: IPluginManifest,
     subtitle: command.subtitle ?? manifest.subtitle,
     icon: joinPath(command.icon ?? manifest.icon, pluginPath),
     mode: command.mode ?? 'none',
-    entry: command.entry ? nodePath.join(command.entry, pluginPath) : command.entry,
+    entry: command.entry && !command.entry.startsWith('http://') && !command.entry.startsWith('https://') ? nodePath.join(command.entry, pluginPath) : command.entry,
     preload: command.preload ? nodePath.join(pluginPath, command.preload) : command.preload,
   }
   const keywords: string[] = [item.name, item.title, item.subtitle || '', ...pinyin(item.title), ...pinyin(item.subtitle || '')].filter(Boolean)
@@ -118,6 +119,9 @@ export const registerPlugin = async (pluginPath: string) => {
         },
         enter: (command, options) => {
           return window.publicApp!.enter(name, command, options)
+        },
+        getPreferences: () => {
+          return pluginsSettings[name]?.preferences || {}
         }
       }) as IPluginReturn
       pluginInstance.plugin = plugin
@@ -168,7 +172,7 @@ export const disablePlugin = (name: string, disabled: boolean) => {
     }
     return
   }
-  pluginsSettings[name].disabled = disabled
+  pluginsSettings[name]!.disabled = disabled
 }
 
 export const disablePluginCommand = (name: string, commandName: string, disabled: boolean) => {
@@ -213,6 +217,6 @@ export const disablePluginCommand = (name: string, commandName: string, disabled
 }
 
 
-export const updatePluginsSettings = (value: Record<string, IPluginSettings>) => {
+export const updatePluginsSettings = (value: IPluginsSettings) => {
   pluginsSettings = value
 }

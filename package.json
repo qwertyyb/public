@@ -28,7 +28,7 @@
     "release": "NODE_ENV=production && npm run build:render && npm run tsc && electron-builder --publish=always",
     "rebuild:uiohook-napi": "electron-rebuild --build-from-source -f -m ./node_modules/uiohook-napi",
     "rebuild:others": "electron-rebuild -f -w ./utils/osx-utils,./node_modules/better-sqlite3",
-    "postinstall": "npm run rebuild:uiohook-napi && npm run rebuild:others"
+    "postsssinstall": "npm run rebuild:uiohook-napi && npm run rebuild:others"
   },
   "nodemonConfig": {
     "watch": [
@@ -126,6 +126,7 @@
     "@public/osx-utils": "workspace:*",
     "@public/shared": "workspace:*",
     "better-sqlite3": "^11.8.1",
+    "run-applescript": "^7.0.0",
     "uiohook-napi": "^1.5.4"
   }
 }

@@ -24,11 +24,11 @@ const getData = withCache(async (type: 'hot' | 'latest' = 'hot') => {
   return list
 })
 
-getData(window.launchParameter.command.name as 'hot' | 'latest').then(list => {
+getData(new URL(location.href).searchParams.get('command') as 'hot' | 'latest').then(list => {
   window.pluginService?.setList(list)
 })
 
-export default {
+window.publicAppCommand = {
   enter(item: any) {
     require('electron').shell.openExternal(item.url)
   }

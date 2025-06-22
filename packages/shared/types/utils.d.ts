@@ -1,6 +1,6 @@
 export interface PortBridge {
   setPort(messagePort: MessagePort): void;
-  invoke(methodName, ...args: any[]): Promise<unknown>;
+  invoke<D extends any>(methodName, ...args: any[]): Promise<D>;
   handle<F extends (...args: any[]) => any>(methodName, callback: F): void;
   on: (event: string | symbol, listener: (...args: any[]) => void) => void;
   once: (event: string | symbol, listener: (...args: any[]) => void) => void;

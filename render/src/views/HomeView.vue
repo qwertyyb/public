@@ -1,11 +1,12 @@
 <template>
   <div class="home-view">
-    <InputBar v-model="keyword" />
+    <InputBar v-model="keyword" class="input-bar" />
     <ResultView :results="results"
       :preview="preview"
       @select="onResultSelected"
       @enter="onResultEnter"
       @action="onResultAction"
+      class="result-view"
     ></ResultView>
   </div>
 </template>

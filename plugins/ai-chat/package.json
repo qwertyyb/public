@@ -12,11 +12,32 @@
     "icon": "https://lf-coze-web-cdn.coze.cn/obj/coze-web-cn/obric/coze/favicon.1970.png",
     "title": "AI助手",
     "subtitle": "AI助手",
+    "preferences": [
+      {
+        "name": "baseURL",
+        "title": "baseURL",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "apiKey",
+        "title": "apiKey",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "model",
+        "title": "model",
+        "type": "text",
+        "required": true
+      }
+    ],
     "commands": [
       {
         "name": "ai-chat",
         "title": "AI助手",
-        "mode": "listView",
+        "mode": "view",
+        "entry": "http://localhost:4000/#/ai/chat",
         "matches": [
           {
             "type": "text",

@@ -1,4 +1,4 @@
-import { IActionItem, IPluginCommand, IRunningPlugin } from './plugin'
+import { IActionItem, IPluginCommand, IPluginCommandListView, IPluginsSettings, IRunningPlugin } from './plugin'
 import { PortBridge } from './utils'
 
 export * from './plugin'
@@ -17,8 +17,15 @@ export interface IPublicApp {
     show: () => Promise<void>,
     hide: () => Promise<void>,
   },
+  plugin: {
+    // 在插件内调用
+    exitCommand: () => void,
+  }
   inputBar: {
     setValue: (value: string) => void,
+    emitChange: (value: string) => void,
+    onChange: (callback: (keyword: string) => void) => void,
+    offChange: (callback: (keyword: string) => void) => void,
   },
   keyboard: {
     type: (...keys: string[]) => Promise<void>,
@@ -41,7 +48,7 @@ export interface IPublicApp {
   exit: (options?: { clearMainInputValue: true }) => Promise<void>,
 
   utils: {
-    debounce: <F extends (...args: any[]) => any>(fn: F, delay = 200) => (...args: Parameters<F>) => void,
+    debounce: <F extends ((...args: any[]) => any)>(fn: F, delay = 200) => (...args: Parameters<F>) => void,
     getFrontmostApplication: () => Promise<Application | undefined | null>,
     getSelectedPath: ({ fallbackCurrent }?: { fallbackCurrent?: boolean | undefined }) => Promise<string[]>,
     getCurrentPath: () => Promise<string | undefined | null>,
@@ -60,7 +67,15 @@ export interface IPublicApp {
     duration?: number;
   }): void
 
-  showHUD(title: string, options?: { duration: number }): void
+  showHUD(title: string, options?: { duration: number }): void,
+
+  storage: {
+    getItem: <T extends any>(key: string) => Promise<T | null>,
+    setItem: (key: string, value: any) => Promise<void>,
+  },
+
+  runAppleScript: (script: string) => Promise<string>,
+  runBashCommand: (command: string) => Promise<string>,
 }
 
 export interface IPluginManager {
@@ -83,11 +98,21 @@ export interface IPluginManager {
   }) => void
 }
 
+export interface ISettings {
+  launchAtLogin: boolean,
+  shortcuts: string,
+  clearTimeout: 90,
+  pluginsPathList: { path: string }[],
+  pluginsSettings: IPluginsSettings,
+}
+
 declare global {
   interface Window {
     pluginManager?: IPluginManager
 
     publicApp: IPublicApp
+
+    publicAppCommand?: IPluginCommandListView
   }
 
   interface WindowEventMap {

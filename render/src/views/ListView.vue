@@ -2,7 +2,7 @@
   <div class="list-view">
     <InputBar v-model="keyword"
       :command="command"
-      @exit="exitCommand"
+      @escape="exitCommand"
       :disabled="inputDisable"
     />
     <LoadingBar v-if="loading" />
@@ -29,12 +29,6 @@ declare global {
     'listchanged': CustomEvent<{ list: IListItem[] }>;
   }
   interface Window {
-    plugin?: {
-      search?: (keyword: string, setList: (list: IListItem[]) => void) => void,
-      select?: (item: IListItem, itemIndex: number, keyword: string) => Promise<string>,
-      enter?: (item: IListItem, itemIndex: number, keyword: string) => void,
-      action?: (item: IListItem, action: IActionItem, keyword: string) => void,
-    },
     pluginData?: { list: IListItem[] },
     launchParameter?: { query: string, command: IPluginCommand }
   }
@@ -44,15 +38,15 @@ const results = ref<IListItem[]>([])
 const preview = ref<string | HTMLElement | undefined>('')
 const keyword = ref(window.launchParameter?.query ?? '')
 const command = shallowRef(window.launchParameter?.command)
-const inputDisable = !window.plugin?.search
+const inputDisable = !window.publicAppCommand?.search
 
 const loading = ref(false)
 
 watch(keyword, (value) => {
-  if (!window.plugin?.search) return;
+  if (!window.publicAppCommand?.search) return;
   loading.value = true
   try {
-    window.plugin?.search?.(value, (list) => {
+    window.publicAppCommand?.search?.(value, (list) => {
       if (value !== keyword.value) return
       results.value = list
       loading.value = false
@@ -63,7 +57,7 @@ watch(keyword, (value) => {
 }, { immediate: true})
 
 const onResultEnter = (item: IListItem, itemIndex: number) => {
-  window.plugin?.enter?.(item, itemIndex, keyword.value)
+  window.publicAppCommand?.enter?.(item, itemIndex, keyword.value)
 }
 
 const onResultSelected = async (item: IListItem | null, itemIndex: number) => {
@@ -71,11 +65,11 @@ const onResultSelected = async (item: IListItem | null, itemIndex: number) => {
     preview.value = ''
     return
   }
-  preview.value = await window.plugin?.select?.(item, itemIndex, keyword.value)
+  preview.value = await window.publicAppCommand?.select?.(item, itemIndex, keyword.value)
 }
 
 const onResultAction = (item: IListItem, itemIndex: number, action: IActionItem) => {
-  window.plugin?.action?.(item, action, keyword.value)
+  // window.publicAppCommand?.action?.(item, action, keyword.value)
 }
 
 const setInputValue = (event: CustomEvent<{ value: string }>) => {
@@ -87,7 +81,7 @@ const setPluginResults = (event: CustomEvent<{ list: IListItem[] }>) => {
 }
 
 const exitCommand = () => {
-  window.publicApp.exit()
+  window.publicApp.plugin.exitCommand()
 }
 
 onMounted(() => {

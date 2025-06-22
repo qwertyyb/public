@@ -6,11 +6,6 @@ import { createBridge } from "./utils/index"
 declare global {
   interface Window {
     bridge?: PortBridge
-    launchParameter: {
-      command: IPluginCommand
-      query?: string
-      options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }
-    }
     pluginData: { list: IResultItem[] | null }
     plugin?: IPluginCommandListView
     pluginService?: {
@@ -18,14 +13,6 @@ declare global {
     }
   }
 }
-
-const parameters: {
-  command: IPluginCommand,
-  query?: string,
-  options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }
-} = JSON.parse(process.argv[process.argv.length - 1])
-
-window.launchParameter = parameters
 
 const initBridge = () => {
   const controlBridge = createBridge()
@@ -46,7 +33,9 @@ controlBridge.handle('setInputValue', async (data: { value: string }) => {
 })
 
 window.pluginData = { list: null }
-window.publicApp = createCommonAPI()
+window.publicApp = {
+  ...createCommonAPI(),
+}
 window.pluginService = {
   setList: (list) => {
     window.pluginData.list = list
@@ -54,16 +43,18 @@ window.pluginService = {
   }
 }
 
-const preload = parameters.options.preload
-if (preload) {
-  const plugin = __non_webpack_require__(preload)
+window.CSS.registerProperty({
+  name: '--nav-height',
+  syntax: '<length>',
+  inherits: true,
+  initialValue: '48px'
+})
 
-  window.plugin = plugin?.default || plugin
-  
-  if (!window.plugin?.search) {
-    // 没有 search 函数，禁用输入框
-    controlBridge.invoke('inputBar.disable', { disable: true })
-  }
-}
+window.CSS.registerProperty({
+  name: '--nav-width',
+  syntax: '<length>',
+  inherits: true,
+  initialValue: '48px'
+})
 
 window.bridge = pluginBridge

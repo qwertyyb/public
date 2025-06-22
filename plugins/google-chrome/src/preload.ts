@@ -5,9 +5,10 @@ const getOpenTabsWithCache = withCache(getOpenTabs)
 
 searchHistory()
 
-export default {
+window.publicAppCommand = {
   async search(keyword: string, setList: any) {
-    if (window.launchParameter.command.name === 'search-tab') {
+    const command = new URL(location.href).searchParams.get('command')
+    if (command === 'search-tab') {
       const tabs = await getOpenTabsWithCache()
       setList(tabs.filter(item => item.title.includes(keyword) || item.subtitle.includes(keyword)))
     } else {
@@ -16,7 +17,8 @@ export default {
     }
   },
   enter(item: any) {
-    if (window.launchParameter.command.name === 'search-tab') {
+    const command = new URL(location.href).searchParams.get('command')
+    if (command === 'search-tab') {
       activeTab(item as Tab)
     } else {
       require('electron').shell.openExternal(item.url)

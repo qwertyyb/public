@@ -70,4 +70,4 @@ const detectCommand: IPluginCommandListView = {
   }
 }
 
-export default detectCommand
+window.publicAppCommand = detectCommand

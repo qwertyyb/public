@@ -1,4 +1,4 @@
-import { IPluginsSettings, PortBridge } from '@public/shared'
+import { IPluginSettings, IPluginsSettings, PortBridge } from '@public/shared'
 import { queryRecord, updateRecord, createDatabase } from './storage'
 import * as path from 'path'
 
@@ -22,22 +22,6 @@ const getDefaultSettings = () => {
 }
 
 type Settings = ReturnType<typeof getDefaultSettings>
-
-// let shortcutsData: Record<string, { pluginName?: string, commandName?: string }> = {}
-
-// window.addEventListener('publicApp.shortcuts', (event: CustomEvent<{ shortcuts: string }>) => {
-//   const { shortcuts } = event.detail;
-//   console.log(shortcutsData)
-//   const target = shortcutsData[shortcuts]
-//   if (!target) return
-//   window.publicApp.mainWindow.show()
-//   if (!target.pluginName) return
-//   const plugin = window.pluginManager?.getPlugins().get(target.pluginName)
-//   const command = plugin?.commands.find(item => item.name === target.commandName)
-//   if (plugin && command) {
-//     window.pluginManager?.enterPluginCommand(plugin, command)
-//   }
-// })
 
 const registerShortcuts = (settings: Settings) => {
   // 主快捷键
@@ -158,15 +142,6 @@ const initSettings = async () => {
   initPluginsSettings(settings.pluginsSettings)
 }
 
-// const updatePluginsSettings = async () => {
-//   const pluginConfigs = JSON.parse(JSON.stringify(window.pluginManager.getPlugins()))
-//   const settings = await getSettings();
-
-//   settings.plugins = pluginConfigs
-
-//   return updateSettings(settings)
-// }
-
 const handlers = {
   async registerShortcuts(args: any) {
     console.log('register shortcuts', args)
@@ -194,6 +169,18 @@ const handlers = {
   async updateSettings(args: { settings: Settings }) {
     await updateSettings(args.settings)
     await initSettings()
+  },
+  getPlugin(name: string) {
+    return window.pluginManager?.getPlugins({ includeDisabledPlugins: true, includeDisabledCommand: true }).get(name)
+  },
+  async getPluginSettings(name: string) {
+    const settings = await getSettings()
+    return settings.pluginsSettings[name]
+  },
+  async updatePluginSettings(name: string, pluginSettings: IPluginSettings) {
+    const settings = await getSettings()
+    settings.pluginsSettings[name] = pluginSettings
+    await updateSettings(settings)
   }
 }
 

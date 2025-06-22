@@ -25,6 +25,7 @@ export type IPlugin = (utils: {
   updateCommands: (commands: IPluginCommandConfig[]) => void,
   showCommands: (commands: IPluginCommandConfig[]) => void,
   enter: (command: IPluginCommand, options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }) => Promise<PortBridge>,
+  getPreferences: () => any,
 }) => IPluginReturn
 
 export interface ITriggerPluginCommandMatch {
@@ -56,11 +57,24 @@ export interface IPluginCommandConfig extends IListItem, Record<string, any> {
 
 export type IPluginCommand = WithRequired<IPluginCommandConfig, 'name' | 'icon' | 'title' | 'mode' | 'matches'>
 
+export interface IPreference {
+  name: string
+  title: string
+  description?: string
+  type: 'text' | 'select',
+  required?: boolean,
+  default?: string | number | boolean,
+  placeholder?: string,
+
+  options?: { value: string | number | boolean, title: string }[]
+}
+
 export interface IPluginManifestConfig extends Required<IListItem> {
   name: string
   descript?: string,
   commands?: IPluginCommandConfig[]
   entry?: string,
+  preferences?: IPreference[]
 }
 
 export type IPluginManifest = WithRequired<IPluginCommandConfig, 'name' | 'icon' | 'title'> & {
@@ -92,7 +106,8 @@ export interface ICommandSettings {
 
 export interface IPluginSettings {
   disabled?: boolean,
-  commands: Record<string, ICommandSettings | undefined>
+  commands: Record<string, ICommandSettings | undefined>,
+  preferences?: Record<string, string | number | boolean>
 }
 
 export type IPluginsSettings = Record<string, IPluginSettings | undefined>

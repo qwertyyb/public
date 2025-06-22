@@ -1,5 +1,21 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { pluginViewState } from '@/state/plugin'
+import { onBeforeUnmount } from 'vue'
+import { RouterView, useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const toPluginView = (e: any) => {
+  pluginViewState.value = { ...e.detail }
+  router.push({ name: 'pluginView' })
+}
+
+window.addEventListener('enter-plugin-command', toPluginView)
+
+onBeforeUnmount(() => {
+  window.removeEventListener('enter-plugin-command', toPluginView)
+})
+
 </script>
 
 <template>

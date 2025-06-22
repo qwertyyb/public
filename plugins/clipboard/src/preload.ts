@@ -21,7 +21,7 @@ const listView: IPluginCommandListView = {
         key: `plugin:clipboard:${item.text}`,
         title: item.text,
         subtitle,
-        icon: 'file://' + pathJoin(__dirname, textImage),
+        icon: 'local://' + pathJoin(__dirname, textImage),
         contentValue: item.text
       }
     })
@@ -41,4 +41,6 @@ const listView: IPluginCommandListView = {
   }
 }
 
-export default listView
+window.publicAppCommand = listView
+
+console.log('ssssss', listView)

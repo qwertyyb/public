@@ -22,6 +22,28 @@ const router = createRouter({
           path: 'list-view',
           name: 'pluginListView',
           component: () => import('@/views/ListView.vue')
+        },
+        {
+          path: 'prfs/:name',
+          name: 'pluginPrfs',
+          props: true,
+          component: () => import('@/views/PluginPrfsView.vue')
+        },
+        {
+          path: 'view',
+          name: 'pluginView',
+          component: () => import('@/views/PluginView.vue')
+        }
+      ]
+    },
+    {
+      path: '/ai',
+      name: 'ai',
+      children: [
+        {
+          path: 'chat',
+          name: 'aiChat',
+          component: () => import('@/views/AIChatView.vue')
         }
       ]
     },

@@ -88,38 +88,41 @@ export const enterPluginCommand = (owner: IRunningPlugin, command: IPluginComman
     owner.plugin?.onEnter?.(command, query)
   } else if (command.mode === 'listView') {
     // js entry
-    window.publicApp?.enter(owner.manifest.name, command, {
-      entry: getConfig().rendererEntry + '#/plugin/list-view',
-      preload: command.preload || '',
-      webPreferences: {
-        nodeIntegration: true,
-        webSecurity: false,
-        allowRunningInsecureContent: false,
-        spellcheck: false,
-        devTools: true,
-        contextIsolation: false,
-        backgroundThrottling: false,
-        enablePreferredSizeMode: true,
-        sandbox: false,
-      }
-    }, query)
+    // window.publicApp?.enter(owner.manifest.name, command, {
+    //   entry: getConfig().rendererEntry + '#/plugin/list-view',
+    //   preload: command.preload || '',
+    //   webPreferences: {
+    //     nodeIntegration: true,
+    //     webSecurity: false,
+    //     allowRunningInsecureContent: false,
+    //     spellcheck: false,
+    //     devTools: true,
+    //     contextIsolation: false,
+    //     backgroundThrottling: false,
+    //     enablePreferredSizeMode: true,
+    //     sandbox: false,
+    //   }
+    // }, query)
+    window.dispatchEvent(new CustomEvent('enter-plugin-command', { detail: { plugin: owner, command, query } }))
   } else if (command.mode === 'view') {
+    console.log('command', command);
     // html entry
-    window.publicApp?.enter(owner.manifest.name, command, {
-      entry: command.entry,
-      preload: command.preload,
-      webPreferences: {
-        nodeIntegration: true,
-        webSecurity: false,
-        allowRunningInsecureContent: false,
-        spellcheck: false,
-        devTools: true,
-        contextIsolation: false,
-        backgroundThrottling: false,
-        enablePreferredSizeMode: true,
-        sandbox: false,
-      }
-    }, query)
+    window.dispatchEvent(new CustomEvent('enter-plugin-command', { detail: { plugin: owner, command, query } }))
+    // window.publicApp?.enter(owner.manifest.name, command, {
+    //   entry: command.entry,
+    //   preload: command.preload,
+    //   webPreferences: {
+    //     nodeIntegration: true,
+    //     webSecurity: false,
+    //     allowRunningInsecureContent: false,
+    //     spellcheck: false,
+    //     devTools: true,
+    //     contextIsolation: false,
+    //     backgroundThrottling: false,
+    //     enablePreferredSizeMode: true,
+    //     sandbox: false,
+    //   }
+    // }, query)
   }
 }
 

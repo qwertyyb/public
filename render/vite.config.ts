@@ -9,7 +9,13 @@ import ElementPlus from 'unplugin-element-plus/vite'
 export default defineConfig({
   base: './',
   plugins: [
-    vue(),
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => tag === 'webview'
+        }
+      }
+    }),
     vueJsx(),
     ElementPlus({
       // options
