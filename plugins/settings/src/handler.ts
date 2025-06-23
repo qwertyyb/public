@@ -1,4 +1,5 @@
-import { IPluginSettings, IPluginsSettings, PortBridge } from '@public/shared'
+import { IPluginSettings, IPluginsSettings, IWebview, IWebviewElement, PortBridge } from '@public/shared'
+import { createBridge } from '@public/utils'
 import { queryRecord, updateRecord, createDatabase } from './storage'
 import * as path from 'path'
 
@@ -184,10 +185,17 @@ const handlers = {
   }
 }
 
-const initHandler = (bridge: PortBridge) => {
-  Object.keys(handlers).forEach(name => {
-    bridge.handle(name, handlers[name as keyof typeof handlers])
-  })
+const initHandler = (webview: IWebview) => {
+  const bridge = createBridge(
+    (payload) => webview.send('bridgeMessage', payload),
+    (callback) => webview.addEventListener('ipc-message', (event) => {
+      if (event.channel === 'bridgeMessage') {
+        callback(event.args[0])
+      }
+    }),
+    handlers
+  )
+  return bridge
 }
 
 export { initHandler, initSettings }

@@ -1,10 +1,10 @@
 <template>
   <div class="plugin-prfs-view">
-    <header class="plugin-prfs-view-header flex items-center">
-      <div class="navBack material-symbols-outlined cursor-pointer"
-        @pointerdown="exitCommand">
-        arrow_back
-      </div>
+    <header class="prfs-header">
+      <img :src="manifest?.icon" alt="" class="prfs-image">
+      <h2 class="prfs-title">{{ manifest?.title }}</h2>
+      <p class="prfs-desc">{{ manifest?.descript }}</p>
+      <p class="fill-desc">为保障功能正常使用，请先填写配置信息</p>
     </header>
     <el-form class="prfs-form"
       label-position="top"
@@ -35,54 +35,67 @@
 </template>
 
 <script setup lang="ts">
-import { getPlugin, getPluginSettings, updatePluginSettings } from '@/services/manager';
-import type { IPluginManifest, IPluginSettings } from '@public/shared';
+import type { IPluginManifest } from '@public/shared';
 import { ElForm, ElFormItem, ElInput, ElSelect, ElOption } from 'element-plus';
-import { ref, shallowRef, toRaw, watch } from 'vue';
+import { nextTick, ref, shallowRef, toRaw, watch } from 'vue';
 
-const props = defineProps<{ name: string }>();
+const props = defineProps<{ plugin: string, command?: string }>();
 
 const manifest = shallowRef<Omit<IPluginManifest, 'commands'>>()
 
-let settings: IPluginSettings | null = null
 const formValue = ref<Record<string, any>>({})
 
 let inited = false
 watch(formValue, () => {
-  if (inited) {
-    updatePluginSettings(props.name, { ...settings!, preferences: toRaw(formValue.value) || {} })
+  if (!inited) return;
+  if (props.command) {
+    window.pluginManager?.updateCommandPreferences(props.plugin, props.command, toRaw(formValue.value))
+  } else {
+    window.pluginManager?.updatePluginPreferences(props.plugin, toRaw(formValue.value))
   }
 }, { deep: true })
 
-const refresh = () => {
-  getPlugin(props.name)?.then(plugin => {
-    console.log(props.name, plugin, props)
-    manifest.value = plugin.manifest
-  })
-  getPluginSettings(props.name)?.then(result => {
-    settings = { ...result }
-    formValue.value = result.preferences || {}
-    inited = true
-  })
+const refresh = async () => {
+  const plugin = window.pluginManager?.getPlugin(props.plugin)
+  if (!plugin) return;
+  manifest.value = plugin.manifest
+  formValue.value = plugin.settings?.preferences || {}
+  await nextTick()
+  inited = true
 }
 
 refresh()
-
-const exitCommand = () => {
-  window.publicApp.exit()
-}
 
 </script>
 
 <style lang="scss" scoped>
 .plugin-prfs-view {
-  padding: 0 16px;
+  padding: 48px 16px;
+
+  .prfs-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 24px;
+  }
+  .prfs-image {
+    width: 48px;
+    height: 48px;
+  }
+  .prfs-title {
+    margin-top: 16px;
+  }
+  .fill-desc {
+    opacity: 0.4;
+    font-size: 14px;
+  }
+
   .form-item-desc {
     opacity: 0.6;
     font-size: 13px;
   }
-}
-.plugin-prfs-view-header {
-  height: 48px;
+  :deep(.prfs-form-item) {
+    --el-fill-color-blank: none;
+  }
 }
 </style>

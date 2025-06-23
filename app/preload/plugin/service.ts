@@ -82,47 +82,43 @@ export const handleSelect = (command: IPluginCommand, keyword: string) => {
   return rp?.owner.plugin?.onSelect?.(command, rp.query)
 }
 
+const openPluginPreferences = (plugin: string) => {
+  return window.dispatchEvent(new CustomEvent('open-prfs-view', { detail: { plugin } }))
+}
+
+const openCommandPreferences = (plugin: string, command: string) => {
+  return window.dispatchEvent(new CustomEvent('open-prfs-view', { detail: { plugin, command } }))
+}
+
+const checkPreferences = (owner: IRunningPlugin, command: IPluginCommand) => {
+  // @todo 判断一下组件所需的首选项是否都已填写，如果都已填写，则直接执行，否则跳转去配置
+  // 首先需要判断插件层级的必须首选项是否已填写，再检查 command 层级的首选项
+  const requiredFields = owner.manifest.preferences?.filter(i => i.required) || []
+  const values = owner.settings?.preferences
+  const hasEmpty = requiredFields.some(item => !values?.[item.name] && values?.[item.name] !== 0)
+  if (hasEmpty) {
+    openPluginPreferences(owner.manifest.name)
+    throw new Error('缺少插件首选项')
+    return;
+  }
+  const cRequiredFileds = command.preferences?.filter(i => i.required) || []
+  const cValues = owner.settings?.commands[command.name]?.preferences || {}
+  const cHasEmpty = requiredFields.some(item => !cValues?.[item.name] && cValues?.[item.name] !== 0)
+  if (cHasEmpty) {
+    openCommandPreferences(owner.manifest.name, command.name)
+    throw new Error('缺少插件首选项')
+  }
+}
+
 export const enterPluginCommand = (owner: IRunningPlugin, command: IPluginCommand, options?: { query: string }) => {
   const query = options?.query || ''
+  // @todo 判断一下组件所需的首选项是否都已填写，如果都已填写，则直接执行，否则跳转去配置
+  // 首先需要判断插件层级的必须首选项是否已填写，再检查 command 层级的首选项
+  checkPreferences(owner, command)
   if (command.mode === 'none') {
     owner.plugin?.onEnter?.(command, query)
-  } else if (command.mode === 'listView') {
-    // js entry
-    // window.publicApp?.enter(owner.manifest.name, command, {
-    //   entry: getConfig().rendererEntry + '#/plugin/list-view',
-    //   preload: command.preload || '',
-    //   webPreferences: {
-    //     nodeIntegration: true,
-    //     webSecurity: false,
-    //     allowRunningInsecureContent: false,
-    //     spellcheck: false,
-    //     devTools: true,
-    //     contextIsolation: false,
-    //     backgroundThrottling: false,
-    //     enablePreferredSizeMode: true,
-    //     sandbox: false,
-    //   }
-    // }, query)
+  } else {
     window.dispatchEvent(new CustomEvent('enter-plugin-command', { detail: { plugin: owner, command, query } }))
-  } else if (command.mode === 'view') {
-    console.log('command', command);
-    // html entry
-    window.dispatchEvent(new CustomEvent('enter-plugin-command', { detail: { plugin: owner, command, query } }))
-    // window.publicApp?.enter(owner.manifest.name, command, {
-    //   entry: command.entry,
-    //   preload: command.preload,
-    //   webPreferences: {
-    //     nodeIntegration: true,
-    //     webSecurity: false,
-    //     allowRunningInsecureContent: false,
-    //     spellcheck: false,
-    //     devTools: true,
-    //     contextIsolation: false,
-    //     backgroundThrottling: false,
-    //     enablePreferredSizeMode: true,
-    //     sandbox: false,
-    //   }
-    // }, query)
   }
 }
 

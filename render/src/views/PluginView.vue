@@ -1,17 +1,10 @@
 <template>
   <section class="plugin-view">
-    <header class="plugin-view-header">
-      <div class="navBack material-symbols-outlined cursor-pointer"
-        @pointerdown="$router.back()">
-        arrow_back
-      </div>
-    </header>
     <main class="plugin-view-main">
-      <webview :src="entryUrl"
+      <webview
         class="plugin-view-webview"
         partition="plugin"
-        webpreferences="contextIsolation=no, sandbox=no"
-        :preload="preload"
+        v-bind="webviewProps"
       ></webview>
     </main>
   </section>
@@ -19,29 +12,45 @@
 
 <script setup lang="ts">
 import { pluginViewState as state } from '@/state/plugin';
+import type { IPluginCommand, IWebviewElement } from '@public/shared';
 import { computed, onBeforeUnmount, onMounted, type WebViewHTMLAttributes } from 'vue';
 import { useRouter } from 'vue-router';
 
-const entryUrl = computed(() => {
+const getEntryUrl = (command: IPluginCommand) => {
   let url: URL
-  if (state.value?.command.mode === 'listView') {
+  if (command.mode === 'listView') {
     url = new URL(location.href)
     url.hash = '#/plugin/list-view'
   } else {
-    url = new URL(state?.value?.command.entry || '', location.href);
+    url = new URL(command.entry || '', location.href);
   }
-  url.searchParams.set('command', state.value?.command.name || '');
-  url.searchParams.set('query', state.value?.command.query || '');
+  url.searchParams.set('command', command.name || '');
+  url.searchParams.set('query', command.query || '');
   return url.toString();
-})
+}
 
-const preload = computed(() => {
-  const origin = state.value?.command.preload
+const getPreload = (command: IPluginCommand) => {
+  if (!command.preload) return;
+  const origin = command.preload
   if (!origin) return origin
   return origin.startsWith('file://') ? origin : `file://${origin}`
+}
+
+
+const webviewProps = computed(() => {
+  if (!state.value) return {}
+  if ('callback' in state.value) {
+    return state.value.options
+  }
+  return {
+    src: getEntryUrl(state.value.command),
+    preload: getPreload(state.value.command),
+    partition: "plugin",
+    webpreferences: "contextIsolation=no, sandbox=no"
+  }
 })
 
-const getWebview = () => document.querySelector('.plugin-view-webview') as any
+const getWebview = () => document.querySelector<IWebviewElement>('webview.plugin-view-webview')
 
 const router = useRouter()
 
@@ -55,28 +64,21 @@ const messageHandler = (event: any) => {
 
 onMounted(() => {
   const webview = getWebview()
-  console.log(webview)
-  webview.focus()
-  webview.addEventListener('ipc-message', messageHandler)
+  if (webview && state.value && 'callback' in state.value) {
+    state.value.callback(webview)
+  }
+  webview?.focus()
+  webview?.addEventListener('ipc-message', messageHandler)
 })
 
 onBeforeUnmount(() => {
   const webview = getWebview()
-  webview.blur()
-  webview.removeEventListener('ipc-message', messageHandler)
+  webview?.blur()
+  webview?.removeEventListener('ipc-message', messageHandler)
 })
 </script>
 
 <style lang="scss" scoped>
-.plugin-view-header {
-  height: 48px;
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
 .plugin-view-main {
   height: 100vh;
 }

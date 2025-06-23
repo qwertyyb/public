@@ -1,9 +1,12 @@
 import { IActionItem, IPluginCommand, IPluginCommandListView, IPluginsSettings, IRunningPlugin } from './plugin'
 import { PortBridge } from './utils'
+import { IWebviewElement, IWebviewEventMap, IWebviewTagAttributes } from './webview'
 
 export * from './plugin'
 export * from './utils'
+export * from './webview'
 
+export interface IWebviewProps { src: string, preload?: string, nodeintegration?: boolean, nodeintegrationinsubframes?: boolean, httpreferrer?: string, useragent?: string, disablewebsecurity?: boolean, webpreferences?: string }
 export interface IPublicApp {
   db: {
     run: (sql: string, params?) => Promise<any>,
@@ -46,9 +49,13 @@ export interface IPublicApp {
   fetch: (...args: Parameters<typeof fetch>) => Promise<Response>,
   enter: (name: string, item: IPluginCommand, args: any, query?: string) => Promise<PortBridge>,
   exit: (options?: { clearMainInputValue: true }) => Promise<void>,
+  createView: (options?: IWebviewTagAttributes) => Promise<IWebviewElement>,
+  sendToHost: (channel: string, ...args: any[]) => void,
+  onHostMessage: (channel: string, callback: (...args: any[]) => void) => void,
+  offHostMessage: (channel: string, callback: (...args: any[]) => void) => void,
 
   utils: {
-    debounce: <F extends ((...args: any[]) => any)>(fn: F, delay = 200) => (...args: Parameters<F>) => void,
+    debounce: <F extends ((...args: any[]) => any)>(fn: F, delay?: number) => (...args: Parameters<F>) => void,
     getFrontmostApplication: () => Promise<Application | undefined | null>,
     getSelectedPath: ({ fallbackCurrent }?: { fallbackCurrent?: boolean | undefined }) => Promise<string[]>,
     getCurrentPath: () => Promise<string | undefined | null>,
@@ -80,6 +87,7 @@ export interface IPublicApp {
 
 export interface IPluginManager {
   getPlugins: (options?: { includeDisabledPlugins?: boolean, includeDisabledCommand?: boolean }) => Map<string, IRunningPlugin>,
+  getPlugin: (name: string) => IRunningPlugin | undefined
   unregisterPlugin: (name: string) => void,
   registerPlugin: (path: string) => void,
 
@@ -87,6 +95,8 @@ export interface IPluginManager {
   disablePluginCommand: (name: string, commandName: string, disabled: boolean) => void,
 
   updatePluginsSettings: (value: IPluginsSettings) => void
+  updatePluginPreferences: (name: string, prfs: Record<string, any>) => void
+  updateCommandPreferences: (pluginName: string, commandName: string, prfs: Record<string, any>) => void
 
   handleQuery: (keyword: string) => Promise<IPluginCommand[]>,
   handleEnter: (command: IPluginCommand) => void,

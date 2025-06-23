@@ -13,7 +13,7 @@
     "title": "剪切板",
     "subtitle": "剪切板历史",
     "icon": "./logo.png",
-    "entry": "./dist/index.js",
+    "main": "./dist/index.js",
     "commands": [
       {
         "name": "clipboard",

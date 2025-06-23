@@ -1,8 +1,12 @@
 import * as nodePath from 'path'
 import * as fs from 'fs'
+import Ajv from 'ajv';
+import schema from './manifest-schema.json' 
 import { IActionItem, IFullPluginCommandMatch, IPlugin, IPluginCommand, IPluginCommandConfig, IPluginCommandMatch, IPluginManager, IPluginManifest, IPluginManifestConfig, IPluginReturn, IPluginSettings, IPluginsSettings, IRunningPlugin, ITextPluginCommandMatch, ITriggerPluginCommandMatch } from '@public/shared'
 import { hanziToPinyin, getFrontmostApplication } from '@public/osx-utils';
-import { getSettings } from './settings';
+
+const ajv = new Ajv({ allowUnionTypes: true })
+const validate = ajv.compile(schema);
 
 const plugins: Map<string, IRunningPlugin> = new Map()
 let pluginsSettings: IPluginsSettings = {}
@@ -22,7 +26,7 @@ const pinyin = (text: string) => {
   return []
 }
 
-const joinPath = (relativePath: string, path: string) => {
+const joinPath = (relativePath: string | undefined, path: string) => {
   if (!relativePath) return relativePath
   if (/^\w+:\/\//.test(relativePath)) {
     return relativePath
@@ -30,31 +34,15 @@ const joinPath = (relativePath: string, path: string) => {
   return 'ipublic://public.qwertyyb.com/local-file?path=' + encodeURIComponent(nodePath.join(path, relativePath))
 }
 
-const checkCommand = (command: Partial<IPluginCommandConfig>) => {
-  const requireFields = ['name', 'title']
-  requireFields.forEach(name => {
-    if (!command[name]) {
-      throw new Error(`${name} is required: ` + JSON.stringify(command))
-    }
-  })
-  if (command.mode === 'listView' && !command.preload) {
-    throw new Error('listView mode command need preload property')
-  }
-  if (command.mode === 'view' && !command.entry) {
-    throw new Error('view mode command need entry property')
-  }
-}
-
 const formatCommand = (command: IPluginCommandConfig, manifest: IPluginManifest, pluginPath: string): IPluginCommand => {
-  checkCommand(command)
   const item = {
     ...command,
     name: command.name,
-    title: command.title ?? manifest.title,
-    subtitle: command.subtitle ?? manifest.subtitle,
-    icon: joinPath(command.icon ?? manifest.icon, pluginPath),
+    title: command.title,
+    subtitle: command.subtitle,
+    icon: joinPath(command.icon ?? manifest.icon, pluginPath)!,
     mode: command.mode ?? 'none',
-    entry: command.entry && !command.entry.startsWith('http://') && !command.entry.startsWith('https://') ? nodePath.join(command.entry, pluginPath) : command.entry,
+    entry: joinPath(command.entry, pluginPath),
     preload: command.preload ? nodePath.join(pluginPath, command.preload) : command.preload,
   }
   const keywords: string[] = [item.name, item.title, item.subtitle || '', ...pinyin(item.title), ...pinyin(item.subtitle || '')].filter(Boolean)
@@ -78,12 +66,14 @@ const checkPluginsRegistered = (path: string) => {
 }
 
 const checkManifest = (manifest: Partial<IPluginManifestConfig>) => {
-  const requireFields = ['name', 'title', 'icon']
-  requireFields.forEach(name => {
-    if (!manifest[name as keyof IPluginManifestConfig]) {
-      throw new Error(`${name} is required: ` + JSON.stringify(manifest))
-    }
-  })
+  if (validate(manifest)) return;
+
+  if (validate.errors?.length) {
+    const err = new Error('校验失败')
+    // @ts-ignore
+    err.errors = [...validate.errors]
+    throw err
+  }
 }
 
 export const registerPlugin = async (pluginPath: string) => {
@@ -96,18 +86,18 @@ export const registerPlugin = async (pluginPath: string) => {
     const pkg = JSON.parse(await fs.promises.readFile(nodePath.join(pluginPath, './package.json'), { encoding: 'utf-8' }))
     const publicPlugin = pkg.publicPlugin
     const { commands: _, icon, ...rest } = publicPlugin;
-    const entry = rest.entry || pkg.main
+    const main = rest.main || pkg.main
     const name = rest.name || pkg.name
-    const manifest: IPluginManifest = { name, ...rest, entry, icon: icon ? joinPath(icon, pluginPath) : icon }
+    const manifest: IPluginManifest = { name, ...rest, main, icon: icon ? joinPath(icon, pluginPath) : icon }
     checkManifest(manifest)
     const commands: IPluginCommand[] = (publicPlugin.commands || []).map((item: any) => formatCommand(item, manifest, pluginPath))
     const pluginInstance: IRunningPlugin = {
       manifest,
       path: pluginPath,
-      commands
+      commands,
     }
-    if (entry && !pluginsSettings?.[name]?.disabled) {
-      const entryPath = nodePath.join(pluginPath, entry)
+    if (main && !pluginsSettings?.[name]?.disabled) {
+      const entryPath = nodePath.join(pluginPath, main)
       const createPlugin = (__non_webpack_require__(entryPath).default || __non_webpack_require__(entryPath)) as IPlugin
       const plugin = createPlugin({
         updateCommands: (commands: IPluginCommandConfig[]) => {
@@ -219,4 +209,36 @@ export const disablePluginCommand = (name: string, commandName: string, disabled
 
 export const updatePluginsSettings = (value: IPluginsSettings) => {
   pluginsSettings = value
+}
+
+export const getPlugin = (name: string) => {
+  return plugins.get(name)
+}
+
+export const updatePluginPreferences = (name: string, prfs: Record<string, any>) => {
+  const plugin = plugins.get(name)
+  if (!plugin) return;
+  if (!plugin.settings) {
+    plugin.settings = {
+      disabled: false,
+      commands: {},
+      preferences: { ...prfs }
+    }
+    return
+  }
+  plugin.settings.preferences = { ...plugin.settings.preferences, ...prfs }
+}
+
+export const updateCommandPreferences = (pluginName: string, commandName: string, prfs: Record<string, any>) => {
+  updatePluginPreferences(pluginName, {})
+  if (!plugins.get(pluginName)) return;
+  const command = plugins.get(pluginName)!.settings!.commands[commandName]
+  if (!command) {
+    plugins.get(pluginName)!.settings!.commands[commandName] = {
+      disabled: false,
+      preferences: { ...prfs }
+    }
+    return
+  }
+  plugins.get(pluginName)!.settings!.commands[commandName]!.preferences = { ...command.preferences, ...prfs }
 }

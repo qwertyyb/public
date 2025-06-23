@@ -134,7 +134,13 @@ import { ElMessage, ElButton, ElSelect, ElSwitch, ElOption, ElInput } from 'elem
 import { ArrowRightBold, Plus, Delete, Operation } from '@element-plus/icons-vue';
 import ShortcutsRecorder from '@/components/ShortcutsRecorder.vue';
 import type { ICommandSettings, IPluginCommand, IPluginSettings, IRunningPlugin } from '@public/shared';
-import { getPlugins, getSettings, registerLaunchAtLogin, registerShortcuts, removePlugin, updateSettings } from '@/services/manager';
+// import { getPlugins, getSettings, registerLaunchAtLogin, registerShortcuts, removePlugin, updateSettings } from '@/services/manager';
+import { createBridge } from '@public/utils'
+
+const bridge = createBridge(
+  (payload) => window.publicApp.sendToHost('bridgeMessage', payload),
+  (callback) => window.publicApp.onHostMessage('bridgeMessage', (event, payload) => callback(payload)),
+)
 
 const views = ref({
   'common': '通用',
@@ -164,33 +170,33 @@ const exitCommand = () => {
 }
 
 const refreshSettings = async () => {
-  getSettings()?.then((data: any) => {
+  bridge.invoke('getSettings')?.then((data: any) => {
     settings.value = {
       ...settings.value,
       ...data
     }
     console.log('settings.value', settings.value)
   })
-  getPlugins()?.then((data: IRunningPlugin[]) => {
+  bridge.invoke<IRunningPlugin[]>('getPlugins')?.then((data: IRunningPlugin[]) => {
     plugins.value = data
   })
 }
 const onLaunchAtLoginChange = async (launchAtLogin: any) => {
   settings.value.launchAtLogin = !!launchAtLogin
-  await registerLaunchAtLogin({
+  await bridge.invoke('registerLaunchAtLogin', {
     settings: toRaw(settings.value)
   })
   refreshSettings()
 }
 const onShortcutsChange = async (shortcuts: string) => {
   settings.value.shortcuts = shortcuts
-  await registerShortcuts({
+  await bridge.invoke('registerShortcuts', {
     settings: toRaw(settings.value)
   })
   refreshSettings()
 }
 const onClearTimeoutChange = async () => {
-  await updateSettings({
+  await bridge.invoke('updateSettings', {
     settings: toRaw(settings.value)
   })
   refreshSettings()
@@ -201,7 +207,7 @@ const onPluginDisabledChange = async (enabled: boolean, plugin: IRunningPlugin) 
     ...settings.value.pluginsSettings[plugin.manifest.name],
     disabled: !enabled
   }
-  await updateSettings({
+  await bridge.invoke('updateSettings', {
     settings: toRaw(settings.value)
   })
   refreshSettings()
@@ -219,7 +225,7 @@ const onCommandChange = async (values: Partial<ICommandSettings>, plugin: IRunni
     }
   }
   console.log(toRaw(settings.value))
-  await updateSettings({
+  await bridge.invoke('updateSettings', {
     settings: toRaw(settings.value)
   })
   refreshSettings()
@@ -264,7 +270,7 @@ const onAddPluginClick = async () => {
 }
 
 const onRemovePluginClick = async (index: number, plugin: IRunningPlugin) => {
-  await removePlugin({ index, plugin })
+  await bridge.invoke('removePlugin', { index, plugin })
   ElMessage.success('插件移除成功')
   refreshSettings()
 }

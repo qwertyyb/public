@@ -13,7 +13,7 @@
     "title": "Public设置",
     "subtitle": "Public应用设置",
     "icon": "https://img.icons8.com/nolan/64/settings--v1.png",
-    "entry": "./dist/index.js",
+    "main": "./dist/index.js",
     "commands": [
       {
         "name": "settings",
@@ -32,6 +32,7 @@
     ]
   },
   "dependencies": {
-    "@public/shared": "workspace:^"
+    "@public/shared": "workspace:^",
+    "@public/utils": "workspace:^"
   }
 }

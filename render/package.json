@@ -16,6 +16,7 @@
   "dependencies": {
     "@floating-ui/vue": "^1.1.0",
     "@public/shared": "workspace:*",
+    "@public/utils": "workspace:^",
     "element-plus": "^2.7.6",
     "github-markdown-css": "^5.6.1",
     "highlight.js": "^11.9.0",

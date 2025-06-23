@@ -13,7 +13,7 @@
     "title": "转换",
     "subtitle": "单位、金额、时间转换",
     "icon": "https://img.icons8.com/?size=100&id=68311&format=png&color=000000",
-    "entry": "dist/index.js"
+    "main": "dist/index.js"
   },
   "dependencies": {
     "@public/shared": "workspace:^"

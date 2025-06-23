@@ -1,26 +1,92 @@
 <script setup lang="ts">
 import { pluginViewState } from '@/state/plugin'
-import { onBeforeUnmount } from 'vue'
-import { RouterView, useRouter } from 'vue-router'
+import AIChatView from '@/views/AIChatView.vue'
+import HomeView from '@/views/HomeView.vue'
+import ListView from '@/views/ListView.vue'
+import PluginPrfsView from '@/views/PluginPrfsView.vue'
+import PluginView from '@/views/PluginView.vue'
+import SettingsView from '@/views/SettingsView.vue'
+import { onBeforeUnmount, shallowRef, type Component } from 'vue'
 
-const router = useRouter()
+const hash = location.hash.substring(1)
+
+const routes: Record<string, Component | undefined> = {
+  '/': HomeView,
+  '/ai/chat': AIChatView,
+  '/plugin/list-view': ListView,
+  '/plugin/view': PluginView,
+  '/plugin/prfs': PluginPrfsView,
+  '/settings': SettingsView,
+}
+
+const history = shallowRef<{
+  component: Component,
+  props?: any,
+}[]>([
+  { component: routes[hash] || HomeView }
+])
+
+const routePop = () => {
+  history.value = [...history.value.slice(0, history.value.length - 1)]
+}
 
 const toPluginView = (e: any) => {
+  console.log('toPluginView', e)
   pluginViewState.value = { ...e.detail }
-  router.push({ name: 'pluginView' })
+  history.value = [ ...history.value, { component: PluginView }]
+}
+
+const toPrfsView = (e: any) => {
+  history.value = [ ...history.value, { component: PluginPrfsView, props: { ...e.detail } }]
 }
 
 window.addEventListener('enter-plugin-command', toPluginView)
+window.addEventListener('create-view', toPluginView)
+window.addEventListener('open-prfs-view', toPrfsView)
 
 onBeforeUnmount(() => {
   window.removeEventListener('enter-plugin-command', toPluginView)
+  window.removeEventListener('create-view', toPluginView)
+  window.removeEventListener('open-prfs-view', toPrfsView)
 })
 
 </script>
 
 <template>
-  <RouterView />
+  <div class="app">
+    <header class="app-header" v-if="history.length > 1">
+      <div class="navBack material-symbols-outlined cursor-pointer"
+        @pointerdown="routePop">
+        arrow_back
+      </div>
+    </header>
+    <ul class="history-list">
+      <li class="history-item"
+        v-for="(item, index) in history"
+        :key="index"
+      >
+        <component :is="item.component" v-bind="item.props"></component>
+      </li>
+    </ul>
+  </div>
 </template>
+
+<style lang="scss" scoped>
+.app-header {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.history-list {
+  .history-item:not(:last-child) {
+    display: none;
+  }
+}
+</style>
 
 <style>
 :root {
@@ -38,13 +104,7 @@ body {
   background-repeat: no-repeat;
   background-size: cover;
 }
-/* body::after {
-  content: " ";
-  display: block;
-  position: fixed;
-  inset: 0;
-  backdrop-filter: blur(40px);
-} */
+
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',

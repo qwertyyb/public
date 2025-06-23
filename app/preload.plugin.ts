@@ -33,9 +33,7 @@ controlBridge.handle('setInputValue', async (data: { value: string }) => {
 })
 
 window.pluginData = { list: null }
-window.publicApp = {
-  ...createCommonAPI(),
-}
+window.publicApp = createCommonAPI()
 window.pluginService = {
   setList: (list) => {
     window.pluginData.list = list

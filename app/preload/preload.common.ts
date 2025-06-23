@@ -1,11 +1,10 @@
 import { ipcRenderer } from 'electron'
-import { IPluginCommand, type PortBridge, IPublicApp } from '@public/shared'
+import { IPluginCommand, type PortBridge, IPublicApp, IWebviewElement, IWebviewTagAttributes } from '@public/shared'
 import { runAppleScript } from 'run-applescript'
 import * as utils from '../utils'
 
 import { hanziToPinyin, getFrontmostApplication, getSelectedPath, getCurrentPath } from '@public/osx-utils';
 import { exec } from 'child_process';
-import EventEmitter from 'events';
 
 const debounce = <F extends (...args: any[]) => any>(fn: F, delay = 200) => {
   let timeout: ReturnType<typeof setTimeout> | null = null
@@ -48,7 +47,7 @@ const exitPlugin = (options?: { clearMainInputValue: boolean }) => {
   return ipcRenderer.invoke('exit', options)
 }
 
-const createCommonAPI = (): IPublicApp => {
+const createCommonAPI = (pluginName?: string): IPublicApp => {
   let keyword = ''
   let keywordChangeHandlers: ((keyword: string) => void)[] = []
   return {
@@ -144,6 +143,22 @@ const createCommonAPI = (): IPublicApp => {
 
     showHUD(title, options) {
       ipcRenderer.invoke('showHUD', title, options)
+    },
+
+    createView(options?: IWebviewTagAttributes) {
+      return new Promise<IWebviewElement>(resolve => {
+        window.dispatchEvent(new CustomEvent('create-view', { detail: { options, callback: resolve } }))
+      })
+    },
+
+    sendToHost(channel: string, ...args: any[]) {
+      return ipcRenderer.sendToHost(channel, ...args)
+    },
+    onHostMessage(channel: string, callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) {
+      ipcRenderer.on(channel, callback)
+    },
+    offHostMessage(channel, callback) {
+      ipcRenderer.off(channel, callback)
     },
 
     storage: {

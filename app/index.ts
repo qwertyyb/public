@@ -123,7 +123,7 @@ export class CoreApp {
     }) 
     // this.mainWindow.on('blur', () => {
     //   this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.blur'))`)
-    // })
+    // }) 
   }
 
   public async createPluginView(options: Electron.WebContentsViewConstructorOptions) {
@@ -158,6 +158,5 @@ export class CoreApp {
     await this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.plugin.exited', { detail: { options: ${JSON.stringify(options || {})} } }))`)
   }
 }
-
 // @ts-ignore
 global.coreApp = new CoreApp();

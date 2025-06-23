@@ -52,7 +52,8 @@ export interface IPluginCommandConfig extends IListItem, Record<string, any> {
   mode?: 'listView' | 'none' | 'view'
   matches: IPluginCommandMatch[]
   entry?: string
-  preload?: string
+  preload?: string,
+  preferences?: IPreference[]
 }
 
 export type IPluginCommand = WithRequired<IPluginCommandConfig, 'name' | 'icon' | 'title' | 'mode' | 'matches'>
@@ -73,18 +74,18 @@ export interface IPluginManifestConfig extends Required<IListItem> {
   name: string
   descript?: string,
   commands?: IPluginCommandConfig[]
-  entry?: string,
+  preload?: string,
   preferences?: IPreference[]
 }
 
-export type IPluginManifest = WithRequired<IPluginCommandConfig, 'name' | 'icon' | 'title'> & {
+export interface IPluginManifest extends WithRequired<IPluginCommandConfig, 'name' | 'icon' | 'title'> {
   commands: IPluginCommand[]
 }
 
 export interface IRunningPlugin {
   plugin?: IPluginReturn
   path: string
-  manifest: Omit<IPluginManifest, 'commands'>
+  manifest: IPluginManifest
   commands: IPluginCommand[]
   settings?: IPluginSettings
 }
@@ -102,6 +103,7 @@ export interface ICommandSettings {
   alias?: string
   shortcuts?: string
   disabled?: boolean
+  preferences?: Record<string, any>
 }
 
 export interface IPluginSettings {

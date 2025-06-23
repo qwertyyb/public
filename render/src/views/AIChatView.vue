@@ -8,14 +8,14 @@
       </div>
     </div>
     <div class="chat-input">
-      <textarea autofocus v-model="userInput" @keyup.enter="sendMessage" placeholder="请AI帮你执行任务"></textarea>
+      <textarea autofocus v-model="userInput" @keyup="keyUpHandler" placeholder="请AI帮你执行任务"></textarea>
       <button @click="sendMessage">发送</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, toRaw, onMounted, onBeforeUnmount } from 'vue';
+import { ref, nextTick, toRaw } from 'vue';
 import OpenAI from 'openai';
 import MarkdownIt from 'markdown-it';
 
@@ -77,6 +77,43 @@ const client = new OpenAI({
 
 const getLastMessage = () => messages.value[messages.value.length - 1]
 
+const tools: OpenAI.ChatCompletionTool[] = [
+  {
+    type: 'function',
+    function: {
+      name: 'runBashCommand',
+      description: '运行 bash 命令',
+      parameters: {
+        type: 'object',
+        properties: {
+          command: {
+            type: 'string',
+            description: '要运行的 bash 命令'
+          }
+        },
+        required: ['command']
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'runAppleScript',
+      description: '运行 AppleScript',
+      parameters: {
+        type: 'object',
+        properties: {
+          script: {
+            type: 'string',
+            description: '要运行的 AppleScript'
+          }
+        },
+        required: ['script']
+      }
+    }
+  }
+];
+
 const runTools = async (toolCall: OpenAI.ChatCompletionMessageToolCall) => {
   const args = JSON.parse(toolCall.function.arguments)
   try {
@@ -101,6 +138,7 @@ const ask = async () => {
     stream: true,
   }).catch(err => {
     messages.value.push({ role: 'assistant', content: err.message })
+    scrollToBottom()
     throw err
   })
   messages.value.push({
@@ -154,43 +192,6 @@ const ask = async () => {
   }
 };
 
-const tools: OpenAI.ChatCompletionTool[] = [
-  {
-    type: 'function',
-    function: {
-      name: 'runBashCommand',
-      description: '运行 bash 命令',
-      parameters: {
-        type: 'object',
-        properties: {
-          command: {
-            type: 'string',
-            description: '要运行的 bash 命令'
-          }
-        },
-        required: ['command']
-      }
-    }
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'runAppleScript',
-      description: '运行 AppleScript',
-      parameters: {
-        type: 'object',
-        properties: {
-          script: {
-            type: 'string',
-            description: '要运行的 AppleScript'
-          }
-        },
-        required: ['script']
-      }
-    }
-  }
-];
-
 const sendMessage = async (): Promise<void> => {
   if (!userInput.value.trim()) return;
   
@@ -203,6 +204,21 @@ const sendMessage = async (): Promise<void> => {
   // Send message to OpenAI
   await ask();
 };
+
+const keyUpHandler = (e: KeyboardEvent) => {
+  if (e.key === 'Enter') {
+    sendMessage();
+    return;
+  }
+  if (e.key === 'Escape' && userInput.value) {
+    userInput.value = '';
+    return;
+  }
+  if (e.key === 'Escape') {
+    window.publicApp.plugin.exitCommand()
+    return
+  }
+}
 
 const runBashCommand = async (command: string): Promise<string> => {
   // Implement bash command execution logic here
@@ -221,18 +237,6 @@ const runAppleScript = async (script: string): Promise<string> => {
     return `运行脚本失败: ${err.message}`;
   });
 };
-
-const searchHandler = (keyword: string) => {
-  userInput.value = keyword;
-}
-
-onMounted(() => {
-  window.publicApp.inputBar.onChange(searchHandler)
-})
-
-onBeforeUnmount(() => {
-  window.publicApp.inputBar.offChange(searchHandler)
-})
 </script>
 
 <style scoped lang="scss">
@@ -240,10 +244,8 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  max-width: 800px;
+  width: 100%;
   margin: 0 auto;
-  border: 1px solid #ddd;
-  border-radius: 8px;
   padding-top: var(--nav-height);
 }
 
@@ -258,10 +260,10 @@ onBeforeUnmount(() => {
   margin-bottom: 12px;
   max-width: 80%;
   width: fit-content;
+  overflow: auto;
   &.user {
     margin-left: auto;
     .message-content {
-      // background-color: #e3f2fd;
     }
   }
   :deep(.message-content) {
@@ -336,23 +338,28 @@ onBeforeUnmount(() => {
   padding: 10px;
   border-radius: 6px;
   // background-color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 1px 2px rgba(255,255,255,0.2);
+  border: 1px solid light-dark(rgba(0, 0, 0, 0.2), rgba(255, 255, 255, 0.2));
+  box-shadow: 0 1px 2px light-dark(rgba(0, 0, 0.2), rgba(255,255,255,0.2));
 }
 
 .chat-input {
   display: flex;
   padding: 12px;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid light-dark(#bbb, #ddd);
 }
 
 textarea {
   flex: 1;
   padding: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid light-dark(#bbb, #ddd);
   border-radius: 4px;
   resize: none;
   height: 40px;
+  // background: none;
+  color: light-dark(#000, #fff);
+  // &::placeholder {
+  //   color: light-dark(rgba(0,0,0,0.3), rgba(255,255,255,0.3));
+  // }
 }
 
 button {
