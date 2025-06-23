@@ -91,10 +91,14 @@ export const registerPlugin = async (pluginPath: string) => {
     const manifest: IPluginManifest = { name, ...rest, main, icon: icon ? joinPath(icon, pluginPath) : icon }
     checkManifest(manifest)
     const commands: IPluginCommand[] = (publicPlugin.commands || []).map((item: any) => formatCommand(item, manifest, pluginPath))
+    if (!pluginsSettings[name]) {
+      pluginsSettings[name] = { disabled: false, commands: {}, preferences: {} }
+    }
     const pluginInstance: IRunningPlugin = {
       manifest,
       path: pluginPath,
       commands,
+      settings: pluginsSettings[name]
     }
     if (main && !pluginsSettings?.[name]?.disabled) {
       const entryPath = nodePath.join(pluginPath, main)
@@ -132,8 +136,7 @@ export const getPlugins = (options?: { includeDisabledPlugins?: boolean, include
     return plugins
   }
   return [...plugins].reduce<Map<string, IRunningPlugin>>((acc, [name, plugin]) => {
-    const settings = pluginsSettings[name]
-    const need = options?.includeDisabledPlugins || !options?.includeDisabledPlugins && !settings?.disabled
+    const need = options?.includeDisabledPlugins || !options?.includeDisabledPlugins && !plugin.settings?.disabled
     if (!need) return acc
     const commands = plugin.commands.filter(command => {
       if (options?.includeDisabledCommands) return true
@@ -208,7 +211,7 @@ export const disablePluginCommand = (name: string, commandName: string, disabled
 
 
 export const updatePluginsSettings = (value: IPluginsSettings) => {
-  pluginsSettings = value
+  // pluginsSettings = value
 }
 
 export const getPlugin = (name: string) => {

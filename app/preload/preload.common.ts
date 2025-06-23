@@ -182,6 +182,13 @@ const createCommonAPI = (pluginName?: string): IPublicApp => {
     plugin: {
       exitCommand() {
         ipcRenderer.sendToHost('exitCommand')
+      },
+      getPreferenceValues(commandName?: string) {
+        // @todo 需要考虑首页的支持情况
+        if (commandName) {
+          return window.publicAppCommandMeta?.commandPreferences || {}
+        }
+        return window.publicAppCommandMeta?.pluginPreferences || {}
       }
     },
 
@@ -198,7 +205,7 @@ const createCommonAPI = (pluginName?: string): IPublicApp => {
         resolve(stdout)
         return 
       }))
-    },
+    }
   }
 }
 

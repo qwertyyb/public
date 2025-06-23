@@ -23,6 +23,7 @@ export interface IPublicApp {
   plugin: {
     // 在插件内调用
     exitCommand: () => void,
+    getPreferenceValues: (commandName: string) => Record<string, any>
   }
   inputBar: {
     setValue: (value: string) => void,

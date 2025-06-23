@@ -11,8 +11,28 @@ declare global {
     pluginService?: {
       setList: (list: IResultItem[]) => void
     }
+    publicAppCommandMeta?: {
+      plugin: { name: string, title: string, icon: string },
+      command: { name: string, title: string, icon: string },
+      pluginPreferences: Record<string, any>,
+      commandPreferences: Record<string, any>
+    }
   }
 }
+
+ipcRenderer.on('meta', (event, meta) => {
+  console.log('setMeta')
+  window.publicAppCommandMeta = meta
+})
+
+const initMeta = () => {
+  console.log('initMeta')
+  ipcRenderer.sendToHost('initMeta')
+  console.log('afterInitMeta')
+}
+
+console.log('argv', process.argv)
+initMeta()
 
 const initBridge = () => {
   const controlBridge = createBridge()
@@ -22,7 +42,7 @@ const initBridge = () => {
     controlBridge.setPort(controlPort2)
     pluginBridge.setPort(port2)
   })
-  return { controlBridge, pluginBridge }
+  return { controlBridge, pluginBridge } 
 }
 
 

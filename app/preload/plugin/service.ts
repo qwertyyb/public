@@ -101,9 +101,9 @@ const checkPreferences = (owner: IRunningPlugin, command: IPluginCommand) => {
     throw new Error('缺少插件首选项')
     return;
   }
-  const cRequiredFileds = command.preferences?.filter(i => i.required) || []
+  const cRequiredFields = command.preferences?.filter(i => i.required) || []
   const cValues = owner.settings?.commands[command.name]?.preferences || {}
-  const cHasEmpty = requiredFields.some(item => !cValues?.[item.name] && cValues?.[item.name] !== 0)
+  const cHasEmpty = cRequiredFields.some(item => !cValues?.[item.name] && cValues?.[item.name] !== 0)
   if (cHasEmpty) {
     openCommandPreferences(owner.manifest.name, command.name)
     throw new Error('缺少插件首选项')
