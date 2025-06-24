@@ -130,4 +130,10 @@ export default (coreApp: CoreApp) => {
     return setPluginView(coreApp, event, args)
   })
   ipcMain.handle('exit', (event, options?: { clearMainInputValue: boolean }) => coreApp.destroyPluginView(options))
+
+  ipcMain.on('moveWindow', (event, options: { screenX: number, screenY: number, clientX: number, clientY: number }) => {
+    const x = options.screenX - options.clientX
+    const y = options.screenY - options.clientY
+    coreApp.mainWindow?.setPosition(Math.round(x), Math.round(y))
+  })
 }

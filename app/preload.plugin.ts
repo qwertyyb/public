@@ -1,6 +1,6 @@
 import { ipcRenderer } from "electron"
 import { type PortBridge, IPluginCommand, IResultItem, IPluginCommandListView } from '@public/shared'
-import createCommonAPI from './preload/preload.common'
+import createCommonAPI, { createDraggable } from './preload/preload.common'
 import { createBridge } from '@public/utils'
 
 declare global {
@@ -34,6 +34,8 @@ const innerBridge = createBridge(
   (payload) => ipcRenderer.sendToHost('innerBridgeMessage', payload),
   (callback) => ipcRenderer.on('innerBridgeMessage', (event, payload) => callback(payload)),
 )
+
+createDraggable()
 
 const api = createCommonAPI()
 window.publicApp = {

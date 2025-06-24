@@ -8,6 +8,7 @@
       v-model="modelValue"
       ref="input"
       id="main-input"/>
+    <div class="searchSpace"></div>
     <img :src="command.icon" alt="" class="appLogo" draggable="false" v-if="command" />
     <img src="../assets/logo.svg" alt="" class="appLogo" draggable="false" v-else />
   </div>
@@ -17,6 +18,7 @@ import { useTemplateRef } from 'vue'
 import { curry } from 'ramda';
 import { isKeyPressed } from '@/utils/keyboard';
 import { onPageEnter, onPageLeave } from '@/router/hooks';
+import { createAutoResizeInput } from '@/utils';
 
 const modelValue = defineModel({ default: '' })
 defineProps<{
@@ -47,10 +49,12 @@ onPageEnter(() => {
   inputEl.value?.focus()
   console.log('onPageEnter', inputEl.value, document.activeElement)
   window.addEventListener('keydown', handler)
+  inputEl.value && createAutoResizeInput(inputEl.value)
 })
 
 onPageLeave(() => {
   window.removeEventListener('keydown', handler)
+  inputEl.value && (inputEl.value as any).autoResizeInstance.destroy()
 })
 </script>
 
@@ -65,9 +69,6 @@ onPageLeave(() => {
   display: flex;
   align-items: center;
 }
-.inputBar:focus-within .searchSpace {
-  -webkit-app-region: drag;
-}
 .input {
   height: 42px;
   min-height: 42px;
@@ -80,11 +81,8 @@ onPageLeave(() => {
   background: none;
   /* field-sizing: content; */
   font-weight: 500;
-  flex: 1;
+  // flex: 1;
   margin-left: var(--nav-width, 0);
-}
-.input:focus {
-  -webkit-app-region: drag;
 }
 .input::placeholder {
   font-weight: normal;
@@ -93,6 +91,7 @@ onPageLeave(() => {
 .searchSpace {
   flex: 1;
   height: 100%;
+  // -webkit-app-region: drag;
 }
 .appLogo {
   width: 36px;
