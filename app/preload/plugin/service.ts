@@ -1,7 +1,8 @@
 import * as nodePath from 'path'
-import { IActionItem, IFullPluginCommandMatch, IPluginCommand, IPluginCommandMatch, IPluginSettings, IPluginsSettings, IRunningPlugin, ITriggerPluginCommandMatch } from '@public/shared'
+import { IActionItem, IFullPluginCommandMatch, IPluginCommand, IPluginCommandMatch, IPluginSettings, IPluginsSettings, IPreference, IRunningPlugin, ITriggerPluginCommandMatch } from '@public/shared'
 import { getConfig } from '../../config';
 import { getPlugins } from './manager';
+import { openCommandPreferences, openPluginPreferences } from '../utils';
 
 const resultsMap = new WeakMap<IPluginCommand, { score: number, query: string, owner: IRunningPlugin }>()
 
@@ -82,43 +83,38 @@ export const handleSelect = (command: IPluginCommand, keyword: string) => {
   return rp?.owner.plugin?.onSelect?.(command, rp.query)
 }
 
-const openPluginPreferences = (plugin: string) => {
-  return window.dispatchEvent(new CustomEvent('open-prfs-view', { detail: { plugin } }))
+
+const checkRequired = (preferences: IPreference[], values: Record<string, any>) => {
+  const requiredFields = preferences.filter(i => i.required) || []
+  return requiredFields.every(item => values[item.name] || values[item.name] === 0)
 }
 
-const openCommandPreferences = (plugin: string, command: string) => {
-  return window.dispatchEvent(new CustomEvent('open-prfs-view', { detail: { plugin, command } }))
-}
-
-const checkPreferences = (owner: IRunningPlugin, command: IPluginCommand) => {
-  // @todo 判断一下组件所需的首选项是否都已填写，如果都已填写，则直接执行，否则跳转去配置
+const checkPreferences = async (owner: IRunningPlugin, command: IPluginCommand) => {
   // 首先需要判断插件层级的必须首选项是否已填写，再检查 command 层级的首选项
-  const requiredFields = owner.manifest.preferences?.filter(i => i.required) || []
-  const values = owner.settings?.preferences
-  const hasEmpty = requiredFields.some(item => !values?.[item.name] && values?.[item.name] !== 0)
-  if (hasEmpty) {
-    openPluginPreferences(owner.manifest.name)
-    throw new Error('缺少插件首选项')
-    return;
+  let count = 0
+  if (!checkRequired(owner.manifest.preferences || [], owner.settings?.preferences || {})) {
+    count += 1
+    await openPluginPreferences(owner.manifest.name)
   }
-  const cRequiredFields = command.preferences?.filter(i => i.required) || []
-  const cValues = owner.settings?.commands[command.name]?.preferences || {}
-  const cHasEmpty = cRequiredFields.some(item => !cValues?.[item.name] && cValues?.[item.name] !== 0)
-  if (cHasEmpty) {
-    openCommandPreferences(owner.manifest.name, command.name)
-    throw new Error('缺少插件首选项')
+  if (!checkRequired(command.preferences || [], owner.settings?.commands[command.name]?.preferences || {})) {
+    count += 1
+    await openCommandPreferences(owner.manifest.name, command.name)
   }
+  return count
 }
 
-export const enterPluginCommand = (owner: IRunningPlugin, command: IPluginCommand, options?: { query: string }) => {
+export const enterPluginCommand = async (owner: IRunningPlugin, command: IPluginCommand, options?: { query: string }) => {
   const query = options?.query || ''
-  // @todo 判断一下组件所需的首选项是否都已填写，如果都已填写，则直接执行，否则跳转去配置
+  // 判断一下组件所需的首选项是否都已填写，如果都已填写，则直接执行，否则跳转去配置
   // 首先需要判断插件层级的必须首选项是否已填写，再检查 command 层级的首选项
-  checkPreferences(owner, command)
+  const count = await checkPreferences(owner, command)
+  if (count) {
+    window.dispatchEvent(new CustomEvent('pop-view', { detail: { count } }))
+  }
   if (command.mode === 'none') {
     owner.plugin?.onEnter?.(command, query)
   } else {
-    window.dispatchEvent(new CustomEvent('enter-plugin-command', { detail: { plugin: owner, command, query } }))
+    window.dispatchEvent(new CustomEvent('push-view', { detail: { path: '/plugin/view', params: { plugin: owner, command, query } } }))
   }
 }
 

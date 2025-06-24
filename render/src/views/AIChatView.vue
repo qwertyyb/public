@@ -8,16 +8,17 @@
       </div>
     </div>
     <div class="chat-input">
-      <textarea autofocus v-model="userInput" @keyup="keyUpHandler" placeholder="请AI帮你执行任务"></textarea>
+      <textarea autofocus v-model="userInput" @keyup="keyUpHandler" placeholder="请AI帮你执行任务" ref="textarea"></textarea>
       <button @click="sendMessage">发送</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, toRaw } from 'vue';
+import { ref, nextTick, toRaw, useTemplateRef } from 'vue';
 import OpenAI from 'openai';
 import MarkdownIt from 'markdown-it';
+import { onPageEnter } from '@/router/hooks';
 
 const systemPrompt = `你是一名Mac电脑专家，擅长使用Bash和AppleScript脚本，只能使用这些工具解决问题。但如果用户的请求是你自身可以通过理解和语言能力完成的(例如翻译、润色、理解、写作等)，你应当直接回答，不调用任何脚本或工具。你不允许仅仅提供口头建议，而是必须使用脚本代码直接获取信息或执行操作。遇到需要用户输入或选择的场景，必须通过AppleScript弹窗完成，不允许使用文字提示。你拥有一系列可调用的工具(function call)，请在需要时选择合适的工具调用。输出的内容要尽量简洁，符合即时反馈的要求。你知道用户通常使用Chrome浏览器，请在涉及网页或文件打开时优先考虑Chrome浏览器。`
 
@@ -27,6 +28,7 @@ const messages = ref<OpenAI.ChatCompletionMessageParam[]>([{
   content: systemPrompt,
 }]);
 const userInput = ref<string>('');
+const textarea = useTemplateRef('textarea')
 const messagesContainer = ref<HTMLDivElement | null>(null);
 
 const renderedMarkdown = (text: string): string => {
@@ -68,10 +70,10 @@ const scrollToBottom = async (): Promise<void> => {
   }
 };
 
-const model = 'doubao-1-5-pro-32k-250115';
+const preferences = window.publicApp.plugin.getPreferenceValues('ai-chat')
 const client = new OpenAI({
-  apiKey: '', // 模型APIKey
-  baseURL: '', // 模型API地址
+  apiKey: preferences.apiKey, // 模型APIKey
+  baseURL: preferences.baseURL, // 模型API地址
   dangerouslyAllowBrowser: true,
 });
 
@@ -131,7 +133,7 @@ const runTools = async (toolCall: OpenAI.ChatCompletionMessageToolCall) => {
 
 const ask = async () => {
   const completion = await client.chat.completions.create({
-    model: model,
+    model: preferences.model,
     messages: toRaw(messages.value),
     tools: tools,
     tool_choice: 'auto',
@@ -215,7 +217,7 @@ const keyUpHandler = (e: KeyboardEvent) => {
     return;
   }
   if (e.key === 'Escape') {
-    window.publicApp.plugin.exitCommand()
+    window.publicApp.mainWindow.popToRoot()
     return
   }
 }
@@ -237,6 +239,11 @@ const runAppleScript = async (script: string): Promise<string> => {
     return `运行脚本失败: ${err.message}`;
   });
 };
+
+onPageEnter(async () => {
+  await nextTick()
+  textarea.value?.focus()
+})
 </script>
 
 <style scoped lang="scss">
@@ -246,7 +253,7 @@ const runAppleScript = async (script: string): Promise<string> => {
   height: 100vh;
   width: 100%;
   margin: 0 auto;
-  padding-top: var(--nav-height);
+  padding-top: 48px;
 }
 
 .chat-messages {

@@ -27,7 +27,7 @@
     "pack": "electron-builder -c.mac.identity=null --dir",
     "release": "NODE_ENV=production && npm run build:render && npm run tsc && electron-builder --publish=always",
     "rebuild:uiohook-napi": "electron-rebuild --build-from-source -f -m ./node_modules/uiohook-napi",
-    "rebuild:others": "electron-rebuild -f -w ./utils/osx-utils,./node_modules/better-sqlite3",
+    "rebuild:others": "electron-rebuild -f -w ./utils/osx-utils,./node_modules/better-sqlite3,./node_modules/pouchdb",
     "rebuild": "npm run rebuild:uiohook-napi && npm run rebuild:others"
   },
   "nodemonConfig": {
@@ -95,6 +95,7 @@
     "@types/better-sqlite3": "^7.6.10",
     "@types/mathjs": "^6.0.11",
     "@types/node": "^12.20.55",
+    "@types/pouchdb": "^6.4.2",
     "@types/webpack": "^5.28.5",
     "@types/webpack-env": "^1.18.5",
     "concurrently": "^6.0.0",
@@ -125,9 +126,16 @@
   "dependencies": {
     "@public/osx-utils": "workspace:*",
     "@public/shared": "workspace:*",
+    "@public/utils": "workspace:^",
     "ajv": "^8.17.1",
     "better-sqlite3": "^11.8.1",
+    "pouchdb": "^9.0.0",
     "run-applescript": "^7.0.0",
     "uiohook-napi": "^1.5.4"
+  },
+  "pnpm": {
+    "overrides": {
+      "leveldown": "6.1.1"
+    }
   }
 }

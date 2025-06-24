@@ -1,42 +1,46 @@
-import { IPluginSettings, IPluginsSettings, IWebview, IWebviewElement, PortBridge } from '@public/shared'
-import { createBridge } from '@public/utils'
-import { queryRecord, updateRecord, createDatabase } from './storage'
-import * as path from 'path'
+import { IBridge, ICommandSettings, IPluginSettings, IRunningPlugin } from '@public/shared'
 
-const names = [
-  'launcher', 'command', 'calculator', 'qrcode', 'search', 'translate', 'clipboard',
-  'douban', 'magic', 'ai-chat', 'v2ex', 'terminal', 'find', 'google-chrome', 'mdn', 'shortcuts', 'transform',
-]
+interface ISettings {
+  launchAtLogin: boolean,
+  shortcuts: string,
+  clearTimeout: number, // 秒
+  pluginsPathList: string[]
+}
 
-const getDefaultSettings = () => {
-  const getDefaultPluginPaths = () => {
-    return names.map(name => ({ path: path.join(__dirname, '../../', name) }))
-  }
-
-  return {
+const getSettings = async (): Promise<ISettings> => {
+  const defaultSettings = {
     launchAtLogin: true,
     shortcuts: 'Meta+Meta',
     clearTimeout: 90,
-    pluginsPathList: getDefaultPluginPaths(),
-    pluginsSettings: {} as IPluginsSettings
+    pluginsPathList: [],
+  }
+  const settings = await window.publicApp.storage.getItem<Partial<ISettings>>('settings')
+  return {
+    ...defaultSettings,
+    ...settings
   }
 }
 
-type Settings = ReturnType<typeof getDefaultSettings>
+const updateSettings = async (settings: Partial<ISettings>) => {
+  const oldValue = await window.publicApp.storage.getItem<ISettings>('settings')
+  return window.publicApp.storage.setItem('settings', { ...oldValue, ...settings })
+}
 
-const registerShortcuts = (settings: Settings) => {
+const registerShortcuts = (shortcuts: string) => {
   // 主快捷键
-  const { shortcuts } = settings;
   window.publicApp.shortcuts.register(shortcuts, () => window.publicApp.mainWindow.show())
-  Object.entries(settings.pluginsSettings).forEach(([pluginName, pluginSettings]) => {
-    if (pluginSettings?.disabled) return
-    Object.entries(pluginSettings?.commands || {}).forEach(([commandName, commandSettings]) => {
+}
+
+const registerCommandShortcuts = (plugins: Map<string, IRunningPlugin>) => {
+  plugins.entries().forEach(([pluginName, plugin]) => {
+    if (plugin.settings?.disabled) return
+    plugin?.commands.forEach((command) => {
+      const commandSettings = plugin.settings?.commands?.[command.name]
       if (commandSettings?.disabled) return
       const shortcuts = commandSettings?.shortcuts
       if (!shortcuts) return
       window.publicApp.shortcuts.register(shortcuts, () => {
         const plugin = window.pluginManager?.getPlugins().get(pluginName)
-        const command = plugin?.commands.find(item => item.name === commandName)
         if (plugin && command) {
           window.publicApp.mainWindow.show()
           window.pluginManager?.enterPluginCommand(plugin, command)
@@ -44,21 +48,6 @@ const registerShortcuts = (settings: Settings) => {
       })
     })
   })
-  
-  // shortcutsData = {}
-  // shortcutsData[shortcuts.split('+').sort().join('+')] = {}
-  // 命令快捷键
-  // Object.entries(settings.pluginsSettings).forEach(([pluginName, pluginSetting]) => {
-  //   if (pluginSetting?.disabled) return
-  //   Object.entries(pluginSetting?.commands || {}).forEach(([commandName, commandSettings]) => {
-  //     if (commandSettings?.disabled) return
-  //     const shortcuts = commandSettings?.shortcuts
-  //     if (shortcuts) {
-  //       shortcutsData[shortcuts.split('+').sort().join('+')] = { pluginName, commandName }
-  //     }
-  //   })
-  // })
-  // console.log('shortcuts', shortcutsData)
 }
 
 let clearIntervalTime: number = 0
@@ -72,9 +61,7 @@ window.addEventListener('publicApp.mainWindow.hide', (event) => {
   console.log('clearIntervalTime', clearIntervalTime)
   if (clearIntervalTime <= 0) return
   timeout = setTimeout(async () => {
-    await window.publicApp.exit({
-      clearMainInputValue: true
-    })
+    window.publicApp.mainWindow.popToRoot({ clearInput: true })
   }, clearIntervalTime * 1000)
 })
 window.addEventListener('publicApp.mainWindow.show', () => {
@@ -86,116 +73,74 @@ window.addEventListener('publicApp.mainWindow.show', () => {
 window.addEventListener('publicApp.mainWindow.blur', () => {
   window.publicApp.mainWindow.hide()
 })
-const registerClearInterval = (settings: Settings) => {
+const registerClearInterval = (expectTimeout: number) => {
   if (timeout) {
     clearTimeout(timeout)
     timeout = null
   }
-  clearIntervalTime = settings.clearTimeout
+  clearIntervalTime = expectTimeout
 }
 
-const registerLaunchAtLogin =(settings: any) => {
+const registerLaunchAtLogin =(enable: boolean) => {
   // 启动项
   require('@electron/remote').app.setLoginItemSettings({
-    openAtLogin: settings.launchAtLogin
+    openAtLogin: enable
   })
-}
-
-const getSettings = async (): Promise<Settings> => {
-  let value = await createDatabase().then(() => queryRecord({ key: 'config' })).then(res => res?.value)
-  if (!value) {
-    const value = getDefaultSettings()
-    updateRecord({ key: 'config', value })
-  }
-  return {
-    ...value,
-    pluginsPathList: getDefaultSettings().pluginsPathList
-  }
-}
-
-const updateSettings = async (settings: Settings) => {
-  console.log('updateSettings', settings)
-  return updateRecord({ key: 'config', value: settings })
-}
-
-const initPlugins = async (settings: Settings) => {
-  const plugins = settings.pluginsPathList || []
-  return plugins.map((p: any) => {
-    try {
-      window.pluginManager?.registerPlugin(p.path)
-    } catch(err) {
-      console.warn(err);
-    }
-  })
-}
-
-const initPluginsSettings = async (pluginsSettings: IPluginsSettings) => {
-  window.pluginManager?.updatePluginsSettings(pluginsSettings)
 }
 
 const initSettings = async () => {
   const settings = await getSettings()
   console.log('initSettings', settings)
-  registerLaunchAtLogin(settings)
-  registerShortcuts(settings)
-  registerClearInterval(settings)
-  initPlugins(settings)
-  initPluginsSettings(settings.pluginsSettings)
+  registerLaunchAtLogin(settings.launchAtLogin)
+  registerShortcuts(settings.shortcuts)
+  registerClearInterval(settings.clearTimeout)
+  const plugins = window.pluginManager?.getPlugins()
+  if (!plugins) return;
+  registerCommandShortcuts(plugins)
 }
 
 const handlers = {
-  async registerShortcuts(args: any) {
-    console.log('register shortcuts', args)
-    await updateSettings(args.settings)
-    registerShortcuts(args.settings)
+  async registerShortcuts(shortcuts: string) {
+    updateSettings({ shortcuts })
+    registerShortcuts(shortcuts)
   },
-  async registerLaunchAtLogin(args: any) {
-    await updateSettings(args.settings)
-    registerLaunchAtLogin(args.settings)
+  async registerLaunchAtLogin(enable: boolean) {
+    updateSettings({ launchAtLogin: enable })
+    registerLaunchAtLogin(enable)
+  },
+  async updateClearTimeout(timeout: number) {
+    updateSettings({ clearTimeout: timeout })
+    registerClearInterval(timeout)
   },
   async removePlugin(args: { path: string, name: string }) {
     window.pluginManager?.unregisterPlugin(args.name);
-    // await updatePluginsSettings()
   },
   async registerPlugin(args: { path: string }) {
     window.pluginManager?.registerPlugin(args.path)
-    // await updatePluginsSettings()
   },
   getPlugins() {
     return JSON.parse(JSON.stringify(Array.from(window.pluginManager!.getPlugins({ includeDisabledPlugins: true, includeDisabledCommand: true }).values())))
   },
-  getSettings() {
-    return getSettings()
-  },
-  async updateSettings(args: { settings: Settings }) {
-    await updateSettings(args.settings)
-    await initSettings()
-  },
+  getSettings,
   getPlugin(name: string) {
     return window.pluginManager?.getPlugins({ includeDisabledPlugins: true, includeDisabledCommand: true }).get(name)
   },
   async getPluginSettings(name: string) {
-    const settings = await getSettings()
-    return settings.pluginsSettings[name]
+    return window.pluginManager?.getPlugins({ includeDisabledPlugins: true, includeDisabledCommand: true }).get(name)?.settings
   },
   async updatePluginSettings(name: string, pluginSettings: IPluginSettings) {
-    const settings = await getSettings()
-    settings.pluginsSettings[name] = pluginSettings
-    await updateSettings(settings)
+    window.pluginManager?.updatePluginSettings(name, pluginSettings)
+  },
+  async updateCommandSettings(plugin: string, command: string, settings: ICommandSettings) {
+    window.pluginManager?.updateCommandSettings(plugin, command, settings)
+  },
+  openPrfsView(plugin: string, command?: string) {
+    window.publicApp.plugin.openPreferences(plugin, command)
   }
 }
 
-const initHandler = (webview: IWebview) => {
-  const bridge = createBridge(
-    (payload) => webview.send('bridgeMessage', payload),
-    (callback) => webview.addEventListener('ipc-message', (event) => {
-      if (event.channel === 'bridgeMessage') {
-        callback(event.args[0])
-      }
-    }),
-    handlers
-  )
-  return bridge
+const initHandler = (bridge: IBridge) => {
+  Object.entries(handlers).forEach(([name, cb]) => bridge.handle(name, cb))
 }
 
 export { initHandler, initSettings }

@@ -6,7 +6,8 @@ import ListView from '@/views/ListView.vue'
 import PluginPrfsView from '@/views/PluginPrfsView.vue'
 import PluginView from '@/views/PluginView.vue'
 import SettingsView from '@/views/SettingsView.vue'
-import { onBeforeUnmount, shallowRef, type Component } from 'vue'
+import RoutePage from '@/components/RoutePage.vue'
+import { nextTick, onBeforeUnmount, shallowRef, useTemplateRef, type Component } from 'vue'
 
 const hash = location.hash.substring(1)
 
@@ -19,6 +20,8 @@ const routes: Record<string, Component | undefined> = {
   '/settings': SettingsView,
 }
 
+const pages = useTemplateRef('page')
+
 const history = shallowRef<{
   component: Component,
   props?: any,
@@ -26,28 +29,47 @@ const history = shallowRef<{
   { component: routes[hash] || HomeView }
 ])
 
-const routePop = () => {
-  history.value = [...history.value.slice(0, history.value.length - 1)]
-}
-
 const toPluginView = (e: any) => {
   console.log('toPluginView', e)
   pluginViewState.value = { ...e.detail }
   history.value = [ ...history.value, { component: PluginView }]
 }
 
-const toPrfsView = (e: any) => {
-  history.value = [ ...history.value, { component: PluginPrfsView, props: { ...e.detail } }]
+const pushView = async (options: { path: string, params?: any }) => {
+  const { path, params } = options
+  console.log(options)
+  const component = routes[path]
+  if (component) {
+    history.value = [ ...history.value, { component, props: params }]
+    await nextTick()
+    pages.value?.[history.value.length - 2]?.dispatchLeave()
+  }
 }
 
-window.addEventListener('enter-plugin-command', toPluginView)
+const popView = async (options?: { count?: number }) => {
+  const count = options?.count || 1
+  history.value = [...history.value.slice(0, Math.max(1, history.value.length - count))]
+  await nextTick()
+  pages.value?.[history.value.length - 1]?.dispatchEnter()
+}
+
+
+const pushViewHandler = (e: any) => pushView(e.detail)
+const popViewHandler = (e: any) => popView(e.detail)
+const popToRootHandler = () => {
+  popView({ count: history.value.length - 1 })
+}
+
 window.addEventListener('create-view', toPluginView)
-window.addEventListener('open-prfs-view', toPrfsView)
+window.addEventListener('push-view', pushViewHandler)
+window.addEventListener('pop-view', popViewHandler)
+window.addEventListener('pop-to-root', popToRootHandler)
 
 onBeforeUnmount(() => {
-  window.removeEventListener('enter-plugin-command', toPluginView)
   window.removeEventListener('create-view', toPluginView)
-  window.removeEventListener('open-prfs-view', toPrfsView)
+  window.removeEventListener('push-view', pushViewHandler)
+  window.removeEventListener('pop-view', popViewHandler)
+  window.removeEventListener('pop-to-root', popToRootHandler)
 })
 
 </script>
@@ -56,17 +78,18 @@ onBeforeUnmount(() => {
   <div class="app">
     <header class="app-header" v-if="history.length > 1">
       <div class="navBack material-symbols-outlined cursor-pointer"
-        @pointerdown="routePop">
+        @pointerdown="popView()">
         arrow_back
       </div>
     </header>
     <ul class="history-list">
-      <li class="history-item"
+      <route-page class="history-item"
         v-for="(item, index) in history"
         :key="index"
+        ref="page"
       >
         <component :is="item.component" v-bind="item.props"></component>
-      </li>
+      </route-page>
     </ul>
   </div>
 </template>
@@ -74,12 +97,13 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .app-header {
   height: 48px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   padding: 0 16px;
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 1000;
 }
 .history-list {
   .history-item:not(:last-child) {
@@ -169,4 +193,5 @@ dialog {
   background-color: light-dark(#f4f4f4, #373737);
   border-color: light-dark(#ececec, #464646);
 }
+
 </style>

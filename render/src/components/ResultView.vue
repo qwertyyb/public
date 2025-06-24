@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts" generic="T extends IListItem">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import ResultItem from '@/components/ResultItem.vue';
 import ActionList, { type IActionItem } from '@/components/ActionList.vue';
 import VirtualList from '@/components/VirtualList.vue';
@@ -36,6 +36,7 @@ import ResultItemPreview from '@/components/ResultItemPreview.vue';
 import { curry } from 'ramda';
 import { isKeyPressed } from '@/utils/keyboard';
 import type { IListItem } from '@public/shared';
+import { onPageEnter, onPageLeave } from '@/router/hooks';
 
 const props = withDefaults(defineProps<{
   results: T[],
@@ -138,10 +139,10 @@ const getActionKey = (index: number, indexStart: number) => {
   return ''
 }
 
-onMounted(() => {
+onPageEnter(() => {
   document.addEventListener('keydown', keydownHandler)
 })
-onBeforeUnmount(() => {
+onPageLeave(() => {
   document.removeEventListener('keydown', keydownHandler)
 })
 

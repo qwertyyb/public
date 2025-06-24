@@ -1,10 +1,12 @@
 import { ipcRenderer } from 'electron'
-import { IPluginCommand, type PortBridge, IPublicApp, IWebviewElement, IWebviewTagAttributes } from '@public/shared'
+import { IPublicApp, IWebview, IWebviewTagAttributes } from '@public/shared'
 import { runAppleScript } from 'run-applescript'
-import * as utils from '../utils'
 
 import { hanziToPinyin, getFrontmostApplication, getSelectedPath, getCurrentPath } from '@public/osx-utils';
 import { exec } from 'child_process';
+import { db, openCommandPreferences, openPluginPreferences } from './utils';
+import type { createBridge } from '@public/utils'
+import { getPlugin } from './plugin/manager';
 
 const debounce = <F extends (...args: any[]) => any>(fn: F, delay = 200) => {
   let timeout: ReturnType<typeof setTimeout> | null = null
@@ -15,41 +17,7 @@ const debounce = <F extends (...args: any[]) => any>(fn: F, delay = 200) => {
     timeout = setTimeout(() => fn(...args), delay)
   }
 }
-
-type EventCallback = (data?: Record<string, any>) => void
-
-const eventHandlers = new Map<string, EventCallback[]>()
-
-let controlBridge: PortBridge | null = null
-const enterPlugin = (
-  name: string,
-  command: IPluginCommand,
-  options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string },
-  query?: string
-) => {
-  console.log(name, command, query)
-  window.dispatchEvent(new CustomEvent('inputBar.enter', { detail: { name, command, query } }))
-
-  // 搞两个 channel, 一个用来做 API 控制层调用，另一个将会插件做通信
-  const { port1, port2 } = new MessageChannel()
-  const { port1: controlPort1, port2: controlPort2 } = new MessageChannel()
-  return new Promise<PortBridge>(resolve => {
-    controlBridge = utils.createBridge(controlPort1)
-    controlBridge?.once('ready', () => resolve(utils.createBridge(port1)))
-    controlPort1.start()
-    ipcRenderer.postMessage('enter', { command, options, query }, [port2, controlPort2])
-  })
-}
-
-const exitPlugin = (options?: { clearMainInputValue: boolean }) => {
-  console.log('exitPlugin')
-  controlBridge = null
-  return ipcRenderer.invoke('exit', options)
-}
-
 const createCommonAPI = (pluginName?: string): IPublicApp => {
-  let keyword = ''
-  let keywordChangeHandlers: ((keyword: string) => void)[] = []
   return {
     db: {
       run: (sql: string, params?: Object) => ipcRenderer.invoke('db.run', sql, params),
@@ -62,20 +30,12 @@ const createCommonAPI = (pluginName?: string): IPublicApp => {
     mainWindow: {
       show: () => ipcRenderer.invoke('mainWindow.show'),
       hide: () => ipcRenderer.invoke('mainWindow.hide'),
-    },
-    inputBar: {
-      setValue: (value: string) => { controlBridge?.invoke('setInputValue', { value }) },
-      emitChange: (value: string) => {
-        keyword = value
-        keywordChangeHandlers.forEach(i => i(value))
+      pushView: (options: { path: string, params?: any }) => {
+        window.dispatchEvent(new CustomEvent('push-view', { detail: { ...options }  }))
       },
-      onChange: (callback: (keyword: string) => void) => {
-        keywordChangeHandlers.push(callback)
-        callback(keyword)
+      popToRoot(options?: { clearInput?: boolean }) {
+        window.dispatchEvent(new CustomEvent('pop-to-root', { detail: { ...options } }))
       },
-      offChange: (callback: (keyword: string) => void) => {
-        keywordChangeHandlers = keywordChangeHandlers.filter(i => i !== callback)
-      }
     },
     keyboard: {
       type: (...keys: string[]) => ipcRenderer.invoke('keyboard.type', ...keys),
@@ -101,8 +61,6 @@ const createCommonAPI = (pluginName?: string): IPublicApp => {
         headers: result.headers
       });
     },
-    enter: (name: string, item: IPluginCommand, options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }, query?: string) => enterPlugin(name, item, options, query),
-    exit: (options) => exitPlugin(options),
     shortcuts: {
       register: async (shortcuts: string, callback: () => void) => {
         const success = await ipcRenderer.invoke('shortcuts.register', shortcuts)
@@ -145,9 +103,9 @@ const createCommonAPI = (pluginName?: string): IPublicApp => {
       ipcRenderer.invoke('showHUD', title, options)
     },
 
-    createView(options?: IWebviewTagAttributes) {
-      return new Promise<IWebviewElement>(resolve => {
-        window.dispatchEvent(new CustomEvent('create-view', { detail: { options, callback: resolve } }))
+    createView(pluginName: string, options?: IWebviewTagAttributes) {
+      return new Promise<{ webview: IWebview, bridge: ReturnType<typeof createBridge> }>(resolve => {
+        window.dispatchEvent(new CustomEvent('create-view', { detail: {  plugin: getPlugin(pluginName), options, callback: resolve } }))
       })
     },
 
@@ -162,20 +120,23 @@ const createCommonAPI = (pluginName?: string): IPublicApp => {
     },
 
     storage: {
-      getItem: async <D extends any>(key: string): Promise<D | null> => {
-        const sql = `SELECT * FROM settings where key = $key`
-        const record = await window.publicApp?.db.get(sql, { key: key  })
-        if (record) {
-          return JSON.parse(record.value)
-        }
-        return null
+      setItem(key, value) {
+        return db.put({ value, _id: pluginName ? `plugin/${pluginName}/${key}` : key })
       },
-      setItem(key: string, value: string) {
-        const sql = `INSERT OR REPLACE into storage(key, value) values ($key, $value)`
-        return window.publicApp?.db.run(sql, {
-          value: JSON.stringify(value),
-          key: key
+      getItem<T extends any>(key: string) {
+        return db.get<{ value: T }>(pluginName ? `plugin/${pluginName}/${key}` : key).then(result => result.value).catch(err => {
+          console.error(err)
+          return null
         })
+      },
+      async removeItem(key) {
+        const doc = await db.get<{ value: any }>(pluginName ? `plugin/${pluginName}/${key}` : key).catch(err => {
+          console.error(err)
+          return null
+        })
+        if (doc) {
+          await db.remove(doc)
+        }
       }
     },
 
@@ -183,12 +144,18 @@ const createCommonAPI = (pluginName?: string): IPublicApp => {
       exitCommand() {
         ipcRenderer.sendToHost('exitCommand')
       },
-      getPreferenceValues(commandName?: string) {
+      getPreferenceValues(pluginName: string, commandName?: string) {
+        if (commandName) {
+          return getPlugin(pluginName)?.settings?.commands?.[commandName]?.preferences || {}
+        }
+        return getPlugin(pluginName)?.settings?.preferences || {}
+      },
+      openPreferences(pluginName?: string, commandName?: string) {
         // @todo 需要考虑首页的支持情况
         if (commandName) {
-          return window.publicAppCommandMeta?.commandPreferences || {}
+          return openCommandPreferences(pluginName!, commandName)
         }
-        return window.publicAppCommandMeta?.pluginPreferences || {}
+        return openPluginPreferences(pluginName!)
       }
     },
 

@@ -15,7 +15,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onPageEnter, onPageLeave } from '@/router/hooks';
+import { computed, nextTick, ref, watch } from 'vue'
 
 const props = withDefaults(defineProps<{
   itemHeight: number,
@@ -57,11 +58,11 @@ const scrollHandler = () => {
   startOffset.value = newStartOffset
 };
 
-onMounted(() => {
+onPageEnter(() => {
   listWrapper.value?.addEventListener('scroll', scrollHandler)
 })
 
-onBeforeUnmount(() => {
+onPageLeave(() => {
   listWrapper.value?.removeEventListener('scroll', scrollHandler)
 })
 </script>

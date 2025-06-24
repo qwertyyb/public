@@ -1,6 +1,6 @@
 import { join as pathJoin } from 'path'
 import createCommonAPI from './preload/preload.common'
-import { registerPlugin, unregisterPlugin, disablePlugin, disablePluginCommand, updatePluginsSettings, getPlugins, updatePluginPreferences, updateCommandPreferences, getPlugin  } from "./preload/plugin/manager"
+import { registerPlugin, unregisterPlugin, disablePlugin, disablePluginCommand, updatePluginsSettings, getPlugins, updatePluginPreferences, updateCommandPreferences, getPlugin, updatePluginSettings, updateCommandSettings  } from "./preload/plugin/manager"
 import { handleQuery, handleSelect, handleEnter, handleAction, enterPluginCommand } from "./preload/plugin/service"
 import { getConfig } from './config'
 
@@ -18,6 +18,8 @@ window.pluginManager = {
 
   updatePluginPreferences,
   updateCommandPreferences,
+  updatePluginSettings,
+  updateCommandSettings,
 
   handleQuery,
   handleSelect,
@@ -29,4 +31,3 @@ window.pluginManager = {
 
 const basicPlugin = pathJoin(config.pluginBasePath, './settings')
 window.pluginManager!.registerPlugin(basicPlugin)
-

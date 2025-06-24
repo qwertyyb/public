@@ -2,14 +2,15 @@ import * as nodePath from 'path'
 import * as fs from 'fs'
 import Ajv from 'ajv';
 import schema from './manifest-schema.json' 
-import { IActionItem, IFullPluginCommandMatch, IPlugin, IPluginCommand, IPluginCommandConfig, IPluginCommandMatch, IPluginManager, IPluginManifest, IPluginManifestConfig, IPluginReturn, IPluginSettings, IPluginsSettings, IRunningPlugin, ITextPluginCommandMatch, ITriggerPluginCommandMatch } from '@public/shared'
-import { hanziToPinyin, getFrontmostApplication } from '@public/osx-utils';
+import { ICommandSettings, IPlugin, IPluginCommand, IPluginCommandConfig, IPluginManifest, IPluginManifestConfig, IPluginReturn, IPluginSettings, IPluginsSettings, IRunningPlugin, ITextPluginCommandMatch } from '@public/shared'
+import { hanziToPinyin } from '@public/osx-utils';
+import { db } from '../utils';
 
 const ajv = new Ajv({ allowUnionTypes: true })
-const validate = ajv.compile(schema);
+const validate = ajv.compile(schema)
 
 const plugins: Map<string, IRunningPlugin> = new Map()
-let pluginsSettings: IPluginsSettings = {}
+let pluginsSettings: IPluginsSettings & PouchDB.Core.IdMeta & PouchDB.Core.GetMeta | IPluginsSettings = {}
 
 const resultsMap = new WeakMap<IPluginCommand, { score: number, query: string, owner: IRunningPlugin }>()
 
@@ -32,6 +33,10 @@ const joinPath = (relativePath: string | undefined, path: string) => {
     return relativePath
   }
   return 'ipublic://public.qwertyyb.com/local-file?path=' + encodeURIComponent(nodePath.join(path, relativePath))
+}
+
+const save = () => {
+  return db.put({ ...pluginsSettings, _id: 'pluginsSettings' })
 }
 
 const formatCommand = (command: IPluginCommandConfig, manifest: IPluginManifest, pluginPath: string): IPluginCommand => {
@@ -111,9 +116,6 @@ export const registerPlugin = async (pluginPath: string) => {
           commands.forEach(command => resultsMap.set(formatCommand(command, manifest, pluginPath), { score: 1, query: '', owner: pluginInstance }))
           window.dispatchEvent(new CustomEvent('plugin:showCommands', { detail: { name: manifest.name, commands }}))
         },
-        enter: (command, options) => {
-          return window.publicApp!.enter(name, command, options)
-        },
         getPreferences: () => {
           return pluginsSettings[name]?.preferences || {}
         }
@@ -163,9 +165,11 @@ export const disablePlugin = (name: string, disabled: boolean) => {
       disabled,
       commands: {}
     }
+    save()
     return
   }
   pluginsSettings[name]!.disabled = disabled
+  save()
 }
 
 export const disablePluginCommand = (name: string, commandName: string, disabled: boolean) => {
@@ -186,6 +190,7 @@ export const disablePluginCommand = (name: string, commandName: string, disabled
         }
       }
     }
+    save()
     return
   }
   if (!settings.commands) {
@@ -196,6 +201,7 @@ export const disablePluginCommand = (name: string, commandName: string, disabled
         shortcuts: '',
       }
     }
+    save()
     return
   }
   if (!settings.commands[commandName]) {
@@ -204,9 +210,11 @@ export const disablePluginCommand = (name: string, commandName: string, disabled
       alias: '',
       shortcuts: '',
     }
+    save()
     return
   }
   settings!.commands![commandName]!.disabled = disabled
+  save()
 }
 
 
@@ -214,34 +222,74 @@ export const updatePluginsSettings = (value: IPluginsSettings) => {
   // pluginsSettings = value
 }
 
+export const updatePluginSettings = (name: string, value: Partial<Omit<IPluginSettings, 'commands'>>) => {
+  const plugin = plugins.get(name)
+  if (!plugin) return;
+  Object.entries(value).forEach(([key, val]) => {
+    // @ts-ignore
+    plugin.settings![key] = val
+  })
+}
+
+export const updateCommandSettings = (pluginName: string, commandName: string, settings: ICommandSettings) => {
+  const plugin = plugins.get(pluginName)
+  if (!plugin) return;
+  plugin.settings!.commands[commandName] = { ...plugin.settings, ...settings }
+}
+
 export const getPlugin = (name: string) => {
   return plugins.get(name)
 }
 
+export const launchPlugins = async () => {
+  const result = await db.get<IPluginsSettings>('pluginsSettings')
+    .catch(err => {
+      console.error(err)
+      return {}
+    })
+  pluginsSettings = result
+
+  const names = [
+    'launcher', 'command', 'calculator', 'qrcode', 'search', 'translate', 'clipboard',
+    'douban', 'magic', 'ai-chat', 'v2ex', 'terminal', 'find', 'google-chrome', 'mdn', 'shortcuts', 'transform',
+  ]
+  
+  const pluginsPathList = names.map(name => ({ path: nodePath.join(__dirname, '../plugins', name) }))
+  pluginsPathList.forEach(({ path }) => {
+    registerPlugin(path)
+  })
+}
+
+launchPlugins()
+
 export const updatePluginPreferences = (name: string, prfs: Record<string, any>) => {
   const plugin = plugins.get(name)
   if (!plugin) return;
-  if (!plugin.settings) {
+  if (plugin.settings) {
+    plugin.settings.preferences = { ...plugin.settings.preferences, ...prfs }
+  } else {
     plugin.settings = {
       disabled: false,
       commands: {},
       preferences: { ...prfs }
     }
-    return
   }
-  plugin.settings.preferences = { ...plugin.settings.preferences, ...prfs }
+
+  save()
 }
 
 export const updateCommandPreferences = (pluginName: string, commandName: string, prfs: Record<string, any>) => {
   updatePluginPreferences(pluginName, {})
   if (!plugins.get(pluginName)) return;
   const command = plugins.get(pluginName)!.settings!.commands[commandName]
-  if (!command) {
+  if (command) {
+    plugins.get(pluginName)!.settings!.commands[commandName]!.preferences = { ...command.preferences, ...prfs }
+  } else {
     plugins.get(pluginName)!.settings!.commands[commandName] = {
       disabled: false,
       preferences: { ...prfs }
     }
-    return
   }
-  plugins.get(pluginName)!.settings!.commands[commandName]!.preferences = { ...command.preferences, ...prfs }
+
+  save()
 }

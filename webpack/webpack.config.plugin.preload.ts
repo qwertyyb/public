@@ -42,6 +42,15 @@ const config: (env: Record<string, string>, argv: Record<string, any>) => Promis
           use: 'ts-loader',
           exclude: /node_modules/,
         },
+      {
+        test: /\.js$/,
+        loader: 'string-replace-loader',
+        options: {
+          multiple: [
+             { search: `require('node-gyp-build')(__dirname)`, replace: 'require("./build/Release/leveldown.node")' },
+          ]
+        }
+      },
         {
           test: /\.css$/i,
           use: ['style-loader', 'css-loader'],

@@ -11,7 +11,7 @@
     >
       <el-form-item class="prfs-form-item"
         :label="item.title"
-        v-for="item in manifest?.preferences || []"
+        v-for="item in preferences"
         :key="item.name"
         :required="item.required"
       >
@@ -25,10 +25,13 @@
         >
           <el-option v-for="option in item.options || []"
             :key="option.value"
-            :value="option.value" :label="option.title"
+            :value="option.value" :label="option.label"
           ></el-option>
         </el-select>
         <p class="form-item-desc">{{ item.description }}</p>
+      </el-form-item>
+      <el-form-item class="btn-item">
+        <el-button type="primary" style="margin: 0 auto" :disabled="btnDisabled" @click="confirm">继续</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -36,18 +39,34 @@
 
 <script setup lang="ts">
 import type { IPluginManifest } from '@public/shared';
-import { ElForm, ElFormItem, ElInput, ElSelect, ElOption } from 'element-plus';
-import { nextTick, ref, shallowRef, toRaw, watch } from 'vue';
+import { ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElButton } from 'element-plus';
+import { computed, nextTick, ref, shallowRef, toRaw, watch } from 'vue';
 
-const props = defineProps<{ plugin: string, command?: string }>();
+const props = defineProps<{ plugin: string, command?: string, done?: () => void }>();
 
 const manifest = shallowRef<Omit<IPluginManifest, 'commands'>>()
 
+const preferences = shallowRef<{
+  name: string,
+  title: string,
+  description?: string,
+  type: 'text' | 'textarea' | 'select',
+  required?: boolean,
+  placeholder?: string,
+  options?: { value: string, label: string }[]
+}[]>([])
+
 const formValue = ref<Record<string, any>>({})
+
+const btnDisabled = computed(() => {
+  const requiredFields = preferences.value.filter(item => item.required)
+  return requiredFields.some(item => !formValue.value[item.name])
+})
 
 let inited = false
 watch(formValue, () => {
   if (!inited) return;
+  console.log('aaaaa', 'bbbbb', props)
   if (props.command) {
     window.pluginManager?.updateCommandPreferences(props.plugin, props.command, toRaw(formValue.value))
   } else {
@@ -59,12 +78,22 @@ const refresh = async () => {
   const plugin = window.pluginManager?.getPlugin(props.plugin)
   if (!plugin) return;
   manifest.value = plugin.manifest
-  formValue.value = plugin.settings?.preferences || {}
+  if (props.command) {
+    preferences.value = plugin.commands.find(c => c.name === props.command)?.preferences || []
+    formValue.value = plugin.settings?.commands?.[props.command]?.preferences || {}
+  } else {
+    preferences.value = plugin.manifest.preferences || []
+    formValue.value = plugin.settings?.preferences || {}
+  }
   await nextTick()
   inited = true
 }
 
 refresh()
+
+const confirm = () => {
+  props.done?.()
+}
 
 </script>
 

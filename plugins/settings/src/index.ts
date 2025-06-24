@@ -12,23 +12,11 @@ const settingsPlugin: IPlugin = (utils) => {
       const url = new URL(location.href)
       url.hash = '#/settings'
       console.log('ssss')
-      const webview = await window.publicApp.createView({
+      const { bridge } = await window.publicApp.createView('settings', {
         src: url.href,
         webpreferences: 'nodeIntegration=no,contextIsolation=no,enableRemoteModule=no,allowRunningInsecureContent=no,spellcheck=no,backgroundThrottling=no,sandbox=no'
-        // webPreferences: {
-        //   nodeIntegration: true,
-        //   webSecurity: false,
-        //   allowRunningInsecureContent: false,
-        //   spellcheck: false,
-        //   devTools: true,
-        //   contextIsolation: false,
-        //   backgroundThrottling: false,
-        //   enablePreferredSizeMode: true,
-        //   sandbox: false,
-        // }
       })
-      console.log(webview)
-      initHandler(webview)
+      initHandler(bridge)
     }
   }
 }

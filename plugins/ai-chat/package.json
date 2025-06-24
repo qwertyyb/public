@@ -8,6 +8,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "main": "./dist/index.js",
   "publicPlugin": {
     "icon": "https://lf-coze-web-cdn.coze.cn/obj/coze-web-cn/obric/coze/favicon.1970.png",
     "title": "AI助手",
@@ -36,7 +37,7 @@
       {
         "name": "ai-chat",
         "title": "AI助手",
-        "mode": "view",
+        "mode": "none",
         "entry": "http://localhost:4000/#/ai/chat",
         "matches": [
           {
@@ -48,8 +49,7 @@
               "chat"
             ]
           }
-        ],
-        "preload": "./dist/preload.js"
+        ]
       }
     ]
   },

@@ -1,12 +1,19 @@
-import { IActionItem, IPluginCommand, IPluginCommandListView, IPluginsSettings, IRunningPlugin } from './plugin'
+import { IActionItem, ICommandSettings, IPluginCommand, IPluginCommandListView, IPluginSettings, IPluginsSettings, IRunningPlugin } from './plugin'
 import { PortBridge } from './utils'
-import { IWebviewElement, IWebviewEventMap, IWebviewTagAttributes } from './webview'
+import { IWebview, IWebviewElement, IWebviewEventMap, IWebviewTagAttributes } from './webview'
 
 export * from './plugin'
 export * from './utils'
 export * from './webview'
 
 export interface IWebviewProps { src: string, preload?: string, nodeintegration?: boolean, nodeintegrationinsubframes?: boolean, httpreferrer?: string, useragent?: string, disablewebsecurity?: boolean, webpreferences?: string }
+
+export interface IBridge {
+  invoke: <R extends any>(method, ...args: any[]) => Promise<R>,
+  handle: (channel: string, callback: (...args: any[]) => any) => void,
+  unhandle: (channel: string) => void,
+}
+
 export interface IPublicApp {
   db: {
     run: (sql: string, params?) => Promise<any>,
@@ -19,18 +26,15 @@ export interface IPublicApp {
   mainWindow: {
     show: () => Promise<void>,
     hide: () => Promise<void>,
+    pushView: (options: { path: string, params?: any }) => void
+    popToRoot: (options?: { clearInput?: boolean }) => void,
   },
   plugin: {
     // 在插件内调用
     exitCommand: () => void,
-    getPreferenceValues: (commandName: string) => Record<string, any>
+    getPreferenceValues: ((pluginName: string, commandName?: string) => Record<string, any>),
+    openPreferences: (pluginName?: string, commandName?: string) => void,
   }
-  inputBar: {
-    setValue: (value: string) => void,
-    emitChange: (value: string) => void,
-    onChange: (callback: (keyword: string) => void) => void,
-    offChange: (callback: (keyword: string) => void) => void,
-  },
   keyboard: {
     type: (...keys: string[]) => Promise<void>,
     holdKey: (...keys: string[]) => Promise<void>,
@@ -48,9 +52,7 @@ export interface IPublicApp {
     scroll: (point: {x?: number, y?: number}) => Promise<void>
   },
   fetch: (...args: Parameters<typeof fetch>) => Promise<Response>,
-  enter: (name: string, item: IPluginCommand, args: any, query?: string) => Promise<PortBridge>,
-  exit: (options?: { clearMainInputValue: true }) => Promise<void>,
-  createView: (options?: IWebviewTagAttributes) => Promise<IWebviewElement>,
+  createView: (pluginName: string, options?: IWebviewTagAttributes) => Promise<{ webview: IWebview, bridge: IBridge }>,
   sendToHost: (channel: string, ...args: any[]) => void,
   onHostMessage: (channel: string, callback: (...args: any[]) => void) => void,
   offHostMessage: (channel: string, callback: (...args: any[]) => void) => void,
@@ -79,7 +81,8 @@ export interface IPublicApp {
 
   storage: {
     getItem: <T extends any>(key: string) => Promise<T | null>,
-    setItem: (key: string, value: any) => Promise<void>,
+    setItem: (key: string, value: any) => Promise<PouchDB.Core.Response>,
+    removeItem: (key: string) => Promise<void>,
   },
 
   runAppleScript: (script: string) => Promise<string>,
@@ -96,8 +99,10 @@ export interface IPluginManager {
   disablePluginCommand: (name: string, commandName: string, disabled: boolean) => void,
 
   updatePluginsSettings: (value: IPluginsSettings) => void
+  updatePluginSettings: (name: string, settings: IPluginSettings) => void
   updatePluginPreferences: (name: string, prfs: Record<string, any>) => void
   updateCommandPreferences: (pluginName: string, commandName: string, prfs: Record<string, any>) => void
+  updateCommandSettings: (pluginName: string, commandName: string, settings: ICommandSettings) => void
 
   handleQuery: (keyword: string) => Promise<IPluginCommand[]>,
   handleEnter: (command: IPluginCommand) => void,

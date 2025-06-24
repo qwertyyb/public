@@ -24,7 +24,6 @@ export type IPluginReturn = {
 export type IPlugin = (utils: {
   updateCommands: (commands: IPluginCommandConfig[]) => void,
   showCommands: (commands: IPluginCommandConfig[]) => void,
-  enter: (command: IPluginCommand, options: Electron.WebContentsViewConstructorOptions & { entry?: string, preload?: string }) => Promise<PortBridge>,
   getPreferences: () => any,
 }) => IPluginReturn
 
@@ -64,10 +63,10 @@ export interface IPreference {
   description?: string
   type: 'text' | 'select',
   required?: boolean,
-  default?: string | number | boolean,
+  default?: any,
   placeholder?: string,
 
-  options?: { value: string | number | boolean, title: string }[]
+  options?: { value: any, label: string }[]
 }
 
 export interface IPluginManifestConfig extends Required<IListItem> {

@@ -6,16 +6,17 @@
       class="input"
       placeholder="请搜索"
       v-model="modelValue"
-      ref="inputEl"
+      ref="input"
       id="main-input"/>
     <img :src="command.icon" alt="" class="appLogo" draggable="false" v-if="command" />
     <img src="../assets/logo.svg" alt="" class="appLogo" draggable="false" v-else />
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { useTemplateRef } from 'vue'
 import { curry } from 'ramda';
 import { isKeyPressed } from '@/utils/keyboard';
+import { onPageEnter, onPageLeave } from '@/router/hooks';
 
 const modelValue = defineModel({ default: '' })
 defineProps<{
@@ -24,7 +25,7 @@ defineProps<{
 }>()
 const emits = defineEmits<{ escape: [] }>()
 
-const inputEl = ref<HTMLInputElement>()
+const inputEl = useTemplateRef('input')
 
 const handler = (event: KeyboardEvent) => {
   const checkKey = curry(isKeyPressed)(event)
@@ -42,12 +43,13 @@ const handler = (event: KeyboardEvent) => {
   }
 }
 
-onMounted(() => {
+onPageEnter(() => {
   inputEl.value?.focus()
+  console.log('onPageEnter', inputEl.value, document.activeElement)
   window.addEventListener('keydown', handler)
 })
 
-onBeforeUnmount(() => {
+onPageLeave(() => {
   window.removeEventListener('keydown', handler)
 })
 </script>

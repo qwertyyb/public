@@ -11,11 +11,19 @@
 </template>
 
 <script setup lang="ts">
-import { pluginViewState as state } from '@/state/plugin';
-import type { IPluginCommand, IWebviewElement } from '@public/shared';
-import { pick } from 'ramda';
-import { computed, onBeforeUnmount, onMounted, type WebViewHTMLAttributes } from 'vue';
-import { useRouter } from 'vue-router';
+import type { IPluginCommand, IRunningPlugin, IWebview, IWebviewTagAttributes } from '@public/shared';
+import { createBridge } from '@public/utils';
+import { computed, onBeforeUnmount, onMounted } from 'vue';
+
+const props = defineProps<{
+  plugin: IRunningPlugin,
+  command: IPluginCommand,
+  query: string
+} | {
+  options?: IWebviewTagAttributes,
+  plugin: IRunningPlugin,
+  callback: (options: { webview: IWebview, bridge: ReturnType<typeof createBridge> }) => void
+}>()
 
 const getEntryUrl = (command: IPluginCommand) => {
   let url: URL
@@ -39,52 +47,61 @@ const getPreload = (command: IPluginCommand) => {
 
 
 const webviewProps = computed(() => {
-  if (!state.value) return {}
-  if ('callback' in state.value) {
-    return state.value.options
+  if ('options' in props && props.options) {
+    return props.options
   }
   return {
-    src: getEntryUrl(state.value.command),
-    preload: getPreload(state.value.command),
+    src: getEntryUrl((props as any).command),
+    preload: getPreload((props as any).command),
     partition: "plugin",
-    webpreferences: "contextIsolation=no, sandbox=no, additionalArguments=['aaaabbbccc']"
+    webpreferences: "contextIsolation=no, sandbox=no"
   }
 })
 
-const getWebview = () => document.querySelector<IWebviewElement>('webview.plugin-view-webview')
+console.log(webviewProps)
 
-const router = useRouter()
+const getWebview = () => document.querySelector<IWebview>('webview.plugin-view-webview')
 
 const messageHandler = (event: any) => {
   console.log('messageHandlder', event)
   const { channel } = event
-  if (channel === 'initMeta') {
-    if (!state.value || 'callback' in state.value) return
-    console.log('receive initMeta')
-    // getWebview()?.send('meta', {
-    //   plugin: pick(['name', 'title', 'icon'], state.value.plugin.manifest),
-    //   command: pick(['name', 'title', 'icon'], state.value.command),
-    //   pluginPreferences: state.value.plugin.settings?.preferences || {},
-    //   commandPreferences: state.value.plugin.settings?.commands?.[state.value.command.name]?.preferences || {}
-    // })
-    getWebview()?.executeJavaScript(`console.log('execsssss', performance.now())`)
-    return;
-  }
   if (channel === 'exitCommand') {
-    router.back()
+    window.publicApp.mainWindow.popToRoot()
   }
 }
 
+let bridge: ReturnType<typeof createBridge>
+
 onMounted(() => {
   const webview = getWebview()
-  if (webview && state.value && 'callback' in state.value) {
-    state.value.callback(webview)
+  if (webview && ('callback' in props) && typeof props.callback === 'function') {
+    props.callback({ webview, bridge })
   }
   webview?.focus()
   webview?.addEventListener('ipc-message', messageHandler)
-  webview?.addEventListener('dom-ready', () => {
-    console.log('dddd dom ready')
-    webview?.executeJavaScript(`console.log('aaabbbccc', performance.now());window.weeapp='hello'`)
+  bridge = createBridge(
+    (payload) => getWebview()?.send('bridgeMessage', payload),
+    (callback) => getWebview()?.addEventListener('ipc-message', (event) => {
+      if (event.channel === 'bridgeMessage') {
+        callback(event.args[0])
+      }
+    })
+  )
+
+  const innerBridge = createBridge(
+    (payload) => getWebview()?.send('innerBridgeMessage', payload),
+    (callback) => getWebview()?.addEventListener('ipc-message', (event) => {
+      if (event.channel === 'innerBridgeMessage') {
+        callback(event.args[0])
+      }
+    })
+  )
+  innerBridge.handle('popToRoot', (options) => window.publicApp.mainWindow.popToRoot(options))
+  innerBridge.handle('getPreferenceValues', (commandName?: string) => {
+    return window.publicApp.plugin.getPreferenceValues(props.plugin.manifest.name, commandName)
+  })
+  innerBridge.handle('openPreferences', (commandName?: string) => {
+    return window.publicApp.plugin.openPreferences(props.plugin.manifest.name, commandName)
   })
 })
 

@@ -16,7 +16,7 @@ export const match = (candidate: string[] | string, keyword: string) => {
   return arr.some(element => element?.toLowerCase().includes(k) || pinyinMatch(element, k))
 }
 
-export const createBridge = (messagePort?: MessagePort): PortBridge => {
+export const createPortBridge = (messagePort?: MessagePort): PortBridge => {
   let queue: { type: string, methodName: string, args: any[], callbackName: string }[] = []
   let port: MessagePort | null | undefined = messagePort
   const eventBus = new EventEmitter()

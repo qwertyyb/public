@@ -28,17 +28,17 @@ type TPayload = {
 
 type Callback = (payload: TPayload) => void
 
-export const createBridge = <F extends (...args: any[]) => any>(
+export const createBridge = (
   send: Callback,
   on: (callback: Callback) => void,
-  functions?: Record<string, F>
 ) => {
   const callbacks = new Map<string, { resolve: (result: any) => void, reject: (err: Error) => void }>();
+  const functions = new Map<string, (...args: any[]) => any>()
 
   on(async (data: TPayload) => {
     if (data.type === 'invoke') {
       const { method, args, callback } = data;
-      const func = functions?.[method]
+      const func = functions.get(method)
       if (func) {
         return send({
           type: 'callback',
@@ -81,6 +81,12 @@ export const createBridge = <F extends (...args: any[]) => any>(
           throw err
         }
       })
-    }
+    },
+    handle(channel: string, callback: (...args: any[]) => any) {
+      functions.set(channel, callback)
+    },
+    unhandle(channel: string) {
+      functions.delete(channel)
+    },
   }
 }

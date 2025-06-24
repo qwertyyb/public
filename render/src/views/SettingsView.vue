@@ -1,11 +1,5 @@
 <template>
   <div class="settings-view dark:text-white">
-    <header class="settings-view-header flex items-center">
-      <div class="navBack material-symbols-outlined cursor-pointer"
-        @pointerdown="exitCommand">
-        arrow_back
-      </div>
-    </header>
     <main class="settings-view-main  flex">
       <div class="aside w-48">
         <ul class="setting-list text-center border-r h-screen">
@@ -77,10 +71,10 @@
                   <el-button :icon="Operation" circle
                     class="mr-4"
                     v-if="plugin.manifest.preferences?.length"
-                    @click="$router.push({ name: 'pluginPrfs', params: { name: plugin.manifest.name }})"
+                    @click="openPrfsView(plugin.manifest.name)"
                   />
                   <el-switch class="mr-4"
-                    :model-value="!settings.pluginsSettings[plugin.manifest.name]?.disabled"
+                    :model-value="plugin.settings?.disabled"
                     @update:model-value="onPluginDisabledChange($event as boolean, plugin)"
                   ></el-switch>
                   <el-button type="danger" :icon="Delete"
@@ -101,19 +95,19 @@
                   <div class="ml-2 w-16 text-center">
                     <el-input size="small"
                       placeholder="别名"
-                      :model-value="settings.pluginsSettings[plugin.manifest.name]?.commands?.[command.name]?.alias ?? ''"
+                      :model-value="plugin.settings?.commands?.[command.name]?.alias ?? ''"
                       @update:model-value="onCommandChange({ alias: $event }, plugin, command)"
                     ></el-input>
                   </div>
                   <div class="ml-6 w-28 flex justify-center">
                     <ShortcutsRecorder
-                      :model-value="settings.pluginsSettings[plugin.manifest.name]?.commands?.[command.name]?.shortcuts ?? ''"
+                      :model-value="plugin.settings?.commands?.[command.name]?.shortcuts ?? ''"
                       @update:model-value="onCommandChange({ shortcuts: $event }, plugin, command)"
                     ></ShortcutsRecorder>
                   </div>
                   <div class="suffix ml-auto flex items-center">
                     <el-switch
-                      :model-value="!settings.pluginsSettings[plugin.manifest.name]?.commands?.[command.name]?.disabled"
+                      :model-value="!plugin.settings?.commands?.[command.name]?.disabled"
                       @update:model-value="onCommandChange({ disabled: !$event }, plugin, command)"
                       size="small"
                     ></el-switch>
@@ -134,7 +128,6 @@ import { ElMessage, ElButton, ElSelect, ElSwitch, ElOption, ElInput } from 'elem
 import { ArrowRightBold, Plus, Delete, Operation } from '@element-plus/icons-vue';
 import ShortcutsRecorder from '@/components/ShortcutsRecorder.vue';
 import type { ICommandSettings, IPluginCommand, IPluginSettings, IRunningPlugin } from '@public/shared';
-// import { getPlugins, getSettings, registerLaunchAtLogin, registerShortcuts, removePlugin, updateSettings } from '@/services/manager';
 import { createBridge } from '@public/utils'
 
 const bridge = createBridge(
@@ -155,19 +148,13 @@ const settings = ref<{
   shortcuts: string,
   clearTimeout: number,
   pluginsPathList: string[],
-  pluginsSettings: Record<string, IPluginSettings>
 }>({
   launchAtLogin: false,
   shortcuts: '',
   clearTimeout: 90,
   pluginsPathList: [],
-  pluginsSettings: {}
 })
 const expand = ref<Record<string, boolean | undefined>>({})
-
-const exitCommand = () => {
-  window.publicApp.exit()
-}
 
 const refreshSettings = async () => {
   bridge.invoke('getSettings')?.then((data: any) => {
@@ -183,51 +170,27 @@ const refreshSettings = async () => {
 }
 const onLaunchAtLoginChange = async (launchAtLogin: any) => {
   settings.value.launchAtLogin = !!launchAtLogin
-  await bridge.invoke('registerLaunchAtLogin', {
-    settings: toRaw(settings.value)
-  })
+  await bridge.invoke('registerLaunchAtLogin', settings.value.launchAtLogin)
   refreshSettings()
 }
 const onShortcutsChange = async (shortcuts: string) => {
   settings.value.shortcuts = shortcuts
-  await bridge.invoke('registerShortcuts', {
-    settings: toRaw(settings.value)
-  })
+  await bridge.invoke('registerShortcuts', shortcuts)
   refreshSettings()
 }
 const onClearTimeoutChange = async () => {
-  await bridge.invoke('updateSettings', {
-    settings: toRaw(settings.value)
-  })
+  await bridge.invoke('updateSettings', settings.value.clearTimeout)
   refreshSettings()
 }
 const onPluginDisabledChange = async (enabled: boolean, plugin: IRunningPlugin) => {
   console.log('plugin enabled', enabled)
-  settings.value.pluginsSettings[plugin.manifest.name] = {
-    ...settings.value.pluginsSettings[plugin.manifest.name],
-    disabled: !enabled
-  }
-  await bridge.invoke('updateSettings', {
-    settings: toRaw(settings.value)
-  })
+  plugin.settings = { ...plugin.settings!, disabled: !enabled }
+  await bridge.invoke('disablePlugin', !enabled)
   refreshSettings()
 }
 const onCommandChange = async (values: Partial<ICommandSettings>, plugin: IRunningPlugin, command: IPluginCommand) => {
-  const origin = settings.value.pluginsSettings[plugin.manifest.name]
-  settings.value.pluginsSettings[plugin.manifest.name] = {
-    ...origin,
-    commands: {
-      ...origin?.commands,
-      [command.name]: {
-        ...origin?.commands?.[command.name],
-        ...values
-      }
-    }
-  }
-  console.log(toRaw(settings.value))
-  await bridge.invoke('updateSettings', {
-    settings: toRaw(settings.value)
-  })
+  plugin.settings!.commands![command.name] = { ...plugin.settings!.commands![command.name], ...values }
+  await bridge.invoke('updateCommandSettings', { ...values })
   refreshSettings()
 }
 
@@ -275,6 +238,10 @@ const onRemovePluginClick = async (index: number, plugin: IRunningPlugin) => {
   refreshSettings()
 }
 
+const openPrfsView = async (plugin: string, command?: string) => {
+  await bridge.invoke('openPrfsView', plugin, command)
+}
+
 refreshSettings()
 
 </script>
@@ -284,6 +251,7 @@ refreshSettings()
   color-scheme: light dark;
   // background-color: light-dark(#fff, #000);
   height: 486px;
+  padding-top: var(--nav-height);
 }
 .settings-view-header {
   height: 48px;
