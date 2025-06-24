@@ -128,12 +128,6 @@ import { ElMessage, ElButton, ElSelect, ElSwitch, ElOption, ElInput } from 'elem
 import { ArrowRightBold, Plus, Delete, Operation } from '@element-plus/icons-vue';
 import ShortcutsRecorder from '@/components/ShortcutsRecorder.vue';
 import type { ICommandSettings, IPluginCommand, IPluginSettings, IRunningPlugin } from '@public/shared';
-import { createBridge } from '@public/utils'
-
-const bridge = createBridge(
-  (payload) => window.publicApp.sendToHost('bridgeMessage', payload),
-  (callback) => window.publicApp.onHostMessage('bridgeMessage', (event, payload) => callback(payload)),
-)
 
 const views = ref({
   'common': '通用',
@@ -157,40 +151,40 @@ const settings = ref<{
 const expand = ref<Record<string, boolean | undefined>>({})
 
 const refreshSettings = async () => {
-  bridge.invoke('getSettings')?.then((data: any) => {
+  window.PublicAppBridge.invoke('getSettings')?.then((data: any) => {
     settings.value = {
       ...settings.value,
       ...data
     }
     console.log('settings.value', settings.value)
   })
-  bridge.invoke<IRunningPlugin[]>('getPlugins')?.then((data: IRunningPlugin[]) => {
+  window.PublicAppBridge.invoke<IRunningPlugin[]>('getPlugins')?.then((data: IRunningPlugin[]) => {
     plugins.value = data
   })
 }
 const onLaunchAtLoginChange = async (launchAtLogin: any) => {
   settings.value.launchAtLogin = !!launchAtLogin
-  await bridge.invoke('registerLaunchAtLogin', settings.value.launchAtLogin)
+  await window.PublicAppBridge.invoke('registerLaunchAtLogin', settings.value.launchAtLogin)
   refreshSettings()
 }
 const onShortcutsChange = async (shortcuts: string) => {
   settings.value.shortcuts = shortcuts
-  await bridge.invoke('registerShortcuts', shortcuts)
+  await window.PublicAppBridge.invoke('registerShortcuts', shortcuts)
   refreshSettings()
 }
 const onClearTimeoutChange = async () => {
-  await bridge.invoke('updateSettings', settings.value.clearTimeout)
+  await window.PublicAppBridge.invoke('updateSettings', settings.value.clearTimeout)
   refreshSettings()
 }
 const onPluginDisabledChange = async (enabled: boolean, plugin: IRunningPlugin) => {
   console.log('plugin enabled', enabled)
   plugin.settings = { ...plugin.settings!, disabled: !enabled }
-  await bridge.invoke('disablePlugin', !enabled)
+  await window.PublicAppBridge.invoke('disablePlugin', !enabled)
   refreshSettings()
 }
 const onCommandChange = async (values: Partial<ICommandSettings>, plugin: IRunningPlugin, command: IPluginCommand) => {
   plugin.settings!.commands![command.name] = { ...plugin.settings!.commands![command.name], ...values }
-  await bridge.invoke('updateCommandSettings', { ...values })
+  await window.PublicAppBridge.invoke('updateCommandSettings', { ...values })
   refreshSettings()
 }
 
@@ -227,19 +221,19 @@ const onAddPluginClick = async () => {
   
   validateFile(file)
 
-  // await window.bridge.invoke('registerPlugin', { path: file.path })
+  // await window.window.PublicAppBridge.invoke('registerPlugin', { path: file.path })
   ElMessage.success('插件添加成功')
   refreshSettings()
 }
 
 const onRemovePluginClick = async (index: number, plugin: IRunningPlugin) => {
-  await bridge.invoke('removePlugin', { index, plugin })
+  await window.PublicAppBridge.invoke('removePlugin', { index, plugin })
   ElMessage.success('插件移除成功')
   refreshSettings()
 }
 
 const openPrfsView = async (plugin: string, command?: string) => {
-  await bridge.invoke('openPrfsView', plugin, command)
+  await window.PublicAppBridge.invoke('openPrfsView', plugin, command)
 }
 
 refreshSettings()

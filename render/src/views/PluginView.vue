@@ -74,11 +74,6 @@ let bridge: ReturnType<typeof createBridge>
 
 onMounted(() => {
   const webview = getWebview()
-  if (webview && ('callback' in props) && typeof props.callback === 'function') {
-    props.callback({ webview, bridge })
-  }
-  webview?.focus()
-  webview?.addEventListener('ipc-message', messageHandler)
   bridge = createBridge(
     (payload) => getWebview()?.send('bridgeMessage', payload),
     (callback) => getWebview()?.addEventListener('ipc-message', (event) => {
@@ -87,6 +82,11 @@ onMounted(() => {
       }
     })
   )
+  if (webview && ('callback' in props) && typeof props.callback === 'function') {
+    props.callback({ webview, bridge })
+  }
+  webview?.focus()
+  webview?.addEventListener('ipc-message', messageHandler)
 
   const innerBridge = createBridge(
     (payload) => getWebview()?.send('innerBridgeMessage', payload),

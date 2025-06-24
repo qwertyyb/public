@@ -138,7 +138,7 @@ const createCommonAPI = (pluginName?: string): IPublicApp => {
 
     createView(pluginName: string, options?: IWebviewTagAttributes) {
       return new Promise<{ webview: IWebview, bridge: ReturnType<typeof createBridge> }>(resolve => {
-        window.dispatchEvent(new CustomEvent('create-view', { detail: {  plugin: getPlugin(pluginName), options, callback: resolve } }))
+        window.dispatchEvent(new CustomEvent('push-view', { detail: {  path: '/plugin/view', params: { plugin: getPlugin(pluginName), options, callback: resolve } } }))
       })
     },
 
