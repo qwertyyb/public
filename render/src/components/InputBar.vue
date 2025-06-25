@@ -1,35 +1,38 @@
 <template>
-  <div class="inputBar" @pointerdown.capture="inputEl?.focus()" tabindex="0">
-    <input type="text"
+  <div class="inputBar" @pointerup="inputEl?.focus()" tabindex="0">
+    <input
       autofocus
       v-if="!disabled"
       class="input"
-      placeholder="请搜索"
-      v-model="modelValue"
       ref="input"
-      id="main-input"/>
+      @keyup="keyUpHandler"
+      v-model="modelValue"
+      id="main-input" />
+    <div class="input-placeholder" v-if="!disabled && !modelValue">{{ placeholder }}</div>
     <div class="searchSpace"></div>
     <img :src="command.icon" alt="" class="appLogo" draggable="false" v-if="command" />
     <img src="../assets/logo.svg" alt="" class="appLogo" draggable="false" v-else />
   </div>
 </template>
 <script setup lang="ts">
-import { useTemplateRef } from 'vue'
+import { ref, useTemplateRef } from 'vue'
 import { curry } from 'ramda';
 import { isKeyPressed } from '@/utils/keyboard';
 import { onPageEnter, onPageLeave } from '@/router/hooks';
-import { createAutoResizeInput } from '@/utils';
 
 const modelValue = defineModel({ default: '' })
-defineProps<{
+const props = defineProps<{
   command?: { icon: string } | null,
   disabled?: boolean,
+  isMainInput?: boolean,
 }>()
 const emits = defineEmits<{ escape: [] }>()
 
 const inputEl = useTemplateRef('input')
+const placeholder = ref('search...')
 
-const handler = (event: KeyboardEvent) => {
+const keyUpHandler = (event: KeyboardEvent) => {
+  console.log('handler', event)
   const checkKey = curry(isKeyPressed)(event)
   if (checkKey('Escape')) {
     if (modelValue.value) {
@@ -45,16 +48,18 @@ const handler = (event: KeyboardEvent) => {
   }
 }
 
+const fetchPlaceholder = async () => {
+  const r = await fetch('https://v1.hitokoto.cn/')
+  const json = await r.json()
+  placeholder.value = json?.hitokoto || '欢迎使用 Public App'
+}
+
 onPageEnter(() => {
   inputEl.value?.focus()
   console.log('onPageEnter', inputEl.value, document.activeElement)
-  window.addEventListener('keydown', handler)
-  inputEl.value && createAutoResizeInput(inputEl.value)
-})
-
-onPageLeave(() => {
-  window.removeEventListener('keydown', handler)
-  inputEl.value && (inputEl.value as any).autoResizeInstance.destroy()
+  if (props.isMainInput) {
+    fetchPlaceholder()
+  }
 })
 </script>
 
@@ -68,30 +73,41 @@ onPageLeave(() => {
   border-bottom: 1px solid light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.06));
   display: flex;
   align-items: center;
+  --padding-left: calc(var(--nav-width, 0px) + 16px)
 }
 .input {
   height: 42px;
+  line-height: 42px;
   min-height: 42px;
   font-size: 18px;
-  padding: 0 12px;
+  padding: 0 32px 0 var(--padding-left);
   min-width: 4em;
   box-sizing: border-box;
   outline: none;
   border: none;
   background: none;
-  /* field-sizing: content; */
+  field-sizing: content;
   font-weight: 500;
-  // flex: 1;
-  margin-left: var(--nav-width, 0);
+  width: fit-content;
+  min-width: 42px;
 }
-.input::placeholder {
-  font-weight: normal;
+.input-placeholder {
   color: light-dark(rgba(0, 0, 0, 0.4), rgba(255, 255, 255, 0.4));
+  position: absolute;
+  left: var(--padding-left);
+  top: 0;
+  height: 48px;
+  line-height: 48px;
+  font-size: 16px;
+  pointer-events: none;
+  opacity: 0;
+}
+.input:empty + .input-placeholder {
+  opacity: 1;
 }
 .searchSpace {
   flex: 1;
   height: 100%;
-  // -webkit-app-region: drag;
 }
 .appLogo {
   width: 36px;

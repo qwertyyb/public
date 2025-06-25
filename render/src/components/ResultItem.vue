@@ -52,7 +52,7 @@ defineEmits<{
   content-visibility: auto;
   contain-intrinsic-size: 54px;
   transition: all .1s;
-  padding: 0 12px;
+  padding: 0 16px;
   box-sizing: border-box;
   position: relative;
   cursor: pointer;
@@ -89,6 +89,7 @@ defineEmits<{
   opacity: 0.6;
   height: 16px;
   white-space: pre;
+  font-size: 500;
 }
 .actions {
   display: flex;

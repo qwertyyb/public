@@ -135,7 +135,7 @@ export function isFocusable(element: Element) {
     }
     
     // contenteditable 元素
-    if (element.contentEditable === 'true') return true;
+    if (element.contentEditable === 'true' || element.contentEditable === 'plaintext-only') return true;
     
     // 有 tabindex 属性（包括负值）
     if (element.hasAttribute('tabindex')) return true;

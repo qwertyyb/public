@@ -32,7 +32,10 @@ const detectClipboard = (): Promise<string[]> | string[] => {
 }
 
 const detectScreen = async (): Promise<string[]> => {
+  await window.publicApp.mainWindow.hide()
+  console.log('hello')
   const media = await navigator.mediaDevices.getDisplayMedia({ audio: false, video: true })
+  console.log('world')
   const video = document.createElement('video')
   video.srcObject = media
   video.play()
@@ -48,7 +51,6 @@ const detectScreen = async (): Promise<string[]> => {
 }
 
 const detect = async () => {
-  await window.publicApp.mainWindow.hide()
   const texts = (await Promise.all([detectClipboard(), detectScreen()])).flat()
   console.log('detect', texts)
   if (!texts?.length) {

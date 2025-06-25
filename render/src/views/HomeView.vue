@@ -1,6 +1,6 @@
 <template>
   <div class="home-view">
-    <InputBar v-model="keyword" class="input-bar" />
+    <InputBar v-model="keyword" class="input-bar" is-main-input />
     <ResultView :results="results"
       :preview="preview"
       @select="onResultSelected"

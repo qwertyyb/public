@@ -28,6 +28,7 @@ export class CoreApp {
       this.createMainWindow()
 
       session.defaultSession.setDisplayMediaRequestHandler((request, callback) => {
+        console.log('request', request)
         desktopCapturer.getSources({ types: ['screen'] }).then((sources) => {
           console.log(request, sources)
           // Grant access to the first screen found.
@@ -62,6 +63,18 @@ export class CoreApp {
       const filePath = request.url.slice('atom://'.length)
       return ses.fetch(pathToFileURL(path.resolve(__dirname, filePath)).toString())
     })
+    ses.setDisplayMediaRequestHandler((request, callback) => {
+        console.log('request', request)
+        desktopCapturer.getSources({ types: ['screen'] }).then((sources) => {
+          console.log(request, sources)
+          // Grant access to the first screen found. 
+          callback({ video: sources[0] })
+        })
+        // If true, use the system picker if available.
+        // Note: this is currently experimental. If the system picker
+        // is available, it will be used and the media request handler
+        // will not be invoked.
+      }, { useSystemPicker: true })
     registerIPublicProtocol(ses.protocol)
   }
 

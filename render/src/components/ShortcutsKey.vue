@@ -23,6 +23,7 @@ const keys = computed(() => {
 .shortcuts-key {
   display: flex;
   flex-shrink: 0;
+  cursor: pointer;
 }
 .shortcuts-key :deep(.keyboard-key) + .keyboard-key {
   margin-left: 2px;
