@@ -20,6 +20,8 @@ import OpenAI from 'openai';
 import MarkdownIt from 'markdown-it';
 import { onPageEnter } from '@/router/hooks';
 
+const props = defineProps<{ query?: string }>()
+
 const systemPrompt = `你是一名Mac电脑专家，擅长使用Bash和AppleScript脚本，只能使用这些工具解决问题。但如果用户的请求是你自身可以通过理解和语言能力完成的(例如翻译、润色、理解、写作等)，你应当直接回答，不调用任何脚本或工具。你不允许仅仅提供口头建议，而是必须使用脚本代码直接获取信息或执行操作。遇到需要用户输入或选择的场景，必须通过AppleScript弹窗完成，不允许使用文字提示。你拥有一系列可调用的工具(function call)，请在需要时选择合适的工具调用。输出的内容要尽量简洁，符合即时反馈的要求。你知道用户通常使用Chrome浏览器，请在涉及网页或文件打开时优先考虑Chrome浏览器。`
 
 const md = new MarkdownIt();
@@ -27,7 +29,7 @@ const messages = ref<OpenAI.ChatCompletionMessageParam[]>([{
   role: 'system',
   content: systemPrompt,
 }]);
-const userInput = ref<string>('');
+const userInput = ref<string>(props.query || '');
 const textarea = useTemplateRef('textarea')
 const messagesContainer = ref<HTMLDivElement | null>(null);
 
@@ -346,7 +348,6 @@ onPageEnter(async () => {
   border-radius: 6px;
   // background-color: white;
   border: 1px solid light-dark(rgba(0, 0, 0, 0.2), rgba(255, 255, 255, 0.2));
-  box-shadow: 0 1px 2px light-dark(rgba(0, 0, 0.2), rgba(255,255,255,0.2));
 }
 
 .chat-input {

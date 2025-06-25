@@ -36,7 +36,9 @@ const joinPath = (relativePath: string | undefined, path: string) => {
 }
 
 const save = () => {
-  return db.put({ ...pluginsSettings, _id: 'pluginsSettings' })
+  return db.put({ ...pluginsSettings, _id: 'pluginsSettings' }).then(result => {
+    pluginsSettings._rev = result.rev
+  })
 }
 
 const formatCommand = (command: IPluginCommandConfig, manifest: IPluginManifest, pluginPath: string): IPluginCommand => {
@@ -71,9 +73,11 @@ const checkPluginsRegistered = (path: string) => {
 }
 
 const checkManifest = (manifest: Partial<IPluginManifestConfig>) => {
+  console.log(manifest)
   if (validate(manifest)) return;
 
   if (validate.errors?.length) {
+    console.error(manifest, validate.errors)
     const err = new Error('校验失败')
     // @ts-ignore
     err.errors = [...validate.errors]
@@ -94,7 +98,7 @@ export const registerPlugin = async (pluginPath: string) => {
     const main = rest.main || pkg.main
     const name = rest.name || pkg.name
     const manifest: IPluginManifest = { name, ...rest, main, icon: icon ? joinPath(icon, pluginPath) : icon }
-    checkManifest(manifest)
+    checkManifest({ ...manifest, commands: _ })
     const commands: IPluginCommand[] = (publicPlugin.commands || []).map((item: any) => formatCommand(item, manifest, pluginPath))
     if (!pluginsSettings[name]) {
       pluginsSettings[name] = { disabled: false, commands: {}, preferences: {} }

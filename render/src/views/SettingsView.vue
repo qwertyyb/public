@@ -1,130 +1,125 @@
 <template>
-  <div class="settings-view dark:text-white">
-    <main class="settings-view-main  flex">
-      <div class="aside w-48">
-        <ul class="setting-list text-center border-r h-screen">
-          <li class="setting-item h-12 flex items-center justify-center cursor-pointer"
-            v-for="(label, keyName) in views"
-            :key="keyName"
-            :class="{
-              'bg-blue-700': curView === keyName,
-              'text-white': curView === keyName
-            }"
-            @click="curView=keyName">{{label}}</li>
+  <div class="settings-view">
+    <ul class="panel-list">
+      <li class="panel-item"
+        v-for="(label, keyName) in views"
+        :key="keyName"
+        :class="{
+          'active': curView === keyName,
+        }"
+        @click="curView=keyName">{{label}}</li>
+    </ul>
+    <div class="settings-view-main flex-1 h-full overflow-auto">
+      <div v-if="curView === 'common'" class="settings-panel">
+        <el-form label-width="180px">
+          <el-form-item label="开机启动">
+            <el-switch v-model="settings.launchAtLogin"
+              :active-value="true"
+              :inactive-value="false"
+              @change="onLaunchAtLoginChange"
+            />
+          </el-form-item>
+          <el-form-item label="快捷键">
+            <ShortcutsRecorder v-model="settings.shortcuts"
+              size="large"
+              @update:model-value="onShortcutsChange"
+              class="main-shortcuts"
+            />
+          </el-form-item>
+          <el-form-item label="清除超时">
+            <div class="w-64">
+              <el-select v-model="settings.clearTimeout"
+                @change="onClearTimeoutChange"
+                style="width:200px">
+                <el-option :value="0" label="即时"></el-option>
+                <el-option :value="5" label="5 秒后"></el-option>
+                <el-option :value="30" label="30 秒后"></el-option>
+                <el-option :value="90" label="90 秒后"></el-option>
+                <el-option :value="180" label="3 分钟后"></el-option>
+                <el-option :value="600" label="10 分钟后"></el-option>
+                <el-option :value="-1" label="永不"></el-option>
+              </el-select>
+            </div>
+          </el-form-item>
+        </el-form>
+      </div>
+      <div v-else-if="curView==='plugins'" class="settings-panel">
+        <div class="panel-header">
+          插件管理
+          <el-button :icon="Plus" circle size="small" @click="onAddPluginClick"></el-button>
+        </div>
+        <ul class="plugin-list">
+          <li class="plugin-item"
+            v-for="(plugin, index) in plugins"
+            :key="plugin.path">
+            <div class="plugin-item-self">
+              <el-icon class="plugin-expand-icon"
+                :size="14"
+                @click="onExpandPluginClick(plugin)"
+                :class="{ expanded: expand[plugin.manifest.name] }"
+              ><ArrowRightBold /></el-icon>
+              <img :src="plugin.manifest.icon" alt="" class="plugin-icon">
+              <div class="plugin-info">
+                <h3 class="plugin-title">{{plugin.manifest.title}}</h3>
+                <p class="plugin-subtitle">{{plugin.manifest.subtitle}}</p>
+              </div>
+              <el-button :icon="Operation" circle
+                class="action-item"
+                size="small"
+                v-if="plugin.manifest.preferences?.length"
+                @click="openPrfsView(plugin.manifest.name)"
+              ></el-button>
+              <el-button type="danger" :icon="Delete"
+                size="small"
+                class="action-item"
+                @click="onRemovePluginClick(index, plugin)"
+                circle></el-button>
+              <el-switch class="action-item"
+                :model-value="plugin.settings?.disabled !== true"
+                @update:model-value="onPluginDisabledChange($event as boolean, plugin)"
+              ></el-switch>
+            </div>
+            <ul class="command-list" v-if="expand[plugin.manifest.name]">
+              <li class="command-item"
+                v-for="command in plugin.commands"
+                :key="command.name">
+                <img :src="command.icon" alt="" class="command-icon">
+                <div class="command-info">
+                  <h3 class="command-title">{{command.title}}</h3>
+                  <h5 class="command-subtitle">{{command.subtitle}}</h5>
+                </div>
+                <div class="action-item">
+                  <el-input size="small"
+                    placeholder="别名"
+                    :model-value="plugin.settings?.commands?.[command.name]?.alias ?? ''"
+                    @update:model-value="onCommandChange({ alias: $event }, plugin, command)"
+                  ></el-input>
+                </div>
+                <div class="action-item">
+                  <ShortcutsRecorder
+                    :model-value="plugin.settings?.commands?.[command.name]?.shortcuts ?? ''"
+                    @update:model-value="onCommandChange({ shortcuts: $event }, plugin, command)"
+                  ></ShortcutsRecorder>
+                </div>
+                <div class="action-item">
+                  <el-switch
+                    :model-value="!plugin.settings?.commands?.[command.name]?.disabled"
+                    @update:model-value="onCommandChange({ disabled: !$event }, plugin, command)"
+                    size="small"
+                  ></el-switch>
+                </div>
+              </li>
+            </ul>
+          </li>
         </ul>
       </div>
-      <div class="main flex-1 h-full overflow-auto">
-        <div v-if="curView === 'common'">
-          <ul class="shortcut-list my-4">
-            <li class="shortcut-item flex items-center">
-              <div class="w-48 text-right mr-6">开机启动</div>
-              <el-switch v-model="settings.launchAtLogin"
-                :active-value="true"
-                :inactive-value="false"
-                @change="onLaunchAtLoginChange"
-              />
-            </li>
-            <li class="flex items-center mt-4">
-              <div class="w-48 text-right mr-6">快捷键</div>
-              <ShortcutsRecorder v-model="settings.shortcuts"
-                @update:model-value="onShortcutsChange"
-              />
-            </li>
-            <li class="my-4 flex items-center">
-              <div class="w-48 text-right mr-6">清除超时</div>
-              <div class="w-64">
-                <el-select v-model="settings.clearTimeout"
-                  @change="onClearTimeoutChange"
-                  class="flex-1">
-                  <el-option :value="0" label="即时"></el-option>
-                  <el-option :value="5" label="5 秒后"></el-option>
-                  <el-option :value="30" label="30 秒后"></el-option>
-                  <el-option :value="90" label="90 秒后"></el-option>
-                  <el-option :value="180" label="3 分钟后"></el-option>
-                  <el-option :value="600" label="10 分钟后"></el-option>
-                  <el-option :value="-1" label="永不"></el-option>
-                </el-select>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div v-else-if="curView==='plugins'">
-          <div class="bg-gray-200 text-gray-600 px-2 py-2 flex justify-between items-center">
-            插件管理
-            <el-button :icon="Plus" circle size="small" @click="onAddPluginClick"></el-button>
-          </div>
-          <ul class="plugin-list">
-            <li class="plugin-item"
-              v-for="(plugin, index) in plugins"
-              :key="plugin.path">
-              <div class="plugin-item-self flex p-4 py-1 items-center">
-                <el-icon class="mr-2 transform transition w-4 cursor-pointer"
-                  @click="onExpandPluginClick(plugin)"
-                  :class="{ 'rotate-90': expand[plugin.manifest.name] }"
-                ><ArrowRightBold /></el-icon>
-                <img :src="plugin.manifest.icon" alt="" class="w-8 h-8">
-                <div class="info flex flex-col ml-4 justify-center">
-                  <h3 class="text-base">{{plugin.manifest.title}}</h3>
-                  <h5 class="text-gray-600 text-xs mt-1">{{plugin.manifest.subtitle}}</h5>
-                </div>
-                <div class="suffix ml-auto flex items-center">
-                  <el-button :icon="Operation" circle
-                    class="mr-4"
-                    v-if="plugin.manifest.preferences?.length"
-                    @click="openPrfsView(plugin.manifest.name)"
-                  />
-                  <el-switch class="mr-4"
-                    :model-value="plugin.settings?.disabled"
-                    @update:model-value="onPluginDisabledChange($event as boolean, plugin)"
-                  ></el-switch>
-                  <el-button type="danger" :icon="Delete"
-                    size="small"
-                    @click="onRemovePluginClick(index, plugin)"
-                    circle></el-button>
-                </div>
-              </div>
-              <ul class="plugin-command-list pl-6" v-if="expand[plugin.manifest.name]">
-                <li class="plugin-command-item flex p-4 py-3 items-center"
-                  v-for="command in plugin.commands"
-                  :key="command.name">
-                  <img :src="command.icon" alt="" class="w-8 h-8">
-                  <div class="info flex flex-col ml-4 justify-center w-48">
-                    <h3 class="text-sm">{{command.title}}</h3>
-                    <h5 class="text-gray-400 text-xs mt-1">{{command.subtitle}}</h5>
-                  </div>
-                  <div class="ml-2 w-16 text-center">
-                    <el-input size="small"
-                      placeholder="别名"
-                      :model-value="plugin.settings?.commands?.[command.name]?.alias ?? ''"
-                      @update:model-value="onCommandChange({ alias: $event }, plugin, command)"
-                    ></el-input>
-                  </div>
-                  <div class="ml-6 w-28 flex justify-center">
-                    <ShortcutsRecorder
-                      :model-value="plugin.settings?.commands?.[command.name]?.shortcuts ?? ''"
-                      @update:model-value="onCommandChange({ shortcuts: $event }, plugin, command)"
-                    ></ShortcutsRecorder>
-                  </div>
-                  <div class="suffix ml-auto flex items-center">
-                    <el-switch
-                      :model-value="!plugin.settings?.commands?.[command.name]?.disabled"
-                      @update:model-value="onCommandChange({ disabled: !$event }, plugin, command)"
-                      size="small"
-                    ></el-switch>
-                  </div>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </main>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, toRaw } from 'vue';
-import { ElMessage, ElButton, ElSelect, ElSwitch, ElOption, ElInput } from 'element-plus';
+import { ElMessage, ElButton, ElSelect, ElSwitch, ElOption, ElInput, ElForm, ElFormItem, ElIcon } from 'element-plus';
 import { ArrowRightBold, Plus, Delete, Operation } from '@element-plus/icons-vue';
 import ShortcutsRecorder from '@/components/ShortcutsRecorder.vue';
 import type { ICommandSettings, IPluginCommand, IPluginSettings, IRunningPlugin } from '@public/shared';
@@ -242,13 +237,83 @@ refreshSettings()
 
 <style lang="scss" scoped>
 .settings-view {
-  color-scheme: light dark;
-  // background-color: light-dark(#fff, #000);
-  height: 486px;
+  height: 100vh;
   padding-top: var(--nav-height);
+  box-sizing: border-box;
+  display: flex;
 }
-.settings-view-header {
-  height: 48px;
-  padding: 0 16px;
+.panel-list, .settings-view-main {
+  height: 100%;
+}
+.panel-list {
+  width: 200px;
+  text-align: center;
+  border-right: 1px solid var(--border-color);
+  .panel-item {
+    height: 42px;
+    line-height: 42px;
+    transition: background-color .2s;
+    cursor: pointer;
+    &.active {
+      background-color: var(--selected-bg-color);
+    }
+  }
+}
+.settings-view-main {
+  overflow: auto;
+}
+.settings-panel {
+  height: 100%;
+  .main-shortcuts {
+    background: rgba(0, 0, 0, 0.15);
+    &:deep(.keyboard-key) {
+      background: none;
+      font-size: 20px;
+    }
+  }
+  .panel-header {
+    height: 42px;
+    background: rgba(0, 128, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+  }
+  .plugin-item-self, .command-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+  }
+  .plugin-expand-icon {
+    transition: transform .2s;
+  }
+  .plugin-expand-icon.expanded {
+    transform: rotate(90deg);
+  }
+  .plugin-icon, .command-icon {
+    width: 32px;
+    height: 32px;
+    margin-left: 8px;
+  }
+  .plugin-info, .command-info {
+    margin-left: 12px;
+    margin-right: auto;
+  }
+  .plugin-title, .command-title {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .plugin-subtitle, .command-subtitle {
+    margin-top: 4px;
+    font-size: 12px;
+    opacity: 0.4;
+    font-weight: 500;
+  }
+  .action-item + .action-item {
+    margin-left: 12px;
+  }
+  .command-list {
+    margin-left: 14px;
+  }
 }
 </style>

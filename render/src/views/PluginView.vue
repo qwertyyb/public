@@ -11,14 +11,14 @@
 </template>
 
 <script setup lang="ts">
-import type { IPluginCommand, IRunningPlugin, IWebview, IWebviewTagAttributes } from '@public/shared';
+import type { ICommandMatchData, IPluginCommand, IRunningPlugin, IWebview, IWebviewTagAttributes } from '@public/shared';
 import { createBridge } from '@public/utils';
 import { computed, onBeforeUnmount, onMounted } from 'vue';
 
 const props = defineProps<{
   plugin: IRunningPlugin,
   command: IPluginCommand,
-  query: string
+  match: ICommandMatchData
 } | {
   options?: IWebviewTagAttributes,
   plugin: IRunningPlugin,
@@ -102,6 +102,12 @@ onMounted(() => {
   })
   innerBridge.handle('openPreferences', (commandName?: string) => {
     return window.publicApp.plugin.openPreferences(props.plugin.manifest.name, commandName)
+  })
+  innerBridge.handle('getLaunchData', () => {
+    if ('match' in props){
+      return props.match
+    }
+    return
   })
 })
 

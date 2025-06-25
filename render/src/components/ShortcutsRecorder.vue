@@ -1,14 +1,15 @@
 <template>
   <div
-    class="shortcuts-recorder cursor-pointer px-1 py-1 transition box-border border border-transparent hover:border-slate-500 hover:rounded flex items-center"
-    :class="{'opacity-50': isRecording}">
+    class="shortcuts-recorder flex items-center cursor-pointer"
+    :class="{'recording': isRecording, 'large': size === 'large', 'small': size === 'small' }">
+    <div class="prefix" v-if="!isRecording && modelValue"></div>
     <ShortcutsKey :shortcuts="keys"
       tabindex="0"
       @focus="startRecord"
       @blur="stopRecord"
     ></ShortcutsKey>
-    <el-icon :size="16"
-      class="close-icon ml-1 opacity-0"
+    <el-icon :size="13"
+      class="close-icon cursor-pointer"
       v-if="!isRecording && modelValue"
       @click.stop.prevent="clear"><Close /></el-icon>
   </div>
@@ -21,6 +22,8 @@ import { ElIcon } from 'element-plus';
 import { Close } from '@element-plus/icons-vue'
 
 const modelValue = defineModel<string>({ required: true })
+
+defineProps<{ size?: 'small' | 'large'}>()
 
 const isRecording = ref(false)
 
@@ -92,6 +95,7 @@ const startRecord = () => {
 
   const keyEventHandler = createKeyEventHandler(key => {
     recordedKeys.value = [...key.modifiers, key.key].filter(i => i).join('+')
+    console.log(recordedKeys.value)
   }, key => {
     stopRecord()
     const value = [...key.modifiers, key.key].filter(i => i).join('+')
@@ -122,7 +126,30 @@ const clear = () => {
 </script>
 
 <style lang="scss" scoped>
+.shortcuts-recorder {
+  border-radius: 4px;
+  &.large {
+    padding: 4px 16px;
+    width: 160px;
+    justify-content: center;
+  }
+  &.recording {
+    opacity: 0.2;
+  }
+  .prefix {
+    display: block;
+    width: 32px;
+    height: 24px;
+  }
+}
 .shortcuts-recorder:hover .close-icon {
   opacity: 1;
+}
+.close-icon {
+  opacity: 0;
+  transition: opacity 0.3s;
+  margin-left: 8px;
+  width: 24px;
+  font-weight: bold;
 }
 </style>

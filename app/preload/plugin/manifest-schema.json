@@ -252,6 +252,12 @@
                     }
                   },
                   "required": ["type", "regexp"]
+                },
+                {
+                  "properties": {
+                    "type": { "enum": ["full"] }
+                  },
+                  "required": ["type"]
                 }
               ]
             }

@@ -1,8 +1,8 @@
-import { IPlugin, IPluginReturn } from "packages/shared/types"
+import { IPlugin } from "packages/shared/types"
 
 const createPlugin: IPlugin = () =>  ({
-  onEnter(command, keyword) {
-    window.publicApp.mainWindow.pushView({ path: '/ai/chat' })
+  onEnter(command, matchData) {
+    window.publicApp.mainWindow.pushView({ path: '/ai/chat', params: { query: matchData.query } })
   },
 })
 

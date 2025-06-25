@@ -1,4 +1,4 @@
-import { IActionItem, ICommandSettings, IPluginCommand, IPluginCommandListView, IPluginSettings, IPluginsSettings, IRunningPlugin } from './plugin'
+import { IActionItem, ICommandMatchData, ICommandSettings, IPluginCommand, IPluginCommandListView, IPluginSettings, IPluginsSettings, IRunningPlugin } from './plugin'
 import { PortBridge } from './utils'
 import { IWebview, IWebviewElement, IWebviewEventMap, IWebviewTagAttributes } from './webview'
 
@@ -34,6 +34,7 @@ export interface IPublicApp {
     exitCommand: () => void,
     getPreferenceValues: ((pluginName: string, commandName?: string) => Record<string, any>),
     openPreferences: (pluginName?: string, commandName?: string) => void,
+    getLaunchData?: () => Promise<ICommandMatchData>
   }
   keyboard: {
     type: (...keys: string[]) => Promise<void>,
@@ -109,9 +110,7 @@ export interface IPluginManager {
   handleAction: (command: IPluginCommand, action: IActionItem, keyword: string) => void,
   handleSelect: (command: IPluginCommand, keyword: string) => string | HTMLElement | Promise<string | HTMLElement | undefined> | undefined,
 
-  enterPluginCommand: (owner: IRunningPlugin, command: IPluginCommand, options?: {
-    query: string;
-  }) => void
+  enterPluginCommand: (owner: IRunningPlugin, command: IPluginCommand, matchData: ICommandMatchData) => void
 }
 
 export interface ISettings {

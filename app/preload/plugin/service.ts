@@ -1,10 +1,10 @@
 import * as nodePath from 'path'
-import { IActionItem, IFullPluginCommandMatch, IPluginCommand, IPluginCommandMatch, IPluginSettings, IPluginsSettings, IPreference, IRunningPlugin, ITriggerPluginCommandMatch } from '@public/shared'
+import { IActionItem, ICommandMatchData, IFullPluginCommandMatch, IPluginCommand, IPluginCommandMatch, IPluginSettings, IPluginsSettings, IPreference, IRegExpPluginCommandMatch, IRunningPlugin, ITextPluginCommandMatch, ITriggerPluginCommandMatch } from '@public/shared'
 import { getConfig } from '../../config';
 import { getPlugins } from './manager';
 import { openCommandPreferences, openPluginPreferences } from '../utils';
 
-const resultsMap = new WeakMap<IPluginCommand, { score: number, query: string, owner: IRunningPlugin }>()
+const resultsMap = new WeakMap<IPluginCommand, ICommandMatchData>()
 
 // 计算匹配分数，越大表示匹配度越高，最大为1
 const calcScore = (query: string, target: string) => {
@@ -12,6 +12,11 @@ const calcScore = (query: string, target: string) => {
     return query.length / target.length
   }
   return -1
+}
+
+const compileString = (template: string, vars: any) => {
+  const func = new Function('matches', `return \`${template.replaceAll('`', '``')}\``)
+  return func(vars)
 }
 
 export const handleQuery = async (keyword: string) => {
@@ -47,21 +52,31 @@ export const handleQuery = async (keyword: string) => {
             subtitle: (query && triggerMatch.subtitle) ? triggerMatch.subtitle.replaceAll('$query', query) : command.subtitle
           }
           results.push(result)
-          resultsMap.set(result, { query, score: 1, owner: plugin })
+          resultsMap.set(result, { from: 'match', match: triggerMatch, keyword, score: 1, owner: plugin, matchData: { trigger: triggerMatch.triggers[triggerIndex], query }, query })
           return
         }
       }
-      let score = -1
-      matches.forEach((match: IPluginCommandMatch) => {
-        if (match.type === 'text') {
-          score = Math.max(score, ...match.keywords.map(word => calcScore(keyword, word)))
+      const textMatch = matches.find(match => match.type === 'text')
+      if (textMatch) {
+        const matchKeyword = textMatch.keywords.find(word => calcScore(keyword, word) > 0)
+        if (matchKeyword) {
+          const result = { ...command }
+          results.push(result)
+          resultsMap.set(result, { from: 'match', keyword, score: calcScore(keyword, matchKeyword), owner: plugin, match: textMatch, matchData: { keyword: matchKeyword }, query: '' })
+          return
         }
-      })
-      if (score > 0) {
-        const result = { ...command }
+      }
+      const regExpMatch = matches.find(item => item.type === 'regexp') as IRegExpPluginCommandMatch | undefined
+      if (!regExpMatch) return;
+      const regMatches = keyword.match(new RegExp(regExpMatch.regexp))
+      if (regMatches) {
+        const result = {
+          ...command,
+          title: compileString(regExpMatch.title || command.title, regMatches),
+          subtitle: compileString(regExpMatch.subtitle || command.subtitle || '', regMatches)
+        }
         results.push(result)
-        resultsMap.set(result, { query: '', score, owner: plugin })
-        return
+        resultsMap.set(result, { from: 'match', match: regExpMatch, keyword, score: 0.00001, owner: plugin, matchData: { matches: regMatches }, query: '' })
       }
       const fullMatch = matches.find(item => item.type === 'full') as IFullPluginCommandMatch | undefined
       if (fullMatch) {
@@ -71,7 +86,7 @@ export const handleQuery = async (keyword: string) => {
           subtitle: (keyword && fullMatch.subtitle) ? fullMatch.subtitle.replaceAll('$query', keyword) : command.subtitle
         }
         results.push(result)
-        resultsMap.set(result, { query: keyword, score: 0.0001, owner: plugin })
+        resultsMap.set(result, { from: 'match', keyword, score: 0.0001, owner: plugin, match: fullMatch, query: keyword })
       }
     })
   })
@@ -80,7 +95,7 @@ export const handleQuery = async (keyword: string) => {
 
 export const handleSelect = (command: IPluginCommand, keyword: string) => {
   const rp = resultsMap.get(command)
-  return rp?.owner.plugin?.onSelect?.(command, rp.query)
+  return rp?.owner.plugin?.onSelect?.(command, rp)
 }
 
 
@@ -103,8 +118,7 @@ const checkPreferences = async (owner: IRunningPlugin, command: IPluginCommand) 
   return count
 }
 
-export const enterPluginCommand = async (owner: IRunningPlugin, command: IPluginCommand, options?: { query: string }) => {
-  const query = options?.query || ''
+export const enterPluginCommand = async (owner: IRunningPlugin, command: IPluginCommand, matchData: ICommandMatchData) => {
   // 判断一下组件所需的首选项是否都已填写，如果都已填写，则直接执行，否则跳转去配置
   // 首先需要判断插件层级的必须首选项是否已填写，再检查 command 层级的首选项
   const count = await checkPreferences(owner, command)
@@ -112,16 +126,16 @@ export const enterPluginCommand = async (owner: IRunningPlugin, command: IPlugin
     window.dispatchEvent(new CustomEvent('pop-view', { detail: { count } }))
   }
   if (command.mode === 'none') {
-    owner.plugin?.onEnter?.(command, query)
+    owner.plugin?.onEnter?.(command, matchData)
   } else {
-    window.dispatchEvent(new CustomEvent('push-view', { detail: { path: '/plugin/view', params: { plugin: owner, command, query } } }))
+    window.dispatchEvent(new CustomEvent('push-view', { detail: { path: '/plugin/view', params: { plugin: owner, command, match: matchData } } }))
   }
 }
 
 export const handleEnter = (command: IPluginCommand) => {
   const rp = resultsMap.get(command)
   if (!rp) return
-  enterPluginCommand(rp.owner, command, { query: rp.query })
+  enterPluginCommand(rp.owner, command, rp)
 }
 
 export const handleAction = (command: IPluginCommand, action: IActionItem, keyword: string) => {

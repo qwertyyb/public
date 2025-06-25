@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { app, BaseWindow, BrowserWindow, desktopCapturer, protocol, session, WebContentsView, type Tray } from "electron";
+import { app, BaseWindow, desktopCapturer, Menu, protocol, session, WebContentsView, type Tray } from "electron";
 import { autoUpdater } from "electron-updater"
 import initIpc from './ipc'
 import initTray from './controller/trayController'

@@ -153,8 +153,16 @@ const createCommonAPI = (pluginName?: string): IPublicApp => {
     },
 
     storage: {
-      setItem(key, value) {
-        return db.put({ value, _id: pluginName ? `plugin/${pluginName}/${key}` : key })
+      async setItem(key, value) {
+        const doc = await db.get<{ value: any }>(pluginName ? `plugin/${pluginName}/${key}` : key).catch(err => {
+          console.error(err)
+          return null
+        })
+        const data: { _id: string, _rev?: string, value: any } = { value, _id: pluginName ? `plugin/${pluginName}/${key}` : key }
+        if (doc) {
+          data._rev = doc._rev
+        }
+        return db.put(data)
       },
       getItem<T extends any>(key: string) {
         return db.get<{ value: T }>(pluginName ? `plugin/${pluginName}/${key}` : key).then(result => result.value).catch(err => {

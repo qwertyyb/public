@@ -1,6 +1,6 @@
 import * as os from 'os'
 import { getCurrentPath } from '@public/osx-utils/utils';
-import { IPluginReturn } from '@public/shared';
+import { ICommandTriggerMatchData, IPluginReturn } from '@public/shared';
 import { runAppleScript } from 'run-applescript'
 
 const execCommand = (command: string, directory: string) => {
@@ -17,9 +17,9 @@ const execCommand = (command: string, directory: string) => {
 
 export default (): IPluginReturn => {
   return {
-    async onEnter(item, keyword: string) {
+    async onEnter(item, matchData) {
       const directory = (await getCurrentPath()) || os.homedir()
-      execCommand(keyword || 'pwd', directory)
+      execCommand((matchData as ICommandTriggerMatchData).matchData.query || 'pwd', directory)
       // require('child_process').spawn('osascript', [
       //   '-e',
       //   `tell application "Terminal" to do script ${JSON.stringify(keyword)}

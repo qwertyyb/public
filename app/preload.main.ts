@@ -33,3 +33,17 @@ window.pluginManager = {
 
 const basicPlugin = pathJoin(config.pluginBasePath, './settings')
 window.pluginManager!.registerPlugin(basicPlugin)
+
+// window.CSS.registerProperty({
+//   name: '--nav-height',
+//   syntax: '<length>',
+//   inherits: true,
+//   initialValue: '48px'
+// })
+
+// window.CSS.registerProperty({
+//   name: '--nav-width',
+//   syntax: '<length>',
+//   inherits: true,
+//   initialValue: '48px'
+// })

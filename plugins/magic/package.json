@@ -15,9 +15,9 @@
     "subtitle": "魔方平台快捷操作",
     "commands": [
       {
-        "name": "act",
-        "title": "魔方活动编辑页",
-        "subtitle": "打开魔方活动编辑页",
+        "name": "editor",
+        "title": "魔方H5编辑页",
+        "subtitle": "打开魔方H5编辑页",
         "mode": "none",
         "matches": [
           {
@@ -29,9 +29,37 @@
           {
             "type": "trigger",
             "triggers": [
-              "magic"
+              "magic",
+              "mact"
             ],
-            "title": "打开魔方活动编辑页“$query”"
+            "title": "打开魔方H5编辑页“$query”"
+          },
+          {
+            "type": "regexp",
+            "regexp": "https:\/\/.*/magic-act(-beta|-dev)?\/([0-9a-zA-Z]+)/",
+            "title": "打开魔方H5编辑页“$2”"
+          }
+        ]
+      },
+      {
+        "name": "mod",
+        "title": "魔方模块编辑页",
+        "subtitle": "打开魔方模块编辑页",
+        "mode": "none",
+        "matches": [
+          {
+            "type": "text",
+            "keywords": [
+              "magic"
+            ]
+          },
+          {
+            "type": "trigger",
+            "triggers": [
+              "magic",
+              "mmod"
+            ],
+            "title": "打开魔方模块编辑页“$query”"
           }
         ]
       }

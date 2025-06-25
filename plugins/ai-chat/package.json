@@ -48,6 +48,13 @@
               "ask",
               "chat"
             ]
+          },
+          {
+            "type": "trigger",
+            "triggers": [
+              "ai"
+            ],
+            "title": "ask $query"
           }
         ]
       }

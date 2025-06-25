@@ -16,8 +16,8 @@ export interface IListItem {
 
 export type IPluginReturn = {
   onInput?: (keyword: string) => void,
-  onSelect?: (command: IPluginCommand, keyword: string) => string | undefined | HTMLElement | Promise<string | HTMLElement | undefined>,
-  onEnter?: (command: IPluginCommand, keyword: string) => void,
+  onSelect?: (command: IPluginCommand, matchData: ICommandMatchData) => string | undefined | HTMLElement | Promise<string | HTMLElement | undefined>,
+  onEnter?: (command: IPluginCommand, matchData: ICommandMatchData) => void,
   onAction?: (command: IPluginCommand, action: IActionItem, keyword: string) => void,
 } | undefined | null
 
@@ -44,7 +44,28 @@ export interface IFullPluginCommandMatch {
   subtitle?: string
 }
 
-export type IPluginCommandMatch = ITextPluginCommandMatch | ITriggerPluginCommandMatch | IFullPluginCommandMatch
+export interface IRegExpPluginCommandMatch {
+  type: 'regexp',
+  regexp: string
+  title?: string
+  subtitle?: string
+}
+
+export type IPluginCommandMatch = ITextPluginCommandMatch | ITriggerPluginCommandMatch | IFullPluginCommandMatch | IRegExpPluginCommandMatch
+
+interface ICommandBaseMatchData { owner: IRunningPlugin, keyword: string, score: number, query: string }
+
+interface ICommandTextMatchData extends ICommandBaseMatchData { from: 'match', match: ITextPluginCommandMatch, matchData: { keyword: string } }
+
+interface ICommandTriggerMatchData extends ICommandBaseMatchData { from: 'match', match: ITriggerPluginCommandMatch, matchData: { trigger: string, query: string } }
+
+interface ICommandRegExpMatchData extends ICommandBaseMatchData { from: 'match', match: IRegExpPluginCommandMatch, matchData: { matches: RegExpMatchArray } }
+
+interface ICommandFullMatchData extends ICommandBaseMatchData { from: 'match', match: IFullPluginCommandMatch }
+
+interface ICommandHotKeyMatchData extends ICommandBaseMatchData { from: 'hotkey' }
+
+export type ICommandMatchData = ICommandTextMatchData | ICommandTriggerMatchData | ICommandRegExpMatchData | ICommandFullMatchData | ICommandHotKeyMatchData
 
 export interface IPluginCommandConfig extends IListItem, Record<string, any> {
   name: string

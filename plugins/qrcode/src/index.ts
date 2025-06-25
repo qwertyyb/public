@@ -1,5 +1,5 @@
 import { clipboard, NativeImage } from "electron"
-import { IPlugin, IPluginCommandConfig, IPluginCommand } from '@public/shared'
+import { IPlugin, IPluginCommandConfig, IPluginCommand, ICommandTriggerMatchData } from '@public/shared'
 import * as path from 'path'
 import { getChromeCurrentUrl, getSafariCurrentUrl } from "@public/osx-utils/utils";
 
@@ -68,9 +68,9 @@ const qrcodePlugin: IPlugin = (utils) => {
     utils.showCommands(list)
   })
   return {
-    async onSelect(command: IPluginCommand, param: string) {
-      console.log(command, param)
-      let text = param
+    async onSelect(command, match) {
+      console.log(command, match)
+      let text = match.from === 'match' && match.match.type === 'trigger' ? (match as ICommandTriggerMatchData).matchData.query : match.keyword
       if (command.name === 'generate-for-current-url') {
         text = await getChromeCurrentUrl() || await getSafariCurrentUrl() || '未获取到当前页面地址'
       }

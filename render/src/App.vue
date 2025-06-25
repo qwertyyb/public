@@ -168,6 +168,10 @@ body {
   flex: 1;
 }
 
+.cursor-pointer {
+  cursor: pointer;
+}
+
 .text-single-line {
   white-space: nowrap;
   overflow: hidden;

@@ -48,6 +48,9 @@ window.publicApp = {
     openPreferences(commandName?: string) {
       return innerBridge.invoke('openPreferences', commandName)
     },
+    getLaunchData() {
+      return innerBridge.invoke('getLaunchData')
+    }
   },
   mainWindow: {
     ...api.mainWindow,
@@ -82,4 +85,3 @@ window.CSS.registerProperty({
   inherits: true,
   initialValue: '48px'
 })
-

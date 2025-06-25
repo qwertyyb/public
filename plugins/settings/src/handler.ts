@@ -43,7 +43,7 @@ const registerCommandShortcuts = (plugins: Map<string, IRunningPlugin>) => {
         const plugin = window.pluginManager?.getPlugins().get(pluginName)
         if (plugin && command) {
           window.publicApp.mainWindow.show()
-          window.pluginManager?.enterPluginCommand(plugin, command)
+          window.pluginManager?.enterPluginCommand(plugin, command, { owner: plugin, score: 1, from: 'hotkey', keyword: '', query: '' })
         }
       })
     })

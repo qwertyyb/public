@@ -12,7 +12,7 @@
       <h3 class="itemTitle text-single-line">{{ title }}</h3>
       <h5 class="itemSubtitle color-666 text-sm text-single-line" v-if="subtitle">{{ subtitle }}</h5>
     </div>
-    <div class="actions">
+    <div class="actions cursor-pointer">
       <ShortcutsKey shortcuts="Enter" v-if="selected" @click="$emit('enter')"></ShortcutsKey>
       <ShortcutsKey :shortcuts="['Meta', actionKey]" v-else-if="actionKey" @click="$emit('enter')"></ShortcutsKey>
     </div>
