@@ -1,5 +1,5 @@
 import { shell } from 'electron'
-import { ICommandTriggerMatchData, IPluginReturn } from '@public/shared'
+import { IPluginReturn } from '@public/shared'
 
 const urls = {
   google: 'https://www.google.com/search?q=${keyword}',
@@ -12,10 +12,7 @@ export default (): IPluginReturn => {
     onEnter(item, match) {
       const url = urls[item.name as keyof typeof urls]
       if (!url) return;
-      const keyword = match.from === 'hotkey'
-        ? '' : match.match.type === 'trigger'
-        ? (match as ICommandTriggerMatchData).matchData.query : match.keyword
-      const target = url.replaceAll('${keyword}', encodeURIComponent(keyword))
+      const target = url.replaceAll('${keyword}', encodeURIComponent(match.query))
       shell.openExternal(target)
     },
   }

@@ -19,12 +19,7 @@ export default (): IPluginReturn => {
   return {
     async onEnter(item, matchData) {
       const directory = (await getCurrentPath()) || os.homedir()
-      execCommand((matchData as ICommandTriggerMatchData).matchData.query || 'pwd', directory)
-      // require('child_process').spawn('osascript', [
-      //   '-e',
-      //   `tell application "Terminal" to do script ${JSON.stringify(keyword)}
-      //   activate application "Terminal"`
-      // ]);
+      execCommand(matchData.query || 'pwd', directory)
     }
   }
 }

@@ -1,23 +1,9 @@
-import * as nodePath from 'path'
-import { IActionItem, ICommandMatchData, IFullPluginCommandMatch, IPluginCommand, IPluginCommandMatch, IPluginSettings, IPluginsSettings, IPreference, IRegExpPluginCommandMatch, IRunningPlugin, ITextPluginCommandMatch, ITriggerPluginCommandMatch } from '@public/shared'
-import { getConfig } from '../../config';
+import { IActionItem, ICommandMatchData, IPluginCommand, IPreference, IRunningPlugin } from '@public/shared'
 import { getPlugins } from './manager';
 import { openCommandPreferences, openPluginPreferences } from '../utils';
+import { calcCommandMatchInfo } from '../../utils'
 
 const resultsMap = new WeakMap<IPluginCommand, ICommandMatchData>()
-
-// 计算匹配分数，越大表示匹配度越高，最大为1
-const calcScore = (query: string, target: string) => {
-  if (query && target.includes(query)) {
-    return query.length / target.length
-  }
-  return -1
-}
-
-const compileString = (template: string, vars: any) => {
-  const func = new Function('matches', `return \`${template.replaceAll('`', '``')}\``)
-  return func(vars)
-}
 
 export const handleQuery = async (keyword: string) => {
   let plugins = getPlugins()
@@ -30,64 +16,10 @@ export const handleQuery = async (keyword: string) => {
   plugins.forEach((plugin, name) => {
     const { commands = [] } = plugins.get(name)!
     commands.forEach(command => {
-      const { matches } = command
-      // const settings = pluginSettings?.commands?.[command.name]
-      // const alias = settings?.alias
-      // if (alias && alias.includes(keyword)) {
-      //   const result = { ...command }
-      //   const score = 10 + calcScore(keyword, alias)
-      //   results.push(result)
-      //   resultsMap.set(result, { query: keyword, score, owner: plugin })
-      //   return
-      // }
-
-      const triggerMatch = matches.find(match => match.type === 'trigger') as ITriggerPluginCommandMatch | undefined
-      if (triggerMatch) {
-        const triggerIndex = triggerMatch.triggers.findIndex(trigger => keyword.startsWith(trigger + ' '))
-        if (triggerIndex >= 0) {
-          const query = keyword.substring(triggerMatch.triggers[triggerIndex].length + 1)
-          const result = {
-            ...command,
-            title: (query && triggerMatch.title) ? triggerMatch.title.replaceAll('$query', query) : command.title,
-            subtitle: (query && triggerMatch.subtitle) ? triggerMatch.subtitle.replaceAll('$query', query) : command.subtitle
-          }
-          results.push(result)
-          resultsMap.set(result, { from: 'match', match: triggerMatch, keyword, score: 1, owner: plugin, matchData: { trigger: triggerMatch.triggers[triggerIndex], query }, query })
-          return
-        }
-      }
-      const textMatch = matches.find(match => match.type === 'text')
-      if (textMatch) {
-        const matchKeyword = textMatch.keywords.find(word => calcScore(keyword, word) > 0)
-        if (matchKeyword) {
-          const result = { ...command }
-          results.push(result)
-          resultsMap.set(result, { from: 'match', keyword, score: calcScore(keyword, matchKeyword), owner: plugin, match: textMatch, matchData: { keyword: matchKeyword }, query: '' })
-          return
-        }
-      }
-      const regExpMatch = matches.find(item => item.type === 'regexp') as IRegExpPluginCommandMatch | undefined
-      if (!regExpMatch) return;
-      const regMatches = keyword.match(new RegExp(regExpMatch.regexp))
-      if (regMatches) {
-        const result = {
-          ...command,
-          title: compileString(regExpMatch.title || command.title, regMatches),
-          subtitle: compileString(regExpMatch.subtitle || command.subtitle || '', regMatches)
-        }
-        results.push(result)
-        resultsMap.set(result, { from: 'match', match: regExpMatch, keyword, score: 0.00001, owner: plugin, matchData: { matches: regMatches }, query: '' })
-      }
-      const fullMatch = matches.find(item => item.type === 'full') as IFullPluginCommandMatch | undefined
-      if (fullMatch) {
-        const result = {
-          ...command,
-          title: (keyword && fullMatch.title) ? fullMatch.title.replaceAll('$query', keyword) : command.title,
-          subtitle: (keyword && fullMatch.subtitle) ? fullMatch.subtitle.replaceAll('$query', keyword) : command.subtitle
-        }
-        results.push(result)
-        resultsMap.set(result, { from: 'match', keyword, score: 0.0001, owner: plugin, match: fullMatch, query: keyword })
-      }
+      const r = calcCommandMatchInfo(keyword, command)
+      if (!r) return;
+      results.push(r.result)
+      resultsMap.set(r.result, { ...r.matchInfo, owner: plugin })
     })
   })
   return results.sort((prev, next) => resultsMap.get(next)!.score - resultsMap.get(prev)!.score)

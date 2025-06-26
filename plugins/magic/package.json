@@ -37,7 +37,7 @@
           {
             "type": "regexp",
             "regexp": "https:\/\/.*/magic-act(-beta|-dev)?\/([0-9a-zA-Z]+)/",
-            "title": "打开魔方H5编辑页“$2”"
+            "title": "打开魔方H5编辑页“${matches[2]}”"
           }
         ]
       },

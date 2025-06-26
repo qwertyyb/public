@@ -15,7 +15,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, useTemplateRef } from 'vue'
+import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import { curry } from 'ramda';
 import { isKeyPressed } from '@/utils/keyboard';
 import { onPageEnter, onPageLeave } from '@/router/hooks';
@@ -53,6 +53,20 @@ const fetchPlaceholder = async () => {
   const json = await r.json()
   placeholder.value = json?.hitokoto || '欢迎使用 Public App'
 }
+
+const popToRootHandler = (e: any) => {
+  if (e.detail?.clearInput) {
+    modelValue.value = ''
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('pop-to-root', popToRootHandler)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('pop-to-root', popToRootHandler)
+})
 
 onPageEnter(() => {
   inputEl.value?.focus()

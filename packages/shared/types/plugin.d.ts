@@ -65,7 +65,9 @@ interface ICommandFullMatchData extends ICommandBaseMatchData { from: 'match', m
 
 interface ICommandHotKeyMatchData extends ICommandBaseMatchData { from: 'hotkey' }
 
-export type ICommandMatchData = ICommandTextMatchData | ICommandTriggerMatchData | ICommandRegExpMatchData | ICommandFullMatchData | ICommandHotKeyMatchData
+interface ICommandAliasMatchData extends ICommandBaseMatchData { from: 'alias' }
+
+export type ICommandMatchData = ICommandTextMatchData | ICommandTriggerMatchData | ICommandRegExpMatchData | ICommandFullMatchData | ICommandHotKeyMatchData | ICommandAliasMatchData
 
 export interface IPluginCommandConfig extends IListItem, Record<string, any> {
   name: string

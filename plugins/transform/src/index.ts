@@ -103,7 +103,7 @@ const transformPlugin: IPlugin = (utils) => {
             { type: 'text', keywords: [keyword] }
           ]
         })
-      }
+      } else if (prefix === 'i2h')
       console.log('commands', commands)
       utils.updateCommands(commands)
     },
