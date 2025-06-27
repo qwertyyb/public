@@ -32,7 +32,7 @@
     ]
   },
   "dependencies": {
-    "@public/osx-utils": "workspace:^",
+    "@public/utils": "workspace:^",
     "@public/shared": "workspace:^",
     "run-applescript": "^7.0.0"
   }

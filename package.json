@@ -1,44 +1,8 @@
 {
   "name": "public",
-  "version": "0.0.6",
-  "main": "dist/index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/qwertyyb/public.git"
-  },
-  "engines": {
-    "node": ">=22.14.0"
-  },
-  "scripts": {
-    "electron": "cross-env NODE_ENV=development electron dist/index.js --remote-debugging-port=8222",
-    "start:electron": "nodemon --exec 'npm run electron || exit 1'",
-    "start:render": "cd ./render && npm run dev",
-    "webpack:main": "webpack --config ./webpack/webpack.config.main.ts -w",
-    "webpack:preload": "webpack --config ./webpack/webpack.config.preload.ts -w",
-    "webpack:plugin": "webpack --config ./webpack/webpack.config.plugin.ts -w",
-    "webpack:plugin:preload": "webpack --config ./webpack/webpack.config.plugin.preload.ts -w",
-    "start": "concurrently --names \"main,preload,plugin,render,electron\" -c \"bgBlue.bold,bgBlack.bold,bgMagenta.bold,bgYellow.bold,bgGreen.bold\" \"npm run webpack:main\" \"npm run webpack:preload\" \"npm run webpack:plugin\" \"npm run start:render\" \"wait-on tcp:localhost:4000 && npm run start:electron\"",
-    "build:main": "webpack --config ./webpack/webpack.config.main.ts --mode=production",
-    "build:preload": "webpack --config ./webpack/webpack.config.preload.ts --mode=production",
-    "build:plugin": "webpack --config ./webpack/webpack.config.plugin.ts --mode=production",
-    "build:plugin:preload": "webpack --config ./webpack/webpack.config.plugin.preload.ts --mode=production",
-    "build:render": "cd ./render && npm build",
-    "build": "concurrently --names \"main,preload,plugin,render\" -c \"bgBlue.bold,bgGreen.bold,bgMagenta.bold,bgYellow.bold\" \"npm run build:main\" \"npm run build:preload\" \"npm run build:plugin\" \"npm run build:render\"",
-    "pack": "electron-builder -c.mac.identity=null --dir",
-    "release": "NODE_ENV=production && npm run build:render && npm run tsc && electron-builder --publish=always",
-    "rebuild:uiohook-napi": "electron-rebuild --build-from-source -f -m ./node_modules/uiohook-napi",
-    "rebuild:others": "electron-rebuild -f -w ./utils/osx-utils,./node_modules/better-sqlite3,./node_modules/pouchdb",
-    "rebuild": "npm run rebuild:uiohook-napi && npm run rebuild:others"
-  },
-  "nodemonConfig": {
-    "watch": [
-      "dist/**/*"
-    ]
-  },
-  "keywords": [],
-  "author": "qwertyyb",
-  "description": "public tools",
-  "license": "ISC",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "build": {
     "appId": "cn.qwertyyb.public",
     "asar": false,
@@ -88,54 +52,51 @@
       }
     }
   },
+  "scripts": {
+    "electron": "cross-env NODE_ENV=development electron dist/index.js --remote-debugging-port=8222",
+    "start:electron": "nodemon --exec 'npm run electron || exit 1'",
+    "start:render": "cd ./packages/render && npm run dev",
+    "webpack:main": "webpack --config ./webpack/webpack.config.main.ts -w",
+    "webpack:preload": "webpack --config ./webpack/webpack.config.preload.ts -w",
+    "webpack:plugin": "webpack --config ./webpack/webpack.config.plugin.ts -w",
+    "webpack:plugin:preload": "webpack --config ./webpack/webpack.config.plugin.preload.ts -w",
+    "start": "concurrently --names \"main,preload,plugin,render,electron\" -c \"bgBlue.bold,bgBlack.bold,bgMagenta.bold,bgYellow.bold,bgGreen.bold\" \"npm run webpack:main\" \"npm run webpack:preload\" \"npm run webpack:plugin\" \"npm run start:render\" \"wait-on tcp:localhost:4000 && npm run start:electron\"",
+    "build:main": "webpack --config ./webpack/webpack.config.main.ts --mode=production",
+    "build:preload": "webpack --config ./webpack/webpack.config.preload.ts --mode=production",
+    "build:plugin": "webpack --config ./webpack/webpack.config.plugin.ts --mode=production",
+    "build:plugin:preload": "webpack --config ./webpack/webpack.config.plugin.preload.ts --mode=production",
+    "build:render": "cd ./render && npm build",
+    "build": "concurrently --names \"main,preload,plugin,render\" -c \"bgBlue.bold,bgGreen.bold,bgMagenta.bold,bgYellow.bold\" \"npm run build:main\" \"npm run build:preload\" \"npm run build:plugin\" \"npm run build:render\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.8.0",
+  "pnpm": {
+    "overrides": {
+      "leveldown": "6.1.1"
+    },
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "vue-demi"
+    ]
+  },
   "devDependencies": {
-    "@electron/rebuild": "^4.0.1",
-    "@electron/remote": "^2.1.2",
-    "@nut-tree-fork/nut-js": "^4.2.1",
-    "@types/better-sqlite3": "^7.6.10",
-    "@types/mathjs": "^6.0.11",
-    "@types/node": "^12.20.55",
-    "@types/pouchdb": "^6.4.2",
+    "@types/node": "^24.0.4",
     "@types/webpack": "^5.28.5",
     "@types/webpack-env": "^1.18.5",
     "concurrently": "^6.0.0",
     "cross-env": "^7.0.3",
-    "css-loader": "^7.1.2",
     "electron": "^35.0.1",
-    "electron-builder": "^26.0.12",
-    "electron-devtools-installer": "^3.1.1",
-    "electron-notarize": "^1.0.0",
-    "electron-updater": "^4.3.5",
-    "file-icon": "^4.0.0",
-    "isbinaryfile": "^5.0.2",
-    "mathjs": "^13.0.0",
-    "node-gyp": "^10.0.0",
     "node-loader": "^2.0.0",
     "nodemon": "^2.0.7",
-    "qrcode": "^1.4.4",
-    "string-replace-loader": "^3.2.0",
-    "style-loader": "^4.0.0",
-    "tiny-pinyin": "^1.3.2",
-    "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3",
     "wait-on": "^7.2.0",
-    "webpack": "^5.92.1",
-    "webpack-cli": "^5.1.4"
+    "webpack": "^5.92.1"
   },
   "dependencies": {
-    "@public/osx-utils": "workspace:*",
-    "@public/shared": "workspace:*",
-    "@public/utils": "workspace:^",
-    "ajv": "^8.17.1",
-    "better-sqlite3": "^11.8.1",
-    "pouchdb": "^9.0.0",
-    "run-applescript": "^7.0.0",
-    "uiohook-napi": "^1.5.4"
-  },
-  "pnpm": {
-    "overrides": {
-      "leveldown": "6.1.1"
-    }
+    "string-replace-loader": "^3.2.0",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.3"
   }
 }

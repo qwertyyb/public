@@ -1,6 +1,10 @@
 import * as fs from 'fs'
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 import * as webpack from 'webpack';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const pluginsPath = path.join(__dirname, '../plugins')
 
@@ -42,15 +46,32 @@ const config: (env: Record<string, string>, argv: Record<string, any>) => Promis
           use: 'ts-loader',
           exclude: /node_modules/,
         },
-      {
-        test: /\.js$/,
-        loader: 'string-replace-loader',
-        options: {
-          multiple: [
-             { search: `require('node-gyp-build')(__dirname)`, replace: 'require("./build/Release/leveldown.node")' },
-          ]
-        }
-      },
+        {
+          test: /\.js$/,
+          loader: 'string-replace-loader',
+          options: {
+            multiple: [
+              { search: `require('node-gyp-build')(__dirname)`, replace: 'require("./build/Release/leveldown.node")' },
+            ]
+          }
+        },
+        // node 原生模块
+        {
+          test: /\.node$/,
+          loader: 'node-loader',
+          options: {
+            name() {
+              // `resourcePath` - `/absolute/path/to/file.js`
+              // `resourceQuery` - `?foo=bar`
+
+              if (process.env.NODE_ENV === "development") {
+                return "native_modules/[path][name].[ext]";
+              }
+
+              return "native_modules/[contenthash].[ext]";
+            },
+          }
+        },
         {
           test: /\.css$/i,
           use: ['style-loader', 'css-loader'],

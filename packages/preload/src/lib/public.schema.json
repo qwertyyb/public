@@ -1,0 +1,312 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Plugin Configuration Schema",
+  "description": "Schema for validating plugin configuration files",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "插件的唯一名字，请保持名称简短并与 URL 兼容"
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 60,
+      "description": "插件标题，标题会在应用商店中以及偏好设置中显示给用户。请使用此标题来清晰地描述您的插件，以便用户能够在应用商店中找到它"
+    },
+    "subtitle": {
+      "type": "string",
+      "maxLength": 100,
+      "description": "插件的简短描述，用于快速说明插件的功能"
+    },
+    "description": {
+      "type": "string",
+      "description": "对插件的完整描述，将会在应用商店中显示给用户"
+    },
+    "icon": {
+      "type": "string",
+      "description": "引用 assets 文件夹中的图标文件。请使用 png 格式，尺寸为 512 x 512 像素。为了支持明暗主题，请添加两个图标，其中一个带有@dark后缀，例如icon.png和icon@dark.png"
+    },
+    "main": {
+      "type": "string",
+      "description": "preload js 文件，此 preload 会在首页执行"
+    },
+    "preferences": {
+      "type": "array",
+      "description": "插件的偏好设置列表",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "偏好的名称"
+          },
+          "title": {
+            "type": "string",
+            "description": "首选项的显示名称"
+          },
+          "description": {
+            "type": "string",
+            "description": "它可以帮助用户了解偏好设置的作用。会显示在输入框下方"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["text", "number", "textarea", "password", "select"],
+            "description": "偏好设置类型"
+          },
+          "required": {
+            "type": "boolean",
+            "description": "指示该值是否是必需的，并且必须由用户输入该值才能使用该扩展"
+          },
+          "placeholder": {
+            "type": "string",
+            "description": "输入框的占位符"
+          },
+          "defaultValue": {
+            "type": ["string", "number", "boolean"],
+            "description": "输入框的默认值"
+          },
+          "options": {
+            "type": "array",
+            "description": "当偏好设置类型为 select 时，该值是必需的，它是一个包含选项的数组",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "description": "选项的显示标签"
+                },
+                "value": {
+                  "type": ["string", "number", "boolean"],
+                  "description": "选项的值"
+                }
+              },
+              "required": ["label", "value"]
+            }
+          }
+        },
+        "required": ["name", "type"],
+        "if": {
+          "properties": {
+            "type": { "enum": ["select"] }
+          }
+        },
+        "then": {
+          "required": ["options"]
+        }
+      }
+    },
+    "commands": {
+      "type": "array",
+      "description": "插件的命令列表",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "插件内命令的唯一名称"
+          },
+          "title": {
+            "type": "string",
+            "description": "命令标题，用于在应用商店中显示和在偏好设置中显示"
+          },
+          "subtitle": {
+            "type": "string",
+            "description": "命令副标题，用于在应用商店中显示和在偏好设置中显示"
+          },
+          "description": {
+            "type": "string",
+            "description": "命令描述，用于在应用商店中显示和在偏好设置中显示"
+          },
+          "icon": {
+            "type": "string",
+            "description": "命令的图标，如果不填写，则默认使用外层的 icon 字段"
+          },
+          "mode": {
+            "type": "string",
+            "enum": ["none", "view", "listView"],
+            "description": "命令模式"
+          },
+          "entry": {
+            "type": "string",
+            "description": "命令入口，入口是 html，当 mode 为 view 时，该值是必须的"
+          },
+          "preload": {
+            "type": "string",
+            "description": "preload js 文件，当 mode 为 listView 时，该值是必须的"
+          },
+          "preferences": {
+            "type": "array",
+            "description": "命令的偏好设置列表",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "偏好的名称"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "首选项的显示名称"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "它可以帮助用户了解偏好设置的作用。会显示在输入框下方"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["text", "number", "textarea", "password", "select"],
+                  "description": "偏好设置类型"
+                },
+                "required": {
+                  "type": "boolean",
+                  "description": "指示该值是否是必需的，并且必须由用户输入该值才能使用该扩展"
+                },
+                "placeholder": {
+                  "type": "string",
+                  "description": "输入框的占位符"
+                },
+                "defaultValue": {
+                  "type": ["string", "number", "boolean"],
+                  "description": "输入框的默认值"
+                },
+                "options": {
+                  "type": "array",
+                  "description": "当偏好设置类型为 select 时，该值是必需的，它是一个包含选项的数组",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "description": "选项的显示标签"
+                      },
+                      "value": {
+                        "type": ["string", "number", "boolean"],
+                        "description": "选项的值"
+                      }
+                    },
+                    "required": ["label", "value"]
+                  }
+                }
+              },
+              "required": ["name", "type"],
+              "if": {
+                "properties": {
+                  "type": { "enum": ["select"] }
+                }
+              },
+              "then": {
+                "required": ["options"]
+              }
+            }
+          },
+          "matches": {
+            "type": "array",
+            "description": "命令匹配规则列表",
+            "items": {
+              "type": "object",
+              "oneOf": [
+                {
+                  "properties": {
+                    "type": { "enum": ["text"] },
+                    "keywords": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "文本匹配内容"
+                    }
+                  },
+                  "required": ["type", "keywords"]
+                },
+                {
+                  "properties": {
+                    "type": { "enum": ["trigger"] },
+                    "triggers": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "首位匹配，匹配后的内容传给插件"
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "可以使用 $query 作为占位符"
+                    },
+                    "subtitle": {
+                      "type": "string",
+                      "description": "可以使用 $query 作为占位符"
+                    }
+                  },
+                  "required": ["type", "triggers"]
+                },
+                {
+                  "properties": {
+                    "type": { "enum": ["regexp"] },
+                    "regexp": {
+                      "type": "string",
+                      "description": "正则表达式"
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "可以使用 $1,$2...$n 作为占位符"
+                    },
+                    "subtitle": {
+                      "type": "string",
+                      "description": "可以使用 $1,$2...$n 作为占位符"
+                    }
+                  },
+                  "required": ["type", "regexp"]
+                },
+                {
+                  "properties": {
+                    "type": { "enum": ["full"] }
+                  },
+                  "required": ["type"]
+                }
+              ]
+            }
+          }
+        },
+        "required": ["name", "title"],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "mode": { "enum": ["view"] }
+              }
+            },
+            "then": {
+              "required": ["entry"],
+              "not": {
+                "required": ["preload"]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "mode": { "enum": ["listView"] }
+              }
+            },
+            "then": {
+              "required": ["preload"],
+              "not": {
+                "required": ["entry"]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "mode": { "enum": ["none"] }
+              }
+            },
+            "then": {
+              "not": {
+                "required": ["entry", "preload"]
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "required": ["name", "title", "icon"],
+  "additionalProperties": false
+}

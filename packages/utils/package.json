@@ -1,0 +1,36 @@
+{
+  "name": "@public/utils",
+  "version": "0.0.2",
+  "description": "Get the Finder icon for a file path",
+  "main": "index.ts",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./utils": "./utils.ts"
+  },
+  "scripts": {},
+  "keywords": [
+    "Finder",
+    "Preview",
+    "MacOS",
+    "OSX",
+    "Mac",
+    "Icon",
+    "NSImage",
+    "Electron",
+    "QuickLook",
+    "File"
+  ],
+  "author": "Ben Graney Green",
+  "license": "MIT",
+  "os": "darwin",
+  "repository": "https://github.com/bengsquared/osx-fileicon",
+  "dependencies": {
+    "nan": "^2.22.2",
+    "run-applescript": "^7.0.0"
+  },
+  "devDependencies": {
+    "node-gyp": "^10.0.0"
+  }
+}

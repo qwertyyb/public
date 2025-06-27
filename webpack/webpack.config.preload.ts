@@ -1,11 +1,18 @@
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 import * as webpack from 'webpack';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const config: webpack.Configuration = {
   mode: 'development',
+  // optimization: {
+  //   usedExports: true,
+  // },
   entry: {
-    'preload.main': './app/preload.main.ts',
-    'preload.plugin': './app/preload.plugin.ts',
+    'preload.main': './packages/preload/src/main.ts',
+    'preload.plugin': './packages/preload/src/plugin.ts',
   },
   target: 'electron-preload',
   output: {

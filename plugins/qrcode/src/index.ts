@@ -1,7 +1,8 @@
 import { clipboard, NativeImage } from "electron"
-import { IPlugin, IPluginCommandConfig, IPluginCommand, ICommandTriggerMatchData } from '@public/shared'
+import { IPlugin, IPluginCommandConfig, ICommandTriggerMatchData } from '@public/shared'
 import * as path from 'path'
-import { getChromeCurrentUrl, getSafariCurrentUrl } from "@public/osx-utils/utils";
+import { getChromeCurrentUrl, getSafariCurrentUrl } from "@public/utils";
+import QRCode from 'qrcode'
 
 let opencv: any;
 
@@ -75,7 +76,6 @@ const qrcodePlugin: IPlugin = (utils) => {
         text = await getChromeCurrentUrl() || await getSafariCurrentUrl() || '未获取到当前页面地址'
       }
       if(command.name === 'generate' || command.name === 'generate-for-current-url') {
-        const QRCode = require('qrcode')
         if (!text) return;
         // 生成二维码
         const res: { html: string, url: string } = await new Promise(resolve => QRCode.toDataURL(text).then((url: string) => {

@@ -70,7 +70,11 @@
     ]
   },
   "dependencies": {
-    "@public/osx-utils": "workspace:^",
-    "@public/shared": "workspace:^"
+    "@public/shared": "workspace:^",
+    "@public/utils": "workspace:^",
+    "qrcode": "^1.4.4"
+  },
+  "devDependencies": {
+    "@types/qrcode": "^1.5.5"
   }
 }

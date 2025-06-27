@@ -1,4 +1,3 @@
-import { NativeImage } from "electron";
 import * as path from 'path'
 
 // @ts-ignore

@@ -16,6 +16,7 @@
     "main": "./dist/index.js"
   },
   "dependencies": {
-    "@public/shared": "workspace:^"
+    "@public/shared": "workspace:^",
+    "mathjs": "^13.0.0"
   }
 }

@@ -1,6 +1,10 @@
 import * as fs from 'fs'
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 import * as webpack from 'webpack';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const pluginsPath = path.join(__dirname, '../plugins')
 
@@ -20,8 +24,11 @@ const preloadConfig: (env: Record<string, string>, argv: Record<string, any>) =>
   }
 
   return {
-    context: pluginsPath,
     mode: 'development',
+    context: pluginsPath,
+    optimization: {
+      usedExports: true,
+    },
     entry: plugins.reduce((acc, name) => ({ ...acc, [name]: './' + path.join(name, './src/preload.ts') }), {}),
     target: 'electron-preload',
     output: {
@@ -41,10 +48,34 @@ const preloadConfig: (env: Record<string, string>, argv: Record<string, any>) =>
           test: /\.ts$/,
           use: 'ts-loader',
           exclude: /node_modules/,
+          sideEffects: false
         },
         {
           test: /\.css$/i,
           use: ['style-loader', 'css-loader'],
+        },
+        // node 原生模块
+        {
+          test: /\.node$/,
+          type: 'asset/resource',
+          generator: {
+            outputPath: (pathData: webpack.PathData, assetInfo: webpack.AssetInfo) => {
+              return pathData.runtime + '/dist/'
+            }
+          },
+          // loader: 'node-loader',
+          // options: {
+          //   name() {
+          //     // `resourcePath` - `/absolute/path/to/file.js`
+          //     // `resourceQuery` - `?foo=bar`
+
+          //     if (process.env.NODE_ENV === "development") {
+          //       return "native_modules/[path][name].[ext]";
+          //     }
+
+          //     return "native_modules/[contenthash].[ext]";
+          //   },
+          // },
         },
         {
           test: /\.(png|svg|jpg|jpeg|gif)$/i,
@@ -114,19 +145,26 @@ const indexConfig: (env: Record<string, string>, argv: Record<string, any>) => P
         // node 原生模块
         {
           test: /\.node$/,
-          loader: 'node-loader',
-          options: {
-            name() {
-              // `resourcePath` - `/absolute/path/to/file.js`
-              // `resourceQuery` - `?foo=bar`
+          type: 'asset/resource',
+          generator: {
+            outputPath: (pathData: webpack.PathData, assetInfo: webpack.AssetInfo) => {
+              console.log(pathData.runtime + '/dist/')
+              return pathData.runtime + '/dist/'
+            }
+          },
+          // loader: 'node-loader',
+          // options: {
+          //   name() {
+          //     // `resourcePath` - `/absolute/path/to/file.js`
+          //     // `resourceQuery` - `?foo=bar`
   
-              if (process.env.NODE_ENV === "development") {
-                return "native_modules/[path][name].[ext]";
-              }
+          //     if (process.env.NODE_ENV === "development") {
+          //       return "native_modules/[path][name].[ext]";
+          //     }
   
-              return "native_modules/[contenthash].[ext]";
-            },
-          }
+          //     return "native_modules/[contenthash].[ext]";
+          //   },
+          // }
         },
       ],
     }

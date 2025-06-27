@@ -1,6 +1,6 @@
 import * as os from 'os'
-import { getCurrentPath } from '@public/osx-utils/utils';
-import { ICommandTriggerMatchData, IPluginReturn } from '@public/shared';
+import { getCurrentPath } from '@public/utils';
+import { IPluginReturn } from '@public/shared';
 import { runAppleScript } from 'run-applescript'
 
 const execCommand = (command: string, directory: string) => {

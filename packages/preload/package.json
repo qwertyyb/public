@@ -1,0 +1,22 @@
+{
+  "name": "@public/preload",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@public/shared": "workspace:^",
+    "@public/utils": "workspace:^",
+    "ajv": "^8.17.1",
+    "pouchdb": "^9.0.0",
+    "run-applescript": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/pouchdb": "^6.4.2"
+  }
+}

@@ -1,6 +1,6 @@
 import * as crypto from 'crypto';
 
-function sha256(message: string, secret: string | crypto.BinaryLike, encoding?: crypto.HexBase64Latin1Encoding) {
+function sha256(message: string, secret: string | crypto.BinaryLike, encoding?: crypto.BinaryToTextEncoding) {
     const hmac = crypto.createHmac('sha256', secret)
     if (encoding) {
       return hmac.update(message).digest(encoding)
@@ -8,7 +8,7 @@ function sha256(message: string, secret: string | crypto.BinaryLike, encoding?: 
     return hmac.update(message).digest()
 }
 
-function getHash(message: string, encoding: crypto.HexBase64Latin1Encoding = 'hex') {
+function getHash(message: string, encoding: crypto.BinaryToTextEncoding = 'hex') {
     const hash = crypto.createHash('sha256')
     return hash.update(message).digest(encoding)
 }

@@ -53,7 +53,6 @@ const registerCommandShortcuts = (plugins: Map<string, IRunningPlugin>) => {
 let clearIntervalTime: number = 0
 let timeout: ReturnType<typeof setTimeout> | null = null
 window.addEventListener('publicApp.mainWindow.hide', (event) => {
-  console.log('mainWindow hide', event)
   if (timeout) {
     clearTimeout(timeout)
     timeout = null
@@ -90,7 +89,6 @@ const registerLaunchAtLogin =(enable: boolean) => {
 
 const initSettings = async () => {
   const settings = await getSettings()
-  console.log('initSettings', settings)
   registerLaunchAtLogin(settings.launchAtLogin)
   registerShortcuts(settings.shortcuts)
   registerClearInterval(settings.clearTimeout)

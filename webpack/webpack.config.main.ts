@@ -1,9 +1,16 @@
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 import * as webpack from 'webpack';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const config: webpack.Configuration = {
   mode: 'development',
-  entry: './app/index.ts',
+  optimization: {
+    usedExports: true,
+  },
+  entry: './packages/main/src/index.ts',
   target: 'electron-main',
   output: {
     path: path.resolve(__dirname, '../dist'),
