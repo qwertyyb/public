@@ -5,7 +5,7 @@
       @escape="exitCommand"
       :disabled="inputDisable"
     />
-    <LoadingBar v-if="loading" />
+    <LoadingBar v-if="loadingCount > 0" />
     <ResultView :results="results"
       :preview="preview"
       @select="onResultSelected"
@@ -40,24 +40,33 @@ const keyword = ref(window.launchParameter?.query ?? '')
 const command = shallowRef(window.launchParameter?.command)
 const inputDisable = !window.publicAppCommand?.search
 
-const loading = ref(false)
+const loadingCount = ref(0)
+
+if (typeof window.publicAppCommand?.enter === 'function') {
+  loadingCount.value += 1
+  window.publicAppCommand?.enter?.(window.launchParameter?.query ?? '', (list) => {
+    loadingCount.value -= 1
+    if (keyword.value !== (window.launchParameter?.query ?? '')) return;
+    results.value = list
+  })
+}
 
 watch(keyword, (value) => {
   if (!window.publicAppCommand?.search) return;
-  loading.value = true
+  loadingCount.value += 1
   try {
     window.publicAppCommand?.search?.(value, (list) => {
+      loadingCount.value -= 1
       if (value !== keyword.value) return
       results.value = list
-      loading.value = false
     })
   } catch (err) {
-    loading.value = false
+    loadingCount.value -= 1
   }
 }, { immediate: true})
 
 const onResultEnter = (item: IListItem, itemIndex: number) => {
-  window.publicAppCommand?.enter?.(item, itemIndex, keyword.value)
+  window.publicAppCommand?.action?.(item)
 }
 
 const onResultSelected = async (item: IListItem | null, itemIndex: number) => {
@@ -65,7 +74,7 @@ const onResultSelected = async (item: IListItem | null, itemIndex: number) => {
     preview.value = ''
     return
   }
-  preview.value = await window.publicAppCommand?.select?.(item, itemIndex, keyword.value)
+  preview.value = await window.publicAppCommand?.select?.(item, keyword.value)
 }
 
 const onResultAction = (item: IListItem, itemIndex: number, action: IActionItem) => {

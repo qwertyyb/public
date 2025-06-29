@@ -57,35 +57,20 @@ const preloadConfig: (env: Record<string, string>, argv: Record<string, any>) =>
         // node 原生模块
         {
           test: /\.node$/,
-          type: 'asset/resource',
-          generator: {
-            outputPath: (pathData: webpack.PathData, assetInfo: webpack.AssetInfo) => {
-              return pathData.runtime + '/dist/'
-            }
-          },
-          // loader: 'node-loader',
-          // options: {
-          //   name() {
-          //     // `resourcePath` - `/absolute/path/to/file.js`
-          //     // `resourceQuery` - `?foo=bar`
+          loader: 'node-loader',
+          options: {
+            name() {
+              // `resourcePath` - `/absolute/path/to/file.js`
+              // `resourceQuery` - `?foo=bar`
 
-          //     if (process.env.NODE_ENV === "development") {
-          //       return "native_modules/[path][name].[ext]";
-          //     }
+              if (process.env.NODE_ENV === "development") {
+                return "native_modules/[path][name].[ext]";
+              }
 
-          //     return "native_modules/[contenthash].[ext]";
-          //   },
-          // },
-        },
-        {
-          test: /\.(png|svg|jpg|jpeg|gif)$/i,
-          type: 'asset/resource',
-          generator: {
-            outputPath: (pathData: webpack.PathData, assetInfo: webpack.AssetInfo) => {
-              return pathData.runtime + '/dist/'
-            }
-          },
-        },
+              return "native_modules/[contenthash].[ext]";
+            },
+          }
+        }
       ],
     }
   }
@@ -117,6 +102,7 @@ const indexConfig: (env: Record<string, string>, argv: Record<string, any>) => P
       path: pluginsPath,
       filename: '[name]/dist/index.js',
       libraryTarget: 'commonjs',
+      publicPath: pluginsPath,
     },
     node: {
       __dirname: false,
@@ -145,27 +131,20 @@ const indexConfig: (env: Record<string, string>, argv: Record<string, any>) => P
         // node 原生模块
         {
           test: /\.node$/,
-          type: 'asset/resource',
-          generator: {
-            outputPath: (pathData: webpack.PathData, assetInfo: webpack.AssetInfo) => {
-              console.log(pathData.runtime + '/dist/')
-              return pathData.runtime + '/dist/'
-            }
-          },
-          // loader: 'node-loader',
-          // options: {
-          //   name() {
-          //     // `resourcePath` - `/absolute/path/to/file.js`
-          //     // `resourceQuery` - `?foo=bar`
-  
-          //     if (process.env.NODE_ENV === "development") {
-          //       return "native_modules/[path][name].[ext]";
-          //     }
-  
-          //     return "native_modules/[contenthash].[ext]";
-          //   },
-          // }
-        },
+          loader: 'node-loader',
+          options: {
+            name() {
+              // `resourcePath` - `/absolute/path/to/file.js`
+              // `resourceQuery` - `?foo=bar`
+
+              if (process.env.NODE_ENV === "development") {
+                return "native_modules/[path][name].[ext]";
+              }
+
+              return "native_modules/[contenthash].[ext]";
+            },
+          }
+        }
       ],
     }
   }

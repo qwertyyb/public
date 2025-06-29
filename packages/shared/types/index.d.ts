@@ -2,7 +2,7 @@ import { IActionItem, ICommandMatchData, ICommandSettings, IPluginCommand, IPlug
 import { PortBridge } from './utils'
 import { IWebview, IWebviewElement, IWebviewEventMap, IWebviewTagAttributes } from './webview'
 
-export * from './plugin'
+export * from './plugin.d.ts'
 export * from './utils'
 export * from './webview'
 

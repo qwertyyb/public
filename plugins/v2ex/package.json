@@ -18,14 +18,14 @@
         "title": "v2ex热贴",
         "subtitle": "查看v2ex热贴",
         "mode": "listView",
-        "preload": "./dist/preload.js"
+        "preload": "./dist/command.preload.js"
       },
       {
         "name": "latest",
         "title": "v2ex新贴",
         "subtitle": "查看v2ex新贴",
         "mode": "listView",
-        "preload": "./dist/preload.js"
+        "preload": "./dist/command.preload.js"
       }
     ]
   }

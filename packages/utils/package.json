@@ -7,7 +7,9 @@
   "type": "module",
   "exports": {
     ".": "./index.ts",
-    "./utils": "./utils.ts"
+    "./utils": "./utils.ts",
+    "./render": "./src/render.ts",
+    "./native": "./native.ts"
   },
   "scripts": {},
   "keywords": [
@@ -28,6 +30,7 @@
   "repository": "https://github.com/bengsquared/osx-fileicon",
   "dependencies": {
     "nan": "^2.22.2",
+    "node-addon-api": "^8.4.0",
     "run-applescript": "^7.0.0"
   },
   "devDependencies": {

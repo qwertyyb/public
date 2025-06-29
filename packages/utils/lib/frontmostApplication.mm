@@ -1,30 +1,44 @@
-#include <nan.h>
+#include <napi.h>
 #include <Cocoa/Cocoa.h>
 
-NAN_METHOD(GetFrontmostAppInfo) {
-    v8::Local<v8::Object> result = Nan::New<v8::Object>();
-
+Napi::Object GetFrontmostAppInfo(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  
+  // 创建结果对象
+  Napi::Object result = Napi::Object::New(env);
+  
+  @autoreleasepool {
     NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
     NSRunningApplication *frontApp = [workspace frontmostApplication];
-
-    printf("frontmost");
-
+    
+    printf("frontmost\n");  // macOS NSLog 更好但会污染输出
+    
     if (frontApp) {
-        NSString *appName = [frontApp localizedName] ?: @"Unknown";
-        NSString *bundleIdentifier = [frontApp bundleIdentifier] ?: @"Unknown";
-
-        Nan::Set(result, Nan::New("appName").ToLocalChecked(), Nan::New([appName UTF8String]).ToLocalChecked());
-        Nan::Set(result, Nan::New("bundleIdentifier").ToLocalChecked(), Nan::New([bundleIdentifier UTF8String]).ToLocalChecked());
+      NSString *appName = [frontApp localizedName] ?: @"Unknown";
+      NSString *bundleIdentifier = [frontApp bundleIdentifier] ?: @"Unknown";
+      
+      // 设置对象属性
+      result.Set("appName", 
+                Napi::String::New(env, [appName UTF8String]));
+                
+      result.Set("bundleIdentifier", 
+                Napi::String::New(env, [bundleIdentifier UTF8String]));
     } else {
-        Nan::Set(result, Nan::New("appName").ToLocalChecked(), Nan::New("No frontmost application found").ToLocalChecked());
-        Nan::Set(result, Nan::New("bundleIdentifier").ToLocalChecked(), Nan::New("Unknown").ToLocalChecked());
+      result.Set("appName", 
+                Napi::String::New(env, "No frontmost application found"));
+      result.Set("bundleIdentifier", 
+                Napi::String::New(env, "Unknown"));
     }
-
-    info.GetReturnValue().Set(result);
+  }
+  
+  return result;
 }
 
-NAN_MODULE_INIT(Init) {
-    Nan::Set(target, Nan::New("getFrontmostAppInfo").ToLocalChecked(), Nan::GetFunction(Nan::New<v8::FunctionTemplate>(GetFrontmostAppInfo)).ToLocalChecked());
+Napi::Object Init(Napi::Env env, Napi::Object exports) {
+  // 导出方法
+  exports.Set("getFrontmostAppInfo", 
+              Napi::Function::New(env, GetFrontmostAppInfo));
+  return exports;
 }
 
-NODE_MODULE(addon, Init)
+NODE_API_MODULE(addon, Init)

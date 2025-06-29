@@ -35,12 +35,13 @@
           }
         ],
         "mode": "listView",
-        "preload": "./dist/preload.js"
+        "preload": "./dist/command.preload.js"
       }
     ]
   },
   "dependencies": {
     "@public/shared": "workspace:^",
+    "@public/utils": "workspace:^",
     "md5": "^2.3.0"
   },
   "devDependencies": {

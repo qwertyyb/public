@@ -36,7 +36,7 @@
             "title": "搜索文件“$query”..."
           }
         ],
-        "preload": "./dist/preload.js"
+        "preload": "./dist/command.preload.js"
       }
     ]
   }

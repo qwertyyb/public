@@ -6,7 +6,7 @@ import PluginPrfsView from '@/views/PluginPrfsView.vue'
 import PluginView from '@/views/PluginView.vue'
 import SettingsView from '@/views/SettingsView.vue'
 import RoutePage from '@/components/RoutePage.vue'
-import { nextTick, onBeforeUnmount, shallowRef, useTemplateRef, type Component } from 'vue'
+import { computed, nextTick, onBeforeUnmount, shallowRef, useTemplateRef, type Component } from 'vue'
 
 const hash = location.hash.substring(1)
 
@@ -28,15 +28,19 @@ const history = shallowRef<{
   { component: routes[hash] || HomeView }
 ])
 
+const plugin = computed(() => {
+  const last = history.value[history.value.length - 1]
+  const manifest = last?.props?.plugin?.manifest
+  return manifest ? { icon: manifest.icon, title: manifest.title } : null
+})
+
 const toPluginView = (e: any) => {
   console.log('toPluginView', e)
-  pluginViewState.value = { ...e.detail }
   history.value = [ ...history.value, { component: PluginView }]
 }
 
 const pushView = async (options: { path: string, params?: any }) => {
   const { path, params } = options
-  console.log(options)
   const component = routes[path]
   if (component) {
     history.value = [ ...history.value, { component, props: params }]
@@ -76,9 +80,14 @@ onBeforeUnmount(() => {
 <template>
   <div class="app">
     <header class="app-header" v-if="history.length > 1">
-      <div class="navBack material-symbols-outlined cursor-pointer"
+      <div class="nav-back material-symbols-outlined cursor-pointer"
         @pointerdown="popView()">
         arrow_back
+      </div>
+      <div class="space"></div>
+      <div class="cur-plugin" v-if="plugin">
+        <div class="plugin-title">{{ plugin.title }}</div>
+        <img :src="plugin.icon" alt="" class="plugin-icon">
       </div>
     </header>
     <ul class="history-list">
@@ -96,13 +105,36 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .app-header {
   height: 48px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0 16px;
   position: absolute;
   top: 0;
   left: 0;
   z-index: 1000;
+  width: 100%;
+  pointer-events: none;
+  .nav-back {
+    pointer-events: auto;
+  }
+
+  .cur-plugin {
+    display: flex;
+    width: fit-content;
+    align-items: center;
+    border-top-right-radius: 8px;
+    pointer-events: auto;
+    font-size: 14px;
+    .plugin-title {
+      opacity: 0.6;
+    }
+    .plugin-icon {
+      width: 20px;
+      height: 20px;
+      margin-left: 8px;
+    }
+  }
 }
 .history-list {
   .history-item:not(:last-child) {

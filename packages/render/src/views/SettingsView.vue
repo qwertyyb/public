@@ -118,11 +118,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, toRaw } from 'vue';
+import { ref } from 'vue';
 import { ElMessage, ElButton, ElSelect, ElSwitch, ElOption, ElInput, ElForm, ElFormItem, ElIcon } from 'element-plus';
 import { ArrowRightBold, Plus, Delete, Operation } from '@element-plus/icons-vue';
 import ShortcutsRecorder from '@/components/ShortcutsRecorder.vue';
-import type { ICommandSettings, IPluginCommand, IPluginSettings, IRunningPlugin } from '@public/shared';
+import type { ICommandSettings, IPluginCommand, IRunningPlugin } from '@public/shared';
 
 const views = ref({
   'common': '通用',

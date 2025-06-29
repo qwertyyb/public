@@ -2,7 +2,7 @@
   "name": "qrcode",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/preload.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,7 +13,7 @@
     "title": "二维码",
     "subtitle": "生成、解析二维码",
     "icon": "https://img.icons8.com/pastel-glyph/64/4a90e2/qr-code--v1.png",
-    "main": "./dist/index.js",
+    "main": "./dist/preload.js",
     "commands": [
       {
         "name": "generate",
@@ -56,7 +56,7 @@
         "title": "解析二维码",
         "subtitle": "解析二维码",
         "mode": "listView",
-        "preload": "./dist/preload.js",
+        "preload": "./dist/detect.preload.js",
         "matches": [
           {
             "type": "text",

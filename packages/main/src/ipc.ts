@@ -114,7 +114,7 @@ export default (coreApp: CoreApp) => {
 
   ipcMain.handle('showHUD', async (event, title: string, options?: { duration: 1500 }) => {
     console.log('showHUD', title, options)
-    return showHUD(title, options)
+    return showHUD(title, options, { mainWindow: coreApp.mainWindow! })
   })
 
   ipcMain.handle('shortcuts.register', (event, shortcuts: string) => {

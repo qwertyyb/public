@@ -35,7 +35,7 @@
             "title": "搜索 MDN 文档“$query”..."
           }
         ],
-        "preload": "./dist/preload.js"
+        "preload": "./dist/command.preload.js"
       }
     ]
   },

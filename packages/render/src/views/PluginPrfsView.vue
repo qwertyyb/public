@@ -30,7 +30,7 @@
         </el-select>
         <p class="form-item-desc">{{ item.description }}</p>
       </el-form-item>
-      <el-form-item class="btn-item">
+      <el-form-item class="btn-item" v-if="done">
         <el-button type="primary" style="margin: 0 auto" :disabled="btnDisabled" @click="confirm">继续</el-button>
       </el-form-item>
     </el-form>

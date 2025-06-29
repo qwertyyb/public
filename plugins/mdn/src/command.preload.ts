@@ -14,7 +14,7 @@ window.publicAppCommand = {
     }))
     return setList(docs)
   }),
-  enter(item: any) {
+  action(item: any) {
     require('electron').shell.openExternal(item.url)
   }
 }

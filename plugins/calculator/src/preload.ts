@@ -84,6 +84,7 @@ const calculatorPlugin: IPlugin = (utils) => {
     },
     onEnter (item: IPluginCommand) {
       clipboard.writeText(String(item.text))
+      window.publicApp.showHUD('已复制到剪切板')
     }
   }
 }

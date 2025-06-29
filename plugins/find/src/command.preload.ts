@@ -1,11 +1,11 @@
 // @ts-nocheck
 
-import mdfind from './mdfind'
+import mdfind from './lib/mdfind'
 import { homedir } from 'os'
 import * as fs from 'fs'
 import * as path from 'path'
 import { spawn, type ChildProcess } from 'child_process'
-import mdls from './mdls'
+import mdls from './lib/mdls'
 import { isBinaryFile } from 'isbinaryfile'
 
 const home = homedir()
@@ -123,7 +123,7 @@ const listView: IPluginCommandListView = {
       </div>
     `
   },
-  enter(item) {
+  action(item) {
     spawn('open', [item.data.filePath])
   }
 }

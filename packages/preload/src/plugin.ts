@@ -1,16 +1,12 @@
 import { ipcRenderer } from "electron"
 import { type PortBridge, IResultItem, IPluginCommandListView } from '@public/shared'
 import createCommonAPI, { createDraggable } from './lib/common'
-import { createBridge } from '@public/utils'
+import { createBridge } from '@public/utils/render'
 
 declare global {
   interface Window {
     bridge?: PortBridge
-    pluginData: { list: IResultItem[] | null }
     plugin?: IPluginCommandListView
-    pluginService?: {
-      setList: (list: IResultItem[]) => void
-    }
     publicAppCommandMeta?: {
       plugin: { name: string, title: string, icon: string },
       command: { name: string, title: string, icon: string },
@@ -21,7 +17,6 @@ declare global {
   }
 }
 
-window.pluginData = { list: null }
 
 // 这个 bridge 给插件用
 window.PublicAppBridge = createBridge(
@@ -37,7 +32,7 @@ const innerBridge = createBridge(
 
 createDraggable()
 
-const api = createCommonAPI()
+const api = createCommonAPI({ runtime: 'plugin' })
 window.publicApp = {
   ...api,
   plugin: {
@@ -64,13 +59,6 @@ window.PublicAppBridge = createBridge(
   (payload) => window.publicApp.sendToHost('bridgeMessage', payload),
   (callback) => window.publicApp.onHostMessage('bridgeMessage', (event, payload) => callback(payload)),
 )
-
-window.pluginService = {
-  setList: (list) => {
-    window.pluginData.list = list
-    window.dispatchEvent(new CustomEvent('listchanged', { detail: { list } }))
-  }
-}
 
 window.CSS.registerProperty({
   name: '--nav-height',

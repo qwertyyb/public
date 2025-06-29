@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import type { ICommandMatchData, IPluginCommand, IRunningPlugin, IWebview, IWebviewTagAttributes } from '@public/shared';
-import type { createBridge } from '@public/utils';
+import { createBridge } from '@public/utils/render';
 import { computed, onBeforeUnmount, onMounted } from 'vue';
 
 const props = defineProps<{

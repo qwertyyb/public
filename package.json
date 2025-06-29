@@ -2,7 +2,10 @@
   "name": "public",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=22.14.0"
+  },
   "build": {
     "appId": "cn.qwertyyb.public",
     "asar": false,
@@ -58,7 +61,7 @@
     "start:render": "cd ./packages/render && npm run dev",
     "webpack:main": "webpack --config ./webpack/webpack.config.main.ts -w",
     "webpack:preload": "webpack --config ./webpack/webpack.config.preload.ts -w",
-    "webpack:plugin": "webpack --config ./webpack/webpack.config.plugin.ts -w",
+    "webpack:plugin": "cross-env PLUGIN=qrcode tsx ./webpack/plugin.ts",
     "webpack:plugin:preload": "webpack --config ./webpack/webpack.config.plugin.preload.ts -w",
     "start": "concurrently --names \"main,preload,plugin,render,electron\" -c \"bgBlue.bold,bgBlack.bold,bgMagenta.bold,bgYellow.bold,bgGreen.bold\" \"npm run webpack:main\" \"npm run webpack:preload\" \"npm run webpack:plugin\" \"npm run start:render\" \"wait-on tcp:localhost:4000 && npm run start:electron\"",
     "build:main": "webpack --config ./webpack/webpack.config.main.ts --mode=production",
@@ -66,7 +69,9 @@
     "build:plugin": "webpack --config ./webpack/webpack.config.plugin.ts --mode=production",
     "build:plugin:preload": "webpack --config ./webpack/webpack.config.plugin.preload.ts --mode=production",
     "build:render": "cd ./render && npm build",
-    "build": "concurrently --names \"main,preload,plugin,render\" -c \"bgBlue.bold,bgGreen.bold,bgMagenta.bold,bgYellow.bold\" \"npm run build:main\" \"npm run build:preload\" \"npm run build:plugin\" \"npm run build:render\""
+    "build": "concurrently --names \"main,preload,plugin,render\" -c \"bgBlue.bold,bgGreen.bold,bgMagenta.bold,bgYellow.bold\" \"npm run build:main\" \"npm run build:preload\" \"npm run build:plugin\" \"npm run build:render\"",
+    "pack": "electron-builder -c.mac.identity=null --dir",
+    "release": "NODE_ENV=production && npm run build:render && npm run tsc && electron-builder --publish=always"
   },
   "keywords": [],
   "author": "",
@@ -88,11 +93,15 @@
     "concurrently": "^6.0.0",
     "cross-env": "^7.0.3",
     "electron": "^35.0.1",
+    "electron-builder": "^26.0.12",
+    "electron-notarize": "^1.2.2",
     "node-loader": "^2.0.0",
     "nodemon": "^2.0.7",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
     "wait-on": "^7.2.0",
-    "webpack": "^5.92.1"
+    "webpack": "^5.92.1",
+    "webpack-cli": "^6.0.1"
   },
   "dependencies": {
     "string-replace-loader": "^3.2.0",

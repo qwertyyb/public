@@ -1,6 +1,6 @@
 import { net, type Protocol } from "electron"
 import { pathToFileURL } from "url"
-import { getFileIcon } from '@public/utils'
+import { getFileIcon } from '@public/utils/native'
 
 export const registerIPublicProtocol = (protocol: Protocol) => {
   protocol.handle('ipublic', async (request) => {

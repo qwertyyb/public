@@ -1,16 +1,16 @@
-// 引入electron模块
-const { app, BrowserWindow } = require('electron')
-const path = require('path')
+import type { BaseWindow } from "electron"
+import { BrowserWindow } from "electron"
 
 // 创建Toast窗口的函数
-function createToast(message: string, duration = 2000) {
+function createToast(message: string, duration = 2000, options: { mainWindow: BaseWindow }) {
   // 创建一个无边框、透明背景的窗口
   let toastWindow = new BrowserWindow({
     width: 300,
-    height: 60,
+    height: 44,
     x: 0, // 位置在显示窗口时计算
     y: 0,
-    show: false,
+    show: true,
+    center: true,
     alwaysOnTop: true, // 确保显示在最上层
     frame: false, // 无边框
     transparent: true, // 透明背景
@@ -18,13 +18,21 @@ function createToast(message: string, duration = 2000) {
     focusable: false,
     hasShadow: false,
     skipTaskbar: true, // 不在任务栏显示
+    useContentSize: true,
     
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: false,
+      enablePreferredSizeMode: true,
     }
   })
   toastWindow.setIgnoreMouseEvents(true)
+  toastWindow.webContents.on('preferred-size-changed', (event, size) => {
+    const rect = options.mainWindow.getBounds()
+    const x = Math.round((rect.width - size.width) / 2) + rect.x
+    const y = rect.y - size.height - 16
+    toastWindow.setBounds({ x, y, ...size })
+  })
 
   // 加载HTML内容（我们直接使用HTML字符串）
   toastWindow.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(`
@@ -45,11 +53,12 @@ function createToast(message: string, duration = 2000) {
         .toast {
           background: rgba(0, 0, 0, 0.8);
           color: white;
-          padding: 16px 24px;
+          padding: 8px 16px;
           border-radius: 8px;
           font-size: 16px;
           text-align: center;
           animation: fadein 0.5s;
+          white-space: nowrap;
         }
         @keyframes fadein {
           from { opacity: 0; }
@@ -67,17 +76,6 @@ function createToast(message: string, duration = 2000) {
     </html>
   `)}`)
 
-  // 计算位置（屏幕底部中央）
-  const primaryDisplay = require('electron').screen.getPrimaryDisplay()
-  const { width, height } = primaryDisplay.workAreaSize
-  const windowSize = toastWindow.getSize()
-  const x = Math.round((width - windowSize[0]) / 2)
-  const y = Math.round(height * 0.9 - windowSize[1]) // 距离底部10%的位置
-  toastWindow.setPosition(x, y, true)
-  toastWindow.once('ready-to-show', () => {
-    toastWindow.showInactive()
-  })
-
   // 定时关闭
   setTimeout(() => {
     // 先执行渐隐动画，再关闭窗口
@@ -92,6 +90,6 @@ function createToast(message: string, duration = 2000) {
 }
 
 
-export const showHUD = (title: string, options = { duration: 3000 }) => {
-  createToast(title, options.duration) 
+export const showHUD = (title: string, options = { duration: 3000 }, args: { mainWindow: BaseWindow }) => {
+  createToast(title, options.duration, { mainWindow: args.mainWindow }) 
 }

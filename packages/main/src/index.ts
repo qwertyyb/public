@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { app, BaseWindow, desktopCapturer, Menu, protocol, session, WebContentsView, type Tray } from "electron";
+import { app, BaseWindow, BrowserWindow, desktopCapturer, Menu, protocol, session, WebContentsView, type Tray } from "electron";
 import { autoUpdater } from "electron-updater"
 import initIpc from './ipc'
 import initTray from './controller/trayController'
@@ -26,6 +26,7 @@ export class CoreApp {
     this.electronApp.whenReady().then(() => {
       this.initPluginSession()
       this.createMainWindow()
+      // this.createHeaderWindow()
 
       session.defaultSession.setDisplayMediaRequestHandler((request, callback) => {
         console.log('request', request)
@@ -78,13 +79,89 @@ export class CoreApp {
     registerIPublicProtocol(ses.protocol)
   }
 
+  private createAppSession() {
+    const ses = session.fromPartition('publicApp')
+    ses.registerPreloadScript({ type: 'frame', filePath: path.join(__dirname, './preload.main.js'), id: 'API' })
+    ses.protocol.handle('local', (request) => {
+      const filePath = request.url.slice('atom://'.length)
+      return ses.fetch(pathToFileURL(path.resolve(__dirname, filePath)).toString())
+    })
+    ses.setDisplayMediaRequestHandler((request, callback) => {
+        console.log('request', request)
+        desktopCapturer.getSources({ types: ['screen'] }).then((sources) => {
+          console.log(request, sources)
+          // Grant access to the first screen found. 
+          callback({ video: sources[0] })
+        })
+        // If true, use the system picker if available.
+        // Note: this is currently experimental. If the system picker
+        // is available, it will be used and the media request handler
+        // will not be invoked.
+      }, { useSystemPicker: true })
+    registerIPublicProtocol(ses.protocol)
+    return ses
+  }
+
+  private createHeaderWindow() {
+    // 创建一个无边框、透明背景的窗口
+    let toastWindow = new BrowserWindow({
+      width: config.windowWidth / 3,
+      height: 30,
+      x: 0,
+      y: 0,
+      show: true,
+      parent: this.mainWindow!,
+      useContentSize: true,
+      // alwaysOnTop: true, // 确保显示在最上层
+      frame: false, // 无边框
+      resizable: false,
+      focusable: false,
+      skipTaskbar: true, // 不在任务栏显示
+      vibrancy: 'popover',
+      visualEffectState: 'followWindow',
+      transparent: true,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: false,
+      }
+    })
+    toastWindow.setIgnoreMouseEvents(true)
+
+    // 加载HTML内容（我们直接使用HTML字符串）
+    toastWindow.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            padding-left: 16px;
+          }
+        </style>
+      </head>
+      <body>
+        <div>剪切板</div>
+      </body>
+      </html>
+    `)}`)
+
+    const [x, y] = this.mainWindow!.getPosition()
+    toastWindow.setPosition(x, y - 46)
+  }
+
   private createMainWindow() {
     const win = new BaseWindow({
       height: config.windowHeight,
       useContentSize: false,
       minWidth: config.windowWidth,
       width: config.windowWidth,
-      y: 120,
+      y: 140,
       center: true,
       show: true,
       resizable: false,
@@ -103,12 +180,12 @@ export class CoreApp {
       webPreferences: {
         spellcheck: false,
         devTools: true,
-        preload: path.join(__dirname, './preload.main.js'),
         contextIsolation: false,
         backgroundThrottling: false,
         sandbox: false,
         transparent: true,
         webviewTag: true,
+        session: this.createAppSession(),
       }
     })
     this.mainView = mainView
@@ -133,7 +210,7 @@ export class CoreApp {
       console.log('mainWindow show')
       this.mainView?.webContents.focus()
       this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.show'))`)
-    }) 
+    })
     // this.mainWindow.on('blur', () => {
     //   this.mainView?.webContents.executeJavaScript(`window.dispatchEvent(new CustomEvent('publicApp.mainWindow.blur'))`)
     // }) 

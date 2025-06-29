@@ -2,7 +2,7 @@
   "name": "transform",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/preload.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,7 +13,7 @@
     "title": "转换",
     "subtitle": "单位、金额、时间转换",
     "icon": "https://img.icons8.com/?size=100&id=68311&format=png&color=000000",
-    "main": "dist/index.js"
+    "main": "dist/preload.js"
   },
   "dependencies": {
     "@public/shared": "workspace:^"

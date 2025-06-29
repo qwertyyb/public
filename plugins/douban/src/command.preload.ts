@@ -69,10 +69,10 @@ const listView: IPluginCommandListView = {
       setList(list)
     }
   ),
-  select(item, index, keyword) {
+  select(item, keyword) {
     return createPreview(item as any)
   },
-  enter(item) {
+  action(item) {
     require('electron').shell.openExternal(item.url)
   }
 }

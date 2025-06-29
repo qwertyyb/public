@@ -2,7 +2,7 @@
   "name": "command",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/preload.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,7 +13,7 @@
     "title": "系统命令",
     "subtitle": "执行锁屏、休眠、关机、重启等系统命令",
     "icon": "https://img.icons8.com/ios-filled/50/000000/command.png",
-    "main": "dist/index.js",
+    "main": "dist/preload.js",
     "commands": [
       {
         "mode": "none",

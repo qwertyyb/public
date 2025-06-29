@@ -1,6 +1,6 @@
 import { IActionItem, ICommandAliasMatchData, ICommandFullMatchData, ICommandMatchData, ICommandRegExpMatchData, ICommandTextMatchData, ICommandTriggerMatchData, IFullPluginCommandMatch, IPluginCommand, IPreference, IRegExpPluginCommandMatch, IRunningPlugin, ITextPluginCommandMatch, ITriggerPluginCommandMatch } from '@public/shared'
 import { getPlugins } from './manager';
-import { openCommandPreferences, openPluginPreferences } from './utils';
+import { openCommandPreferences, openPluginPreferences, popView } from './utils';
 
 // 计算匹配分数，越大表示匹配度越高，最大为1
 const calcScore = (query: string, target: string) => {
@@ -124,11 +124,11 @@ const checkPreferences = async (owner: IRunningPlugin, command: IPluginCommand) 
   let count = 0
   if (!checkRequired(owner.manifest.preferences || [], owner.settings?.preferences || {})) {
     count += 1
-    await openPluginPreferences(owner.manifest.name)
+    await openPluginPreferences(owner.manifest.name, { wait: true })
   }
   if (!checkRequired(command.preferences || [], owner.settings?.commands[command.name]?.preferences || {})) {
     count += 1
-    await openCommandPreferences(owner.manifest.name, command.name)
+    await openCommandPreferences(owner.manifest.name, command.name, { wait: true })
   }
   return count
 }
@@ -138,11 +138,14 @@ export const enterPluginCommand = async (owner: IRunningPlugin, command: IPlugin
   // 首先需要判断插件层级的必须首选项是否已填写，再检查 command 层级的首选项
   const count = await checkPreferences(owner, command)
   if (count) {
-    window.dispatchEvent(new CustomEvent('pop-view', { detail: { count } }))
+    popView({ count })
   }
   if (command.mode === 'none') {
     owner.plugin?.onEnter?.(command, matchData)
-  } else {
+  } else if (command.mode === 'listView') {
+    __non_webpack_require__(command.preload)
+    window.dispatchEvent(new CustomEvent('push-view', { detail: { path: '/plugin/list-view', params: { command, plugin: owner, match: matchData} } }))
+  } else if (command.mode === 'view') {
     window.dispatchEvent(new CustomEvent('push-view', { detail: { path: '/plugin/view', params: { plugin: owner, command, match: matchData } } }))
   }
 }

@@ -9,7 +9,6 @@ import { db } from './utils';
 const ajv = new Ajv({ allowUnionTypes: true })
 const validate = ajv.compile(schema)
 
-
 const plugins: Map<string, IRunningPlugin> = new Map()
 let pluginsSettings: IPluginsSettings & PouchDB.Core.IdMeta & PouchDB.Core.GetMeta | IPluginsSettings = {}
 
@@ -272,7 +271,7 @@ export const launchPlugins = async () => {
   })
 }
 
-launchPlugins()
+// launchPlugins()
 
 export const updatePluginPreferences = (name: string, prfs: Record<string, any>) => {
   const plugin = plugins.get(name)

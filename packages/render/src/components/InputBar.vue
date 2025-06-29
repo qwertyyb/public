@@ -1,5 +1,5 @@
 <template>
-  <div class="inputBar" @pointerup="inputEl?.focus()" tabindex="0">
+  <div class="inputBar" @pointerup="inputEl?.focus()" tabindex="0" :class="{'is-main-input': isMainInput}">
     <input
       autofocus
       v-if="!disabled"
@@ -10,8 +10,8 @@
       id="main-input" />
     <div class="input-placeholder" v-if="!disabled && !modelValue">{{ placeholder }}</div>
     <div class="searchSpace"></div>
-    <img :src="command.icon" alt="" class="appLogo" draggable="false" v-if="command" />
-    <img src="../assets/logo.svg" alt="" class="appLogo" draggable="false" v-else />
+    <!-- <img :src="command.icon" alt="" class="appLogo" draggable="false" v-if="command" /> -->
+    <!-- <img src="../assets/logo.svg" alt="" class="appLogo" draggable="false" /> -->
   </div>
 </template>
 <script setup lang="ts">
@@ -86,7 +86,10 @@ onPageEnter(() => {
   border-bottom: 1px solid light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.06));
   display: flex;
   align-items: center;
-  --padding-left: calc(var(--nav-width, 0px) + 16px)
+  --padding-left: calc(var(--nav-width, 0px) + 16px);
+  &.is-main-input {
+    --padding-left: 16px;
+  }
 }
 .input {
   height: 42px;

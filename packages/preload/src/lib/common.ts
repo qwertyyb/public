@@ -3,8 +3,9 @@ import { IPublicApp, IWebview, IWebviewTagAttributes } from '@public/shared'
 import { runAppleScript } from 'run-applescript'
 
 import { exec } from 'child_process';
-import { db, openCommandPreferences, openPluginPreferences } from './utils';
-import { isFocusable, type createBridge, hanziToPinyin, getFrontmostApplication, getSelectedPath, getCurrentPath } from '@public/utils'
+import { db, openCommandPreferences, openPluginPreferences, popToRoot, pushView } from './utils';
+import { hanziToPinyin, getFrontmostApplication, getSelectedPath, getCurrentPath } from '@public/utils'
+import { isFocusable, type createBridge } from '@public/utils/render';
 import { getPlugin } from './manager';
 
 const debounce = <F extends (...args: any[]) => any>(fn: F, delay = 200) => {
@@ -48,7 +49,7 @@ export const createDraggable = () => {
   window.addEventListener('pointercancel', pointerUpHandler, true)
 }
 
-const createCommonAPI = (pluginName?: string): IPublicApp => {
+const createCommonAPI = ({ runtime, pluginName } : { runtime: 'main' | 'plugin', pluginName?: string }): IPublicApp => {
 
   return {
     db: {
@@ -63,7 +64,7 @@ const createCommonAPI = (pluginName?: string): IPublicApp => {
       show: () => ipcRenderer.invoke('mainWindow.show'),
       hide: () => ipcRenderer.invoke('mainWindow.hide'),
       pushView: (options: { path: string, params?: any }) => {
-        window.dispatchEvent(new CustomEvent('push-view', { detail: { ...options }  }))
+        pushView(options)
       },
       popToRoot(options?: { clearInput?: boolean }) {
         window.dispatchEvent(new CustomEvent('pop-to-root', { detail: { ...options } }))
@@ -137,7 +138,7 @@ const createCommonAPI = (pluginName?: string): IPublicApp => {
 
     createView(pluginName: string, options?: IWebviewTagAttributes) {
       return new Promise<{ webview: IWebview, bridge: ReturnType<typeof createBridge> }>(resolve => {
-        window.dispatchEvent(new CustomEvent('push-view', { detail: {  path: '/plugin/view', params: { plugin: getPlugin(pluginName), options, callback: resolve } } }))
+        pushView({  path: '/plugin/view', params: { plugin: getPlugin(pluginName), options, callback: resolve } })
       })
     },
 
@@ -182,7 +183,11 @@ const createCommonAPI = (pluginName?: string): IPublicApp => {
 
     plugin: {
       exitCommand() {
-        ipcRenderer.sendToHost('exitCommand')
+        if (runtime === 'main') {
+          popToRoot()
+        } else {
+          ipcRenderer.sendToHost('exitCommand')
+        }
       },
       getPreferenceValues(pluginName: string, commandName?: string) {
         if (commandName) {

@@ -1,5 +1,5 @@
 import { IPlugin } from '@public/shared'
-import { initSettings, initHandler } from './handler'
+import { initSettings, initHandler } from './lib/handler'
 
 const settingsPlugin: IPlugin = (utils) => {
 
@@ -11,7 +11,6 @@ const settingsPlugin: IPlugin = (utils) => {
     onEnter: async (item) => {
       const url = new URL(location.href)
       url.hash = '#/settings'
-      console.log('ssss')
       const { bridge } = await window.publicApp.createView('settings', {
         src: url.href,
         webpreferences: 'nodeIntegration=no,contextIsolation=no,enableRemoteModule=no,allowRunningInsecureContent=no,spellcheck=no,backgroundThrottling=no,sandbox=no'

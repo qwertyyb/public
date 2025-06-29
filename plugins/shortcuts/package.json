@@ -13,7 +13,7 @@
     "title": "快捷指令",
     "subtitle": "查找，执行快捷指令",
     "icon": "https://img.icons8.com/?size=100&id=MuVeuTIe4EXx&format=png&color=000000",
-    "main": "dist/index.js"
+    "main": "dist/preload.js"
   },
   "dependencies": {
     "@public/shared": "workspace:^"

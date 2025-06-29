@@ -1,6 +1,20 @@
 {
   "targets": [
     {
+			"target_name": "getIconForFile",
+			"include_dirs": ["<!@(node -p \"require('node-addon-api').include\")"],
+			"conditions": [[
+				'OS=="mac"',
+				{
+					"sources": ["lib/getIconForFile.mm"],
+					"link_settings": {
+						"libraries": ["-framework AppKit -framework QuickLook"]
+					}
+				}
+			]
+			]
+		},
+    {
       "target_name": "addon",
       "sources": [
         "lib/addon.mm",
@@ -31,28 +45,6 @@
           }
         }]
       ]
-    },
-    {
-			"target_name": "getIconForFile",
-			"include_dirs": ["<!@(node -p \"require('node-addon-api').include\")"],
-			"conditions": [[
-				'OS=="mac"',
-				{
-					"sources": ["lib/getIconForFile.mm"],
-					"cflags!": ["-fno-exceptions"],
-					"cflags_cc!": ["-fno-exceptions"],
-					"cflags": ["-fexceptions"],
-					"cflags_cc": ["-fexceptions"],
-					"xcode_settings": {
-						"GCC_ENABLE_CPP_EXCEPTIONS": "YES",
-						"CLANG_CXX_LIBRARY": "libc++",
-						"MACOSX_DEPLOYMENT_TARGET": "10.7"
-					},
-					"link_settings": {
-						"libraries": ["-framework AppKit -framework QuickLook"]
-					}
-				}
-			]]
-		}
+    }
   ]
 }

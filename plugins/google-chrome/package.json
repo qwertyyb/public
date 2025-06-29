@@ -2,7 +2,7 @@
   "name": "google-chrome",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/preload.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -29,14 +29,14 @@
             ]
           }
         ],
-        "preload": "dist/preload.js"
+        "preload": "dist/command.preload.js"
       },
       {
         "name": "search-chrome-history",
         "title": "Search Google Chrome History",
         "subtitle": "Search Google Chrome History",
         "mode": "listView",
-        "preload": "dist/preload.js"
+        "preload": "dist/command.preload.js"
       },
       {
         "name": "create-window",

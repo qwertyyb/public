@@ -18,7 +18,7 @@
         "title": "豆瓣影片",
         "subtitle": "查询豆瓣影片评分",
         "mode": "listView",
-        "preload": "./dist/preload.js"
+        "preload": "./dist/command.preload.js"
       }
     ]
   },

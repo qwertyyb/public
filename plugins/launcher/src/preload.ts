@@ -1,5 +1,5 @@
 import { IPlugin, IPluginCommand } from '@public/shared'
-import searchAppList, { canUninstall } from './loadApplications'
+import searchAppList, { canUninstall } from './lib/loadApplications'
 
 
 const launcherPlugin: IPlugin = (utils) => {

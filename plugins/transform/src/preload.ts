@@ -1,5 +1,5 @@
 import { IPlugin, IPluginCommandConfig } from '@public/shared'
-import { hToM, msToDuration, msToLocaleString, mToS, sToLocaleString, sToMs } from "./time"
+import { hToM, msToDuration, msToLocaleString, mToS, sToLocaleString, sToMs } from "./lib/time"
 
 const transformPlugin: IPlugin = (utils) => {
   return {
