@@ -20,16 +20,14 @@ const listView: IPluginCommandListView = {
         Array.from(doc.getElementsByTagName('d:entry')).forEach(item => {
           const title = item.getAttribute('d:title')
           results.push({
-            // title,
             subtitle: d.dictionary,
-            // icon: 'https://img.icons8.com/color/144/000000/google-translate.png'
           })
           Array.from(item.children).forEach(item => {
             if (item.textContent?.trim()) {
               results.push({
                 title: item.textContent?.trim(),
                 subtitle: d.dictionary,
-                icon: 'https://img.icons8.com/color/144/000000/google-translate.png'
+                icon: './assets/google-translate.png'
               })
             }
           })

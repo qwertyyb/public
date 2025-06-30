@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "publicPlugin": {
-    "icon": "https://v2ex.com/static/apple-touch-icon-180.png?v=91e795b8b5d9e2cbf2d886c3d4b7d63c",
+    "icon": "./assets/v2ex.png",
     "title": "v2ex",
     "subtitle": "查看v2ex热贴和新贴",
     "commands": [

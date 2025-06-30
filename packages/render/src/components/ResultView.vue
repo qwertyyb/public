@@ -23,7 +23,7 @@
       v-if="visibleActionIndex === selectedIndex && (selectedItem?.actions?.length || 0) > 0"
       @action="onResultAction"
     ></ActionList>
-    <ResultItemPreview :html="preview" v-if="preview"></ResultItemPreview>
+    <ResultItemPreview :html="preview" v-if="results.length && preview"></ResultItemPreview>
   </div>
 </template>
 

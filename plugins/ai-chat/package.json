@@ -10,7 +10,7 @@
   "license": "ISC",
   "main": "./dist/preload.js",
   "publicPlugin": {
-    "icon": "https://lf-coze-web-cdn.coze.cn/obj/coze-web-cn/obric/coze/favicon.1970.png",
+    "icon": "./assets/ai.png",
     "title": "AI助手",
     "subtitle": "AI助手",
     "preferences": [

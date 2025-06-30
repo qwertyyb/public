@@ -12,7 +12,7 @@
   "publicPlugin": {
     "title": "Public设置",
     "subtitle": "Public应用设置",
-    "icon": "https://img.icons8.com/nolan/64/settings--v1.png",
+    "icon": "./assets/settings.png",
     "main": "./dist/preload.js",
     "commands": [
       {

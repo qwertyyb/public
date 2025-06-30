@@ -9,7 +9,7 @@ const getList = async () => {
   const titles = stdout.split('\n').filter(i => i)
   return titles.map(title => ({
     name: title,
-    icon: 'https://img.icons8.com/?size=100&id=MuVeuTIe4EXx&format=png&color=000000',
+    icon: './assets/shortcuts.png',
     title,
     matches: [
       { type: 'text', keywords: [title] } as ITextPluginCommandMatch

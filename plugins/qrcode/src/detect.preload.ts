@@ -7,7 +7,7 @@ const createClipboardItem = (text: string) => {
     name: 'detect',
     title: `二维码内容: ${text}`,
     subtitle: '来自剪切板,点击复制',
-    icon: 'https://img.icons8.com/officel/16/4a90e2/clipboard.png',
+    icon: './assets/qrcode.png',
     text,
     matches: [
       { type: 'text', keywords: [''] }
@@ -55,18 +55,21 @@ const detect = async () => {
   console.log('detect', texts)
   if (!texts?.length) {
     window.publicApp.showHUD('未检测到二维码')
-    return;
+    return [];
   }
   const list = texts.map(text => createClipboardItem(text))
   await window.publicApp.mainWindow.show()
   return list
 }
 
-detect()
-
 const detectCommand: IPluginCommandListView = {
   async enter(query, setList) {
-    setList(await detect() || [])
+    const list = await detect() || []
+    if (list.length) {
+      setList(list)
+    } else {
+      window.publicApp.plugin.exitCommand()
+    }
   },
   action(item: any) {
     console.log('detect qrcode enter', item)

@@ -9,7 +9,7 @@ const loadOpencv = () => {
   if (opencv) {
     return opencv
   }
-  opencv = __non_webpack_require__('../../lib/ready_opencv.js')
+  opencv = __non_webpack_require__('../lib/ready_opencv.js')
   return opencv
 }
 

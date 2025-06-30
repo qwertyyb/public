@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "publicPlugin": {
-    "icon": "https://img1.doubanio.com/f/talion/18932a3e71a60ed7150ca2ca7ebf21ddadd7092e/pics/icon/m_logo_120.png",
+    "icon": "./assets/douban.png",
     "title": "豆瓣",
     "subtitle": "查询豆瓣影片、书籍等",
     "commands": [

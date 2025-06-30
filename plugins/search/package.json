@@ -19,7 +19,7 @@
         "name": "google",
         "title": "谷歌搜索",
         "subtitle": "",
-        "icon": "https://img.icons8.com/color/144/000000/google-logo.png",
+        "icon": "./assets/google.png",
         "matches": [
           {
             "type": "text",
@@ -46,7 +46,7 @@
         "name": "baidu",
         "title": "百度搜索",
         "subtitle": "",
-        "icon": "https://img.icons8.com/color/144/000000/baidu.png",
+        "icon": "./assets/baidu.png",
         "matches": [
           {
             "type": "text",
@@ -69,7 +69,7 @@
         "name": "bing",
         "title": "必应搜索",
         "subtitle": "",
-        "icon": "https://img.icons8.com/color/144/000000/bing.png",
+        "icon": "./assets/bing.png",
         "matches": [
           {
             "type": "text",

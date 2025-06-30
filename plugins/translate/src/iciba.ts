@@ -31,7 +31,7 @@ export const translate = async (keyword: string) => {
     return [{
       title: '未找到翻译结果',
       subtitle: '请检查网络或稍后再试',
-      icon: 'https://img.icons8.com/color/144/000000/google-translate.png',
+      icon: './assets/google-translate.png',
     }]
   }
   const means = baseInfo.symbols
@@ -40,7 +40,7 @@ export const translate = async (keyword: string) => {
     .map((item: string) => {
       return {
         title: item,
-        icon: 'https://img.icons8.com/color/144/000000/google-translate.png',
+        icon: './assets/google-translate.png',
       }
     })
 
@@ -54,7 +54,7 @@ export const translate = async (keyword: string) => {
     return {
       title: `${value}`,
       subtitle: labels[key] || key,
-      icon: 'https://img.icons8.com/color/144/000000/google-translate.png',
+      icon: './assets/google-translate.png',
     }
   })
   return [...means, ...exchange]

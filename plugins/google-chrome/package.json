@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "publicPlugin": {
-    "icon": "https://img.icons8.com/?size=100&id=63785&format=png&color=000000",
+    "icon": "./assets/chrome.png",
     "title": "Google Chrome",
     "subtitle": "Search open tabs, bookmarks and history in Google Chrome.",
     "commands": [

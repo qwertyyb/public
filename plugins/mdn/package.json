@@ -11,7 +11,7 @@
   "publicPlugin": {
     "title": "MDN文档",
     "subtitle": "搜索 MDN 文档",
-    "icon": "https://developer.mozilla.org/apple-touch-icon.6803c6f0.png",
+    "icon": "./assets/mdn.png",
     "commands": [
       {
         "name": "search-mdn",

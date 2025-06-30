@@ -12,7 +12,7 @@
   "publicPlugin": {
     "title": "执行终端命令",
     "subtitle": "在终端中执行输入的命令",
-    "icon": "https://img.icons8.com/officel/80/000000/console.png",
+    "icon": "./assets/icon.png",
     "main": "dist/preload.js",
     "commands": [
       {

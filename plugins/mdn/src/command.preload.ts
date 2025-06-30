@@ -8,7 +8,7 @@ window.publicAppCommand = {
     const docs = ((await response.json()).documents || []).map((doc: { title: string, summary: string, mdn_url: string }) => ({
       title: doc.title,
       subtitle: doc.summary,
-      icon: `https://www.google.com/s2/favicons?domain=${encodeURIComponent('https://developer.mozilla.org')}&sz=128`,
+      icon: './assets/mdn.png',
       url: `https://developer.mozilla.org${doc.mdn_url}`,
       mdn_url: doc.mdn_url
     }))

@@ -71,7 +71,7 @@ const calculatorPlugin: IPlugin = (utils) => {
             name: "calculator",
             title: `= ${result}`,
             subtitle: '点击复制到剪切板',
-            icon: 'https://img.icons8.com/plasticine/100/000000/apple-calculator.png',
+            icon: './assets/icon.png',
             text: `${result}`,
             matches: [
               { type: 'text', keywords: [keyword] }
