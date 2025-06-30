@@ -57,7 +57,10 @@ defineEmits<{
   position: relative;
   cursor: pointer;
 }
-.resultItem:hover, .resultItem.selected {
+.resultItem:hover {
+  background-color: light-dark(rgba(0, 0, 0, 0.1), rgba(184, 184, 184, 0.2));
+}
+.resultItem.selected {
   background-color: light-dark(rgba(0, 0, 0, 0.15), rgba(184, 184, 184, 0.3));
 }
 .itemImageWrapper {

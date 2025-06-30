@@ -223,23 +223,47 @@ extern CFArrayRef DCSCopyRecordsForSearchString(DCSDictionaryRef, CFStringRef, u
     });
     return _availableDictionaries;
 }
-
 /// Active dictionaries are dictionaries that are currently enabled in Dictionary.app
 + (NSArray<TTTDictionary *> *)activeDictionaries {
     // !!!: DCSGetActiveDictionaries() can only invoke once, otherwise it will crash. So we must use static variable to cache the result.
-    
     static NSArray *_activeDictionaries = nil;
     static dispatch_once_t onceToken;
+
+    // 安全的单次初始化
     dispatch_once(&onceToken, ^{
-        NSMutableArray *mutableActiveDictionaries = [NSMutableArray array];
-        NSArray *activeDictionaries = (__bridge_transfer NSArray *)DCSGetActiveDictionaries();
-        for (id dictionary in activeDictionaries) {
-            [mutableActiveDictionaries addObject:[[TTTDictionary alloc] initWithDictionaryRef:(__bridge DCSDictionaryRef)dictionary]];
+        // 确保在主线程执行初始化（私有API可能有线程要求）
+        if ([NSThread isMainThread]) {
+            _activeDictionaries = [self loadActiveDictionaries];
+        } else {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                _activeDictionaries = [self loadActiveDictionaries];
+            });
         }
-        _activeDictionaries = [NSArray arrayWithArray:mutableActiveDictionaries];
     });
-    
+
     return _activeDictionaries;
+}
+
++ (NSArray<TTTDictionary *> *)loadActiveDictionaries {
+    NSMutableArray *mutableActiveDictionaries = [NSMutableArray array];
+    
+    @try {
+        // 使用@try保护可能崩溃的私有API调用
+        CFArrayRef activeDictionaries = DCSGetActiveDictionaries();
+        if (activeDictionaries) {
+            for (id dictionary in (__bridge NSArray *)activeDictionaries) {
+                TTTDictionary *tttDict = [[TTTDictionary alloc] initWithDictionaryRef:(__bridge DCSDictionaryRef)dictionary];
+                if (tttDict) {
+                    [mutableActiveDictionaries addObject:tttDict];
+                }
+            }
+            CFRelease(activeDictionaries); // 手动释放CF对象
+        }
+    } @catch (NSException *exception) {
+        NSLog(@"Failed to load active dictionaries: %@", exception);
+    }
+    
+    return [mutableActiveDictionaries copy];
 }
 
 + (NSURL *)userDictionaryDirectoryURL {

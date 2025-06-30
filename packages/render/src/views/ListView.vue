@@ -51,7 +51,7 @@ if (typeof window.publicAppCommand?.enter === 'function') {
   })
 }
 
-watch(keyword, (value) => {
+watch(keyword, window.publicApp.utils.debounce((value) => {
   if (!window.publicAppCommand?.search) return;
   loadingCount.value += 1
   try {
@@ -63,7 +63,7 @@ watch(keyword, (value) => {
   } catch (err) {
     loadingCount.value -= 1
   }
-}, { immediate: true})
+}, 500), { immediate: true })
 
 const onResultEnter = (item: IListItem, itemIndex: number) => {
   window.publicAppCommand?.action?.(item)

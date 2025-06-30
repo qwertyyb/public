@@ -74,7 +74,11 @@ const createWebpackConfigs: (pluginName: string) => Promise<webpack.Configuratio
               return "native_modules/[contenthash].[ext]";
             },
           }
-        }
+        },
+        {
+          test: /\.(png|jpg|jpeg|svg)$/i,
+          type: 'asset/resource',
+        },
       ],
     },
     plugins: [
