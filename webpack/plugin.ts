@@ -97,9 +97,9 @@ const stopWebpack = async () => {
 }
 
 const getNames = async () => {
-  return (await fs.promises.readdir(pluginsPath, { encoding: 'utf-8' })).filter(async name => {
+  return (await fs.promises.readdir(pluginsPath, { encoding: 'utf-8' })).filter(name => {
     if (name.startsWith('.')) return false
-    const stat = await fs.promises.stat(path.join(pluginsPath, name))
+    const stat = fs.statSync(path.join(pluginsPath, name))
     if (!stat.isDirectory()) return false
     return fs.existsSync(path.join(pluginsPath, name, 'package.json'))
   })
@@ -165,7 +165,7 @@ const start = async (name: string, env: Record<string, string>) => {
   if (name === 'all') {
     names = await getNames()
   }
-
+  console.log(names)
   await runWebpack(names)
 
   if (isProd) return;
