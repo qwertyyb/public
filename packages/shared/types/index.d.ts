@@ -64,6 +64,7 @@ export interface IPublicApp {
     getSelectedPath: ({ fallbackCurrent }?: { fallbackCurrent?: boolean | undefined }) => Promise<string[]>,
     getCurrentPath: () => Promise<string | undefined | null>,
     hanziToPinyin: (hanzi: string) => string,
+    pathJoin: typeof path.join
   },
 
   shortcuts: {

@@ -7,6 +7,7 @@ import { db, openCommandPreferences, openPluginPreferences, popToRoot, pushView 
 import { hanziToPinyin, getFrontmostApplication, getSelectedPath, getCurrentPath } from '@public/utils'
 import { isFocusable, type createBridge } from '@public/utils/render';
 import { getPlugin } from './manager';
+import path from 'path';
 
 const debounce = <F extends (...args: any[]) => any>(fn: F, delay = 200) => {
   let timeout: ReturnType<typeof setTimeout> | null = null
@@ -114,6 +115,7 @@ const createCommonAPI = ({ runtime, pluginName } : { runtime: 'main' | 'plugin',
       getSelectedPath,
       getCurrentPath,
       hanziToPinyin,
+      pathJoin: path.join,
     },
     showToast(options: {
       title?: string,

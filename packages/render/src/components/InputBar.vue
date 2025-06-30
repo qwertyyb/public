@@ -10,8 +10,6 @@
       id="main-input" />
     <div class="input-placeholder" v-if="!disabled && !modelValue">{{ placeholder }}</div>
     <div class="searchSpace"></div>
-    <!-- <img :src="command.icon" alt="" class="appLogo" draggable="false" v-if="command" /> -->
-    <!-- <img src="../assets/logo.svg" alt="" class="appLogo" draggable="false" /> -->
   </div>
 </template>
 <script setup lang="ts">
@@ -32,9 +30,7 @@ const inputEl = useTemplateRef('input')
 const placeholder = ref('search...')
 
 const keyUpHandler = (event: KeyboardEvent) => {
-  console.log('handler', event)
-  const checkKey = curry(isKeyPressed)(event)
-  if (checkKey('Escape')) {
+  if (event.key === 'Escape') {
     if (modelValue.value) {
       event.preventDefault()
       modelValue.value = ''
@@ -42,7 +38,7 @@ const keyUpHandler = (event: KeyboardEvent) => {
       event.preventDefault()
       emits('escape')
     }
-  } else if (checkKey('Backspace') && !modelValue.value && !event.isComposing) {
+  } else if (event.key === 'Backspace' && !modelValue.value && !event.isComposing) {
     event.preventDefault()
     emits('escape')
   }
@@ -55,7 +51,7 @@ const fetchPlaceholder = async () => {
 }
 
 const popToRootHandler = (e: any) => {
-  if (e.detail?.clearInput) {
+  if (e.detail?.clearInput && props.isMainInput) {
     modelValue.value = ''
   }
 }

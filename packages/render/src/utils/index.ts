@@ -99,3 +99,15 @@ export function createAutoResizeInput(input: HTMLInputElement & { autoResizeInst
     
     return instance;
 }
+
+export const resourceUrl = (urlOrPath: string | undefined, basePath: string) => {
+    console.log('reousrceUrl', urlOrPath)
+    if (!urlOrPath || /^\w+:\/\//.test(urlOrPath)) {
+        return urlOrPath
+    }
+    let path = urlOrPath
+    if (!urlOrPath.startsWith('/')) {
+        path = window.publicApp.utils.pathJoin(basePath, urlOrPath)
+    }
+    return `ipublic://public.qwertyyb.com/local-file?path=${encodeURIComponent(path)}`
+}

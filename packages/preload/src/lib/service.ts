@@ -144,7 +144,7 @@ export const enterPluginCommand = async (owner: IRunningPlugin, command: IPlugin
     owner.plugin?.onEnter?.(command, matchData)
   } else if (command.mode === 'listView') {
     __non_webpack_require__(command.preload)
-    window.dispatchEvent(new CustomEvent('push-view', { detail: { path: '/plugin/list-view', params: { command, plugin: owner, match: matchData} } }))
+    window.dispatchEvent(new CustomEvent('push-view', { detail: { path: '/plugin/list-view', params: { command, plugin: owner, match: matchData } } }))
   } else if (command.mode === 'view') {
     window.dispatchEvent(new CustomEvent('push-view', { detail: { path: '/plugin/view', params: { plugin: owner, command, match: matchData } } }))
   }

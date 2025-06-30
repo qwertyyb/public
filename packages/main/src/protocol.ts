@@ -19,6 +19,7 @@ export const registerIPublicProtocol = (protocol: Protocol) => {
     }
     if (request.method === 'GET' && host === 'public.qwertyyb.com' && pathname === '/local-file') {
       const path = searchParams.get('path') || ''
+      console.log('localfile', path)
       return net.fetch(pathToFileURL(path).toString())
     }
     return new Response(null, {

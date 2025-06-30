@@ -60,10 +60,6 @@ export class CoreApp {
   private initPluginSession() {
     const ses = session.fromPartition('plugin')
     ses.registerPreloadScript({ type: 'frame', filePath: path.join(__dirname, './preload.plugin.js'), id: 'API' })
-    ses.protocol.handle('local', (request) => {
-      const filePath = request.url.slice('atom://'.length)
-      return ses.fetch(pathToFileURL(path.resolve(__dirname, filePath)).toString())
-    })
     ses.setDisplayMediaRequestHandler((request, callback) => {
         console.log('request', request)
         desktopCapturer.getSources({ types: ['screen'] }).then((sources) => {

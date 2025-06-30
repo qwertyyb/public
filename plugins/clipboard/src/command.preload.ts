@@ -19,7 +19,7 @@ const listView: IPluginCommandListView = {
         key: `plugin:clipboard:${item.text}`,
         title: item.text,
         subtitle,
-        icon: './assets/icon.png',
+        icon: './assets/logo.png',
         contentValue: item.text
       }
     })
