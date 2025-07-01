@@ -1,5 +1,6 @@
-import { clipboard } from 'electron'
+import { clipboard, NativeImage } from 'electron'
 import { IPlugin } from '@public/shared'
+import { ContentType, getHash } from './const';
 
 const formatDate = function(date: Date, fmt: string = 'yyyy-MM-dd hh:mm:ss') { 
   var o = { 
@@ -23,11 +24,6 @@ const formatDate = function(date: Date, fmt: string = 'yyyy-MM-dd hh:mm:ss') {
  return fmt; 
 }
 
-const ContentType = {
-  text: 0,
-  image: 1
-}
-
 const createDatabase = async () => {
   const sql = `CREATE TABLE IF NOT EXISTS clipboardHistory (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,21 +36,31 @@ const createDatabase = async () => {
   return window.publicApp.db.run(`CREATE INDEX IF NOT EXISTS textIndex on clipboardHistory(text)`)
 }
 
-const insertRecord = async (record: { contentType: number, text: string }) => {
-  const sql = `INSERT INTO clipboardHistory(contentType, text, createdAt, lastUseAt) values ($contentType, $text, $createdAt, $lastUseAt)`
+const insertRecord = async (record: { contentType: number, text: string, content: Buffer | null, hash: string }) => {
+  const sql = `INSERT INTO clipboardHistory(contentType, text, content, createdAt, lastUseAt, hash) values ($contentType, $text, $content, $createdAt, $lastUseAt, $hash)`
+  console.log(record)
   return window.publicApp.db.run(sql, {
     contentType: record.contentType || ContentType.text,
     text: record.text,
+    content: record.content || null,
     createdAt: formatDate(new Date()),
-    lastUseAt: formatDate(new Date())
+    lastUseAt: formatDate(new Date()),
+    hash: record.hash
   })
 }
 
 const queryRecordList = async ({ keyword = '' } = {}, { strict = false } = {}) => {
-  const sql = `SELECT * FROM clipboardHistory where text like $keyword order by lastUseAt DESC limit 30`
+  const sql = `SELECT * FROM clipboardHistory order by lastUseAt DESC limit 30`
   const query = strict ? keyword : `%${keyword}%`
-  const result = window.publicApp?.db.all(sql, { keyword: query })
-  return result
+  const results = await window.publicApp?.db.all(sql, { keyword: query })
+  return results
+}
+
+const getExist = async (hash: string) => {
+  const results = await window.publicApp.db.all('SELECT id FROM clipboardHistory where hash = $hash', {
+    hash
+  })
+  return results[0]
 }
 
 const updateRecord = async (id: number, params: Object) => {
@@ -63,31 +69,51 @@ const updateRecord = async (id: number, params: Object) => {
   return window.publicApp.db.run(sql, { id: id })
 }
 
+interface ClipboardData {
+  type: ContentType,
+  content: string | NativeImage
+}
+
+const isSame = (last: ClipboardData | null, cur: ClipboardData) => {
+  if (last?.type !== cur.type) return false
+  if (typeof last.content !== typeof cur.content) return false
+  if (typeof last.content === 'string') {
+    return last.content === cur.content
+  }
+  const pre = (last.content as NativeImage).toPNG()
+  const next = (cur.content as NativeImage).toPNG()
+  return pre.equals(next)
+}
 
 const clipboardPlugin: IPlugin = (utils) => {
   const startListener = (handler: (arg: any) => void) => {
-    let lastText: string = '';
-    const checkClipboard = () => {
+    let last: ClipboardData | null = null
+    const checkClipboard = async () => {
       const text = clipboard.readText()
-      if (lastText === text) return;
-      lastText = text;
+      const image = clipboard.readImage()
+      if (!text && image.isEmpty()) return;
+      const cur: ClipboardData = { type: image.isEmpty() ? ContentType.text : ContentType.image, content: image.isEmpty() ? text : image }
+      if (isSame(last, cur)) return;
+      last = cur
+      const buffer = cur.type === ContentType.image ? image.toPNG() : Buffer.from(text)
       handler({
-        contentType: ContentType.text,
-        contentValue: text,
-        text: text
+        contentType: cur.type,
+        text: cur.type === ContentType.text ? cur.content : '',
+        content: cur.type === ContentType.text ? null : buffer,
+        hash: await getHash(buffer)
       })
     }
     setInterval(checkClipboard, 1000)
   }
 
-  const newItemHandler = async (data: { contentType: number, contentValue: string, text: string }) => {
-    const existsItems = await queryRecordList({ keyword: data.text }, { strict: true })
-    console.log('new Data existsitem', existsItems)
-    if (!existsItems.length) {
-      return insertRecord({ contentType: data.contentType, text: data.text })
+  const newItemHandler = async (data: { contentType: ContentType, content: Buffer | null, text: string, hash: string }) => {
+    const exist = await getExist(data.hash)
+    if (!exist) {
+      return insertRecord({ contentType: data.contentType, text: data.text, content: data.content, hash: data.hash })
     } else {
-      existsItems[0].updatedAt = Date.now()
-      return updateRecord(existsItems[0].id, { lastUseAt: formatDate(new Date()) })
+      console.log('已存在，更新 lastUseAt', data.hash)
+      exist.updatedAt = Date.now()
+      return updateRecord(exist.id, { lastUseAt: formatDate(new Date()) })
     }
   }
   createDatabase().then(_ => {

@@ -1,10 +1,12 @@
 <template>
-  <div class="resultView">
-    <virtual-list class="result-list"
-      :list="results"
+  <div class="resultView" ref="el">
+    <VirtualList class="result-list"
+      :data-sources="results"
       :keeps="30"
-      :item-height="54"
-      v-slot="{ item, index }"
+      :estimate-size="54"
+      :data-key="'title'"
+      ref="virtualList"
+      v-slot="{ source: item, index }"
     >
       <ResultItem
         :key="index"
@@ -17,7 +19,7 @@
         @select="selectedIndex = index;$emit('select', item, index)"
         @enter="selectedIndex = index;$emit('enter', item, index)"
       ></ResultItem>
-    </virtual-list>
+    </VirtualList>
     <ActionList
       :actions="selectedItem.actions!"
       v-if="visibleActionIndex === selectedIndex && (selectedItem?.actions?.length || 0) > 0"
@@ -28,10 +30,9 @@
 </template>
 
 <script setup lang="ts" generic="T extends IListItem">
-import { computed, ref, watch } from 'vue';
+import { computed, ref, useTemplateRef, watch } from 'vue';
 import ResultItem from '@/components/ResultItem.vue';
 import ActionList, { type IActionItem } from '@/components/ActionList.vue';
-import VirtualList from '@/components/VirtualList.vue';
 import ResultItemPreview from '@/components/ResultItemPreview.vue';
 import { curry } from 'ramda';
 import { isKeyPressed } from '@/utils/keyboard';
@@ -55,6 +56,9 @@ const actionKeyStartIndex = ref(0)
 
 const selectedItem = computed(() => props.results[selectedIndex.value])
 
+const virtualList = useTemplateRef<{ scrollToIndex: (index: number) => void }>('virtualList')
+const el = useTemplateRef('el')
+
 const getPreview = async (item: T) => {
   if (!item) return emit('select', null, -1)
   emit('select', item, selectedIndex.value)
@@ -62,9 +66,10 @@ const getPreview = async (item: T) => {
 
 // selectedIndex 变化时，滚动到选择位置，调用preview
 const calcActionKeyStartIndex = () => {
-  (document.querySelector<HTMLElement>(`.result-item[data-result-item-index="${selectedIndex.value}"]`) as any)?.scrollIntoViewIfNeeded(false)
-  const parentRect = document.querySelector('div.result-list')!.getBoundingClientRect()
-  const els = document.querySelectorAll<HTMLElement>('.result-item[data-result-item-index]')
+  if (!el.value) return;
+  (el.value.querySelector<HTMLElement>(`.result-item[data-result-item-index="${selectedIndex.value}"]`) as any)?.scrollIntoView({ inline: 'center', block: 'center', behavior: 'smooth' })
+  const parentRect = el.value.querySelector('div.result-list')!.getBoundingClientRect()
+  const els = el.value.querySelectorAll<HTMLElement>('.result-item[data-result-item-index]')
   let visibleIndexList: number[] = []
   els.forEach(item => {
     const rect = item.getBoundingClientRect()
@@ -78,11 +83,12 @@ const calcActionKeyStartIndex = () => {
 
 watch(selectedItem, (value) => {
   visibleActionIndex.value = -1
+  // virtualList.value?.scrollToIndex(Math.max(0, selectedIndex.value - 4))
   getPreview(value)
 }, { immediate: true })
 watch(selectedItem, calcActionKeyStartIndex, { flush: 'post' })
 
-watch(() => props.results, () => { selectedIndex.value = 0 })
+watch(() => props.results, () => { console.log('result'); selectedIndex.value = 0 })
 
 const onResultEnter = (index: number) => {
   emit('enter', props.results[index], index)
@@ -111,6 +117,7 @@ const keydownHandler = (e: KeyboardEvent) => {
     e.preventDefault()
   } else if(checkKey('ArrowDown')) {
     selectedIndex.value = (Math.min(selectedIndex.value + 1, props.results.length - 1))
+    console.log('selectedIndex', selectedIndex.value)
     e.stopPropagation()
     e.preventDefault()
   } else if (checkKey('Shift+Enter')) {
@@ -159,6 +166,7 @@ onPageLeave(() => {
   max-height: var(--container-height);
   min-height: var(--container-height);
   overflow: auto;
+  height: var(--container-height);
 }
 
 /* 滚动槽 */

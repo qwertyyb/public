@@ -102,7 +102,7 @@ export function createAutoResizeInput(input: HTMLInputElement & { autoResizeInst
 
 export const resourceUrl = (urlOrPath: string | undefined, basePath: string) => {
     console.log('reousrceUrl', urlOrPath)
-    if (!urlOrPath || /^\w+:\/\//.test(urlOrPath)) {
+    if (!urlOrPath || /^\w+:\/\//.test(urlOrPath) || urlOrPath.startsWith('data:')) {
         return urlOrPath
     }
     let path = urlOrPath

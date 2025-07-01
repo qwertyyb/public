@@ -179,7 +179,7 @@ const onPluginDisabledChange = async (enabled: boolean, plugin: IRunningPlugin) 
 }
 const onCommandChange = async (values: Partial<ICommandSettings>, plugin: IRunningPlugin, command: IPluginCommand) => {
   plugin.settings!.commands![command.name] = { ...plugin.settings!.commands![command.name], ...values }
-  await window.PublicAppBridge.invoke('updateCommandSettings', { ...values })
+  await window.PublicAppBridge.invoke('updateCommandSettings', plugin.manifest.name, command.name, { ...values })
   refreshSettings()
 }
 

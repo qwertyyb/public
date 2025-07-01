@@ -1,21 +1,21 @@
-import * as path from 'path';
-import { app, BaseWindow, BrowserWindow, desktopCapturer, Menu, protocol, session, WebContentsView, type Tray } from "electron";
+import * as path from 'path'
+import { app, BaseWindow, BrowserWindow, desktopCapturer, protocol, session, WebContentsView, type Tray } from "electron"
 import { autoUpdater } from "electron-updater"
 import initIpc from './ipc'
 import initTray from './controller/trayController'
 import db from './controller/storageController'
-import { getConfig } from './config';
-import { registerIPublicProtocol } from './protocol';
-import { pathToFileURL } from 'url';
-require('@electron/remote/main').initialize();
+import { getConfig } from './config'
+import { registerIPublicProtocol } from './protocol'
+import { pathToFileURL } from 'url'
+require('@electron/remote/main').initialize()
 
 const config = getConfig()
 
 app.setActivationPolicy('accessory')
 
 export class CoreApp {
-  readonly electronApp = app;
-  readonly db = db;
+  readonly electronApp = app
+  readonly db = db
   tray: Tray | null = null;
   readonly mainWindow?: BaseWindow;
   private mainView?: WebContentsView;

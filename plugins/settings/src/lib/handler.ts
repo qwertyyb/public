@@ -130,6 +130,7 @@ const handlers = {
     window.pluginManager?.updatePluginSettings(name, pluginSettings)
   },
   async updateCommandSettings(plugin: string, command: string, settings: ICommandSettings) {
+    debugger
     window.pluginManager?.updateCommandSettings(plugin, command, settings)
   },
   openPrfsView(plugin: string, command?: string) {

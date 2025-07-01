@@ -242,7 +242,8 @@ export const updatePluginSettings = (name: string, value: Partial<Omit<IPluginSe
 export const updateCommandSettings = (pluginName: string, commandName: string, settings: ICommandSettings) => {
   const plugin = plugins.get(pluginName)
   if (!plugin) return;
-  plugin.settings!.commands[commandName] = { ...plugin.settings, ...settings }
+  plugin.settings!.commands[commandName] = { ...plugin.settings?.commands[commandName], ...settings }
+  save()
 }
 
 export const getPlugin = (name: string) => {
@@ -255,6 +256,7 @@ export const launchPlugins = async () => {
       console.error(err)
       return {}
     })
+  console.log('pluginsSettings', result)
   pluginsSettings = result
 
   const names = [

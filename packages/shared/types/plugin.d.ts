@@ -114,12 +114,12 @@ export interface IRunningPlugin {
 
 export interface IResultItem extends IListItem, Record<string, any> { }
 
-export interface IPluginCommandListView {
-  enter?: (query: string, setList: (list: IResultItem[]) => void) => void,
+export interface IPluginCommandListView<Item extends IResultItem = IResultItem> {
+  enter?: (query: string, setList: (list: Item[]) => void) => void,
   leave?: () => void,
-  search?: (keyword: string, setList: (list: IResultItem[]) => void) => void,
-  select?: (result: IResultItem, query: string) => string | HTMLElement | Promise<string> | Promise<HTMLElement>,
-  action?: (result: IResultItem, action?: IActionItem) => void
+  search?: (keyword: string, setList: (list: Item[]) => void) => void,
+  select?: (result: Item, query: string) => string | HTMLElement | Promise<string> | Promise<HTMLElement>,
+  action?: (result: Item, action?: IActionItem) => void
 }
 
 export interface ICommandSettings {
