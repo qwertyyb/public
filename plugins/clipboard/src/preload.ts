@@ -30,10 +30,13 @@ const createDatabase = async () => {
     contentType INTEGER NOT NULL,
     text TEXT NOT NULL,
     createdAt TEXT NOT NULL,
-    lastUseAt TEXT NOT NULL
+    lastUseAt TEXT NOT NULL,
+    content BLOB NULL DEFAULT NULL,
+    application TEXT NULL DEFAULT NULL,
+    hash TEXT NULL DEFAULT NULL
   );`
   await window.publicApp.db.run(sql)
-  return window.publicApp.db.run(`CREATE INDEX IF NOT EXISTS textIndex on clipboardHistory(text)`)
+  return window.publicApp.db.run(`CREATE INDEX IF NOT EXISTS hashIndex on clipboardHistory(hash)`)
 }
 
 const insertRecord = async (record: { contentType: number, text: string, content: Buffer | null, hash: string }) => {
