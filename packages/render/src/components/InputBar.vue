@@ -5,7 +5,7 @@
       v-if="!disabled"
       class="input"
       ref="input"
-      @keyup="keyUpHandler"
+      @keydown="keyDownHandler"
       v-model="modelValue"
       id="main-input" />
     <div class="input-placeholder" v-if="!disabled && !modelValue">{{ placeholder }}</div>
@@ -14,9 +14,7 @@
 </template>
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
-import { curry } from 'ramda';
-import { isKeyPressed } from '@/utils/keyboard';
-import { onPageEnter, onPageLeave } from '@/router/hooks';
+import { onPageEnter } from '@/router/hooks';
 
 const modelValue = defineModel({ default: '' })
 const props = defineProps<{
@@ -29,7 +27,7 @@ const emits = defineEmits<{ escape: [] }>()
 const inputEl = useTemplateRef('input')
 const placeholder = ref('search...')
 
-const keyUpHandler = (event: KeyboardEvent) => {
+const keyDownHandler = (event: KeyboardEvent) => {
   if (event.key === 'Escape') {
     if (modelValue.value) {
       event.preventDefault()
