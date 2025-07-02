@@ -16,7 +16,7 @@ app.setActivationPolicy('accessory')
 export class CoreApp {
   readonly electronApp = app
   readonly db = db
-  tray: Tray | null = null;
+  tray: Tray | null = null
   readonly mainWindow?: BaseWindow;
   private mainView?: WebContentsView;
   private pluginView?: WebContentsView;

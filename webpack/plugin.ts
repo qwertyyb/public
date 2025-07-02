@@ -81,9 +81,6 @@ const createWebpackConfigs: (pluginName: string) => Promise<webpack.Configuratio
         },
       ],
     },
-    plugins: [
-      new webpack.ProgressPlugin()
-    ]
   }
 
   return [config]
@@ -141,6 +138,12 @@ const runWebpack = async (names: string[]) => {
   }
 }
 
+export const runAllPluginsWebpack = async (names?: string[]) => {
+    const plugins = names ?? await getNames()
+    console.log(plugins)
+    await runWebpack(plugins)
+}
+
 const readCommand = async () => {
   const rl = readline.createInterface(process.stdin, process.stdout)
   rl.addListener('SIGINT', () => {
@@ -176,6 +179,6 @@ const start = async (name: string, env: Record<string, string>) => {
   return readCommand()
 }
 
-const name = process.argv[2]
+// const name = process.argv[2]
 
-start(name || 'all', process.env as Record<string, string>)
+// start(name || 'all', process.env as Record<string, string>)
