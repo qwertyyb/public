@@ -11,7 +11,10 @@
     "./render": "./src/render.ts",
     "./native": "./native.ts"
   },
-  "scripts": {},
+  "scripts": {
+    "build:node": "node-gyp rebuild",
+    "build:node:debug": "node-gyp configure --debug -- -f compile_commands_json && mv ./build/Debug/compile_commands.json ./compile_commands.json && node-gyp rebuild --debug"
+  },
   "keywords": [
     "Finder",
     "Preview",
@@ -34,6 +37,6 @@
     "run-applescript": "^7.0.0"
   },
   "devDependencies": {
-    "node-gyp": "^10.0.0"
+    "node-gyp": "^11.2.0"
   }
 }

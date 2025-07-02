@@ -22,7 +22,7 @@ export const lookupWordHTML = (word: string) => addon.lookupWordHTML(word) as {
   }[]
 }[]
 
-// console.log(1, lookupWordHTML('hello'))
+console.log(1, lookupWordHTML('hello'))
 
 // console.log(2)
 

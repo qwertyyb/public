@@ -18,6 +18,27 @@
         "NODE_ENV": "development"
       },
       "preLaunchTask": "npm: start:render"
+    },
+    {
+      "type": "cppdbg",
+      "request": "launch",
+      "name": "调试utils",
+      "program": "${workspaceFolder}/packages/utils/build/Debug/${fileBasenameNoExtension}.node",
+      "args": [],
+      "preLaunchTask": "build utils Debug",
+      "cwd": "${workspaceFolder}/packages/utils/",
+      "MIMode": "lldb"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "调试utils js",
+      "program": "node",
+      "args": [
+        "${workspaceFolder}/packages/utils/test.mjs"
+      ],
+      // "preLaunchTask": "build utils Debug",
+      "cwd": "${workspaceFolder}/packages/utils/",
     }
   ]
 }

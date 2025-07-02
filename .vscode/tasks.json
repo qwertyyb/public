@@ -7,6 +7,12 @@
 			"problemMatcher": [],
 			"label": "npm: start:render",
 			"detail": "cd ./render && npm run dev"
+		},
+		{
+			"label": "build utils Debug",
+			"type": "shell",
+			"command": "cd ${workspaceFolder}/packages/utils && pnpm build:node:debug",
+			"problemMatcher": []
 		}
 	]
 }
