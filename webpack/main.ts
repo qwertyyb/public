@@ -111,17 +111,18 @@ let electronProcess: ChildProcess | null = null
 
 const stopElectron = () => {
   if (!electronProcess) return;
-  electronProcess.kill("SIGINT");
+  electronProcess.kill();
   electronProcess = null
 };
 
 
+process.on("exit", () => {
+  stopElectron();
+});
+
 export const startElectron = async () => {
   stopElectron()
-  electronProcess = spawn('pnpm', ['run', 'electron'])
-  // electronProcess.stdin = process.stdin
-  electronProcess.stdout = process.stdout
-  electronProcess.stderr = process.stderr
+  electronProcess = spawn('pnpm', ['run', 'electron'], { stdio: [null, process.stdout, process.stderr]})
   electronProcess.on('error', (err) => {
     stopElectron()
   })

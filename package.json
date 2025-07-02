@@ -56,13 +56,10 @@
     }
   },
   "scripts": {
-    "electron": "cross-env NODE_ENV=development electron dist/index.js --remote-debugging-port=8222",
-    "start:electron": "nodemon --exec 'npm run electron || exit 1'",
-    "start:render": "cd ./packages/render && npm run dev",
-    "webpack:main": "webpack --config ./webpack/webpack.config.main.ts -w",
-    "webpack:preload": "webpack --config ./webpack/webpack.config.preload.ts -w",
-    "webpack:plugin": "tsx ./webpack/plugin.ts",
-    "start": "concurrently --names \"main,preload,plugin,render,electron\" -c \"bgBlue.bold,bgBlack.bold,bgMagenta.bold,bgYellow.bold,bgGreen.bold\" \"npm run webpack:main\" \"npm run webpack:preload\" \"npm run webpack:plugin\" \"npm run start:render\" \"wait-on tcp:localhost:4000 && npm run start:electron\"",
+    "electron": "cross-env NODE_ENV=development electron dist/index.js --remote-debugging-port=8222 || echo \"hello\"",
+    "start:render": "cd ./packages/render && npm run dev || 0",
+    "start:others": "tsx webpack/start.ts",
+    "start": "concurrently --names \"render,others\" -c \"bgBlue.bold,bgMagenta.bold\" \"pnpm start:render\" \"npm run start:others\"",
     "build:main": "webpack --config ./webpack/webpack.config.main.ts --mode=production",
     "build:preload": "webpack --config ./webpack/webpack.config.preload.ts --mode=production",
     "build:plugin": "cross-env NODE_ENV=production tsx ./webpack/plugin.ts",
