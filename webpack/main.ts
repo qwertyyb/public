@@ -109,7 +109,7 @@ export const runMainWebpack = (onChange?: () => void) => {
 
 let electronProcess: ChildProcess | null = null
 
-const stopElectron = () => {
+export const stopElectron = () => {
   if (!electronProcess) return;
   electronProcess.kill();
   electronProcess = null

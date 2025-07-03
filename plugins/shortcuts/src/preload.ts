@@ -1,4 +1,4 @@
-import { ITextPluginCommandMatch, IPlugin } from "@public/shared"
+import { ITextPluginCommandMatch, IPlugin, ITriggerPluginCommandMatch } from "@public/shared"
 import { execFile } from "child_process"
 import { promisify } from "util"
 
@@ -12,7 +12,7 @@ const getList = async () => {
     icon: './assets/shortcuts.png',
     title,
     matches: [
-      { type: 'text', keywords: [title] } as ITextPluginCommandMatch
+      { type: 'text', keywords: ['shortcuts ' + title] } as ITextPluginCommandMatch,
     ],
     actions: [
       {
@@ -27,6 +27,9 @@ const getList = async () => {
 
 
 const shortcutsPlugin: IPlugin = (app) => {
+  // getList().then(list => {
+  //   app.updateCommands(list);
+  // })
   return {
     async onInput(keyword: string) {
       const list = await getList()

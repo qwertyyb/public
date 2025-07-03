@@ -15,7 +15,7 @@ export interface IListItem {
 }
 
 export type IPluginReturn = {
-  onInput?: (keyword: string) => void,
+  onInput?: (keyword: string) => void | IPluginCommand[] | Promise<void> | Promise<IPluginCommand[]>,
   onSelect?: (command: IPluginCommand, matchData: ICommandMatchData) => string | undefined | HTMLElement | Promise<string | HTMLElement | undefined>,
   onEnter?: (command: IPluginCommand, matchData: ICommandMatchData) => void,
   onAction?: (command: IPluginCommand, action: IActionItem, keyword: string) => void,
@@ -67,18 +67,20 @@ interface ICommandHotKeyMatchData extends ICommandBaseMatchData { from: 'hotkey'
 
 interface ICommandAliasMatchData extends ICommandBaseMatchData { from: 'alias' }
 
-export type ICommandMatchData = ICommandTextMatchData | ICommandTriggerMatchData | ICommandRegExpMatchData | ICommandFullMatchData | ICommandHotKeyMatchData | ICommandAliasMatchData
+interface ICommandOnInputMatchData extends ICommandBaseMatchData { from: 'onInput' }
+
+export type ICommandMatchData = ICommandTextMatchData | ICommandTriggerMatchData | ICommandRegExpMatchData | ICommandFullMatchData | ICommandHotKeyMatchData | ICommandAliasMatchData | ICommandOnInputMatchData
 
 export interface IPluginCommandConfig extends IListItem, Record<string, any> {
   name: string
   mode?: 'listView' | 'none' | 'view'
-  matches: IPluginCommandMatch[]
+  matches?: IPluginCommandMatch[]
   entry?: string
   preload?: string,
   preferences?: IPreference[]
 }
 
-export type IPluginCommand = WithRequired<IPluginCommandConfig, 'name' | 'icon' | 'title' | 'mode' | 'matches'>
+export type IPluginCommand = IPluginCommandConfig
 
 export interface IPreference {
   name: string
@@ -115,7 +117,7 @@ export interface IRunningPlugin {
 export interface IResultItem extends IListItem, Record<string, any> { }
 
 export interface IPluginCommandListView<Item extends IResultItem = IResultItem> {
-  enter?: (query: string, setList: (list: Item[]) => void) => void,
+  enter?: (query: string, setList: (list: Item[]) => void, options: { command: IPluginCommand }) => void,
   leave?: () => void,
   search?: (keyword: string, setList: (list: Item[]) => void) => void,
   select?: (result: Item, query: string) => string | HTMLElement | Promise<string> | Promise<HTMLElement>,

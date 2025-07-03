@@ -98,59 +98,6 @@ export class CoreApp {
     return ses
   }
 
-  private createHeaderWindow() {
-    // 创建一个无边框、透明背景的窗口
-    let toastWindow = new BrowserWindow({
-      width: config.windowWidth / 3,
-      height: 30,
-      x: 0,
-      y: 0,
-      show: true,
-      parent: this.mainWindow!,
-      useContentSize: true,
-      // alwaysOnTop: true, // 确保显示在最上层
-      frame: false, // 无边框
-      resizable: false,
-      focusable: false,
-      skipTaskbar: true, // 不在任务栏显示
-      vibrancy: 'popover',
-      visualEffectState: 'followWindow',
-      transparent: true,
-      webPreferences: {
-        nodeIntegration: false,
-        contextIsolation: false,
-      }
-    })
-    toastWindow.setIgnoreMouseEvents(true)
-
-    // 加载HTML内容（我们直接使用HTML字符串）
-    toastWindow.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            height: 100vh;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            padding-left: 16px;
-          }
-        </style>
-      </head>
-      <body>
-        <div>剪切板</div>
-      </body>
-      </html>
-    `)}`)
-
-    const [x, y] = this.mainWindow!.getPosition()
-    toastWindow.setPosition(x, y - 46)
-  }
-
   private createMainWindow() {
     const win = new BaseWindow({
       height: config.windowHeight,

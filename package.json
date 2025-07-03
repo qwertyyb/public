@@ -56,7 +56,7 @@
     }
   },
   "scripts": {
-    "electron": "cross-env NODE_ENV=development electron dist/index.js --remote-debugging-port=8222 || echo \"hello\"",
+    "electron": "cross-env NODE_ENV=development electron dist/index.js --remote-debugging-port=8222",
     "start:render": "cd ./packages/render && npm run dev || 0",
     "start:others": "tsx webpack/start.ts",
     "start": "concurrently --names \"render,others\" -c \"bgBlue.bold,bgMagenta.bold\" \"pnpm start:render\" \"npm run start:others\"",

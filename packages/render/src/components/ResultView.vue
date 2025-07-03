@@ -86,7 +86,7 @@ watch(selectedItem, (value) => {
   // virtualList.value?.scrollToIndex(Math.max(0, selectedIndex.value - 4))
   getPreview(value)
 }, { immediate: true })
-watch(selectedItem, calcActionKeyStartIndex, { flush: 'post' })
+watch(selectedItem, () => setTimeout(calcActionKeyStartIndex, 600), { flush: 'post' })
 
 watch(() => props.results, () => { console.log('result'); selectedIndex.value = 0 })
 

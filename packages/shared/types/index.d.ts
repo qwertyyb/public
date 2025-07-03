@@ -1,4 +1,4 @@
-import { IActionItem, ICommandMatchData, ICommandSettings, IPluginCommand, IPluginCommandListView, IPluginSettings, IPluginsSettings, IRunningPlugin } from './plugin'
+import { IActionItem, ICommandMatchData, ICommandSettings, IListItem, IPluginCommand, IPluginCommandListView, IPluginSettings, IPluginsSettings, IRunningPlugin } from './plugin'
 import { PortBridge } from './utils'
 import { IWebview, IWebviewElement, IWebviewEventMap, IWebviewTagAttributes } from './webview'
 

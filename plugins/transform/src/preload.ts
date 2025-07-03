@@ -1,23 +1,23 @@
-import { IPlugin, IPluginCommandConfig } from '@public/shared'
+import { IPlugin, IPluginCommand } from '@public/shared'
 import { hToM, msToDuration, msToLocaleString, mToS, sToLocaleString, sToMs } from "./lib/time"
+import { transformCurrency } from './lib/currency'
 
 const transformPlugin: IPlugin = (utils) => {
   return {
-    onInput(keyword) {
-      const commands: IPluginCommandConfig[] = []
+    async onInput(keyword) {
+      console.log('keyword', keyword)
+      const commands: IPluginCommand[] = []
       if (/^\d+ms$/.test(keyword)) {
         // 1720524483000ms
         const num = window.parseInt(keyword, 10)
         if (num.toString().length >= 13) {
           const value = msToLocaleString(num)
           commands.push({
+            icon: '',
             name: 'ms2string',
             title: '= ' + value,
             value,
             subtitle: '时间',
-            matches: [
-              { type: 'text', keywords: [keyword] }
-            ]
           })
         }
         const value = msToDuration(num)
@@ -26,9 +26,6 @@ const transformPlugin: IPlugin = (utils) => {
           title: '=' + value,
           value,
           subtitle: '时长',
-          matches: [
-            { type: 'text', keywords: [keyword] }
-          ]
         })
       } else if (/^\d+s$/.test(keyword)) {
         const num = window.parseInt(keyword, 10)
@@ -77,6 +74,8 @@ const transformPlugin: IPlugin = (utils) => {
             { type: 'text', keywords: [keyword] }
           ]
         })
+      } else {
+        commands.push(...await transformCurrency(keyword))
       }
       
       const [prefix, ...rest] = keyword.split(' ')
@@ -103,9 +102,9 @@ const transformPlugin: IPlugin = (utils) => {
             { type: 'text', keywords: [keyword] }
           ]
         })
-      } else if (prefix === 'i2h')
-      console.log('commands', commands)
-      utils.updateCommands(commands)
+      }
+      // utils.updateCommands(commands)
+      return commands
     },
     onEnter(command) {
       require('electron').clipboard.writeText(command.value)

@@ -25,8 +25,8 @@ const getData = withCache(async (type: 'hot' | 'latest' = 'hot') => {
 })
 
 window.publicAppCommand = {
-  enter(query, setList) {
-    getData(new URL(location.href).searchParams.get('command') as 'hot' | 'latest').then(list => {
+  enter(query, setList, options) {
+    getData(options.command.name as 'hot' | 'latest').then(list => {
       setList(list)
     })
   },

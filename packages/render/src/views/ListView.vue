@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import ResultView from '@/components/ResultView.vue';
-import { ref, watch } from 'vue';
+import { ref, toRaw, watch } from 'vue';
 import { type ICommandMatchData, type IListItem, type IPluginCommand, type IRunningPlugin } from '@public/shared';
 import LoadingBar from '@/components/LoadingBar.vue';
 import type { IActionItem } from '@/components/ActionList.vue';
@@ -48,7 +48,7 @@ if (typeof window.publicAppCommand?.enter === 'function') {
         icon: resourceUrl(item.icon, props.plugin.path)
       }
     })
-  })
+  }, { command: toRaw(props.command) })
 }
 
 watch(keyword, window.publicApp.utils.debounce((value) => {

@@ -1,4 +1,4 @@
-import { IActionItem, ICommandAliasMatchData, ICommandFullMatchData, ICommandMatchData, ICommandRegExpMatchData, ICommandTextMatchData, ICommandTriggerMatchData, IFullPluginCommandMatch, IPluginCommand, IPreference, IRegExpPluginCommandMatch, IRunningPlugin, ITextPluginCommandMatch, ITriggerPluginCommandMatch } from '@public/shared'
+import { IActionItem, ICommandAliasMatchData, ICommandFullMatchData, ICommandMatchData, ICommandRegExpMatchData, ICommandTextMatchData, ICommandTriggerMatchData, IFullPluginCommandMatch, IListItem, IPlugin, IPluginCommand, IPreference, IRegExpPluginCommandMatch, IRunningPlugin, ITextPluginCommandMatch, ITriggerPluginCommandMatch } from '@public/shared'
 import { getPlugins } from './manager';
 import { openCommandPreferences, openPluginPreferences, popView } from './utils';
 
@@ -15,6 +15,7 @@ const compileString = (template: string, vars: any) => {
   return func(vars)
 }
 
+const CommandOnInputBaseScore = 100
 const CommandAliasBaseScore = 10
 const CommandTriggerMatchBaseScore = 5
 
@@ -28,7 +29,7 @@ export const calcCommandMatchInfo = (keyword: string, command: IPluginCommand, o
     }
   }
 
-  const { matches } = command
+  const matches = command.matches || []
   const triggerMatch = matches.find<ITriggerPluginCommandMatch>(match => match.type === 'trigger')
   if (triggerMatch) {
     const triggerIndex = triggerMatch.triggers.findIndex(trigger => keyword.startsWith(trigger + ' '))
@@ -89,13 +90,27 @@ export const calcCommandMatchInfo = (keyword: string, command: IPluginCommand, o
 const resultsMap = new WeakMap<IPluginCommand, ICommandMatchData>()
 
 export const handleQuery = async (keyword: string) => {
+  let results: IPluginCommand[] = [];
+
   let plugins = getPlugins()
+  let inputCount = 0
   await Promise.all(
-    [...plugins.values()].map(plugin => plugin.plugin?.onInput?.(keyword))
+    [...plugins.values()].map(plugin => {
+      if (typeof plugin.plugin?.onInput !== 'function') return
+      return Promise.resolve(plugin.plugin?.onInput(keyword)).then(list => {
+        if (!list) return;
+        if (!Array.isArray(list)) return;
+        list.forEach(item => {
+          if (!item.title && !item.subtitle && !item.icon) return;
+          results.push(item)
+          inputCount += 1
+          resultsMap.set(item, { owner: plugin, from: 'onInput', keyword, query: keyword, score: CommandOnInputBaseScore + inputCount })
+        })
+      })
+    })
   )
   // 执行 onInput 后，可能会更新 commands，所以需要重新获取一下
   plugins = getPlugins()
-  let results: IPluginCommand[] = []
   plugins.forEach((plugin, name) => {
     const { commands = [] } = plugins.get(name)!
     commands.forEach(command => {
@@ -140,7 +155,7 @@ export const enterPluginCommand = async (owner: IRunningPlugin, command: IPlugin
   if (count) {
     popView({ count })
   }
-  if (command.mode === 'none') {
+  if (command.mode === 'none' || !command.mode) {
     owner.plugin?.onEnter?.(command, matchData)
   } else if (command.mode === 'listView') {
     __non_webpack_require__(command.preload)

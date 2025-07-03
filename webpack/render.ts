@@ -7,7 +7,7 @@ const WAIT_TIMEOUT = 1000 // ms
 
 let renderProcess: ChildProcess | null = null
 
-const stopRender = () => {
+export const stopRender = () => {
   if (renderProcess) {
     renderProcess.kill()
     renderProcess = null
@@ -41,3 +41,5 @@ export const startRender = () => {
     stopRender()
   })
 }
+
+// startRender()

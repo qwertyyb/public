@@ -52,7 +52,8 @@
           {
             "type": "trigger",
             "triggers": [
-              "ai"
+              "ai",
+              "ask"
             ],
             "title": "ask $query"
           }
