@@ -31,6 +31,7 @@ const registerShortcuts = (shortcuts: string) => {
   window.publicApp.shortcuts.register(shortcuts, () => window.publicApp.mainWindow.show())
 }
 
+const shortcutsHandlers = new Map<string, () => void>()
 const registerCommandShortcuts = (plugins: Map<string, IRunningPlugin>) => {
   plugins.entries().forEach(([pluginName, plugin]) => {
     if (plugin.settings?.disabled) return
@@ -39,13 +40,21 @@ const registerCommandShortcuts = (plugins: Map<string, IRunningPlugin>) => {
       if (commandSettings?.disabled) return
       const shortcuts = commandSettings?.shortcuts
       if (!shortcuts) return
-      window.publicApp.shortcuts.register(shortcuts, () => {
-        const plugin = window.pluginManager?.getPlugins().get(pluginName)
+      const handler = () => {
+        const plugin = window.pluginManager?.getPlugins().get(pluginName);
         if (plugin && command) {
-          window.publicApp.mainWindow.show()
-          window.pluginManager?.enterPluginCommand(plugin, command, { owner: plugin, score: 1, from: 'hotkey', keyword: '', query: '' })
+          window.publicApp.mainWindow.show();
+          window.pluginManager?.enterPluginCommand(plugin, command, {
+            owner: plugin,
+            score: 1,
+            from: "hotkey",
+            keyword: "",
+            query: "",
+          });
         }
-      })
+      };
+      shortcutsHandlers.set(shortcuts, handler);
+      window.publicApp.shortcuts.register(shortcuts, handler);
     })
   })
 }
@@ -130,6 +139,28 @@ const handlers = {
     window.pluginManager?.updatePluginSettings(name, pluginSettings)
   },
   async updateCommandSettings(plugin: string, command: string, settings: ICommandSettings) {
+    // 需要处理快捷键
+    const pluginInstance = window.pluginManager?.getPlugins({
+        includeDisabledPlugins: true,
+        includeDisabledCommand: true,
+      })
+      .get(plugin);
+    const original = pluginInstance?.settings?.commands?.[command]
+    if (original?.shortcuts && original.shortcuts !== settings.shortcuts && shortcutsHandlers.get(original.shortcuts)) {
+      window.publicApp.shortcuts.unregister(original.shortcuts, shortcutsHandlers.get(original.shortcuts)!)
+      shortcutsHandlers.delete(original.shortcuts)
+    }
+    if (settings.shortcuts && pluginInstance) {
+      shortcutsHandlers.set(settings.shortcuts, () => {
+        window.pluginManager?.enterPluginCommand(
+          pluginInstance,
+          pluginInstance?.commands.find((c) => c.name === command)!,
+          { owner: pluginInstance, score: 1, from: "hotkey", keyword: "", query: "" }
+        );
+        window.publicApp.mainWindow.show();
+      })
+      window.publicApp.shortcuts.register(settings.shortcuts, shortcutsHandlers.get(settings.shortcuts)!)
+    }
     window.pluginManager?.updateCommandSettings(plugin, command, settings)
   },
   openPrfsView(plugin: string, command?: string) {
