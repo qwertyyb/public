@@ -1,6 +1,6 @@
 import { join as pathJoin } from 'path'
 import createCommonAPI, { createDraggable } from './lib/common'
-import { registerPlugin, unregisterPlugin, disablePlugin, disablePluginCommand, updatePluginsSettings, getPlugins, updatePluginPreferences, updateCommandPreferences, getPlugin, updatePluginSettings, updateCommandSettings, launchPlugins  } from "./lib/manager"
+import { registerPlugin, unregisterPlugin, disablePlugin, disablePluginCommand, updatePluginsSettings, getPlugins, updatePluginPreferences, updateCommandPreferences, getPlugin, updatePluginSettings, updateCommandSettings, launchPlugins, getPluginPreferences, getCommandPreferences } from "./lib/manager"
 import { handleQuery, handleSelect, handleEnter, handleAction, enterPluginCommand } from "./lib/service"
 
 
@@ -18,7 +18,11 @@ window.pluginManager = {
 
   updatePluginPreferences,
   updateCommandPreferences,
+
+  getPluginPreferences,
   updatePluginSettings,
+
+  getCommandPreferences,
   updateCommandSettings,
 
   handleQuery,

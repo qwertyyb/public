@@ -36,4 +36,6 @@ ul, ol {
 
   --selected-bg-color: rgba(0, 128, 0, 0.4);
   --el-color-primary: green;
+  --el-color-primary-light-3: #95d695;
+  --el-color-primary-light-5: #aabeaa;
 }

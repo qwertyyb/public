@@ -1,5 +1,5 @@
 {
-  "name": "search",
+  "name": "links",
   "version": "1.0.0",
   "description": "",
   "main": "dist/preload.js",
@@ -10,9 +10,17 @@
   "author": "",
   "license": "ISC",
   "publicPlugin": {
-    "title": "搜索",
-    "subtitle": "快速使用 bing、baidu、google 搜索",
+    "title": "links",
+    "subtitle": "快捷打开，一步到位",
     "icon": "https://img.icons8.com/nolan/128/search.png",
+    "preferences": [
+      {
+        "name": "links",
+        "title": "链接",
+        "description": "自定义的快捷链接，JSON 格式",
+        "type": "text"
+      }
+    ],
     "commands": [
       {
         "mode": "none",

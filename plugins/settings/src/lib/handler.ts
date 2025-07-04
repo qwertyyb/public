@@ -163,7 +163,7 @@ const handlers = {
     }
     window.pluginManager?.updateCommandSettings(plugin, command, settings)
   },
-  openPrfsView(plugin: string, command?: string) {
+  openPreferences(plugin: string, command?: string) {
     window.publicApp.plugin.openPreferences(plugin, command)
   }
 }

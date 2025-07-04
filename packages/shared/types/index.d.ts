@@ -103,7 +103,10 @@ export interface IPluginManager {
   updatePluginsSettings: (value: IPluginsSettings) => void
   updatePluginSettings: (name: string, settings: IPluginSettings) => void
   updatePluginPreferences: (name: string, prfs: Record<string, any>) => void
+
+  getPluginPreferences: (name: string) => Record<string, any>
   updateCommandPreferences: (pluginName: string, commandName: string, prfs: Record<string, any>) => void
+  getCommandPreferences: (pluginName: string, commandName: string) => Record<string, any>
   updateCommandSettings: (pluginName: string, commandName: string, settings: ICommandSettings) => void
 
   handleQuery: (keyword: string) => Promise<IPluginCommand[]>,
@@ -117,7 +120,7 @@ export interface IPluginManager {
 export interface ISettings {
   launchAtLogin: boolean,
   shortcuts: string,
-  clearTimeout: 90,
+  clearTimeout: number,
   pluginsPathList: { path: string }[],
   pluginsSettings: IPluginsSettings,
 }
@@ -129,6 +132,12 @@ declare global {
     publicApp: IPublicApp
 
     publicAppCommand?: IPluginCommandListView
+
+    PublicAppBridge?: {
+      invoke<R>(method: string, ...args: unknown[]): Promise<R>;
+      handle(channel: string, callback: (...args: any[]) => any): void;
+      unhandle(channel: string): void;
+    };
   }
 
   interface WindowEventMap {

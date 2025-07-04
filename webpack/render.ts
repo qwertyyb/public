@@ -41,5 +41,3 @@ export const startRender = () => {
     stopRender()
   })
 }
-
-// startRender()

@@ -260,7 +260,7 @@ export const launchPlugins = async () => {
   pluginsSettings = result
 
   const names = [
-    'launcher', 'command', 'calculator', 'qrcode', 'search', 'translate', 'clipboard',
+    'launcher', 'command', 'calculator', 'qrcode', 'links', 'translate', 'clipboard',
     'douban', 'magic', 'ai-chat', 'v2ex', 'terminal', 'find', 'google-chrome', 'mdn', 'shortcuts', 'transform',
     'settings'
   ]
@@ -274,6 +274,12 @@ export const launchPlugins = async () => {
 }
 
 // launchPlugins()
+
+export const getPluginPreferences = (name: string) => {
+  const plugin = plugins.get(name)
+  if (!plugin) return {};
+  return plugin.settings?.preferences || {}
+}
 
 export const updatePluginPreferences = (name: string, prfs: Record<string, any>) => {
   const plugin = plugins.get(name)
@@ -289,6 +295,14 @@ export const updatePluginPreferences = (name: string, prfs: Record<string, any>)
   }
 
   save()
+}
+
+export const getCommandPreferences = (pluginName: string, commandName: string) => {
+  const plugin = plugins.get(pluginName)
+  if (!plugin) return {};
+  const command = plugin.settings!.commands[commandName]
+  if (!command) return {};
+  return command.preferences || {}
 }
 
 export const updateCommandPreferences = (pluginName: string, commandName: string, prfs: Record<string, any>) => {

@@ -1,10 +1,7 @@
 <template>
-  <div class="plugin-prfs-view">
+  <div class="create-link-view">
     <header class="prfs-header">
-      <img :src="manifest?.icon" alt="" class="prfs-image">
-      <h2 class="prfs-title">{{ manifest?.title }}</h2>
-      <p class="prfs-desc">{{ manifest?.descript }}</p>
-      <p class="fill-desc">为保障功能正常使用，请先填写配置信息</p>
+      <h2 class="prfs-title">创建 Link</h2>
     </header>
     <el-form class="prfs-form"
       label-position="top"
@@ -30,21 +27,18 @@
         </el-select>
         <p class="form-item-desc">{{ item.description }}</p>
       </el-form-item>
-      <el-form-item class="btn-item" v-if="done">
-        <el-button type="primary" style="margin: 0 auto" :disabled="btnDisabled" @click="confirm">继续</el-button>
+      <el-form-item class="btn-item">
+        <el-button type="primary" style="margin: 0 auto" :disabled="btnDisabled" @click="confirm">保存</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { IPluginManifest } from '@public/shared';
 import { ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElButton } from 'element-plus';
-import { computed, nextTick, ref, shallowRef, toRaw, watch } from 'vue';
+import { computed, ref, shallowRef, toRaw } from 'vue';
 
-const props = defineProps<{ plugin: string, command?: string, done?: () => void }>();
-
-const manifest = shallowRef<Omit<IPluginManifest, 'commands'>>()
+const plugin = 'link'
 
 const preferences = shallowRef<{
   name: string,
@@ -54,7 +48,11 @@ const preferences = shallowRef<{
   required?: boolean,
   placeholder?: string,
   options?: { value: string, label: string }[]
-}[]>([])
+}[]>([
+  { name: 'trigger', title: '触发词', type: 'text', required: true, placeholder: '请输入触发关键词' },
+  { name: 'title', title: '标题', type: 'text', required: true, placeholder: '请输入标题' },
+  { name: 'url', title: '链接', type: 'text', required: true, placeholder: '请输入链接', description: '请输入链接, 可用$query代表查询词' },
+])
 
 const formValue = ref<Record<string, any>>({})
 
@@ -63,41 +61,16 @@ const btnDisabled = computed(() => {
   return requiredFields.some(item => !formValue.value[item.name])
 })
 
-let inited = false
-watch(formValue, () => {
-  if (!inited) return;
-  if (props.command) {
-    window.pluginManager?.updateCommandPreferences(props.plugin, props.command, toRaw(formValue.value))
-  } else {
-    window.pluginManager?.updatePluginPreferences(props.plugin, toRaw(formValue.value))
-  }
-}, { deep: true })
-
-const refresh = async () => {
-  const plugin = window.pluginManager?.getPlugin(props.plugin)
-  if (!plugin) return;
-  manifest.value = plugin.manifest
-  if (props.command) {
-    preferences.value = plugin.commands.find(c => c.name === props.command)?.preferences || []
-    formValue.value = plugin.settings?.commands?.[props.command]?.preferences || {}
-  } else {
-    preferences.value = plugin.manifest.preferences || []
-    formValue.value = plugin.settings?.preferences || {}
-  }
-  await nextTick()
-  inited = true
-}
-
-refresh()
-
 const confirm = () => {
-  props.done?.()
+  console.log('formValue', formValue.value)
+  const { links, ...rest } = window.pluginManager?.getPluginPreferences(plugin) || {}
+  window.pluginManager?.updatePluginPreferences(plugin, { ...rest, links: [...links, { ...toRaw(formValue.value) }] })
 }
 
 </script>
 
 <style lang="scss" scoped>
-.plugin-prfs-view {
+.create-link-view {
   padding: 48px 16px;
 
   .prfs-header {
@@ -119,8 +92,8 @@ const confirm = () => {
   }
 
   .form-item-desc {
-    opacity: 0.6;
-    font-size: 13px;
+    opacity: 0.4;
+    font-size: 12px;
   }
   :deep(.prfs-form-item) {
     --el-fill-color-blank: none;

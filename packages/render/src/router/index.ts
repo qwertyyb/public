@@ -33,6 +33,11 @@ const router = createRouter({
           path: 'view',
           name: 'pluginView',
           component: () => import('@/views/PluginView.vue')
+        },
+        {
+          path: 'link/create',
+          name: 'createLink',
+          component: () => import('@/views/CreateLinkView.vue')
         }
       ]
     },

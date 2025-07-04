@@ -5,6 +5,7 @@ import ListView from '@/views/ListView.vue'
 import PluginPrfsView from '@/views/PluginPrfsView.vue'
 import PluginView from '@/views/PluginView.vue'
 import SettingsView from '@/views/SettingsView.vue'
+import CreateLinkView from './views/CreateLinkView.vue'
 import RoutePage from '@/components/RoutePage.vue'
 import { computed, nextTick, onBeforeUnmount, shallowRef, useTemplateRef, type Component } from 'vue'
 
@@ -17,6 +18,7 @@ const routes: Record<string, Component | undefined> = {
   '/plugin/view': PluginView,
   '/plugin/prfs': PluginPrfsView,
   '/settings': SettingsView,
+  '/plugin/link/create': CreateLinkView,
 }
 
 const pages = useTemplateRef('page')

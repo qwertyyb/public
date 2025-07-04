@@ -113,6 +113,12 @@
           </li>
         </ul>
       </div>
+      <div v-else-if="curView==='links'" class="settings-panel">
+        <div class="panel-header">
+          快捷链接
+          <el-button :icon="Plus" circle size="small" @click="createLink"></el-button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -123,10 +129,12 @@ import { ElMessage, ElButton, ElSelect, ElSwitch, ElOption, ElInput, ElForm, ElF
 import { ArrowRightBold, Plus, Delete, Operation } from '@element-plus/icons-vue';
 import ShortcutsRecorder from '@/components/ShortcutsRecorder.vue';
 import type { ICommandSettings, IPluginCommand, IRunningPlugin } from '@public/shared';
+import { getSettings, updateSettings, getPlugins, openPreferences, removePlugin, updateCommandSettings, updatePluginSettings } from '@/services/settings';
 
 const views = ref({
   'common': '通用',
   'plugins': '插件设置',
+  'links': '快捷链接'
 })
 const curView = ref('common')
 
@@ -146,40 +154,40 @@ const settings = ref<{
 const expand = ref<Record<string, boolean | undefined>>({})
 
 const refreshSettings = async () => {
-  window.PublicAppBridge.invoke('getSettings')?.then((data: any) => {
+  getSettings()?.then((data: any) => {
     settings.value = {
       ...settings.value,
       ...data
     }
     console.log('settings.value', settings.value)
   })
-  window.PublicAppBridge.invoke<IRunningPlugin[]>('getPlugins')?.then((data: IRunningPlugin[]) => {
+  getPlugins()?.then((data: IRunningPlugin[]) => {
     plugins.value = data
   })
 }
 const onLaunchAtLoginChange = async (launchAtLogin: any) => {
   settings.value.launchAtLogin = !!launchAtLogin
-  await window.PublicAppBridge.invoke('registerLaunchAtLogin', settings.value.launchAtLogin)
+  await updateSettings({ launchAtLogin: settings.value.launchAtLogin })
   refreshSettings()
 }
 const onShortcutsChange = async (shortcuts: string) => {
   settings.value.shortcuts = shortcuts
-  await window.PublicAppBridge.invoke('registerShortcuts', shortcuts)
+  await updateSettings({ shortcuts: settings.value.shortcuts })
   refreshSettings()
 }
 const onClearTimeoutChange = async () => {
-  await window.PublicAppBridge.invoke('updateSettings', settings.value.clearTimeout)
+  await updateSettings({ clearTimeout: settings.value.clearTimeout })
   refreshSettings()
 }
 const onPluginDisabledChange = async (enabled: boolean, plugin: IRunningPlugin) => {
   console.log('plugin enabled', enabled)
   plugin.settings = { ...plugin.settings!, disabled: !enabled }
-  await window.PublicAppBridge.invoke('disablePlugin', !enabled)
+  await updatePluginSettings(plugin.manifest.name, { disabled: !enabled })
   refreshSettings()
 }
 const onCommandChange = async (values: Partial<ICommandSettings>, plugin: IRunningPlugin, command: IPluginCommand) => {
   plugin.settings!.commands![command.name] = { ...plugin.settings!.commands![command.name], ...values }
-  await window.PublicAppBridge.invoke('updateCommandSettings', plugin.manifest.name, command.name, { ...values })
+  await updateCommandSettings(plugin.manifest.name, command.name, { ...values })
   refreshSettings()
 }
 
@@ -222,13 +230,17 @@ const onAddPluginClick = async () => {
 }
 
 const onRemovePluginClick = async (index: number, plugin: IRunningPlugin) => {
-  await window.PublicAppBridge.invoke('removePlugin', { index, plugin })
+  await removePlugin(plugin.manifest.name)
   ElMessage.success('插件移除成功')
   refreshSettings()
 }
 
 const openPrfsView = async (plugin: string, command?: string) => {
-  await window.PublicAppBridge.invoke('openPrfsView', plugin, command)
+  await openPreferences(plugin, command)
+}
+
+const createLink = () => {
+  ElMessage.success('创建快捷链接')
 }
 
 refreshSettings()
