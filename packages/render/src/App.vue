@@ -7,7 +7,8 @@ import PluginView from '@/views/PluginView.vue'
 import SettingsView from '@/views/SettingsView.vue'
 import CreateLinkView from './views/CreateLinkView.vue'
 import RoutePage from '@/components/RoutePage.vue'
-import { computed, nextTick, onBeforeUnmount, shallowRef, useTemplateRef, type Component } from 'vue'
+import { computed, nextTick, onBeforeUnmount, provide, shallowRef, useTemplateRef, type Component } from 'vue'
+import { routerSymbol } from './router/hooks'
 
 const hash = location.hash.substring(1)
 
@@ -75,6 +76,11 @@ onBeforeUnmount(() => {
   window.removeEventListener('push-view', pushViewHandler)
   window.removeEventListener('pop-view', popViewHandler)
   window.removeEventListener('pop-to-root', popToRootHandler)
+})
+
+provide(routerSymbol, {
+  pushView: (path: string, params: any) => pushView({ path, params }),
+  popView: (options?: { count?: number }) => popView(options)
 })
 
 </script>

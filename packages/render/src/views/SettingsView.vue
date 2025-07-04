@@ -130,6 +130,7 @@ import { ArrowRightBold, Plus, Delete, Operation } from '@element-plus/icons-vue
 import ShortcutsRecorder from '@/components/ShortcutsRecorder.vue';
 import type { ICommandSettings, IPluginCommand, IRunningPlugin } from '@public/shared';
 import { getSettings, updateSettings, getPlugins, openPreferences, removePlugin, updateCommandSettings, updatePluginSettings } from '@/services/settings';
+import { useRouter } from '@/router/hooks';
 
 const views = ref({
   'common': '通用',
@@ -236,11 +237,19 @@ const onRemovePluginClick = async (index: number, plugin: IRunningPlugin) => {
 }
 
 const openPrfsView = async (plugin: string, command?: string) => {
+  if (plugin === 'links') {
+    curView.value = 'links'
+    return;
+  }
   await openPreferences(plugin, command)
 }
 
+const router = useRouter()
+
 const createLink = () => {
   ElMessage.success('创建快捷链接')
+  console.log('router', router)
+  router?.pushView('/plugin/link/create')
 }
 
 refreshSettings()

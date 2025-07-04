@@ -23,3 +23,13 @@ export const onPageLeave = (callback: () => void) => {
     pageEvent?.removeEventListener('pageLeave', handler)
   })
 }
+
+export const routerSymbol = Symbol('router')
+
+export const useRouter = () => {
+  const router = inject<{
+    pushView: (path: string, params?: any) => void
+    popView: (options?: { count?: number }) => void
+  }>(routerSymbol)
+  return router
+}
