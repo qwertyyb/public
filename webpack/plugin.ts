@@ -28,40 +28,40 @@ const createWebpackConfigs: (pluginName: string) => Promise<webpack.Configuratio
 
   const config: webpack.Configuration = {
     watch: false,
-    mode: isProd ? 'production' : 'development',
+    mode: isProd ? "production" : "development",
     context,
     optimization: {
       usedExports: true,
     },
     entry: preloads,
-    target: 'electron-preload',
+    target: "electron-preload",
     output: {
-      path: path.join(context, './dist'),
-      filename: '[name].js',
-      libraryTarget: 'commonjs',
+      path: path.join(context, "./dist"),
+      filename: "[name].js",
+      libraryTarget: "commonjs",
     },
     node: {
       __dirname: false,
     },
     resolve: {
-      extensions: ['.tsx', '.ts', '.js'],
+      extensions: [".tsx", ".ts", ".js"],
     },
     module: {
       rules: [
         {
           test: /\.ts$/,
-          use: 'ts-loader',
+          use: "ts-loader",
           exclude: /node_modules/,
-          sideEffects: false
+          sideEffects: false,
         },
         {
           test: /\.css$/i,
-          use: ['style-loader', 'css-loader'],
+          use: ["style-loader", "css-loader"],
         },
         // node 原生模块
         {
           test: /\.node$/,
-          loader: 'node-loader',
+          loader: "node-loader",
           options: {
             name() {
               // `resourcePath` - `/absolute/path/to/file.js`
@@ -73,15 +73,20 @@ const createWebpackConfigs: (pluginName: string) => Promise<webpack.Configuratio
 
               return "native_modules/[contenthash].[ext]";
             },
-          }
+          },
         },
         {
           test: /\.(png|jpg|jpeg|svg)$/i,
-          type: 'asset/resource',
+          type: "asset/resource",
         },
       ],
     },
-  }
+    plugins: [
+      new webpack.EnvironmentPlugin({
+        'PUBLIC_PLUGIN_NAME': pluginName
+      })
+    ]
+  };
 
   return [config]
 };

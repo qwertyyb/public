@@ -1,5 +1,5 @@
 import { clipboard, NativeImage } from "electron"
-import { IPlugin, IPluginCommandConfig, ICommandTriggerMatchData } from '@public/shared'
+import { type IPlugin, type ICommandTriggerMatchData, ICommand } from '@public/api'
 import * as path from 'path'
 import { getChromeCurrentUrl, getSafariCurrentUrl } from "@public/utils";
 import QRCode from 'qrcode'
@@ -42,7 +42,7 @@ const detectWithOpencv = (() => {
 window.filePath = path.resolve(__dirname, 'lib/wechat_qrcode_files.data')
 
 const createClipboardItem = (text: string) => {
-  const item: IPluginCommandConfig = {
+  const item: ICommand = {
     name: 'detect',
     title: `二维码内容: ${text}`,
     subtitle: '来自剪切板,点击复制',
@@ -55,7 +55,7 @@ const createClipboardItem = (text: string) => {
   return item
 }
 
-const qrcodePlugin: IPlugin = (utils) => {
+const createQrcodePlugin: IPlugin = (utils) => {
   window.requestIdleCallback(async () => {
     opencv = await __non_webpack_require__('../lib/ready_opencv.js')
   })
@@ -70,7 +70,6 @@ const qrcodePlugin: IPlugin = (utils) => {
   })
   return {
     async onSelect(command, match) {
-      console.log(command, match)
       let text = match.from === 'match' && match.match.type === 'trigger' ? (match as ICommandTriggerMatchData).matchData.query : match.keyword
       if (command.name === 'generate-for-current-url') {
         text = await getChromeCurrentUrl() || await getSafariCurrentUrl() || '未获取到当前页面地址'
@@ -99,4 +98,4 @@ const qrcodePlugin: IPlugin = (utils) => {
   }
 }
 
-export default qrcodePlugin
+export default createQrcodePlugin

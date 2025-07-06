@@ -67,6 +67,12 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1(webpack@5.99.9)
 
+  packages/api:
+    dependencies:
+      '@public/shared':
+        specifier: workspace:^
+        version: link:../shared
+
   packages/main:
     dependencies:
       '@public/shared':
@@ -138,8 +144,8 @@ importers:
         specifier: workspace:^
         version: link:../utils
       element-plus:
-        specifier: ^2.7.6
-        version: 2.10.2(vue@3.5.17(typescript@5.4.5))
+        specifier: ^2.10.3
+        version: 2.10.3(vue@3.5.17(typescript@5.4.5))
       github-markdown-css:
         specifier: ^5.6.1
         version: 5.8.1
@@ -257,6 +263,9 @@ importers:
 
   packages/utils:
     dependencies:
+      color:
+        specifier: ^5.0.0
+        version: 5.0.0
       nan:
         specifier: ^2.22.2
         version: 2.22.2
@@ -273,6 +282,9 @@ importers:
 
   plugins/ai-chat:
     dependencies:
+      '@public/api':
+        specifier: workspace:^
+        version: link:../../packages/api
       crel:
         specifier: ^4.2.1
         version: 4.2.1
@@ -282,6 +294,9 @@ importers:
 
   plugins/calculator:
     dependencies:
+      '@public/api':
+        specifier: workspace:^
+        version: link:../../packages/api
       '@public/shared':
         specifier: workspace:^
         version: link:../../packages/shared
@@ -291,24 +306,36 @@ importers:
 
   plugins/clipboard:
     dependencies:
+      '@public/api':
+        specifier: workspace:^
+        version: link:../../packages/api
       '@public/shared':
         specifier: workspace:^
         version: link:../../packages/shared
 
   plugins/command:
     dependencies:
+      '@public/api':
+        specifier: workspace:^
+        version: link:../../packages/api
       '@public/shared':
         specifier: workspace:^
         version: link:../../packages/shared
 
   plugins/douban:
     dependencies:
+      '@public/api':
+        specifier: workspace:^
+        version: link:../../packages/api
       '@public/shared':
         specifier: workspace:^
         version: link:../../packages/shared
 
   plugins/find:
     dependencies:
+      '@public/api':
+        specifier: workspace:^
+        version: link:../../packages/api
       '@public/utils':
         specifier: workspace:*
         version: link:../../packages/utils
@@ -318,6 +345,9 @@ importers:
 
   plugins/google-chrome:
     dependencies:
+      '@public/api':
+        specifier: workspace:^
+        version: link:../../packages/api
       '@public/shared':
         specifier: workspace:^
         version: link:../../packages/shared
@@ -330,24 +360,48 @@ importers:
 
   plugins/launcher:
     dependencies:
+      '@public/api':
+        specifier: workspace:^
+        version: link:../../packages/api
       '@public/shared':
         specifier: workspace:^
         version: link:../../packages/shared
 
+  plugins/links:
+    dependencies:
+      '@public/api':
+        specifier: workspace:^
+        version: link:../../packages/api
+      '@public/shared':
+        specifier: workspace:^
+        version: link:../../packages/shared
+      '@public/utils':
+        specifier: workspace:^
+        version: link:../../packages/utils
+
   plugins/magic:
     dependencies:
+      '@public/api':
+        specifier: workspace:^
+        version: link:../../packages/api
       '@public/shared':
         specifier: workspace:^
         version: link:../../packages/shared
 
   plugins/mdn:
     dependencies:
+      '@public/api':
+        specifier: workspace:^
+        version: link:../../packages/api
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3
 
   plugins/qrcode:
     dependencies:
+      '@public/api':
+        specifier: workspace:^
+        version: link:../../packages/api
       '@public/shared':
         specifier: workspace:^
         version: link:../../packages/shared
@@ -362,17 +416,14 @@ importers:
         specifier: ^1.5.5
         version: 1.5.5
 
-  plugins/search:
-    dependencies:
-      '@public/shared':
-        specifier: workspace:^
-        version: link:../../packages/shared
-
   plugins/settings:
     dependencies:
       '@electron/remote':
         specifier: ^2.1.2
         version: 2.1.2(electron@35.5.1)
+      '@public/api':
+        specifier: workspace:^
+        version: link:../../packages/api
       '@public/shared':
         specifier: workspace:^
         version: link:../../packages/shared
@@ -382,12 +433,18 @@ importers:
 
   plugins/shortcuts:
     dependencies:
+      '@public/api':
+        specifier: workspace:^
+        version: link:../../packages/api
       '@public/shared':
         specifier: workspace:^
         version: link:../../packages/shared
 
   plugins/terminal:
     dependencies:
+      '@public/api':
+        specifier: workspace:^
+        version: link:../../packages/api
       '@public/shared':
         specifier: workspace:^
         version: link:../../packages/shared
@@ -400,12 +457,18 @@ importers:
 
   plugins/transform:
     dependencies:
+      '@public/api':
+        specifier: workspace:^
+        version: link:../../packages/api
       '@public/shared':
         specifier: workspace:^
         version: link:../../packages/shared
 
   plugins/translate:
     dependencies:
+      '@public/api':
+        specifier: workspace:^
+        version: link:../../packages/api
       '@public/shared':
         specifier: workspace:^
         version: link:../../packages/shared
@@ -420,7 +483,11 @@ importers:
         specifier: ^2.3.5
         version: 2.3.5
 
-  plugins/v2ex: {}
+  plugins/v2ex:
+    dependencies:
+      '@public/api':
+        specifier: workspace:^
+        version: link:../../packages/api
 
 packages:
 
@@ -1350,56 +1417,67 @@ packages:
     resolution: {integrity: sha512-n0edDmSHlXFhrlmTK7XBuwKlG5MbS7yleS1cQ9nn4kIeW+dJH+ExqNgQ0RrFRew8Y+0V/x6C5IjsHrJmiHtkxQ==}
     cpu: [arm]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-arm-musleabihf@4.44.1':
     resolution: {integrity: sha512-8WVUPy3FtAsKSpyk21kV52HCxB+me6YkbkFHATzC2Yd3yuqHwy2lbFL4alJOLXKljoRw08Zk8/xEj89cLQ/4Nw==}
     cpu: [arm]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-arm64-gnu@4.44.1':
     resolution: {integrity: sha512-yuktAOaeOgorWDeFJggjuCkMGeITfqvPgkIXhDqsfKX8J3jGyxdDZgBV/2kj/2DyPaLiX6bPdjJDTu9RB8lUPQ==}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-arm64-musl@4.44.1':
     resolution: {integrity: sha512-W+GBM4ifET1Plw8pdVaecwUgxmiH23CfAUj32u8knq0JPFyK4weRy6H7ooxYFD19YxBulL0Ktsflg5XS7+7u9g==}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-loongarch64-gnu@4.44.1':
     resolution: {integrity: sha512-1zqnUEMWp9WrGVuVak6jWTl4fEtrVKfZY7CvcBmUUpxAJ7WcSowPSAWIKa/0o5mBL/Ij50SIf9tuirGx63Ovew==}
     cpu: [loong64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-powerpc64le-gnu@4.44.1':
     resolution: {integrity: sha512-Rl3JKaRu0LHIx7ExBAAnf0JcOQetQffaw34T8vLlg9b1IhzcBgaIdnvEbbsZq9uZp3uAH+JkHd20Nwn0h9zPjA==}
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-riscv64-gnu@4.44.1':
     resolution: {integrity: sha512-j5akelU3snyL6K3N/iX7otLBIl347fGwmd95U5gS/7z6T4ftK288jKq3A5lcFKcx7wwzb5rgNvAg3ZbV4BqUSw==}
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-riscv64-musl@4.44.1':
     resolution: {integrity: sha512-ppn5llVGgrZw7yxbIm8TTvtj1EoPgYUAbfw0uDjIOzzoqlZlZrLJ/KuiE7uf5EpTpCTrNt1EdtzF0naMm0wGYg==}
     cpu: [riscv64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-s390x-gnu@4.44.1':
     resolution: {integrity: sha512-Hu6hEdix0oxtUma99jSP7xbvjkUM/ycke/AQQ4EC5g7jNRLLIwjcNwaUy95ZKBJJwg1ZowsclNnjYqzN4zwkAw==}
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-x64-gnu@4.44.1':
     resolution: {integrity: sha512-EtnsrmZGomz9WxK1bR5079zee3+7a+AdFlghyd6VbAjgRJDbTANJ9dcPIPAi76uG05micpEL+gPGmAKYTschQw==}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-x64-musl@4.44.1':
     resolution: {integrity: sha512-iAS4p+J1az6Usn0f8xhgL4PaU878KEtutP4hqw52I4IO6AGoyOkHCxcc4bqufv1tQLdDWFx8lR9YlwxKuv3/3g==}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-win32-arm64-msvc@4.44.1':
     resolution: {integrity: sha512-NtSJVKcXwcqozOl+FwI41OH3OApDyLk3kqTJgx8+gp6On9ZEt5mYhIsKNPGuaZr3p9T6NWPKGU/03Vw4CNU9qg==}
@@ -2287,8 +2365,24 @@ packages:
     resolution: {integrity: sha512-RRECPsj7iu/xb5oKYcsFHSppFNnsj/52OVTRKb4zP5onXwVF3zVmmToNcOfGC+CRDpfK/U584fMg38ZHCaElKQ==}
     engines: {node: '>=7.0.0'}
 
+  color-convert@3.1.0:
+    resolution: {integrity: sha512-TVoqAq8ZDIpK5lsQY874DDnu65CSsc9vzq0wLpNQ6UMBq81GSZocVazPiBbYGzngzBOIRahpkTzCLVe2at4MfA==}
+    engines: {node: '>=14.6'}
+
   color-name@1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
+
+  color-name@2.0.0:
+    resolution: {integrity: sha512-SbtvAMWvASO5TE2QP07jHBMXKafgdZz8Vrsrn96fiL+O92/FN/PLARzUW5sKt013fjAprK2d2iCn2hk2Xb5oow==}
+    engines: {node: '>=12.20'}
+
+  color-string@2.0.1:
+    resolution: {integrity: sha512-5z9FbYTZPAo8iKsNEqRNv+OlpBbDcoE+SY9GjLfDUHEfcNNV7tS9eSAlFHEaub/r5tBL9LtskAeq1l9SaoZ5tQ==}
+    engines: {node: '>=18'}
+
+  color@5.0.0:
+    resolution: {integrity: sha512-16BlyiuyLq3MLxpRWyOTiWsO3ii/eLQLJUQXBSNcxMBBSnyt1ee9YUdaozQp03ifwm5woztEZGDbk9RGVuCsdw==}
+    engines: {node: '>=18'}
 
   colorette@2.0.20:
     resolution: {integrity: sha512-IfEDxwoWIjkeXL1eXcDiow4UbKjhLdq6/EuSVR9GMN7KVH3r9gQ83e73hsz1Nd1T3ijd5xv1wcWRYO+D6kCI2w==}
@@ -2575,8 +2669,8 @@ packages:
     engines: {node: '>= 12.20.55'}
     hasBin: true
 
-  element-plus@2.10.2:
-    resolution: {integrity: sha512-p2KiAa0jEGXrzdlTAfpiS7HQFAhla4gvx6H7RuDf+OO0uC3DGpolxvdHjFR8gt7+vaWyxQNcHa1sAdBkmjqlgA==}
+  element-plus@2.10.3:
+    resolution: {integrity: sha512-OLpf0iekuvWJrz1+H9ybvem6TYTKSNk6L1QDA3tYq2YWbogKXJnWpHG1UAGKR1B7gx+vUH7M15VIH3EijE9Kgw==}
     peerDependencies:
       vue: ^3.2.0
 
@@ -7593,7 +7687,22 @@ snapshots:
     dependencies:
       color-name: 1.1.4
 
+  color-convert@3.1.0:
+    dependencies:
+      color-name: 2.0.0
+
   color-name@1.1.4: {}
+
+  color-name@2.0.0: {}
+
+  color-string@2.0.1:
+    dependencies:
+      color-name: 2.0.0
+
+  color@5.0.0:
+    dependencies:
+      color-convert: 3.1.0
+      color-string: 2.0.1
 
   colorette@2.0.20: {}
 
@@ -7926,7 +8035,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  element-plus@2.10.2(vue@3.5.17(typescript@5.4.5)):
+  element-plus@2.10.3(vue@3.5.17(typescript@5.4.5)):
     dependencies:
       '@ctrl/tinycolor': 3.6.1
       '@element-plus/icons-vue': 2.3.1(vue@3.5.17(typescript@5.4.5))

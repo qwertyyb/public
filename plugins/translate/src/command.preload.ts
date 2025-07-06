@@ -1,4 +1,4 @@
-import { IListItem, type IPluginCommandListView } from '@public/shared'
+import { type IListViewCommand } from '@public/api'
 // @ts-ignore
 import { lookupWordHTML } from '@public/utils/native'
 // import { translate } from './tencent-cloud'
@@ -8,7 +8,7 @@ import { exec } from 'child_process'
 const parser = new DOMParser()
 
 const lookupFromDict = (keyword: string) => {
-  const results: Partial<IListItem>[] = []
+  const results: any[] = []
   const dictionaries = lookupWordHTML(keyword)
   dictionaries.forEach(d => {
     if (!d.entries.length) return;
@@ -58,7 +58,7 @@ const translateUseApple = (keyword: string) => {
   })
 };
 
-const listView: IPluginCommandListView = {
+const listView: IListViewCommand = {
   search: async (keyword: string, setList: (list: any[]) => void) => {
     console.log('search', keyword)
     if (!keyword) return setList([])

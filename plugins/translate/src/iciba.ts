@@ -1,4 +1,5 @@
 import md5 from 'md5'
+import api from '@public/api'
 
 export const translate = async (keyword: string) => {
   const rawWord = keyword
@@ -21,7 +22,7 @@ export const translate = async (keyword: string) => {
   ]
   const apiUrl = `https://dict.iciba.com/dictionary/word/query/web?${query.join('&')}`
 
-  const response = await window.publicApp.fetch(apiUrl, {
+  const response = await api.fetch(apiUrl, {
     method: 'GET',
   })
   const data = await response.json()

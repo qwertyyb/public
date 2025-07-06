@@ -1,4 +1,4 @@
-import { IPlugin, IPluginCommand } from '@public/shared'
+import type { IPlugin } from '@public/api'
 import searchAppList, { canUninstall } from './lib/loadApplications'
 
 
@@ -18,7 +18,7 @@ const launcherPlugin: IPlugin = (utils) => {
       }
     },
 
-    onEnter (app: IPluginCommand) {
+    onEnter (app) {
       const { exec } = require('child_process')
       exec(`open -a "${app.path}"`)
     }

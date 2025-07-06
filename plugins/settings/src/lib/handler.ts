@@ -1,4 +1,5 @@
 import { IBridge, ICommandSettings, IPluginSettings, IRunningPlugin } from '@public/shared'
+import api from '@public/api'
 
 interface ISettings {
   launchAtLogin: boolean,
@@ -14,7 +15,7 @@ const getSettings = async (): Promise<ISettings> => {
     clearTimeout: 90,
     pluginsPathList: [],
   }
-  const settings = await window.publicApp.storage.getItem<Partial<ISettings>>('settings')
+  const settings = await api.storage.getItem<Partial<ISettings>>('settings')
   return {
     ...defaultSettings,
     ...settings
@@ -22,13 +23,13 @@ const getSettings = async (): Promise<ISettings> => {
 }
 
 const updateSettings = async (settings: Partial<ISettings>) => {
-  const oldValue = await window.publicApp.storage.getItem<ISettings>('settings')
-  return window.publicApp.storage.setItem('settings', { ...oldValue, ...settings })
+  const oldValue = await api.storage.getItem<ISettings>('settings')
+  return api.storage.setItem('settings', { ...oldValue, ...settings })
 }
 
 const registerShortcuts = (shortcuts: string) => {
   // 主快捷键
-  window.publicApp.shortcuts.register(shortcuts, () => window.publicApp.mainWindow.show())
+  api.shortcuts.register(shortcuts, () => api.mainWindow.show())
 }
 
 const shortcutsHandlers = new Map<string, () => void>()
@@ -43,7 +44,7 @@ const registerCommandShortcuts = (plugins: Map<string, IRunningPlugin>) => {
       const handler = () => {
         const plugin = window.pluginManager?.getPlugins().get(pluginName);
         if (plugin && command) {
-          window.publicApp.mainWindow.show();
+          api.mainWindow.show();
           window.pluginManager?.enterPluginCommand(plugin, command, {
             owner: plugin,
             score: 1,
@@ -54,7 +55,7 @@ const registerCommandShortcuts = (plugins: Map<string, IRunningPlugin>) => {
         }
       };
       shortcutsHandlers.set(shortcuts, handler);
-      window.publicApp.shortcuts.register(shortcuts, handler);
+      api.shortcuts.register(shortcuts, handler);
     })
   })
 }
@@ -69,7 +70,7 @@ window.addEventListener('publicApp.mainWindow.hide', (event) => {
   console.log('clearIntervalTime', clearIntervalTime)
   if (clearIntervalTime <= 0) return
   timeout = setTimeout(async () => {
-    window.publicApp.mainWindow.popToRoot({ clearInput: true })
+    api.mainWindow.popToRoot({ clearInput: true })
   }, clearIntervalTime * 1000)
 })
 window.addEventListener('publicApp.mainWindow.show', () => {
@@ -79,7 +80,7 @@ window.addEventListener('publicApp.mainWindow.show', () => {
   }
 })
 window.addEventListener('publicApp.mainWindow.blur', () => {
-  window.publicApp.mainWindow.hide()
+  api.mainWindow.hide()
 })
 const registerClearInterval = (expectTimeout: number) => {
   if (timeout) {
@@ -147,7 +148,7 @@ const handlers = {
       .get(plugin);
     const original = pluginInstance?.settings?.commands?.[command]
     if (original?.shortcuts && original.shortcuts !== settings.shortcuts && shortcutsHandlers.get(original.shortcuts)) {
-      window.publicApp.shortcuts.unregister(original.shortcuts, shortcutsHandlers.get(original.shortcuts)!)
+      api.shortcuts.unregister(original.shortcuts, shortcutsHandlers.get(original.shortcuts)!)
       shortcutsHandlers.delete(original.shortcuts)
     }
     if (settings.shortcuts && pluginInstance) {
@@ -157,14 +158,14 @@ const handlers = {
           pluginInstance?.commands.find((c) => c.name === command)!,
           { owner: pluginInstance, score: 1, from: "hotkey", keyword: "", query: "" }
         );
-        window.publicApp.mainWindow.show();
+        api.mainWindow.show();
       })
-      window.publicApp.shortcuts.register(settings.shortcuts, shortcutsHandlers.get(settings.shortcuts)!)
+      api.shortcuts.register(settings.shortcuts, shortcutsHandlers.get(settings.shortcuts)!)
     }
     window.pluginManager?.updateCommandSettings(plugin, command, settings)
   },
   openPreferences(plugin: string, command?: string) {
-    window.publicApp.plugin.openPreferences(plugin, command)
+    api.plugin.openPreferences(plugin, command)
   }
 }
 

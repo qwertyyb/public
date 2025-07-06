@@ -25,6 +25,13 @@
             :value="option.value" :label="option.label"
           ></el-option>
         </el-select>
+        <el-input-tag v-else-if="item.type === 'tag'"
+          :placeholder="item.placeholder"
+          v-model="formValue[item.name]"
+        ></el-input-tag>
+        <el-switch v-else-if="item.type === 'switch'"
+          v-model="formValue[item.name]"
+        ></el-switch>
         <p class="form-item-desc">{{ item.description }}</p>
       </el-form-item>
       <el-form-item class="btn-item">
@@ -35,23 +42,25 @@
 </template>
 
 <script setup lang="ts">
-import { ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElButton } from 'element-plus';
+import { useRouter } from '@/router/hooks';
+import { ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElButton, ElInputTag, ElSwitch } from 'element-plus';
 import { computed, ref, shallowRef, toRaw } from 'vue';
 
-const plugin = 'link'
+const plugin = 'links'
 
 const preferences = shallowRef<{
   name: string,
   title: string,
   description?: string,
-  type: 'text' | 'textarea' | 'select',
+  type: 'text' | 'textarea' | 'select' | 'tag' | 'switch',
   required?: boolean,
   placeholder?: string,
   options?: { value: string, label: string }[]
 }[]>([
-  { name: 'trigger', title: '触发词', type: 'text', required: true, placeholder: '请输入触发关键词' },
+  { name: 'triggers', title: '触发词', type: 'tag', required: true, placeholder: '请输入触发关键词' },
   { name: 'title', title: '标题', type: 'text', required: true, placeholder: '请输入标题' },
   { name: 'url', title: '链接', type: 'text', required: true, placeholder: '请输入链接', description: '请输入链接, 可用$query代表查询词' },
+  { name: 'fallback', title: '默认匹配', type: 'switch', required: false }
 ])
 
 const formValue = ref<Record<string, any>>({})
@@ -61,10 +70,18 @@ const btnDisabled = computed(() => {
   return requiredFields.some(item => !formValue.value[item.name])
 })
 
-const confirm = () => {
+const router = useRouter()
+
+const confirm = async () => {
   console.log('formValue', formValue.value)
-  const { links, ...rest } = window.pluginManager?.getPluginPreferences(plugin) || {}
-  window.pluginManager?.updatePluginPreferences(plugin, { ...rest, links: [...links, { ...toRaw(formValue.value) }] })
+  let { links, ...rest } = window.pluginManager?.getPluginPreferences(plugin) || {}
+  if (!Array.isArray(links)) {
+    links = []
+  }
+  console.log('links', links)
+  await window.pluginManager?.updatePluginPreferences(plugin, { ...rest, links: [...links, { ...toRaw(formValue.value) }] })
+  console.log(window.pluginManager?.getPluginPreferences('links'))
+  router?.popView()
 }
 
 </script>

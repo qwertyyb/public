@@ -1,4 +1,6 @@
+import { join } from 'path'
 import PouchDB from 'pouchdb'
+
 
 export const db = new PouchDB('data/publicApp')
 
@@ -31,3 +33,23 @@ export const openCommandPreferences = (plugin: string, command: string, options?
     pushView({ path: '/plugin/prfs', params: { plugin, command, done: resolve } })
   })
 }
+
+export const joinPath = (
+  urlOrPath: string | undefined,
+  basePath: string
+) => {
+  if (
+    !urlOrPath ||
+    /^\w+:\/\//.test(urlOrPath) ||
+    urlOrPath.startsWith("data:")
+  ) {
+    return urlOrPath;
+  }
+  let path = urlOrPath;
+  if (!urlOrPath.startsWith("/")) {
+    path = join(basePath, urlOrPath);
+  }
+  return `ipublic://public.qwertyyb.com/local-file?path=${encodeURIComponent(
+    path
+  )}`;
+};

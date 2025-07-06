@@ -1,6 +1,7 @@
 import { runAppleScript } from 'run-applescript'
 import * as path from 'path'
 import * as fs from 'fs'
+import api from '@public/api'
 
 export interface Tab {
   icon: string
@@ -59,7 +60,6 @@ export async function createNewWindow(): Promise<void> {
 }
 
 export async function getOpenTabs({ favicon = false, separator = '~~~' } = {}): Promise<Tab[]> {
-  console.log('aaaaa')
   const faviconFormula = favicon
     ? `execute t javascript "document.head.querySelector('link[rel~=icon]')?.href || \`https://www.google.com/s2/favicons?domain=\${encodeURIComponent(location.href)}&sz=128\`;"`
     : '""';
@@ -131,5 +131,5 @@ export const searchHistory = async (query?: string) => {
   if (!fs.existsSync(dbPath)) {
     throw new Error('google chrome is not installed');
   }
-  return window.publicApp.sqlite.run(dbPath, sql, {})
+  return api.sqlite.run(dbPath, sql, {})
 }

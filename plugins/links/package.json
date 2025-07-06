@@ -20,89 +20,11 @@
         "description": "自定义的快捷链接，JSON 格式",
         "type": "text"
       }
-    ],
-    "commands": [
-      {
-        "mode": "none",
-        "name": "google",
-        "title": "谷歌搜索",
-        "subtitle": "",
-        "icon": "./assets/google.png",
-        "matches": [
-          {
-            "type": "text",
-            "keywords": [
-              "谷歌",
-              "search"
-            ]
-          },
-          {
-            "type": "trigger",
-            "triggers": [
-              "gg"
-            ],
-            "title": "谷歌搜索“$query”..."
-          },
-          {
-            "type": "full",
-            "title": "谷歌搜索“$query”..."
-          }
-        ]
-      },
-      {
-        "mode": "none",
-        "name": "baidu",
-        "title": "百度搜索",
-        "subtitle": "",
-        "icon": "./assets/baidu.png",
-        "matches": [
-          {
-            "type": "text",
-            "keywords": [
-              "百度",
-              "search"
-            ]
-          },
-          {
-            "type": "trigger",
-            "triggers": [
-              "bd"
-            ],
-            "title": "百度搜索“$query”..."
-          }
-        ]
-      },
-      {
-        "mode": "none",
-        "name": "bing",
-        "title": "必应搜索",
-        "subtitle": "",
-        "icon": "./assets/bing.png",
-        "matches": [
-          {
-            "type": "text",
-            "keywords": [
-              "bing",
-              "必应",
-              "search"
-            ]
-          },
-          {
-            "type": "trigger",
-            "triggers": [
-              "bing"
-            ],
-            "title": "必应搜索“$query”..."
-          },
-          {
-            "type": "full",
-            "title": "必应搜索“$query”..."
-          }
-        ]
-      }
     ]
   },
   "dependencies": {
-    "@public/shared": "workspace:^"
+    "@public/api": "workspace:^",
+    "@public/shared": "workspace:^",
+    "@public/utils": "workspace:^"
   }
 }

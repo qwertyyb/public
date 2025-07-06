@@ -22,7 +22,7 @@ import LoadingBar from '@/components/LoadingBar.vue';
 import type { IActionItem } from '@/components/ActionList.vue';
 import InputBar from '@/components/InputBar.vue';
 import { resourceUrl } from '@/utils';
-import { onPageEnter, onPageLeave } from '@/router/hooks';
+import { onPageEnter, onPageLeave, useRouter } from '@/router/hooks';
 
 const props = defineProps<{
   command: IPluginCommand,
@@ -86,8 +86,9 @@ const onResultAction = (item: IListItem, itemIndex: number, action: IActionItem)
   // window.publicAppCommand?.action?.(item, action, keyword.value)
 }
 
+const router = useRouter()
 const exitCommand = () => {
-  window.publicApp.plugin.exitCommand()
+  router?.popView()
 }
 
 const keyDownHandler = (event: KeyboardEvent) => {

@@ -1,6 +1,6 @@
 
 import { clipboard } from 'electron';
-import { IPlugin, IPluginCommand } from '@public/shared'
+import api, { type IPlugin } from '@public/api'
 import { create, all } from "mathjs";
 
 const DECIMAL_SEPARATOR = '.'
@@ -82,9 +82,9 @@ const calculatorPlugin: IPlugin = (utils) => {
         utils.updateCommands([])
       }
     },
-    onEnter (item: IPluginCommand) {
+    onEnter (item) {
       clipboard.writeText(String(item.text))
-      window.publicApp.showHUD('已复制到剪切板')
+      api.showHUD('已复制到剪切板')
     }
   }
 }

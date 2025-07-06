@@ -1,9 +1,9 @@
-import { IPluginCommandConfig, IPluginCommandListView, IResultItem } from "@public/shared"
+import api, { ICommand, IListViewCommand } from "@public/api"
 import { detectWithOpencv } from "./lib/qrcode"
 import { clipboard, NativeImage } from "electron"
 
 const createClipboardItem = (text: string) => {
-  const item: IPluginCommandConfig = {
+  const item: ICommand = {
     name: 'detect',
     title: `二维码内容: ${text}`,
     subtitle: '来自剪切板,点击复制',
@@ -62,7 +62,7 @@ const detect = async () => {
   return list
 }
 
-const detectCommand: IPluginCommandListView = {
+const detectCommand: IListViewCommand = {
   async enter(query, setList) {
     const list = await detect() || []
     if (list.length) {

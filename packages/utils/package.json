@@ -32,6 +32,7 @@
   "os": "darwin",
   "repository": "https://github.com/bengsquared/osx-fileicon",
   "dependencies": {
+    "color": "^5.0.0",
     "nan": "^2.22.2",
     "node-addon-api": "^8.4.0",
     "run-applescript": "^7.0.0"

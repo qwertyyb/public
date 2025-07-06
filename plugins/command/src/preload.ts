@@ -1,4 +1,4 @@
-import { IPlugin } from '@public/shared'
+import type { IPlugin } from '@public/api'
 
 const scripts = {
   lock: `

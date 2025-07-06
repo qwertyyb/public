@@ -1,3 +1,5 @@
+import Color from 'color'
+
 export const withCache = <F extends (...args: any[]) => any>(fn: F) => {
   let results = new Map<string, any>()
   return (...args: Parameters<F>): ReturnType<F> => {
@@ -140,4 +142,106 @@ export function isFocusable(element: Element) {
   };
 
   return isVisible() && !isDisabled() && isIntrinsicallyFocusable();
+}
+
+const IconColorSet = [
+  "#DC829A",
+  "#D64854",
+  "#D47600",
+  "#D36CDD",
+  "#52A9E4",
+  "#7871E8",
+  "#70920F",
+  "#43B93A",
+  "#EB6B3E",
+  "#26B795",
+  "#D85A9B",
+  "#A067DC",
+  "#BD9500",
+  "#5385D9",
+];
+
+function clamp(value: number, min: number, max: number) {
+  return min < max
+    ? value < min
+      ? min
+      : value > max
+      ? max
+      : value
+    : value < max
+    ? max
+    : value > min
+    ? min
+    : value;
+}
+
+function generateGriadientColors(color: string) {
+  const gradientLightOffset = 12;
+  const c = Color(color)
+  const hsl = { h: c.hue(), s: c.saturationl(), l: c.lightness() }
+  return {
+    start: Color({ ...hsl, l: clamp(c.lightness() + gradientLightOffset, 0, 100) }).hex(),
+    end: Color({ ...hsl, l: clamp(hsl.l - gradientLightOffset, 0, 100)}).hex()
+  }
+}
+
+export const createIcon = (
+  name: string,
+  options?: { background?: string; gradient?: boolean }
+) => {
+  const words = name.trim().split(" ");
+  let initials;
+  if (words.length == 1) {
+    initials = Array.from(words[0])[0]
+  }
+  else if (words.length > 1) {
+    const firstWordFirstLetter: string = Array.from(words[0])[0]
+    const lastWordFirstLetter: string = Array.from(words[words.length - 1])[0] ??
+      "";
+    initials = firstWordFirstLetter + lastWordFirstLetter;
+  } else {
+    initials = "";
+  }
+  let backgroundColor
+  if (options?.background) {
+    backgroundColor = options.background
+  } else {
+    const colorIndex = initials.charCodeAt(0) % IconColorSet.length;
+    backgroundColor = IconColorSet[colorIndex];
+  }
+  const padding = 0;
+  const radius = 50 - padding;
+  const colors = options?.gradient === false ? null : generateGriadientColors(backgroundColor)
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="100px" height="100px">
+${
+  colors
+    ? `<defs>
+    <linearGradient id="Gradient" x1="0.25" x2="0.75" y1="0" y2="1">
+      <stop offset="0%" stop-color="${colors.start}"/>
+      <stop offset="50%" stop-color="${backgroundColor}"/>
+      <stop offset="100%" stop-color="${colors.end}"/>
+    </linearGradient>
+</defs>`
+    : ""
+}
+    <circle cx="50" cy="50" r="${radius}" fill="${
+      options?.gradient !== false ? "url(#Gradient)" : backgroundColor
+    }" />
+    ${
+      initials
+        ? `<text x="50" y="50" font-size="${
+            radius - 1
+          }" font-family="Inter, sans-serif" dy="0.35rem" text-anchor="middle" dominant-baseline="middle" fill="white">${initials.toUpperCase()}</text>`
+        : ""
+    }
+  </svg>
+`.replaceAll("\n", "");
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+};
+
+export const getFavicon = (url: string, options?: { size: number }) => {
+  return `https://www.google.com/s2/favicons?sz=${
+    options?.size ?? 64
+  }&domain=${encodeURIComponent(url)}`;
 }

@@ -1,4 +1,4 @@
-import { IPlugin, IPluginCommand } from '@public/shared'
+import api, { type IPlugin, ICommand } from '@public/api'
 import { hToM, msToDuration, msToLocaleString, mToS, sToLocaleString, sToMs } from "./lib/time"
 import { transformCurrency } from './lib/currency'
 
@@ -6,7 +6,7 @@ const transformPlugin: IPlugin = (utils) => {
   return {
     async onInput(keyword) {
       console.log('keyword', keyword)
-      const commands: IPluginCommand[] = []
+      const commands: ICommand[] = []
       if (/^\d+ms$/.test(keyword)) {
         // 1720524483000ms
         const num = window.parseInt(keyword, 10)
@@ -92,7 +92,7 @@ const transformPlugin: IPlugin = (utils) => {
           ]
         })
       } else if (prefix === 'decode' || prefix === 'dec') {
-        const text = encodeURIComponent(value)
+        const text = decodeURIComponent(value)
         commands.push({
           name: 'decodeURIComponent',
           title: '= ' + text,
@@ -108,6 +108,7 @@ const transformPlugin: IPlugin = (utils) => {
     },
     onEnter(command) {
       require('electron').clipboard.writeText(command.value)
+      api.showHUD('已复制到剪切板')
     }
   }
 }

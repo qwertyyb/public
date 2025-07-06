@@ -40,6 +40,7 @@
     ]
   },
   "dependencies": {
+    "@public/api": "workspace:^",
     "gray-matter": "^4.0.3"
   }
 }

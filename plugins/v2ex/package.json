@@ -28,5 +28,8 @@
         "preload": "./dist/command.preload.js"
       }
     ]
+  },
+  "dependencies": {
+    "@public/api": "workspace:^"
   }
 }

@@ -118,19 +118,29 @@
           快捷链接
           <el-button :icon="Plus" circle size="small" @click="createLink"></el-button>
         </div>
+        <ul class="link-list">
+          <li class="link-item flex justify-between items-center" v-for="(item, index) in links" :key="index">
+            <h3 class="link-title">{{ item.title }}</h3>
+            <el-button type="danger" :icon="Delete"
+              size="small"
+              class="action-item"
+              @click="removeLink(index)"
+              circle></el-button>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { computed, ref, toRaw } from 'vue';
 import { ElMessage, ElButton, ElSelect, ElSwitch, ElOption, ElInput, ElForm, ElFormItem, ElIcon } from 'element-plus';
 import { ArrowRightBold, Plus, Delete, Operation } from '@element-plus/icons-vue';
 import ShortcutsRecorder from '@/components/ShortcutsRecorder.vue';
 import type { ICommandSettings, IPluginCommand, IRunningPlugin } from '@public/shared';
 import { getSettings, updateSettings, getPlugins, openPreferences, removePlugin, updateCommandSettings, updatePluginSettings } from '@/services/settings';
-import { useRouter } from '@/router/hooks';
+import { onPageEnter, useRouter } from '@/router/hooks';
 
 const views = ref({
   'common': '通用',
@@ -145,14 +155,22 @@ const settings = ref<{
   launchAtLogin: boolean,
   shortcuts: string,
   clearTimeout: number,
-  pluginsPathList: string[],
 }>({
   launchAtLogin: false,
   shortcuts: '',
   clearTimeout: 90,
-  pluginsPathList: [],
 })
 const expand = ref<Record<string, boolean | undefined>>({})
+
+interface ILink {
+  trigger: string
+  title: string
+  link: string
+}
+
+const links = computed(() => {
+  return plugins.value.find(i => i.manifest.name === 'links')?.settings?.preferences?.links as unknown as ILink[] || []
+})
 
 const refreshSettings = async () => {
   getSettings()?.then((data: any) => {
@@ -247,12 +265,20 @@ const openPrfsView = async (plugin: string, command?: string) => {
 const router = useRouter()
 
 const createLink = () => {
-  ElMessage.success('创建快捷链接')
   console.log('router', router)
   router?.pushView('/plugin/link/create')
 }
 
-refreshSettings()
+const removeLink = async (index: number) => {
+  const preferences = plugins.value.find(i => i.manifest.name === 'links')?.settings?.preferences
+  const newLinks = [...toRaw(links.value.filter((_, i) => i !== index))]
+  await window.pluginManager?.updatePluginPreferences('links', { ...toRaw(preferences), links: newLinks })
+  refreshSettings()
+}
+
+onPageEnter(() => {
+  refreshSettings()
+})
 
 </script>
 
@@ -335,6 +361,18 @@ refreshSettings()
   }
   .command-list {
     margin-left: 14px;
+  }
+}
+
+.link-item {
+  height: 48px;
+  padding: 8px 16px;
+  &:nth-child(even) {
+    background: rgba(255, 255, 255, .03);
+  }
+  .link-title {
+    font-size: 14px;
+    font-weight: 500;
   }
 }
 </style>

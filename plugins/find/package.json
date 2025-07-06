@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@public/api": "workspace:^",
     "@public/utils": "workspace:*",
     "isbinaryfile": "^5.0.2"
   },
@@ -24,11 +25,21 @@
         "matches": [
           {
             "type": "text",
-            "keywords": ["search files", "搜索文件", "文件搜索", "file search", "search", "files"]
+            "keywords": [
+              "search files",
+              "搜索文件",
+              "文件搜索",
+              "file search",
+              "search",
+              "files"
+            ]
           },
           {
             "type": "trigger",
-            "triggers": ["fs", ""],
+            "triggers": [
+              "fs",
+              ""
+            ],
             "title": "搜索文件“$query”..."
           },
           {

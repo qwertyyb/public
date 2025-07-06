@@ -1,6 +1,6 @@
 import { ipcRenderer } from "electron"
 import { type PortBridge, IResultItem, IPluginCommandListView } from '@public/shared'
-import createCommonAPI, { createDraggable } from './lib/common'
+import { createDraggable } from "./lib/draggable"
 import { createBridge } from '@public/utils/render'
 
 declare global {
@@ -31,29 +31,6 @@ const innerBridge = createBridge(
 )
 
 createDraggable()
-
-const api = createCommonAPI({ runtime: 'plugin' })
-window.publicApp = {
-  ...api,
-  plugin: {
-    ...api.plugin,
-    getPreferenceValues<D extends any>(commandName?: string) {
-      return innerBridge.invoke<D>('getPreferenceValues', commandName)
-    },
-    openPreferences(commandName?: string) {
-      return innerBridge.invoke('openPreferences', commandName)
-    },
-    getLaunchData() {
-      return innerBridge.invoke('getLaunchData')
-    }
-  },
-  mainWindow: {
-    ...api.mainWindow,
-    popToRoot(options) {
-      innerBridge.invoke('popToRoot', options)
-    },
-  }
-}
 
 window.PublicAppBridge = createBridge(
   (payload) => window.publicApp.sendToHost('bridgeMessage', payload),

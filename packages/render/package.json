@@ -17,7 +17,7 @@
     "@floating-ui/vue": "^1.1.0",
     "@public/shared": "workspace:*",
     "@public/utils": "workspace:^",
-    "element-plus": "^2.7.6",
+    "element-plus": "^2.10.3",
     "github-markdown-css": "^5.6.1",
     "highlight.js": "^11.9.0",
     "markdown-it": "^14.1.0",

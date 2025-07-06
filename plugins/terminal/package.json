@@ -32,8 +32,9 @@
     ]
   },
   "dependencies": {
-    "@public/utils": "workspace:^",
+    "@public/api": "workspace:^",
     "@public/shared": "workspace:^",
+    "@public/utils": "workspace:^",
     "run-applescript": "^7.0.0"
   }
 }

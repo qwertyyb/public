@@ -1,4 +1,5 @@
 import * as crypto from 'crypto'
+import api from '@public/api'
 
 /*
 console.log(await youDaoTranslate("秋风不燥，时光不老，岁月静好，你我都好"));
@@ -50,7 +51,7 @@ export const translate = async (text: string) => {
     abtest: '0',
     yduuid: "abcdefg",
   }
-  const res = await window.publicApp.fetch("https://dict.youdao.com/webtranslate", {
+  const res = await api.fetch("https://dict.youdao.com/webtranslate", {
     "headers": {
       "content-type": "application/x-www-form-urlencoded",
       "Referer": "https://fanyi.youdao.com/",

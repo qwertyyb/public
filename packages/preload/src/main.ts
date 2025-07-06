@@ -1,12 +1,17 @@
 import { join as pathJoin } from 'path'
-import createCommonAPI, { createDraggable } from './lib/common'
+import { createMainAPI, createPluginAPI } from './lib/api'
+import { createDraggable } from './lib/draggable'
 import { registerPlugin, unregisterPlugin, disablePlugin, disablePluginCommand, updatePluginsSettings, getPlugins, updatePluginPreferences, updateCommandPreferences, getPlugin, updatePluginSettings, updateCommandSettings, launchPlugins, getPluginPreferences, getCommandPreferences } from "./lib/manager"
 import { handleQuery, handleSelect, handleEnter, handleAction, enterPluginCommand } from "./lib/service"
 
-
 createDraggable()
 
-window.publicApp = createCommonAPI({ runtime: 'main' })
+window.PublicApp = {
+  mainAPI: createMainAPI(),
+  createPluginAPI,
+}
+
+window.publicApp = window.PublicApp.mainAPI
 window.pluginManager = {
   registerPlugin,
   unregisterPlugin,

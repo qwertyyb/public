@@ -122,7 +122,7 @@ process.on("exit", () => {
 
 export const startElectron = async () => {
   stopElectron()
-  electronProcess = spawn('pnpm', ['run', 'electron'], { stdio: [null, process.stdout, process.stderr]})
+  electronProcess = spawn('pnpm', ['run', 'electron'], { stdio: 'ignore', })
   electronProcess.on('error', (err) => {
     stopElectron()
   })

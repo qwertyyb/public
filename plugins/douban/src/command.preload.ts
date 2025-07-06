@@ -1,12 +1,12 @@
 
-import { IPluginCommandListView } from "@public/shared";
+import api, { type IListViewCommand } from "@public/api";
 
 const createPreview = (item: { icon: string, title: string, subtitle: string, url: string }) => {
   const div = document.createElement('div')
   div.classList.add('movie-preview');
   div.textContent = 'loading';
   (async () => {
-    const response = await window.publicApp.fetch(item.url)
+    const response = await api.fetch(item.url)
     const domParser = new DOMParser()
     const doc = domParser.parseFromString(await response.text(), 'text/html')
     const poster = doc.querySelector<HTMLImageElement>('#mainpic img')?.src
@@ -46,13 +46,12 @@ const createPreview = (item: { icon: string, title: string, subtitle: string, ur
   return div
 }
 
-
-const listView: IPluginCommandListView = {
-  search: window.publicApp.utils.debounce(
+const listView: IListViewCommand = {
+  search: api.utils.debounce(
     async (keyword: string, setList) => {
       if (!keyword) return setList([])
       // @todo 豆瓣的接口缺少影片首字母查询的能力，为了更好的使用，后续需要使用这个能力
-      const response = await window.publicApp.fetch(`https://search.douban.com/movie/subject_search?search_text=${encodeURIComponent(keyword)}&cat=1002`)
+      const response = await api.fetch(`https://search.douban.com/movie/subject_search?search_text=${encodeURIComponent(keyword)}&cat=1002`)
       const domParser = new DOMParser()
       const doc = domParser.parseFromString(await response.text(), 'text/html')
       const script = Array.from(doc.querySelectorAll('script:not([src])')).find(s => /window\.__DATA__\s*=\s*/.test(s.innerHTML))

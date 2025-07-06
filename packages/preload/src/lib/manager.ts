@@ -1,10 +1,11 @@
 import * as nodePath from 'path'
 import * as fs from 'fs'
+import domain from 'domain'
 import Ajv from 'ajv';
 import schema from './public.schema.json' 
 import { ICommandSettings, IPlugin, IPluginCommand, IPluginCommandConfig, IPluginManifest, IPluginManifestConfig, IPluginReturn, IPluginSettings, IPluginsSettings, IRunningPlugin, ITextPluginCommandMatch } from '@public/shared'
 import { hanziToPinyin } from '@public/utils';
-import { db } from './utils';
+import { db, joinPath } from './utils';
 
 const ajv = new Ajv({ allowUnionTypes: true })
 const validate = ajv.compile(schema)
@@ -13,8 +14,6 @@ const plugins: Map<string, IRunningPlugin> = new Map()
 let pluginsSettings: IPluginsSettings & PouchDB.Core.IdMeta & PouchDB.Core.GetMeta | IPluginsSettings = {}
 
 const resultsMap = new WeakMap<IPluginCommand, { score: number, query: string, owner: IRunningPlugin }>()
-
-declare const __non_webpack_require__: NodeRequire;
 
 const pinyin = (text: string) => {
   if (/[^\x00-\xff]/.test(text)) {
@@ -27,14 +26,6 @@ const pinyin = (text: string) => {
     }
   }
   return []
-}
-
-const joinPath = (relativePath: string | undefined, path: string) => {
-  if (!relativePath) return relativePath
-  if (/^\w+:\/\//.test(relativePath)) {
-    return relativePath
-  }
-  return 'ipublic://public.qwertyyb.com/local-file?path=' + encodeURIComponent(nodePath.join(path, relativePath))
 }
 
 const save = () => {
@@ -112,22 +103,25 @@ export const registerPlugin = async (pluginPath: string) => {
     }
     if (main && !pluginsSettings?.[name]?.disabled) {
       const entryPath = nodePath.join(pluginPath, main)
-      const createPlugin = (__non_webpack_require__(entryPath).default || __non_webpack_require__(entryPath)) as IPlugin
-      // const result = await import(entryPath)
-      // const createPlugin = (result.default || result) as IPlugin 
-      const plugin = createPlugin({
-        updateCommands: (commands: IPluginCommandConfig[]) => {
-          pluginInstance.commands = commands.map(item => formatCommand(item, manifest, pluginPath))
-        },
-        showCommands: (commands: IPluginCommandConfig[]) => {
-          commands.forEach(command => resultsMap.set(formatCommand(command, manifest, pluginPath), { score: 1, query: '', owner: pluginInstance }))
-          window.dispatchEvent(new CustomEvent('plugin:showCommands', { detail: { name: manifest.name, commands }}))
-        },
-        getPreferences: () => {
-          return pluginsSettings[name]?.preferences || {}
-        }
-      }) as IPluginReturn
-      pluginInstance.plugin = plugin
+      const plugin = (async (plugin: string) => {
+          console.log('plugin', plugin)
+          const mod = __non_webpack_require__(entryPath)
+          const createPlugin = mod.default || mod as IPlugin
+          const pluginReturn = createPlugin({
+            updateCommands: (commands: IPluginCommandConfig[]) => {
+              pluginInstance.commands = commands.map(item => formatCommand(item, manifest, pluginPath))
+            },
+            showCommands: (commands: IPluginCommandConfig[]) => {
+              commands.forEach(command => resultsMap.set(formatCommand(command, manifest, pluginPath), { score: 1, query: '', owner: pluginInstance }))
+              window.dispatchEvent(new CustomEvent('plugin:showCommands', { detail: { name: manifest.name, commands }}))
+            },
+            getPreferences: () => {
+              return pluginsSettings[name]?.preferences || {}
+            }
+          }) as IPluginReturn
+          return pluginReturn
+      })(manifest.name)
+      pluginInstance.plugin = await plugin
     }
     plugins.set(pkg.name, pluginInstance)
     return pluginInstance

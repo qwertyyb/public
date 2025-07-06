@@ -1,6 +1,6 @@
 import { IActionItem, ICommandAliasMatchData, ICommandFullMatchData, ICommandMatchData, ICommandRegExpMatchData, ICommandTextMatchData, ICommandTriggerMatchData, IFullPluginCommandMatch, IListItem, IPlugin, IPluginCommand, IPreference, IRegExpPluginCommandMatch, IRunningPlugin, ITextPluginCommandMatch, ITriggerPluginCommandMatch } from '@public/shared'
 import { getPlugins } from './manager';
-import { openCommandPreferences, openPluginPreferences, popView } from './utils';
+import { joinPath, openCommandPreferences, openPluginPreferences, popView } from './utils';
 
 // 计算匹配分数，越大表示匹配度越高，最大为1
 const calcScore = (query: string, target: string) => {
@@ -102,9 +102,14 @@ export const handleQuery = async (keyword: string) => {
         if (!Array.isArray(list)) return;
         list.forEach(item => {
           if (!item.title && !item.subtitle && !item.icon) return;
-          results.push(item)
+          const { icon, score, ...rest } = item
+          const result = {
+            ...rest,
+            icon: joinPath(item.icon, plugin.path)
+          }
+          results.push(result)
           inputCount += 1
-          resultsMap.set(item, { owner: plugin, from: 'onInput', keyword, query: keyword, score: CommandOnInputBaseScore + inputCount })
+          resultsMap.set(result, { owner: plugin, from: 'onInput', keyword, query: keyword, score: score || CommandOnInputBaseScore + inputCount })
         })
       })
     })

@@ -1,4 +1,5 @@
 import * as crypto from 'crypto';
+import api from '@public/api'
 
 function sha256(message: string, secret: string | crypto.BinaryLike, encoding?: crypto.BinaryToTextEncoding) {
     const hmac = crypto.createHmac('sha256', secret)
@@ -95,7 +96,7 @@ async function request(options: {
     //                        + " -d '" + payload + "'"
     // console.log(curlcmd, headers)
 
-    const res = await window.publicApp.fetch(`https://${endpoint}`, {
+    const res = await api.fetch(`https://${endpoint}`, {
       headers,
       "body": payload,
       "method": "POST"

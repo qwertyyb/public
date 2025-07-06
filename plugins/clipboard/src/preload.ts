@@ -1,5 +1,5 @@
 import { clipboard, NativeImage } from 'electron'
-import { IPlugin } from '@public/shared'
+import api, { type IPlugin } from '@public/api'
 import { ContentType, getHash } from './const';
 
 const formatDate = function(date: Date, fmt: string = 'yyyy-MM-dd hh:mm:ss') { 
@@ -35,14 +35,14 @@ const createDatabase = async () => {
     application TEXT NULL DEFAULT NULL,
     hash TEXT NULL DEFAULT NULL
   );`
-  await window.publicApp.db.run(sql)
-  return window.publicApp.db.run(`CREATE INDEX IF NOT EXISTS hashIndex on clipboardHistory(hash)`)
+  await api.db.run(sql)
+  return api.db.run(`CREATE INDEX IF NOT EXISTS hashIndex on clipboardHistory(hash)`)
 }
 
 const insertRecord = async (record: { contentType: number, text: string, content: Buffer | null, hash: string }) => {
   const sql = `INSERT INTO clipboardHistory(contentType, text, content, createdAt, lastUseAt, hash) values ($contentType, $text, $content, $createdAt, $lastUseAt, $hash)`
   console.log(record)
-  return window.publicApp.db.run(sql, {
+  return api.db.run(sql, {
     contentType: record.contentType || ContentType.text,
     text: record.text,
     content: record.content || null,
@@ -55,12 +55,12 @@ const insertRecord = async (record: { contentType: number, text: string, content
 const queryRecordList = async ({ keyword = '' } = {}, { strict = false } = {}) => {
   const sql = `SELECT * FROM clipboardHistory order by lastUseAt DESC limit 30`
   const query = strict ? keyword : `%${keyword}%`
-  const results = await window.publicApp?.db.all(sql, { keyword: query })
+  const results = await api.db.all(sql, { keyword: query })
   return results
 }
 
 const getExist = async (hash: string) => {
-  const results = await window.publicApp.db.all('SELECT id FROM clipboardHistory where hash = $hash', {
+  const results = await api.db.all('SELECT id FROM clipboardHistory where hash = $hash', {
     hash
   })
   return results[0]
@@ -69,7 +69,7 @@ const getExist = async (hash: string) => {
 const updateRecord = async (id: number, params: Object) => {
   // @ts-ignore
   const sql = `UPDATE clipboardHistory set ${Object.keys(params).map(key => `${key} = '${params[key]}'`).join(',')} where id = $id`
-  return window.publicApp.db.run(sql, { id: id })
+  return api.db.run(sql, { id: id })
 }
 
 interface ClipboardData {

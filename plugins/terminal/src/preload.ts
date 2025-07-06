@@ -1,6 +1,6 @@
 import * as os from 'os'
 import { getCurrentPath } from '@public/utils';
-import { IPluginReturn } from '@public/shared';
+import type { IPlugin} from '@public/api';
 import { runAppleScript } from 'run-applescript'
 
 const execCommand = (command: string, directory: string) => {
@@ -15,7 +15,7 @@ const execCommand = (command: string, directory: string) => {
 }
 
 
-export default (): IPluginReturn => {
+const createTerminalPlugin: IPlugin = () => {
   return {
     async onEnter(item, matchData) {
       const directory = (await getCurrentPath()) || os.homedir()
@@ -23,3 +23,5 @@ export default (): IPluginReturn => {
     }
   }
 }
+
+export default createTerminalPlugin

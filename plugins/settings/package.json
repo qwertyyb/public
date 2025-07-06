@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@electron/remote": "^2.1.2",
+    "@public/api": "workspace:^",
     "@public/shared": "workspace:^",
     "@public/utils": "workspace:^"
   }
