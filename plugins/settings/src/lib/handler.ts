@@ -165,7 +165,7 @@ const handlers = {
     window.pluginManager?.updateCommandSettings(plugin, command, settings)
   },
   openPreferences(plugin: string, command?: string) {
-    api.plugin.openPreferences(plugin, command)
+    window.PublicApp.mainAPI.plugin.openPreferences(plugin, command)
   }
 }
 

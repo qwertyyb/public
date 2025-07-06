@@ -1,7 +1,6 @@
 import { join } from 'path'
 import PouchDB from 'pouchdb'
 
-
 export const db = new PouchDB('data/publicApp')
 
 export const pushView = (options: { path: string, params?: any }) => {

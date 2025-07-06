@@ -8,7 +8,7 @@ const queryRecordList = async ({ keyword = '' } = {}, { strict = false } = {}) =
   console.time('query')
   const results = await window.publicApp.db.all(sql, { keyword: query })
   console.timeEnd('query')
-  return results.map(item => {
+  return results.map((item: any) => {
     return {
       ...item,
       content: item.content instanceof Uint8Array ? 'data:image/png;base64,' + Buffer.from(item.content as Uint8Array).toString('base64') : null

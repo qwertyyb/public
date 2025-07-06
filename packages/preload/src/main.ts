@@ -1,4 +1,3 @@
-import { join as pathJoin } from 'path'
 import { createMainAPI, createPluginAPI } from './lib/api'
 import { createDraggable } from './lib/draggable'
 import { registerPlugin, unregisterPlugin, disablePlugin, disablePluginCommand, updatePluginsSettings, getPlugins, updatePluginPreferences, updateCommandPreferences, getPlugin, updatePluginSettings, updateCommandSettings, launchPlugins, getPluginPreferences, getCommandPreferences } from "./lib/manager"

@@ -1,9 +1,9 @@
+import { db, openCommandPreferences, openPluginPreferences, popToRoot, pushView } from './utils';
 import { ipcRenderer } from 'electron'
 import { IWebview, IWebviewTagAttributes, IPublicAppBaseAPI, IPublicAppMainAPI, IPublicAppPluginAPI } from '@public/shared'
 import { runAppleScript } from 'run-applescript'
 
 import { exec } from 'child_process';
-import { db, openCommandPreferences, openPluginPreferences, popToRoot, pushView } from './utils';
 import { hanziToPinyin, getFrontmostApplication, getSelectedPath, getCurrentPath } from '@public/utils'
 import { type createBridge } from '@public/utils/render';
 import { getPlugin } from './manager';

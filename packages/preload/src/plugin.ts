@@ -33,8 +33,8 @@ const innerBridge = createBridge(
 createDraggable()
 
 window.PublicAppBridge = createBridge(
-  (payload) => window.publicApp.sendToHost('bridgeMessage', payload),
-  (callback) => window.publicApp.onHostMessage('bridgeMessage', (event, payload) => callback(payload)),
+  (payload) => ipcRenderer.sendToHost('bridgeMessage', payload),
+  (callback) => ipcRenderer.on('bridgeMessage', (event, payload) => callback(payload)),
 )
 
 window.CSS.registerProperty({
