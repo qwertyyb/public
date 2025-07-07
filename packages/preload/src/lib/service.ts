@@ -4,10 +4,25 @@ import { joinPath, openCommandPreferences, openPluginPreferences, popView } from
 
 // 计算匹配分数，越大表示匹配度越高，最大为1
 const calcScore = (query: string, target: string) => {
-  if (query && target.includes(query)) {
-    return query.length / target.length
+  return query.length / target.length
+}
+
+const match = (query: string, target: string) => {
+  const arr = Array.from(query)
+  const targetArr = Array.from(target)
+  let score = 0
+  let index = 0
+  for (let i = 0; i < arr.length; i++) {
+    const char = arr[i]
+    const targetIndex = targetArr.indexOf(char, index)
+    if (targetIndex >= 0) {
+      score++
+      index = targetIndex + 1
+    } else {
+      return -1
+    }
   }
-  return -1
+  return score / target.length
 }
 
 const compileString = (template: string, vars: any) => {
@@ -20,7 +35,8 @@ const CommandAliasBaseScore = 10
 const CommandTriggerMatchBaseScore = 5
 
 export const calcCommandMatchInfo = (keyword: string, command: IPluginCommand, options?: { alias?: string }) => {
-  if (options?.alias && options.alias.includes(keyword)) {
+
+  if (options?.alias && match(keyword, options.alias) > 0) {
     const result = { ...command }
     const score = CommandAliasBaseScore + calcScore(keyword, options.alias)
     return { result, matchInfo: { from: 'alias', query: keyword, score, keyword } } as {
@@ -49,7 +65,7 @@ export const calcCommandMatchInfo = (keyword: string, command: IPluginCommand, o
   }
   const textMatch = matches.find<ITextPluginCommandMatch>(match => match.type === 'text')
   if (textMatch) {
-    const matchKeyword = textMatch.keywords.find(word => calcScore(keyword, word) > 0)
+    const matchKeyword = textMatch.keywords.find(word => match(keyword, word) > 0)
     if (matchKeyword) {
       const result = { ...command }
       return {

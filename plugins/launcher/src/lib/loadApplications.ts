@@ -13,9 +13,9 @@ const homePaths = ['Applications', 'Library/PreferencePanes'].map(pathname => pa
 const macosAppPaths = [
   '/Applications',  // 安装的应用
   '/System/Applications', // 系统应用
-  '/System/Library/PreferencePanes',
-  '/System/Library/CoreServices', // 系统工具，如屏幕共享等
-  '/Library/PreferencePanes',
+  // '/System/Library/PreferencePanes',
+  // '/System/Library/CoreServices', // 系统工具，如屏幕共享等
+  // '/Library/PreferencePanes',
   ...homePaths,
 ]
 

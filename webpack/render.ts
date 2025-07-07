@@ -36,7 +36,7 @@ process.on("SIGINT", () => {
 
 export const startRender = () => {
   const [cmd, ...args] = CMD.split(' ')
-  renderProcess = spawn(cmd, args, { stdio: [0, 'inherit', 'inherit'] })
+  renderProcess = spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'] })
   renderProcess.on('error', (err) => {
     stopRender()
   })

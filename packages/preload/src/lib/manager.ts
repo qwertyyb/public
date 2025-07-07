@@ -256,7 +256,7 @@ export const launchPlugins = async () => {
   const names = [
     'launcher', 'command', 'calculator', 'qrcode', 'links', 'translate', 'clipboard',
     'douban', 'magic', 'ai-chat', 'v2ex', 'terminal', 'find', 'google-chrome', 'mdn', 'shortcuts', 'transform',
-    'settings'
+    'settings', 'snippets'
   ]
   
   const pluginsPathList = names.map(name => ({ path: nodePath.join(__dirname, '../plugins', name) }))

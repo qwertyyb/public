@@ -1,0 +1,51 @@
+{
+  "name": "snippets",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.8.0",
+  "dependencies": {
+    "@public/api": "workspace:^"
+  },
+  "publicPlugin": {
+    "title": "snippets",
+    "subtitle": "snippets",
+    "icon": "./assets/snippets.png",
+    "main": "./dist/preload.js",
+    "commands": [
+      {
+        "name": "create-snippet",
+        "title": "create snippet",
+        "mode": "none",
+        "matches": [
+          {
+            "type": "text",
+            "keywords": [
+              "create snippet"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "search-snippets",
+        "title": "search snippets",
+        "mode": "listView",
+        "preload": "./dist/search.preload.js",
+        "matches": [
+          {
+            "type": "text",
+            "keywords": [
+              "search snippets"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

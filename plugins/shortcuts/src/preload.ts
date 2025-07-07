@@ -27,7 +27,7 @@ const createShortcutsPlugin: IPlugin = (app) => {
   return {
     async onInput(keyword: string) {
       const list = await getList()
-      app.updateCommands(list)
+      return list.filter(i => `shortcuts ${i.name}`.includes(keyword))
     },
     onEnter(command, keyword) {
       execAsync('shortcuts', ['run', command.title])

@@ -1,4 +1,4 @@
-import { ChildProcess, exec, spawn } from 'child_process';
+import { ChildProcess, spawn } from 'child_process';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import * as webpack from 'webpack';
@@ -122,7 +122,7 @@ process.on("exit", () => {
 
 export const startElectron = async () => {
   stopElectron()
-  electronProcess = spawn('pnpm', ['run', 'electron'])
+  electronProcess = spawn('pnpm', ['run', 'electron'], { stdio: ['ignore', 'pipe', 'pipe']})
   electronProcess.on('error', (err) => {
     stopElectron()
   })

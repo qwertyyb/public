@@ -9,6 +9,7 @@ import CreateLinkView from './views/CreateLinkView.vue'
 import RoutePage from '@/components/RoutePage.vue'
 import { computed, nextTick, onBeforeUnmount, provide, shallowRef, useTemplateRef, type Component } from 'vue'
 import { routerSymbol } from './router/hooks'
+import CreateSnippetView from './views/CreateSnippetView.vue'
 
 const hash = location.hash.substring(1)
 
@@ -20,6 +21,7 @@ const routes: Record<string, Component | undefined> = {
   '/plugin/prfs': PluginPrfsView,
   '/settings': SettingsView,
   '/plugin/link/create': CreateLinkView,
+  '/plugin/snippets/create': CreateSnippetView,
 }
 
 const pages = useTemplateRef('page')
