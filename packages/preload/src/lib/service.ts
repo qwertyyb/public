@@ -8,21 +8,32 @@ const calcScore = (query: string, target: string) => {
 }
 
 const match = (query: string, target: string) => {
-  const arr = Array.from(query)
-  const targetArr = Array.from(target)
+  const arr = Array.from(query.toLocaleLowerCase())
+  const targetArr = Array.from(target.toLocaleLowerCase())
   let score = 0
   let index = 0
+  const indexes: number[] = []
   for (let i = 0; i < arr.length; i++) {
     const char = arr[i]
     const targetIndex = targetArr.indexOf(char, index)
     if (targetIndex >= 0) {
+      indexes.push(targetIndex)
       score++
       index = targetIndex + 1
     } else {
-      return -1
+      return {
+        score: -1,
+        markedText: target,
+      }
     }
   }
-  return score / target.length
+
+  indexes.forEach(i => targetArr[i] = `<mark>${targetArr[i]}</mark>`)
+
+  return {
+    score: score / target.length,
+    markedText: targetArr.join('')
+  }
 }
 
 const compileString = (template: string, vars: any) => {
@@ -36,13 +47,39 @@ const CommandTriggerMatchBaseScore = 5
 
 export const calcCommandMatchInfo = (keyword: string, command: IPluginCommand, options?: { alias?: string }) => {
 
-  if (options?.alias && match(keyword, options.alias) > 0) {
+  if (options?.alias && match(keyword, options.alias).score > 0) {
     const result = { ...command }
     const score = CommandAliasBaseScore + calcScore(keyword, options.alias)
     return { result, matchInfo: { from: 'alias', query: keyword, score, keyword } } as {
       result: IPluginCommand,
       matchInfo: Omit<ICommandAliasMatchData, 'owner'>
     }
+  }
+
+  const titleMatch = command.title && match(keyword, command.title)
+  if (titleMatch && titleMatch.score > 0) {
+    const result = { ...command, title: titleMatch.markedText }
+    return { result, matchInfo: { from: 'alias', query: keyword, score: titleMatch.score, keyword } } as {
+      result: IPluginCommand,
+      matchInfo: Omit<ICommandAliasMatchData, 'owner'>
+    }
+  }
+
+  const subtitleMatch = command.subtitle && match(keyword, command.subtitle)
+  if (subtitleMatch && subtitleMatch.score > 0) {
+    const result = { ...command, subtitle: subtitleMatch.markedText }
+    return {
+      result,
+      matchInfo: {
+        from: "alias",
+        query: keyword,
+        score: subtitleMatch.score,
+        keyword,
+      },
+    } as {
+      result: IPluginCommand;
+      matchInfo: Omit<ICommandAliasMatchData, "owner">;
+    };
   }
 
   const matches = command.matches || []
@@ -65,7 +102,7 @@ export const calcCommandMatchInfo = (keyword: string, command: IPluginCommand, o
   }
   const textMatch = matches.find<ITextPluginCommandMatch>(match => match.type === 'text')
   if (textMatch) {
-    const matchKeyword = textMatch.keywords.find(word => match(keyword, word) > 0)
+    const matchKeyword = textMatch.keywords.find(word => match(keyword, word).score > 0)
     if (matchKeyword) {
       const result = { ...command }
       return {

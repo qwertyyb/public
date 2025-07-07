@@ -9,8 +9,8 @@
       <img :src="icon" alt="" loading="lazy" />
     </div>
     <div class="itemInfo flex-1 flex-col-center">
-      <h3 class="itemTitle text-single-line">{{ title }}</h3>
-      <h5 class="itemSubtitle color-666 text-sm text-single-line" v-if="subtitle">{{ subtitle }}</h5>
+      <h3 class="itemTitle text-single-line" v-html="title"></h3>
+      <h5 class="itemSubtitle color-666 text-sm text-single-line" v-if="subtitle" v-html="subtitle"></h5>
     </div>
     <div class="actions cursor-pointer">
       <ShortcutsKey shortcuts="Enter" v-if="selected" @click="$emit('enter')"></ShortcutsKey>
@@ -56,6 +56,10 @@ defineEmits<{
   box-sizing: border-box;
   position: relative;
   cursor: pointer;
+  :deep(mark) {
+    background: none;
+    color: orange;
+  }
 }
 .resultItem:hover {
   background-color: light-dark(rgba(0, 0, 0, 0.1), rgba(184, 184, 184, 0.2));
