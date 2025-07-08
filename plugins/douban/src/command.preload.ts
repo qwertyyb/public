@@ -76,4 +76,4 @@ const listView: IListViewCommand = {
   }
 }
 
-window.publicAppCommand = listView
+export default listView

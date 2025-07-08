@@ -26,7 +26,7 @@ const getData = withCache(async (type: 'hot' | 'latest' = 'hot') => {
   return list
 })
 
-window.publicAppCommand = {
+export default {
   enter(query, setList, options) {
     getData(options.command.name as 'hot' | 'latest').then(list => {
       setList(list)

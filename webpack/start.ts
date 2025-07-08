@@ -22,7 +22,7 @@ const readCommand = async () => {
 const start = async () => {
   await Promise.all([
     startRender(),
-    runAllPluginsWebpack(),
+    runAllPluginsWebpack(['snippets']),
     runMainWebpack(() => waitReady().then(startElectron)),
     runPreloadWebpack(() => waitReady().then(startElectron))
   ]);

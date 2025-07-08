@@ -19,10 +19,24 @@ export default defineConfig({
     vueJsx(),
     ElementPlus({
       // options
-    }),
+    })
   ],
   server: {
     port: 4000
+  },
+  build: {
+    rollupOptions: {
+      external: ['vue', 'vue-router', 'element-plus'],
+      output: {
+        format: 'iife',
+        name: 'MyBundle',
+        globals: {
+          vue: 'Vue',
+          'vue-router': 'VueRouter',
+          'element-plus': 'ElementPlus'
+        }
+      }
+    }
   },
   resolve: {
     alias: {

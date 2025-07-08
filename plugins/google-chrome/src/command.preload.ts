@@ -5,7 +5,7 @@ const getOpenTabsWithCache = withCache(getOpenTabs)
 
 searchHistory()
 
-window.publicAppCommand = {
+export default {
   async search(keyword: string, setList: any) {
     const command = new URL(location.href).searchParams.get('command')
     if (command === 'search-tab') {

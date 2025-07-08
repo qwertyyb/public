@@ -1,6 +1,6 @@
 import api from '@public/api'
 
-window.publicAppCommand = {
+export default {
   search: api.utils.debounce(async (keyword, setList) => {
     const url = new URL('https://developer.mozilla.org/api/v1/search')
     url.searchParams.set('q', keyword)

@@ -78,4 +78,4 @@ const detectCommand: IListViewCommand = {
   }
 }
 
-window.publicAppCommand = detectCommand
+export default detectCommand

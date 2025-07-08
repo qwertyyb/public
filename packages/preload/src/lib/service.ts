@@ -1,6 +1,7 @@
 import { IActionItem, ICommandAliasMatchData, ICommandFullMatchData, ICommandMatchData, ICommandRegExpMatchData, ICommandTextMatchData, ICommandTriggerMatchData, IFullPluginCommandMatch, IListItem, IPlugin, IPluginCommand, IPreference, IRegExpPluginCommandMatch, IRunningPlugin, ITextPluginCommandMatch, ITriggerPluginCommandMatch } from '@public/shared'
 import { getPlugins } from './manager';
 import { joinPath, openCommandPreferences, openPluginPreferences, popView } from './utils';
+import { hanziToPinyin } from '@public/utils';
 
 // 计算匹配分数，越大表示匹配度越高，最大为1
 const calcScore = (query: string, target: string) => {
@@ -9,29 +10,61 @@ const calcScore = (query: string, target: string) => {
 
 const match = (query: string, target: string) => {
   const arr = Array.from(query.toLocaleLowerCase())
-  const targetArr = Array.from(target.toLocaleLowerCase())
-  let score = 0
+
   let index = 0
-  const indexes: number[] = []
+  let indexes: number[] = []
+
+  const targetArr = Array.from(target.toLocaleLowerCase());
   for (let i = 0; i < arr.length; i++) {
     const char = arr[i]
     const targetIndex = targetArr.indexOf(char, index)
     if (targetIndex >= 0) {
       indexes.push(targetIndex)
-      score++
       index = targetIndex + 1
     } else {
-      return {
-        score: -1,
-        markedText: target,
-      }
+      index = 0
+      indexes = []
+      break
     }
   }
 
-  indexes.forEach(i => targetArr[i] = `<mark>${targetArr[i]}</mark>`)
+  let score = indexes.length / targetArr.length
+
+  if (indexes.length === 0 && /\p{sc=Han}/u.test(target)) {
+    // 有汉字，尝试汉字转拼音匹配
+    const targetArr = Array.from(target.toLocaleLowerCase())
+      .map((char, index) => {
+        if (/\p{sc=Han}/u.test(char)) {
+          const pinyin = hanziToPinyin(char);
+          return Array.from(pinyin).map((i) => {
+            return { char: i, index };
+          });
+        } else {
+          return [{ char, index }];
+        }
+      })
+      .flat();
+
+    for (let i = 0; i < arr.length; i++) {
+      const char = arr[i];
+      const targetIndex = targetArr.slice(index).findIndex((item) => item.char === char);
+      if (targetIndex < 0) {
+        return {
+          score: -1,
+          markedText: target,
+        }
+      }
+      const targetItem = targetArr[targetIndex + index];
+      indexes.push(targetItem.index);
+      index = index + targetIndex + 1;
+    }
+    score = indexes.length / targetArr.length
+  }
+    
+  indexes.forEach((i) => (targetArr[i] = `<mark>${targetArr[i]}</mark>`));
 
   return {
-    score: score / target.length,
+    score,
     markedText: targetArr.join('')
   }
 }
@@ -216,7 +249,8 @@ export const enterPluginCommand = async (owner: IRunningPlugin, command: IPlugin
   if (command.mode === 'none' || !command.mode) {
     owner.plugin?.onEnter?.(command, matchData)
   } else if (command.mode === 'listView') {
-    __non_webpack_require__(command.preload)
+    const mod = __non_webpack_require__(command.preload)
+    window.publicAppCommand = mod.default || mod
     window.dispatchEvent(new CustomEvent('push-view', { detail: { path: '/plugin/list-view', params: { command, plugin: owner, match: matchData } } }))
   } else if (command.mode === 'view') {
     window.dispatchEvent(new CustomEvent('push-view', { detail: { path: '/plugin/view', params: { plugin: owner, command, match: matchData } } }))

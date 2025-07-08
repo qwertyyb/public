@@ -51,4 +51,4 @@ const searchCommand: IListViewCommand = {
   }
 }
 
-window.publicAppCommand = searchCommand
+export default searchCommand

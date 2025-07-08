@@ -60,4 +60,4 @@ const listView: IPluginCommandListView = {
   }
 }
 
-window.publicAppCommand = listView
+export default listView

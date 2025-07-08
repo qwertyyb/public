@@ -58,7 +58,7 @@ defineEmits<{
   cursor: pointer;
   :deep(mark) {
     background: none;
-    color: orange;
+    color: rgb(251, 163, 0);
   }
 }
 .resultItem:hover {

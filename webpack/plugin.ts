@@ -44,10 +44,18 @@ const createWebpackConfigs: (pluginName: string) => Promise<webpack.Configuratio
       __dirname: false,
     },
     resolve: {
-      extensions: [".tsx", ".ts", ".js"],
+      extensions: [".tsx", ".ts", ".js", 'vue'],
+    },
+    externals: {
+      vue: 'Vue',
+      'element-plus': 'ElementPlus'
     },
     module: {
       rules: [
+        {
+          test: /\.vue$/,
+          use: "vue-loader",
+        },
         {
           test: /\.ts$/,
           use: "ts-loader",

@@ -66,6 +66,7 @@ const createBaseAPI = (): IPublicAppBaseAPI => {
       show: () => ipcRenderer.invoke("mainWindow.show"),
       hide: () => ipcRenderer.invoke("mainWindow.hide"),
       pushView: (options: { path: string; params?: any }) => {
+        console.log('pushView', options)
         pushView(options);
       },
       popToRoot(options?: { clearInput?: boolean }) {
