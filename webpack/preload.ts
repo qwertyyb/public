@@ -5,8 +5,8 @@ import * as webpack from 'webpack';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const createPreloadWebpackConfig = (): webpack.Configuration => ({
-  mode: 'development',
+const createPreloadWebpackConfig = (mode: 'production' | 'development'): webpack.Configuration => ({
+  mode: mode,
   // optimization: {
   //   usedExports: true,
   // },
@@ -77,23 +77,35 @@ const stopPreloadWebpack = async () => {
   }
 };
 
-export const runPreloadWebpack = (onChange?: () => void) => {
+export const runPreloadWebpack = (mode: 'production' | 'development', onChange?: () => void) => {
   stopPreloadWebpack()
-  const compiler = webpack.webpack(createPreloadWebpackConfig())
+  const compiler = webpack.webpack(createPreloadWebpackConfig(mode))
   let lastHash: string | undefined = ''
   return new Promise<void>((resolve, reject) => {
-    watch = compiler.watch({}, (err, result) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      if (result?.hash !== lastHash) {
-        lastHash = result?.hash
-        onChange?.()
-      }
-      console.log(result?.toString());
-      resolve();
-    });
+    if (mode === 'production') {
+      compiler.run((err, result) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        console.log(result?.toString());
+        resolve();
+      });
+      return;
+    } else {
+      watch = compiler.watch({}, (err, result) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        if (result?.hash !== lastHash) {
+          lastHash = result?.hash
+          onChange?.()
+        }
+        console.log(result?.toString());
+        resolve();
+      });
+    }
   });
 }
 

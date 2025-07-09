@@ -1,4 +1,4 @@
-import api from '@public/api'
+import api, { IListViewCommand } from '@public/api'
 
 const withCache = <F extends (...args: any[]) => any>(fn: F) => {
   let results = new Map<string, any>()
@@ -26,7 +26,7 @@ const getData = withCache(async (type: 'hot' | 'latest' = 'hot') => {
   return list
 })
 
-export default {
+const command: IListViewCommand = {
   enter(query, setList, options) {
     getData(options.command.name as 'hot' | 'latest').then(list => {
       setList(list)
@@ -36,3 +36,5 @@ export default {
     require('electron').shell.openExternal(item.url)
   }
 }
+
+export default command

@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as readline from 'readline';
 import { fileURLToPath } from 'url';
 import * as webpack from 'webpack';
 
@@ -9,9 +8,7 @@ const __dirname = path.dirname(__filename);
 
 const pluginsPath = path.join(__dirname, '../plugins')
 
-const isProd = process.env.NODE_ENV === 'production'
-
-const createWebpackConfigs: (pluginName: string) => Promise<webpack.Configuration[]> = async (pluginName) => {
+const createWebpackConfigs: (mode: 'development' | 'production', pluginName: string) => Promise<webpack.Configuration[]> = async (mode, pluginName) => {
   const context = path.join(pluginsPath, pluginName)
   const preloads = fs.readdirSync(path.join(context, 'src'), { encoding: 'utf-8' }).filter(name => {
     return name.endsWith('preload.ts')
@@ -28,7 +25,7 @@ const createWebpackConfigs: (pluginName: string) => Promise<webpack.Configuratio
 
   const config: webpack.Configuration = {
     watch: false,
-    mode: isProd ? "production" : "development",
+    mode,
     context,
     optimization: {
       usedExports: true,
@@ -119,13 +116,13 @@ const getNames = async () => {
   })
 }
 
-const runWebpack = async (names: string[]) => {
+const runWebpack = async (mode: 'development' | 'production', names: string[]) => {
   await stopWebpack()
-  const configs = (await Promise.all(names.map(createWebpackConfigs))).flat()
+  const configs = (await Promise.all(names.map(name => createWebpackConfigs(mode, name)))).flat()
   console.log('entries', configs.map(config => ({ entry: config.entry, outputPath: config.output?.path })))
 
   const compiler = webpack.webpack(configs)
-  if (isProd) {
+  if (mode === 'production') {
     return new Promise<void>((resolve, reject) => {
       compiler.run((err, result) => {
         if (err) {
@@ -151,47 +148,8 @@ const runWebpack = async (names: string[]) => {
   }
 }
 
-export const runAllPluginsWebpack = async (names?: string[]) => {
+export const runPluginsWebpack = async (mode: 'production' | 'development', names?: string[]) => {
     const plugins = names ?? await getNames()
     console.log(plugins)
-    await runWebpack(plugins)
+    await runWebpack(mode, plugins)
 }
-
-const readCommand = async () => {
-  const rl = readline.createInterface(process.stdin, process.stdout)
-  rl.addListener('SIGINT', () => {
-    process.exit(0)
-  })
-  while(true) {
-    const answer = await new Promise<string>(resolve => rl.question('请输入指令: ', resolve))
-    console.log('执行指令: ', answer, answer.length)
-
-    const [command, plugin] = answer.split(' ')
-    if (command === 'stop') {
-      await stopWebpack()
-    } else if (command === 'all') {
-      await runWebpack(await getNames())
-    } else if (!plugin && command) {
-      await runWebpack([command])
-    }
-    console.log('指令执行完成')
-  }
-}
-
-const start = async (name: string, env: Record<string, string>) => {
-  console.log('start with plugin', name)
-
-  let names = [name]
-  if (name === 'all') {
-    names = await getNames()
-  }
-  console.log(names)
-  await runWebpack(names)
-
-  if (isProd) return;
-  return readCommand()
-}
-
-// const name = process.argv[2]
-
-// start(name || 'all', process.env as Record<string, string>)

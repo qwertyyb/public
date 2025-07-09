@@ -1,6 +1,6 @@
 import readline from 'node:readline/promises'
 import { runMainWebpack, startElectron } from "./main";
-import { runAllPluginsWebpack } from "./plugin";
+import { runPluginsWebpack } from "./plugin";
 import { waitReady, startRender } from './render';
 import { runPreloadWebpack } from './preload';
 
@@ -19,15 +19,28 @@ const readCommand = async () => {
   }
 };
 
-const start = async () => {
+const dev = async () => {
   await Promise.all([
-    startRender(),
-    runAllPluginsWebpack(['snippets']),
-    runMainWebpack(() => waitReady().then(startElectron)),
-    runPreloadWebpack(() => waitReady().then(startElectron))
+    startRender('development'),
+    runPluginsWebpack('development', ['snippets']),
+    runMainWebpack('development', () => waitReady().then(startElectron)),
+    runPreloadWebpack('development', () => waitReady().then(startElectron))
   ]);
 
   readCommand()
 };
 
-start()
+const build = async () => {
+  await Promise.all([
+    startRender('production'),
+    runPluginsWebpack('production', ['snippets']),
+    runMainWebpack('production'),
+    runPreloadWebpack('production')
+  ]);
+}
+
+const start = () => {
+  process.argv.includes('build') ? build() : dev();
+}
+
+start();

@@ -6,8 +6,8 @@ import * as webpack from 'webpack';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const createMainWebpackConfig = (): webpack.Configuration => ({
-  mode: 'development',
+const createMainWebpackConfig = (mode: 'production' | 'development'): webpack.Configuration => ({
+  mode,
   optimization: {
     usedExports: true,
   },
@@ -87,23 +87,35 @@ const stopWebpack = async () => {
   }
 };
 
-export const runMainWebpack = (onChange?: () => void) => {
+export const runMainWebpack = (mode: 'production' | 'development', onChange?: () => void) => {
   stopWebpack()
-  const compiler = webpack.webpack(createMainWebpackConfig())
+  const compiler = webpack.webpack(createMainWebpackConfig(mode))
   let lastHash: string | undefined = ''
   return new Promise<void>((resolve, reject) => {
-    watch = compiler.watch({}, (err, result) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      if (result?.hash !== lastHash) {
-        lastHash = result?.hash
-        onChange?.()
-      }
-      console.log(result?.toString());
-      resolve();
-    });
+    if (mode === 'production') {
+      compiler.run((err, result) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        console.log(result?.toString());
+        resolve();
+      });
+      return;
+    } else {
+      watch = compiler.watch({}, (err, result) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        if (result?.hash !== lastHash) {
+          lastHash = result?.hash
+          onChange?.()
+        }
+        console.log(result?.toString());
+        resolve();
+      });
+    }
   });
 }
 
@@ -122,7 +134,7 @@ process.on("exit", () => {
 
 export const startElectron = async () => {
   stopElectron()
-  electronProcess = spawn('pnpm', ['run', 'electron'], { stdio: ['ignore', 'pipe', 'pipe']})
+  electronProcess = spawn('pnpm', ['run', 'electron'], { stdio: ['ignore', 'inherit', 'inherit']})
   electronProcess.on('error', (err) => {
     stopElectron()
   })
@@ -130,7 +142,7 @@ export const startElectron = async () => {
 }
 
 const start = () => {
-  runMainWebpack(() => {
+  runMainWebpack('development', () => {
     startElectron()
   })
 }

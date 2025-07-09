@@ -1,6 +1,7 @@
 import { ChildProcess, spawn } from "child_process"
 
-const CMD = 'pnpm run start:render'
+const DEV_CMD = 'pnpm run start:render'
+const BUILD_CMD = 'pnpm run build:render'
 const URL = 'http://localhost:4000'
 const WAIT_DELAY = 1000 // ms
 const WAIT_TIMEOUT = 1000 // ms
@@ -34,9 +35,9 @@ process.on("SIGINT", () => {
   stopRender();
 });
 
-export const startRender = () => {
-  const [cmd, ...args] = CMD.split(' ')
-  renderProcess = spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'] })
+export const startRender = (mode: 'development' | 'production') => {
+  const [cmd, ...args] = mode === 'production' ? BUILD_CMD.split(' ') : DEV_CMD.split(' ')
+  renderProcess = spawn(cmd, args, { stdio: ['ignore', 'inherit', 'inherit'] })
   renderProcess.on('error', (err) => {
     stopRender()
   })
