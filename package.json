@@ -11,6 +11,10 @@
     "asar": false,
     "files": [
       "dist/**/*",
+      "assets/**/*",
+      "plugins/**/*",
+      "!plugins/*/src",
+      "!plugins/**/*.js",
       "!packages/**/*",
       "!webpack/**/*",
       "!test/**/*",
@@ -47,7 +51,7 @@
     "build:main": "webpack --config ./webpack/webpack.config.main.ts --mode=production",
     "build:preload": "webpack --config ./webpack/webpack.config.preload.ts --mode=production",
     "build:plugin": "cross-env NODE_ENV=production tsx ./webpack/plugin.ts",
-    "build:render": "cd ./render && npm build",
+    "build:render": "pnpm --filter render build-only",
     "build": "concurrently --names \"main,preload,plugin,render\" -c \"bgBlue.bold,bgGreen.bold,bgMagenta.bold,bgYellow.bold\" \"npm run build:main\" \"npm run build:preload\" \"npm run build:plugin\" \"npm run build:render\"",
     "pack": "electron-builder -c.mac.identity=null --dir",
     "release": "NODE_ENV=production && npm run build:render && npm run tsc && electron-builder --publish=always"
@@ -58,7 +62,8 @@
   "packageManager": "pnpm@10.8.0",
   "pnpm": {
     "overrides": {
-      "leveldown": "6.1.1"
+      "leveldown": "6.1.1",
+      "app-builder-lib": "next"
     },
     "onlyBuiltDependencies": [
       "esbuild",
@@ -66,26 +71,25 @@
     ]
   },
   "devDependencies": {
+    "@electron/rebuild": "^4.0.1",
     "@types/node": "^24.0.4",
     "@types/webpack": "^5.28.5",
     "@types/webpack-env": "^1.18.5",
     "concurrently": "^6.0.0",
     "cross-env": "^7.0.3",
     "electron": "^35.0.1",
-    "electron-builder": "^26.0.12",
+    "electron-builder": "^26.0.18",
     "electron-notarize": "^1.2.2",
     "node-loader": "^2.0.0",
     "nodemon": "^2.0.7",
+    "string-replace-loader": "^3.2.0",
+    "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
     "vue-loader": "^17.4.2",
     "wait-on": "^7.2.0",
     "webpack": "^5.92.1",
     "webpack-cli": "^6.0.1"
-  },
-  "dependencies": {
-    "string-replace-loader": "^3.2.0",
-    "ts-loader": "^9.5.2",
-    "typescript": "^5.8.3"
   }
 }
