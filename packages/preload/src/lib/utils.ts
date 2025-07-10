@@ -1,7 +1,4 @@
 import { join } from 'path'
-import PouchDB from 'pouchdb'
-
-export const db = new PouchDB('data/publicApp')
 
 export const pushView = (options: { path: string, params?: any }) => {
   return window.dispatchEvent(new CustomEvent('push-view', { detail: { ...options }}))

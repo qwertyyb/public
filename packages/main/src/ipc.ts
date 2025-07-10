@@ -8,6 +8,7 @@ import { promisify } from 'util';
 import { type IPluginCommand } from '@public/shared'
 import { register, unregister } from './shortcuts';
 import { showHUD } from './hud';
+import { pouchDB } from './controller/storageController';
 
 const config = getConfig()
 
@@ -124,6 +125,32 @@ export default (coreApp: CoreApp) => {
   })
   ipcMain.handle('shortcuts.unregister', (event, shortcuts) => {
     return unregister(shortcuts)
+  })
+
+  ipcMain.handle('storage.getItem', async (event, key: string) => {
+    return pouchDB.get<{ value: any }>(key).then(result => result.value).catch(err => {
+      return undefined
+    })
+  })
+  ipcMain.handle('storage.setItem', async (event, key: string, value: any) => {
+    const doc = await pouchDB.get<{ value: any }>(key).catch(err => {
+      console.error(err)
+      return null
+    })
+    const data: { _id: string, _rev?: string, value: any } = { value, _id: key }
+    if (doc) {
+      data._rev = doc._rev
+    }
+    return pouchDB.put(data)
+  })
+  ipcMain.handle('storage.removeItem', async (event, key: string) => {
+    const doc = await pouchDB.get<{ value: any }>(key).catch(err => {
+      console.error(err)
+      return null
+    })
+    if (doc) {
+      return pouchDB.remove(doc)
+    }
   })
 
   ipcMain.on('enter', (event, args: { command: IPluginCommand, query?: string, options?: Electron.WebContentsViewConstructorOptions & { entry?: string } }) => {

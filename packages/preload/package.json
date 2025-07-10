@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "rebuild": "electron-rebuild"
   },
   "keywords": [],
   "author": "",
@@ -13,7 +14,6 @@
     "@public/shared": "workspace:^",
     "@public/utils": "workspace:^",
     "ajv": "^8.17.1",
-    "pouchdb": "^9.0.0",
     "run-applescript": "^7.0.0"
   },
   "devDependencies": {

@@ -9,7 +9,12 @@
   "engines": {
     "node": ">=22.14.0"
   },
-  "scripts": {},
+  "scripts": {
+    "rebuild:uiohook-napi": "electron-rebuild --build-from-source -f -m ./node_modules/uiohook-napi",
+    "rebuild": "electron-rebuild -f -w leveldown",
+    "rebuild:others": "electron-rebuild -f -w ./node_modules/better-sqlite3",
+    "postinstall": "npm run rebuild:uiohook-napi && npm run rebuild:others"
+  },
   "nodemonConfig": {
     "watch": [
       "dist/**/*"
@@ -25,8 +30,10 @@
     "@nut-tree-fork/nut-js": "^4.2.1",
     "@types/better-sqlite3": "^7.6.10",
     "@types/node": "^12.20.55",
+    "@types/pouchdb": "^6.4.2",
     "electron-devtools-installer": "^3.1.1",
-    "electron-updater": "^4.3.5"
+    "electron-updater": "^4.3.5",
+    "pouchdb": "^9.0.0"
   },
   "dependencies": {
     "@public/shared": "workspace:*",

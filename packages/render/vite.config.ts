@@ -24,20 +24,20 @@ export default defineConfig({
   server: {
     port: 4000
   },
-  build: {
-    rollupOptions: {
-      external: ['vue', 'vue-router', 'element-plus'],
-      output: {
-        format: 'iife',
-        name: 'MyBundle',
-        globals: {
-          vue: 'Vue',
-          'vue-router': 'VueRouter',
-          'element-plus': 'ElementPlus'
-        }
-      }
-    }
-  },
+  // build: {
+  //   rollupOptions: {
+  //     external: ['vue', 'vue-router', 'element-plus'],
+  //     output: {
+  //       format: 'iife',
+  //       name: 'MyBundle',
+  //       globals: {
+  //         vue: 'Vue',
+  //         'vue-router': 'VueRouter',
+  //         'element-plus': 'ElementPlus'
+  //       }
+  //     }
+  //   }
+  // },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))

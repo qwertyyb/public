@@ -59,7 +59,7 @@ export interface IPublicAppBaseAPI {
   showHUD(title: string, options?: { duration: number }): void,
 
   storage: {
-    getItem: <T extends any>(key: string) => Promise<T | null>,
+    getItem: <T extends any>(key: string) => Promise<T | undefined>,
     setItem: (key: string, value: any) => Promise<PouchDB.Core.Response>,
     removeItem: (key: string) => Promise<void>,
   },

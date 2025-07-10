@@ -33,15 +33,6 @@ const createPreloadWebpackConfig = (mode: 'production' | 'development'): webpack
         exclude: /node_modules/,
       },
       {
-        test: /\.js$/,
-        loader: 'string-replace-loader',
-        options: {
-          multiple: [
-             { search: `require('node-gyp-build')(__dirname)`, replace: 'require("./build/Release/leveldown.node")' },
-          ]
-        }
-      },
-      {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
         type: 'asset/resource',
       },

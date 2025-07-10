@@ -5,7 +5,8 @@ import Ajv from 'ajv';
 import schema from './public.schema.json' 
 import { ICommandSettings, IPlugin, IPluginCommand, IPluginCommandConfig, IPluginManifest, IPluginManifestConfig, IPluginReturn, IPluginSettings, IPluginsSettings, IRunningPlugin, ITextPluginCommandMatch } from '@public/shared'
 import { hanziToPinyin } from '@public/utils';
-import { db, joinPath } from './utils';
+import { joinPath } from './utils';
+import { getItem, setItem } from './storage';
 
 const ajv = new Ajv({ allowUnionTypes: true })
 const validate = ajv.compile(schema)
@@ -29,9 +30,7 @@ const pinyin = (text: string) => {
 }
 
 const save = () => {
-  return db.put({ ...pluginsSettings, _id: 'pluginsSettings' }).then(result => {
-    pluginsSettings._rev = result.rev
-  })
+  return setItem('pluginsSettings', pluginsSettings)
 }
 
 const formatCommand = (command: IPluginCommandConfig, manifest: IPluginManifest, pluginPath: string): IPluginCommand => {
@@ -245,13 +244,9 @@ export const getPlugin = (name: string) => {
 }
 
 export const launchPlugins = async () => {
-  const result = await db.get<IPluginsSettings>('pluginsSettings')
-    .catch(err => {
-      console.error(err)
-      return {}
-    })
+  const result = await getItem<IPluginsSettings>('pluginsSettings')
   console.log('pluginsSettings', result)
-  pluginsSettings = result
+  pluginsSettings = result || {}
 
   const names = [
     'launcher', 'command', 'calculator', 'qrcode', 'links', 'translate', 'clipboard',

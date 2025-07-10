@@ -1,4 +1,4 @@
-import { db, openCommandPreferences, openPluginPreferences, popToRoot, pushView } from './utils';
+import { openCommandPreferences, openPluginPreferences, popToRoot, pushView } from './utils';
 import { ipcRenderer } from 'electron'
 import { IWebview, IWebviewTagAttributes, IPublicAppBaseAPI, IPublicAppMainAPI, IPublicAppPluginAPI } from '@public/shared'
 import { runAppleScript } from 'run-applescript'
@@ -8,6 +8,7 @@ import { hanziToPinyin, getFrontmostApplication, getSelectedPath, getCurrentPath
 import { type createBridge } from '@public/utils/render';
 import { getPlugin } from './manager';
 import path from 'path';
+import { getItem, removeItem, setItem } from './storage';
 
 const debounce = <F extends (...args: any[]) => any>(fn: F, delay = 200) => {
   let timeout: ReturnType<typeof setTimeout> | null = null
@@ -16,35 +17,6 @@ const debounce = <F extends (...args: any[]) => any>(fn: F, delay = 200) => {
       clearTimeout(timeout)
     }
     timeout = setTimeout(() => fn(...args), delay)
-  }
-}
-
-const setItem = async (key: string, value: any) => {
-  const doc = await db.get<{ value: any }>(key).catch(err => {
-    console.error(err)
-    return null
-  })
-  const data: { _id: string, _rev?: string, value: any } = { value, _id: key }
-  if (doc) {
-    data._rev = doc._rev
-  }
-  return db.put(data)
-}
-
-const getItem = <T extends any>(key: string) => {
-  return db.get<{ value: T }>(key).then(result => result.value).catch(err => {
-    console.error(err)
-    return null
-  })
-}
-
-const removeItem = async (key: string) => {
-  const doc = await db.get<{ value: any }>(key).catch(err => {
-    console.error(err)
-    return null
-  })
-  if (doc) {
-    await db.remove(doc)
   }
 }
 

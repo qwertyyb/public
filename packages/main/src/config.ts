@@ -19,7 +19,7 @@ export const getConfig = () => {
   return {
     ...commonConfig,
     isDev: false,
-    rendererEntry: 'file://' + path.join(__dirname, '../render/dist/index.html'),
+    rendererEntry: path.join(__dirname, '../packages/render/dist/index.html'),
     pluginBasePath: path.join(__dirname, '../plugins')
   }
 }

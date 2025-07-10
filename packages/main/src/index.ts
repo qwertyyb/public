@@ -79,7 +79,7 @@ export class CoreApp {
     const ses = session.fromPartition('publicApp')
     ses.registerPreloadScript({ type: 'frame', filePath: path.join(__dirname, './preload.main.js'), id: 'API' })
     ses.protocol.handle('local', (request) => {
-      const filePath = request.url.slice('atom://'.length)
+      const filePath = request.url.slice('local://'.length)
       return ses.fetch(pathToFileURL(path.resolve(__dirname, filePath)).toString())
     })
     ses.setDisplayMediaRequestHandler((request, callback) => {
@@ -136,8 +136,13 @@ export class CoreApp {
     mainView.setBounds({ x: 0, y: 0, width: config.windowWidth, height: config.windowHeight })
     require("@electron/remote/main").enable(mainView.webContents)
     this.sendWindowEventsToMainView()
-    mainView.webContents.loadURL(config.rendererEntry)
-     mainView.webContents.on('context-menu', () => {
+    console.log('render entry', config.rendererEntry)
+    if (config.rendererEntry.startsWith('http')) {
+      mainView.webContents.loadURL(config.rendererEntry)
+    } else {
+      mainView.webContents.loadFile(config.rendererEntry)
+    }
+    mainView.webContents.on('context-menu', () => {
       mainView.webContents.openDevTools({ mode: 'detach' })
     })
 

@@ -47,7 +47,8 @@ const createMainWebpackConfig = (mode: 'production' | 'development'): webpack.Co
              {
                search: `require('node-gyp-build')((0, path_1.join)(__dirname, '..'))`,
                replace: `require('../build/Release/uiohook_napi.node')`
-             }
+             },
+             { search: `require('node-gyp-build')(__dirname)`, replace: 'require("./build/Release/leveldown.node")' },
           ]
         }
       },

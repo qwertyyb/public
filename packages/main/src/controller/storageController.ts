@@ -1,6 +1,7 @@
 import { app } from 'electron'
 import * as path from 'path'
 import Database from 'better-sqlite3'
+import PouchDB from "pouchdb";
 
 const userDataPath = app.getPath('userData')
 
@@ -16,5 +17,7 @@ const init = () => {
 }
 
 init()
+
+export const pouchDB = new PouchDB("data/publicApp");
 
 export default db
