@@ -1,5 +1,5 @@
-import { IActionItem, ICommandAliasMatchData, ICommandFullMatchData, ICommandMatchData, ICommandRegExpMatchData, ICommandTextMatchData, ICommandTriggerMatchData, IFullPluginCommandMatch, IListItem, IPlugin, IPluginCommand, IPreference, IRegExpPluginCommandMatch, IRunningPlugin, ITextPluginCommandMatch, ITriggerPluginCommandMatch } from '@public/shared'
-import { getPlugins } from './manager';
+import { IActionItem, ICommandAliasMatchData, ICommandFullMatchData, ICommandMatchData, ICommandRegExpMatchData, ICommandTextMatchData, ICommandTriggerMatchData, IFullPluginCommandMatch, IPluginCommand, IPreference, IRegExpPluginCommandMatch, IRunningPlugin, ITextPluginCommandMatch, ITriggerPluginCommandMatch } from '@public/shared'
+import { enterCommand, getPlugins } from './manager';
 import { joinPath, openCommandPreferences, openPluginPreferences, popView } from './utils';
 import { hanziToPinyin } from '@public/utils';
 
@@ -173,7 +173,7 @@ export const calcCommandMatchInfo = (keyword: string, command: IPluginCommand, o
   }
 }
 
-const resultsMap = new WeakMap<IPluginCommand, ICommandMatchData>()
+const resultsMap = new WeakMap<IPluginCommand, ICommandMatchData & { owner: IRunningPlugin }>()
 
 export const handleQuery = async (keyword: string) => {
   let results: IPluginCommand[] = [];
@@ -246,15 +246,7 @@ export const enterPluginCommand = async (owner: IRunningPlugin, command: IPlugin
   if (count) {
     popView({ count })
   }
-  if (command.mode === 'none' || !command.mode) {
-    owner.plugin?.onEnter?.(command, matchData)
-  } else if (command.mode === 'listView') {
-    const mod = __non_webpack_require__(command.preload)
-    window.publicAppCommand = mod.default || mod
-    window.dispatchEvent(new CustomEvent('push-view', { detail: { path: '/plugin/list-view', params: { command, plugin: owner, match: matchData } } }))
-  } else if (command.mode === 'view') {
-    window.dispatchEvent(new CustomEvent('push-view', { detail: { path: '/plugin/view', params: { plugin: owner, command, match: matchData } } }))
-  }
+  return enterCommand(owner, command, matchData)
 }
 
 export const handleEnter = (command: IPluginCommand) => {

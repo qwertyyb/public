@@ -37,6 +37,8 @@ const inputDisable = !window.publicAppCommand?.search
 
 const loadingCount = ref(0)
 
+console.log('publicAppCommand', window.publicAppCommand)
+
 if (typeof window.publicAppCommand?.enter === 'function') {
   loadingCount.value += 1
   window.publicAppCommand?.enter?.(props.match?.query ?? '', (list) => {

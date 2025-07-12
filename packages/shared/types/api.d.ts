@@ -1,3 +1,5 @@
+import { ICommandMatchData } from "./plugin"
+
 export interface IPublicAppBaseAPI {
   db: {
     run: (sql: string, params?) => Promise<any>,
@@ -46,7 +48,7 @@ export interface IPublicAppBaseAPI {
 
   shortcuts: {
     register: (shortcuts: string, callback: () => void) => Promise<void>,
-    unregister: (shortcuts: string, callback: () => void) => Promise<void>
+    unregister: (shortcuts: string) => Promise<void>
   }
 
   showToast(options: {
@@ -75,6 +77,7 @@ export interface IPublicAppMainAPI extends IPublicAppBaseAPI {
       commandName?: string
     ) => Record<string, any>;
     openPreferences: (pluginName: string, commandName?: string) => void;
+    enterCommand: (pluginName: string, commandName: string, matchData: ICommandMatchData) => void;
   };
 }
 
@@ -82,5 +85,7 @@ export interface IPublicAppPluginAPI extends IPublicAppBaseAPI {
   plugin: {
     getPreferenceValues: ((commandName?: string) => Record<string, any>),
     openPreferences: (commandName?: string) => void,
+    enterCommand: (commandName: string, pluginName: string, matchData: ICommandMatchData) => void,
+    enterCommand: (commandName: string, matchData: ICommandMatchData) => void,
   }
 }

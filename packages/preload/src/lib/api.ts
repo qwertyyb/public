@@ -1,12 +1,12 @@
 import { openCommandPreferences, openPluginPreferences, popToRoot, pushView } from './utils';
 import { ipcRenderer } from 'electron'
-import { IWebview, IWebviewTagAttributes, IPublicAppBaseAPI, IPublicAppMainAPI, IPublicAppPluginAPI } from '@public/shared'
+import { IWebview, IWebviewTagAttributes, IPublicAppBaseAPI, IPublicAppMainAPI, IPublicAppPluginAPI, ICommandMatchData } from '@public/shared'
 import { runAppleScript } from 'run-applescript'
 
 import { exec } from 'child_process';
 import { hanziToPinyin, getFrontmostApplication, getSelectedPath, getCurrentPath } from '@public/utils'
 import { type createBridge } from '@public/utils/render';
-import { getPlugin } from './manager';
+import { enterCommandByName, getPlugin } from './manager';
 import path from 'path';
 import { getItem, removeItem, setItem } from './storage';
 
@@ -19,6 +19,8 @@ const debounce = <F extends (...args: any[]) => any>(fn: F, delay = 200) => {
     timeout = setTimeout(() => fn(...args), delay)
   }
 }
+
+const shortcutsHandlers = new Map<string, () => void>()
 
 const createBaseAPI = (): IPublicAppBaseAPI => {
   return {
@@ -83,6 +85,10 @@ const createBaseAPI = (): IPublicAppBaseAPI => {
     },
     shortcuts: {
       register: async (shortcuts: string, callback: () => void) => {
+        const exits = !!shortcutsHandlers.get(shortcuts)
+        if (exits) {
+          throw new Error(`快捷键${shortcuts}已注册，无法再次注册`)
+        }
         const success = await ipcRenderer.invoke(
           "shortcuts.register",
           shortcuts
@@ -91,9 +97,14 @@ const createBaseAPI = (): IPublicAppBaseAPI => {
           throw new Error("注册失败: " + shortcuts);
         }
         ipcRenderer.on(`shortcuts.${shortcuts}`, callback);
+        shortcutsHandlers.set(shortcuts, callback)
       },
-      unregister: async (shortcuts: string, callback: () => void) => {
-        ipcRenderer.off(`shortcuts.${shortcuts}`, callback);
+      unregister: async (shortcuts: string) => {
+        const callback = shortcutsHandlers.get(shortcuts)
+        if (callback) {
+          shortcutsHandlers.delete(shortcuts)
+          ipcRenderer.off(`shortcuts.${shortcuts}`, callback);
+        }
         await ipcRenderer.invoke("shortcuts.unregister", shortcuts);
       },
     },
@@ -198,7 +209,10 @@ export const createMainAPI = (): IPublicAppMainAPI => {
     ...api,
     plugin: {
       openPreferences,
-      getPreferenceValues
+      getPreferenceValues,
+      enterCommand(pluginName: string, commandName: string, matchData: ICommandMatchData) {
+        return enterCommandByName(pluginName, commandName, matchData)
+      }
     }
   }
 }
@@ -214,6 +228,12 @@ export const createPluginAPI = (plugin: string): IPublicAppPluginAPI => {
       },
       getPreferenceValues(commandName) {
         return getPreferenceValues(plugin, commandName);
+      },
+      enterCommand(commandName, pluginName, matchData) {
+        if (typeof pluginName === 'string') {
+          return enterCommandByName(pluginName, commandName, matchData)
+        }
+        return enterCommandByName(plugin, commandName, matchData)
       },
     },
     storage: {

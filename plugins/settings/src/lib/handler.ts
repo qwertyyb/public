@@ -42,19 +42,9 @@ const registerCommandShortcuts = (plugins: Map<string, IRunningPlugin>) => {
       const shortcuts = commandSettings?.shortcuts
       if (!shortcuts) return
       const handler = () => {
-        const plugin = window.pluginManager?.getPlugins().get(pluginName);
-        if (plugin && command) {
-          api.mainWindow.show();
-          window.pluginManager?.enterPluginCommand(plugin, command, {
-            owner: plugin,
-            score: 1,
-            from: "hotkey",
-            keyword: "",
-            query: "",
-          });
-        }
+        window.PublicApp.mainAPI.plugin.enterCommand(pluginName, command.name, { from: 'hotkey', score: 0, keyword: '', query: '' })
+        api.mainWindow.show();
       };
-      shortcutsHandlers.set(shortcuts, handler);
       api.shortcuts.register(shortcuts, handler);
     })
   })
@@ -148,16 +138,12 @@ const handlers = {
       .get(plugin);
     const original = pluginInstance?.settings?.commands?.[command]
     if (original?.shortcuts && original.shortcuts !== settings.shortcuts && shortcutsHandlers.get(original.shortcuts)) {
-      api.shortcuts.unregister(original.shortcuts, shortcutsHandlers.get(original.shortcuts)!)
+      api.shortcuts.unregister(original.shortcuts)
       shortcutsHandlers.delete(original.shortcuts)
     }
     if (settings.shortcuts && pluginInstance) {
       shortcutsHandlers.set(settings.shortcuts, () => {
-        window.pluginManager?.enterPluginCommand(
-          pluginInstance,
-          pluginInstance?.commands.find((c) => c.name === command)!,
-          { owner: pluginInstance, score: 1, from: "hotkey", keyword: "", query: "" }
-        );
+        window.PublicApp.mainAPI.plugin.enterCommand(plugin, command, { from: 'hotkey', keyword: '', query: '', score: 1 })
         api.mainWindow.show();
       })
       api.shortcuts.register(settings.shortcuts, shortcutsHandlers.get(settings.shortcuts)!)

@@ -56,7 +56,7 @@
               <el-icon class="plugin-expand-icon"
                 :size="14"
                 @click="onExpandPluginClick(plugin)"
-                :class="{ expanded: expand[plugin.manifest.name] }"
+                :class="{ expanded: expand[plugin.manifest.name], hidden: plugin.commands.length <= 0 }"
               ><ArrowRightBold /></el-icon>
               <img :src="plugin.manifest.icon" alt="" class="plugin-icon">
               <div class="plugin-info">
@@ -139,7 +139,7 @@ import { ElMessage, ElButton, ElSelect, ElSwitch, ElOption, ElInput, ElForm, ElF
 import { ArrowRightBold, Plus, Delete, Operation } from '@element-plus/icons-vue';
 import ShortcutsRecorder from '@/components/ShortcutsRecorder.vue';
 import type { ICommandSettings, IPluginCommand, IRunningPlugin } from '@public/shared';
-import { getSettings, updateSettings, getPlugins, openPreferences, removePlugin, updateCommandSettings, updatePluginSettings } from '@/services/settings';
+import { getSettings, updateSettings, getPlugins, openPreferences, removePlugin, updateCommandSettings, updatePluginSettings, unregisterShortcuts, registerCommandShortcuts } from '@/services/settings';
 import { onPageEnter, useRouter } from '@/router/hooks';
 
 const views = ref({
@@ -205,6 +205,15 @@ const onPluginDisabledChange = async (enabled: boolean, plugin: IRunningPlugin) 
   refreshSettings()
 }
 const onCommandChange = async (values: Partial<ICommandSettings>, plugin: IRunningPlugin, command: IPluginCommand) => {
+  if ('shortcuts' in values) {
+    const original = plugin.settings?.commands?.[command.name]?.shortcuts
+    if (original) {
+      unregisterShortcuts(original)
+    }
+    if (values.shortcuts) {
+      registerCommandShortcuts(values.shortcuts, plugin.manifest.name, command.name)
+    }
+  }
   plugin.settings!.commands![command.name] = { ...plugin.settings!.commands![command.name], ...values }
   await updateCommandSettings(plugin.manifest.name, command.name, { ...values })
   refreshSettings()
@@ -333,6 +342,9 @@ onPageEnter(() => {
   }
   .plugin-expand-icon {
     transition: transform .2s;
+    &.hidden {
+      visibility: hidden;
+    }
   }
   .plugin-expand-icon.expanded {
     transform: rotate(90deg);

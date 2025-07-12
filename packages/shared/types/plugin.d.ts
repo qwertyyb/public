@@ -53,7 +53,7 @@ export interface IRegExpPluginCommandMatch {
 
 export type IPluginCommandMatch = ITextPluginCommandMatch | ITriggerPluginCommandMatch | IFullPluginCommandMatch | IRegExpPluginCommandMatch
 
-interface ICommandBaseMatchData { owner: IRunningPlugin, keyword: string, score: number, query: string }
+interface ICommandBaseMatchData { keyword: string, score: number, query: string }
 
 interface ICommandTextMatchData extends ICommandBaseMatchData { from: 'match', match: ITextPluginCommandMatch, matchData: { keyword: string } }
 

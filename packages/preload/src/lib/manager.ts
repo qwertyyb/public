@@ -1,9 +1,8 @@
 import * as nodePath from 'path'
 import * as fs from 'fs'
-import domain from 'domain'
 import Ajv from 'ajv';
 import schema from './public.schema.json' 
-import { ICommandSettings, IPlugin, IPluginCommand, IPluginCommandConfig, IPluginManifest, IPluginManifestConfig, IPluginReturn, IPluginSettings, IPluginsSettings, IRunningPlugin, ITextPluginCommandMatch } from '@public/shared'
+import { ICommandMatchData, ICommandSettings, IPlugin, IPluginCommand, IPluginCommandConfig, IPluginManifest, IPluginManifestConfig, IPluginReturn, IPluginSettings, IPluginsSettings, IRunningPlugin, ITextPluginCommandMatch } from '@public/shared'
 import { hanziToPinyin } from '@public/utils';
 import { joinPath } from './utils';
 import { getItem, setItem } from './storage';
@@ -310,3 +309,22 @@ export const updateCommandPreferences = (pluginName: string, commandName: string
   save()
 }
 
+export const enterCommand = async (owner: IRunningPlugin, command: IPluginCommand, matchData: ICommandMatchData) => {
+  if (command.mode === 'none' || !command.mode) {
+    owner.plugin?.onEnter?.(command, matchData)
+  } else if (command.mode === 'listView') {
+    const mod = __non_webpack_require__(command.preload)
+    window.publicAppCommand = mod.default || mod
+    window.dispatchEvent(new CustomEvent('push-view', { detail: { path: '/plugin/list-view', params: { command, plugin: owner, match: matchData } } }))
+  } else if (command.mode === 'view') {
+    window.dispatchEvent(new CustomEvent('push-view', { detail: { path: '/plugin/view', params: { plugin: owner, command, match: matchData } } }))
+  }
+}
+
+export const enterCommandByName = (pluginName: string, commandName: string, matchData: ICommandMatchData) => {
+  const plugin = plugins.get(pluginName)
+  if (!plugin) return;
+  const command = plugin.commands.find(item => item.name === commandName)
+  if (!command) return;
+  return enterCommand(plugin, command, matchData)
+}

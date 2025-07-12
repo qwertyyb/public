@@ -1,4 +1,4 @@
-import { PublicAppBaseAPI, PublicAppMainAPI, PublicAppPluginAPI } from './api'
+import { PublicAppBaseAPI, IPublicAppMainAPI, PublicAppPluginAPI } from './api'
 import { IActionItem, ICommandMatchData, ICommandSettings, IListItem, IPluginCommand, IPluginCommandListView, IPluginSettings, IPluginsSettings, IRunningPlugin } from './plugin'
 import { PortBridge } from './utils'
 import { IWebview, IWebviewElement, IWebviewEventMap, IWebviewTagAttributes } from './webview'
