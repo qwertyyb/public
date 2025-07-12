@@ -31,7 +31,7 @@ ul, ol {
   list-style: none;
 }
 
-:root {
+html, html.dark {
   --border-color: #eaeaea;
 
   --selected-bg-color: rgba(0, 128, 0, 0.4);
@@ -40,4 +40,5 @@ ul, ol {
   --el-color-primary-light-5: #aabeaa;
   --el-border-color: #8d8d8d;
   --el-border-color-hover: #737373;
+  --el-fill-color-blank: transparent;
 }

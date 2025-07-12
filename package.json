@@ -8,7 +8,11 @@
   },
   "build": {
     "appId": "cn.qwertyyb.public",
-    "asar": false,
+    "asar": true,
+    "asarUnpack": [
+      "dist/native_modules/**/*"
+    ],
+    "npmRebuild": false,
     "files": [
       "dist/**/*",
       "assets/**/*",

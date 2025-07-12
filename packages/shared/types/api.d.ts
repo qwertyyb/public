@@ -46,6 +46,12 @@ export interface IPublicAppBaseAPI {
     pathJoin: typeof path.join
   },
 
+  clipboard: {
+    readText: () => string
+    readHTML: () => string
+    paste: (content?: string | { html: string }) => Promise<void>
+  }
+
   shortcuts: {
     register: (shortcuts: string, callback: () => void) => Promise<void>,
     unregister: (shortcuts: string) => Promise<void>

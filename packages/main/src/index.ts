@@ -114,7 +114,8 @@ export class CoreApp {
       hiddenInMissionControl: true,
       skipTaskbar: true,
       roundedCorners: true,
-      vibrancy: 'popover',
+      // vibrancy: 'popover',
+      vibrancy: 'under-window',
       visualEffectState: 'followWindow',
     })
     // @ts-ignore

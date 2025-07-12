@@ -93,7 +93,7 @@ defineEmits<{
 .itemSubtitle {
   font-size: 12px;
   font-weight: normal;
-  opacity: 0.6;
+  opacity: 0.7;
   height: 16px;
   white-space: pre;
   font-size: 500;

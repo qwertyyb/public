@@ -53,7 +53,7 @@ if (typeof window.publicAppCommand?.enter === 'function') {
   }, { command: toRaw(props.command) })
 }
 
-watch(keyword, window.publicApp.utils.debounce((value) => {
+watch(keyword, window.publicApp.utils.debounce((value: string) => {
   if (!window.publicAppCommand?.search) return;
   loadingCount.value += 1
   try {

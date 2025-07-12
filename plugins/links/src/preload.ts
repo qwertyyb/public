@@ -52,7 +52,7 @@ const createLinksPlugins: IPlugin = () => {
           subtitle: query,
           url: link.url.replaceAll('$query', query ? encodeURIComponent(query) : ''),
           icon: getFavicon(link.url),
-          score: match ? undefined : 0.00001
+          score: match ? 0.001 : 0.00001
         }
       })
     },

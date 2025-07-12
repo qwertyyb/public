@@ -8,8 +8,16 @@
       </div>
     </div>
     <div class="chat-input">
-      <textarea autofocus v-model="userInput" @keyup="keyUpHandler" placeholder="请AI帮你执行任务" ref="textarea"></textarea>
-      <button @click="sendMessage">发送</button>
+      <el-input type="textarea"
+        autofocus
+        v-model="userInput"
+        @keydown="keyDownHandler"
+        placeholder="请AI帮你执行任务"
+        ref="textarea"
+        class="user-input"
+        autosize
+      ></el-input>
+      <el-button @click="sendMessage" class="send-btn" type="primary">发送</el-button>
     </div>
   </div>
 </template>
@@ -18,16 +26,17 @@
 import { ref, nextTick, toRaw, useTemplateRef } from 'vue';
 import OpenAI from 'openai';
 import MarkdownIt from 'markdown-it';
+import { ElInput, ElButton } from 'element-plus';
 import { onPageEnter } from '@/router/hooks';
+import { isKeyPressed } from '@/utils/keyboard';
+import { AI_ASSISTANT_PROMPT, AI_TOOLS_DEFINITIONS, AI_TOOLS } from '@/const';
 
 const props = defineProps<{ query?: string }>()
-
-const systemPrompt = `你是一名Mac电脑专家，擅长使用Bash和AppleScript脚本，只能使用这些工具解决问题。但如果用户的请求是你自身可以通过理解和语言能力完成的(例如翻译、润色、理解、写作等)，你应当直接回答，不调用任何脚本或工具。你不允许仅仅提供口头建议，而是必须使用脚本代码直接获取信息或执行操作。遇到需要用户输入或选择的场景，必须通过AppleScript弹窗完成，不允许使用文字提示。你拥有一系列可调用的工具(function call)，请在需要时选择合适的工具调用。输出的内容要尽量简洁，符合即时反馈的要求。你知道用户通常使用Chrome浏览器，请在涉及网页或文件打开时优先考虑Chrome浏览器。`
 
 const md = new MarkdownIt();
 const messages = ref<OpenAI.ChatCompletionMessageParam[]>([{
   role: 'system',
-  content: systemPrompt,
+  content: AI_ASSISTANT_PROMPT,
 }]);
 const userInput = ref<string>(props.query || '');
 const textarea = useTemplateRef('textarea')
@@ -81,63 +90,28 @@ const client = new OpenAI({
 
 const getLastMessage = () => messages.value[messages.value.length - 1]
 
-const tools: OpenAI.ChatCompletionTool[] = [
-  {
-    type: 'function',
-    function: {
-      name: 'runBashCommand',
-      description: '运行 bash 命令',
-      parameters: {
-        type: 'object',
-        properties: {
-          command: {
-            type: 'string',
-            description: '要运行的 bash 命令'
-          }
-        },
-        required: ['command']
-      }
-    }
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'runAppleScript',
-      description: '运行 AppleScript',
-      parameters: {
-        type: 'object',
-        properties: {
-          script: {
-            type: 'string',
-            description: '要运行的 AppleScript'
-          }
-        },
-        required: ['script']
-      }
-    }
-  }
-];
-
 const runTools = async (toolCall: OpenAI.ChatCompletionMessageToolCall) => {
-  const args = JSON.parse(toolCall.function.arguments)
-  try {
-    if (toolCall.function.name === 'runBashCommand') {
-      return await runBashCommand(args.command);
-    } else if (toolCall.function.name === 'runAppleScript') {
-      return await runAppleScript(args.script);
+  if (toolCall.function.name in AI_TOOLS) {
+    const args = toolCall.function.arguments ? JSON.parse(toolCall.function.arguments) : undefined
+    try {
+      const result = await AI_TOOLS[toolCall.function.name as keyof typeof AI_TOOLS](args)
+      if (!result) return ''
+      if (typeof result === 'string') return result
+      return JSON.stringify(result)
+    } catch (err) {
+      console.error(err)
+      return `调用${toolCall.function.name}失败，失败信息如下， ${String(err)}`
     }
-  } catch (err) {
-    console.error(err)
-    return `调用${toolCall.function.name}工具失败, ${err}`
+  } else {
+    return `工具${toolCall.function.name}不存在，无法调用`
   }
-  return `无法调用${toolCall.function.name}工具`
 }
 
 const ask = async () => {
   const completion = await client.chat.completions.create({
     model: preferences.model,
     messages: toRaw(messages.value),
-    tools: tools,
+    tools: AI_TOOLS_DEFINITIONS,
     tool_choice: 'auto',
     stream: true,
   }).catch(err => {
@@ -209,38 +183,23 @@ const sendMessage = async (): Promise<void> => {
   await ask();
 };
 
-const keyUpHandler = (e: KeyboardEvent) => {
-  if (e.key === 'Enter') {
+const keyDownHandler = (e: KeyboardEvent | Event) => {
+  if (!(e instanceof KeyboardEvent)) return;
+  if (isKeyPressed(e, 'Enter')) {
+    e.preventDefault()
     sendMessage();
     return;
   }
-  if (e.key === 'Escape' && userInput.value) {
-    userInput.value = '';
-    return;
-  }
-  if (e.key === 'Escape') {
-    window.publicApp.mainWindow.popToRoot()
-    return
+  if (isKeyPressed(e, 'Escape')) {
+    if (userInput.value) {
+      userInput.value = ''
+      return;
+    } else {
+      window.publicApp.mainWindow.popToRoot()
+      return
+    }
   }
 }
-
-const runBashCommand = async (command: string): Promise<string> => {
-  // Implement bash command execution logic here
-  // This is a mock implementation
-  return window.publicApp.runBashCommand(command).catch((err: Error) => {
-    console.error(err);
-    return `运行命令失败: ${err.message}`;
-  });
-};
-
-const runAppleScript = async (script: string): Promise<string> => {
-  // Implement AppleScript execution logic here
-  // This is a mock implementation
-  return window.publicApp.runAppleScript(script).catch((err: Error) => {
-    console.error(err);
-    return `运行脚本失败: ${err.message}`;
-  });
-};
 
 onPageEnter(async () => {
   await nextTick()
@@ -353,34 +312,14 @@ onPageEnter(async () => {
 .chat-input {
   display: flex;
   padding: 12px;
-  border-top: 1px solid light-dark(#bbb, #ddd);
+  border-top: 1px solid light-dark(#bbb, rgba(255, 255, 255, 0.2));
 }
 
-textarea {
+.user-input {
   flex: 1;
-  padding: 8px;
-  border: 1px solid light-dark(#bbb, #ddd);
-  border-radius: 4px;
-  resize: none;
-  height: 40px;
-  // background: none;
-  color: light-dark(#000, #fff);
-  // &::placeholder {
-  //   color: light-dark(rgba(0,0,0,0.3), rgba(255,255,255,0.3));
-  // }
 }
 
-button {
+.send-btn {
   margin-left: 8px;
-  padding: 4px 16px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #45a049;
 }
 </style>

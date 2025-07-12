@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import VirtualList from 'vue-virtual-list-v3';
+import 'element-plus/theme-chalk/dark/css-vars.css'
 import App from './App.vue'
 import './style.css'
 

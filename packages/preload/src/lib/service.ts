@@ -92,7 +92,7 @@ export const calcCommandMatchInfo = (keyword: string, command: IPluginCommand, o
   const titleMatch = command.title && match(keyword, command.title)
   if (titleMatch && titleMatch.score > 0) {
     const result = { ...command, title: titleMatch.markedText }
-    return { result, matchInfo: { from: 'alias', query: keyword, score: titleMatch.score, keyword } } as {
+    return { result, matchInfo: { from: 'alias', query: '', score: titleMatch.score, keyword } } as {
       result: IPluginCommand,
       matchInfo: Omit<ICommandAliasMatchData, 'owner'>
     }
@@ -105,7 +105,7 @@ export const calcCommandMatchInfo = (keyword: string, command: IPluginCommand, o
       result,
       matchInfo: {
         from: "alias",
-        query: keyword,
+        query: '',
         score: subtitleMatch.score,
         keyword,
       },

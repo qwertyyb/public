@@ -1,5 +1,5 @@
 import { openCommandPreferences, openPluginPreferences, popToRoot, pushView } from './utils';
-import { ipcRenderer } from 'electron'
+import { clipboard, ipcRenderer } from 'electron'
 import { IWebview, IWebviewTagAttributes, IPublicAppBaseAPI, IPublicAppMainAPI, IPublicAppPluginAPI, ICommandMatchData } from '@public/shared'
 import { runAppleScript } from 'run-applescript'
 
@@ -116,6 +116,23 @@ const createBaseAPI = (): IPublicAppBaseAPI => {
       getCurrentPath,
       hanziToPinyin,
       pathJoin: path.join,
+    },
+    clipboard: {
+      readText() {
+        return clipboard.readText()
+      },
+      readHTML() {
+        return clipboard.readHTML()
+      },
+      paste: async (content?: string | { html: string }) => {
+        if (typeof content === 'string') {
+          clipboard.writeText(content)
+        } else if (content?.html) {
+          clipboard.writeHTML(content.html)
+        }
+        await window.publicApp.mainWindow.hide();
+        ipcRenderer.invoke("keyboard.type", "LeftCmd", "V");
+      }
     },
     showToast(options: {
       title?: string;
