@@ -1,7 +1,7 @@
 import { createMainAPI, createPluginAPI } from './lib/api'
 import { createDraggable } from './lib/draggable'
 import { registerPlugin, unregisterPlugin, disablePlugin, disablePluginCommand, updatePluginsSettings, getPlugins, updatePluginPreferences, updateCommandPreferences, getPlugin, updatePluginSettings, updateCommandSettings, launchPlugins, getPluginPreferences, getCommandPreferences } from "./lib/manager"
-import { handleQuery, handleSelect, handleEnter, handleAction, enterPluginCommand } from "./lib/service"
+import { handleQuery, handleSelect, handleEnter, handleAction } from "./lib/service"
 
 createDraggable()
 
@@ -33,8 +33,6 @@ window.pluginManager = {
   handleSelect,
   handleEnter,
   handleAction,
-
-  enterPluginCommand,
 }
 
 launchPlugins()

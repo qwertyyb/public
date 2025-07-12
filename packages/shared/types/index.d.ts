@@ -38,8 +38,6 @@ export interface IPluginManager {
   handleEnter: (command: IPluginCommand) => void,
   handleAction: (command: IPluginCommand, action: IActionItem, keyword: string) => void,
   handleSelect: (command: IPluginCommand, keyword: string) => string | HTMLElement | Promise<string | HTMLElement | undefined> | undefined,
-
-  enterPluginCommand: (owner: IRunningPlugin, command: IPluginCommand, matchData: ICommandMatchData) => void
 }
 
 export interface ISettings {

@@ -1,6 +1,6 @@
-import { IActionItem, ICommandAliasMatchData, ICommandFullMatchData, ICommandMatchData, ICommandRegExpMatchData, ICommandTextMatchData, ICommandTriggerMatchData, IFullPluginCommandMatch, IPluginCommand, IPreference, IRegExpPluginCommandMatch, IRunningPlugin, ITextPluginCommandMatch, ITriggerPluginCommandMatch } from '@public/shared'
+import { IActionItem, ICommandAliasMatchData, ICommandFullMatchData, ICommandMatchData, ICommandRegExpMatchData, ICommandTextMatchData, ICommandTriggerMatchData, IFullPluginCommandMatch, IPluginCommand, IRegExpPluginCommandMatch, IRunningPlugin, ITextPluginCommandMatch, ITriggerPluginCommandMatch } from '@public/shared'
 import { enterCommand, getPlugins } from './manager';
-import { joinPath, openCommandPreferences, openPluginPreferences, popView } from './utils';
+import { joinPath } from './utils';
 import { hanziToPinyin } from '@public/utils';
 
 // 计算匹配分数，越大表示匹配度越高，最大为1
@@ -219,40 +219,10 @@ export const handleSelect = (command: IPluginCommand, keyword: string) => {
   return rp?.owner.plugin?.onSelect?.(command, rp)
 }
 
-
-const checkRequired = (preferences: IPreference[], values: Record<string, any>) => {
-  const requiredFields = preferences.filter(i => i.required) || []
-  return requiredFields.every(item => values[item.name] || values[item.name] === 0)
-}
-
-const checkPreferences = async (owner: IRunningPlugin, command: IPluginCommand) => {
-  // 首先需要判断插件层级的必须首选项是否已填写，再检查 command 层级的首选项
-  let count = 0
-  if (!checkRequired(owner.manifest.preferences || [], owner.settings?.preferences || {})) {
-    count += 1
-    await openPluginPreferences(owner.manifest.name, { wait: true })
-  }
-  if (!checkRequired(command.preferences || [], owner.settings?.commands[command.name]?.preferences || {})) {
-    count += 1
-    await openCommandPreferences(owner.manifest.name, command.name, { wait: true })
-  }
-  return count
-}
-
-export const enterPluginCommand = async (owner: IRunningPlugin, command: IPluginCommand, matchData: ICommandMatchData) => {
-  // 判断一下组件所需的首选项是否都已填写，如果都已填写，则直接执行，否则跳转去配置
-  // 首先需要判断插件层级的必须首选项是否已填写，再检查 command 层级的首选项
-  const count = await checkPreferences(owner, command)
-  if (count) {
-    popView({ count })
-  }
-  return enterCommand(owner, command, matchData)
-}
-
 export const handleEnter = (command: IPluginCommand) => {
   const rp = resultsMap.get(command)
   if (!rp) return
-  enterPluginCommand(rp.owner, command, rp)
+  enterCommand(rp.owner, command, rp)
 }
 
 export const handleAction = (command: IPluginCommand, action: IActionItem, keyword: string) => {

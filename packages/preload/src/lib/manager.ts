@@ -2,9 +2,9 @@ import * as nodePath from 'path'
 import * as fs from 'fs'
 import Ajv from 'ajv';
 import schema from './public.schema.json' 
-import { ICommandMatchData, ICommandSettings, IPlugin, IPluginCommand, IPluginCommandConfig, IPluginManifest, IPluginManifestConfig, IPluginReturn, IPluginSettings, IPluginsSettings, IRunningPlugin, ITextPluginCommandMatch } from '@public/shared'
+import { ICommandMatchData, ICommandSettings, IPlugin, IPluginCommand, IPluginCommandConfig, IPluginManifest, IPluginManifestConfig, IPluginReturn, IPluginSettings, IPluginsSettings, IPreference, IRunningPlugin, ITextPluginCommandMatch } from '@public/shared'
 import { hanziToPinyin } from '@public/utils';
-import { joinPath } from './utils';
+import { joinPath, openCommandPreferences, openPluginPreferences, popView } from './utils';
 import { getItem, setItem } from './storage';
 
 const ajv = new Ajv({ allowUnionTypes: true })
@@ -309,7 +309,32 @@ export const updateCommandPreferences = (pluginName: string, commandName: string
   save()
 }
 
+const checkRequired = (preferences: IPreference[], values: Record<string, any>) => {
+  const requiredFields = preferences.filter(i => i.required) || []
+  return requiredFields.every(item => values[item.name] || values[item.name] === 0)
+}
+
+const checkPreferences = async (owner: IRunningPlugin, command: IPluginCommand) => {
+  // 首先需要判断插件层级的必须首选项是否已填写，再检查 command 层级的首选项
+  let count = 0
+  if (!checkRequired(owner.manifest.preferences || [], owner.settings?.preferences || {})) {
+    count += 1
+    await openPluginPreferences(owner.manifest.name, { wait: true })
+  }
+  if (!checkRequired(command.preferences || [], owner.settings?.commands[command.name]?.preferences || {})) {
+    count += 1
+    await openCommandPreferences(owner.manifest.name, command.name, { wait: true })
+  }
+  return count
+}
+
 export const enterCommand = async (owner: IRunningPlugin, command: IPluginCommand, matchData: ICommandMatchData) => {
+  // 判断一下组件所需的首选项是否都已填写，如果都已填写，则直接执行，否则跳转去配置
+  // 首先需要判断插件层级的必须首选项是否已填写，再检查 command 层级的首选项
+  const count = await checkPreferences(owner, command)
+  if (count) {
+    popView({ count })
+  }
   if (command.mode === 'none' || !command.mode) {
     owner.plugin?.onEnter?.(command, matchData)
   } else if (command.mode === 'listView') {
