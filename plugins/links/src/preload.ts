@@ -13,19 +13,19 @@ const defaultLinks: ILink[] = [
   {
     triggers: ['gg', 'google'],
     title: 'google',
-    url: 'https://www.google.com/search?q=${keyword}',
+    url: 'https://www.google.com/search?q=$query',
     fallback: true,
   },
   {
     triggers: ['bd', 'baidu'],
     title: 'baidu',
-    url: 'https://www.baidu.com/s?wd=${keyword}',
+    url: 'https://www.baidu.com/s?wd=$query',
     fallback: true,
   },
   {
     triggers: ['bing'],
     title: 'bing',
-    url: 'https://www.bing.com/search?q=${keyword}',
+    url: 'https://www.bing.com/search?q=$query',
     fallback: true,
   }
 ]

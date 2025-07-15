@@ -90,6 +90,9 @@ importers:
       better-sqlite3:
         specifier: ^11.8.1
         version: 11.10.0
+      electron-log:
+        specifier: ^5.4.1
+        version: 5.4.1
       uiohook-napi:
         specifier: ^1.5.4
         version: 1.5.4
@@ -2652,6 +2655,10 @@ packages:
 
   electron-devtools-installer@3.2.1:
     resolution: {integrity: sha512-FaCi+oDCOBTw0gJUsuw5dXW32b2Ekh5jO8lI1NRCQigo3azh2VogsIi0eelMVrP1+LkN/bewyH3Xoo1USjO0eQ==}
+
+  electron-log@5.4.1:
+    resolution: {integrity: sha512-QvisA18Z++8E3Th0zmhUelys9dEv7aIeXJlbFw3UrxCc8H9qSRW0j8/ooTef/EtHui8tVmbKSL+EIQzP9GoRLg==}
+    engines: {node: '>= 14'}
 
   electron-notarize@1.2.2:
     resolution: {integrity: sha512-ZStVWYcWI7g87/PgjPJSIIhwQXOaw4/XeXU+pWqMMktSLHaGMLHdyPPN7Cmao7+Cr7fYufA16npdtMndYciHNw==}
@@ -8025,6 +8032,8 @@ snapshots:
       semver: 7.7.2
       tslib: 2.8.1
       unzip-crx-3: 0.2.0
+
+  electron-log@5.4.1: {}
 
   electron-notarize@1.2.2:
     dependencies:

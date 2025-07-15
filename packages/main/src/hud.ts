@@ -1,5 +1,6 @@
 import type { BaseWindow } from "electron"
 import { BrowserWindow } from "electron"
+import log from 'electron-log/main'
 
 // 创建Toast窗口的函数
 function createToast(message: string, duration = 2000, options: { mainWindow: BaseWindow }) {
@@ -91,5 +92,6 @@ function createToast(message: string, duration = 2000, options: { mainWindow: Ba
 
 
 export const showHUD = (title: string, options = { duration: 3000 }, args: { mainWindow: BaseWindow }) => {
+  log.info('showHUD', title, JSON.stringify(options))
   createToast(title, options.duration, { mainWindow: args.mainWindow }) 
 }

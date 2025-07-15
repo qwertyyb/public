@@ -67,7 +67,6 @@ const getPreview = async (item: T) => {
 // selectedIndex 变化时，滚动到选择位置，调用preview
 const calcActionKeyStartIndex = () => {
   if (!el.value) return;
-  (el.value.querySelector<HTMLElement>(`.result-item[data-result-item-index="${selectedIndex.value}"]`) as any)?.scrollIntoView({ inline: 'center', block: 'center', behavior: 'smooth' })
   const parentRect = el.value.querySelector('div.result-list')!.getBoundingClientRect()
   const els = el.value.querySelectorAll<HTMLElement>('.result-item[data-result-item-index]')
   let visibleIndexList: number[] = []
@@ -80,6 +79,10 @@ const calcActionKeyStartIndex = () => {
   })
   actionKeyStartIndex.value = visibleIndexList[0]
 }
+
+watch(selectedIndex, () => {
+  (el.value?.querySelector<HTMLElement>(`.result-item[data-result-item-index="${selectedIndex.value}"]`) as any)?.scrollIntoView({ inline: 'center', block: 'center', behavior: 'smooth' })
+})
 
 watch(selectedItem, (value) => {
   visibleActionIndex.value = -1

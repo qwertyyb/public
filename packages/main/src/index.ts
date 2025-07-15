@@ -5,8 +5,10 @@ import initIpc from './ipc'
 import initTray from './controller/trayController'
 import db from './controller/storageController'
 import { getConfig } from './config'
-import { registerIPublicProtocol } from './protocol'
+import { registerProtocol } from './protocol'
 import { pathToFileURL } from 'url'
+import log from 'electron-log/main'
+
 require('@electron/remote/main').initialize()
 
 const config = getConfig()
@@ -29,9 +31,9 @@ export class CoreApp {
       // this.createHeaderWindow()
 
       session.defaultSession.setDisplayMediaRequestHandler((request, callback) => {
-        console.log('request', request)
+        log.info('setDisplayMediaRequestHandler callback', request)
         desktopCapturer.getSources({ types: ['screen'] }).then((sources) => {
-          console.log(request, sources)
+          log.info('setDisplayMediaRequestHandler sources', sources)
           // Grant access to the first screen found.
           callback({ video: sources[0] })
         })
@@ -39,7 +41,7 @@ export class CoreApp {
         // Note: this is currently experimental. If the system picker
         // is available, it will be used and the media request handler
         // will not be invoked.
-      }, { useSystemPicker: true })
+      }, { useSystemPicker: false })
       
       this.electronApp.setAccessibilitySupportEnabled(true)
     
@@ -49,7 +51,7 @@ export class CoreApp {
 
       initIpc(this)
 
-      registerIPublicProtocol(protocol)
+      registerProtocol(protocol)
     })
     
     this.electronApp.on('window-all-closed', () => {
@@ -71,17 +73,13 @@ export class CoreApp {
         // Note: this is currently experimental. If the system picker
         // is available, it will be used and the media request handler
         // will not be invoked.
-      }, { useSystemPicker: true })
-    registerIPublicProtocol(ses.protocol)
+      }, { useSystemPicker: false })
+    registerProtocol(ses.protocol, ses)
   }
 
   private createAppSession() {
     const ses = session.fromPartition('publicApp')
     ses.registerPreloadScript({ type: 'frame', filePath: path.join(__dirname, './preload.main.js'), id: 'API' })
-    ses.protocol.handle('local', (request) => {
-      const filePath = request.url.slice('local://'.length)
-      return ses.fetch(pathToFileURL(path.resolve(__dirname, filePath)).toString())
-    })
     ses.setDisplayMediaRequestHandler((request, callback) => {
         console.log('request', request)
         desktopCapturer.getSources({ types: ['screen'] }).then((sources) => {
@@ -94,7 +92,7 @@ export class CoreApp {
         // is available, it will be used and the media request handler
         // will not be invoked.
       }, { useSystemPicker: true })
-    registerIPublicProtocol(ses.protocol)
+    registerProtocol(ses.protocol, ses)
     return ses
   }
 

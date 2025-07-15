@@ -31,7 +31,7 @@ ul, ol {
   list-style: none;
 }
 
-html, html.dark {
+html body, html.dark body {
   --border-color: #eaeaea;
 
   --selected-bg-color: rgba(0, 128, 0, 0.4);

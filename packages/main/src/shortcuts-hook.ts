@@ -1,4 +1,5 @@
 import EventEmitter from 'events'
+import log from 'electron-log/main'
 import { uIOhook, UiohookKey, UiohookKeyboardEvent } from 'uiohook-napi'
 
 // electron globalShortcut 不支持的，由 uiohook-napi 支持
@@ -68,12 +69,14 @@ const stop = () => {
 
 // shortcuts: Meta+Meta, Meta+A, Meta+Shift+V
 export const register = (shortcuts: string, callback: () => void) => {
+  log.info('register shortcuts hook', shortcuts)
   const eventName = shortcuts.split('+').sort().join('+')
   eventBus.on(eventName, callback)
   start()
   return true
 }
 export const unregister = (shortcuts: string) => {
+  log.info("unregister shortcuts hook", shortcuts);
   eventBus.removeAllListeners(shortcuts)
   const count = eventBus.eventNames().reduce((acc, eventName) => acc + eventBus.listenerCount(eventName), 0)
   if (!count) {
@@ -81,6 +84,7 @@ export const unregister = (shortcuts: string) => {
   }
 }
 export const unregisterAll = () => {
+  log.info("unregister all shortcuts hook");
   eventBus.removeAllListeners()
   stop()
 }
